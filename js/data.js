@@ -1,232 +1,132 @@
-/**
- * LOLワードウルフ - お題データ
- * League of Legendsをテーマにしたワードウルフゲームのお題ペア
- */
+// ========================================
+// LOL お題データ
+// ========================================
+// ワードウルフで使用するLOL関連のお題ペアデータ
 
-const TOPIC_PAIRS = {
-    // チャンピオン関連（20ペア）
-    champion: [
-        { citizen: "ヤスオ", wolf: "ヨネ" },
-        { citizen: "リー・シン", wolf: "ブラインドモンク" },
-        { citizen: "ルックス", wolf: "ガレン" },
-        { citizen: "ジンクス", wolf: "ケイトリン" },
-        { citizen: "ゼド", wolf: "カシオペア" },
-        { citizen: "アーリ", wolf: "ラックス" },
-        { citizen: "ドレイヴン", wolf: "ダリウス" },
-        { citizen: "イブリン", wolf: "ニダリー" },
-        { citizen: "ティーモ", wolf: "トリスターナ" },
-        { citizen: "アッシュ", wolf: "ヴェイン" },
-        { citizen: "マスター・イー", wolf: "ワーウィック" },
-        { citizen: "ブリッツクランク", wolf: "スレッシュ" },
-        { citizen: "アニー", wolf: "ティバーズ" },
-        { citizen: "リヴェン", wolf: "フィオラ" },
-        { citizen: "マルファイト", wolf: "ナサス" },
-        { citizen: "カタリナ", wolf: "タロン" },
-        { citizen: "ジャックス", wolf: "トランドル" },
-        { citizen: "エズリアル", wolf: "ルシアン" },
-        { citizen: "ソナ", wolf: "ソラカ" },
-        { citizen: "ランブル", wolf: "ハイマーディンガー" }
-    ],
-    
-    // アイテム関連（15ペア）
-    item: [
-        { citizen: "インフィニティエッジ", wolf: "ストームレイザー" },
-        { citizen: "ラバドンデスキャップ", wolf: "ヴォイドスタッフ" },
-        { citizen: "トリニティフォース", wolf: "ディヴァインサンダラー" },
-        { citizen: "ブラッククリーバー", wolf: "ゴアドリンカー" },
-        { citizen: "ガーディアンエンジェル", wolf: "ジョニャ" },
-        { citizen: "ソーサラーシューズ", wolf: "アイオニアブーツ" },
-        { citizen: "ラピッドファイアキャノン", wolf: "スタティックシヴ" },
-        { citizen: "ルインドキングブレード", wolf: "ブレードオブザルインドキング" },
-        { citizen: "モレロノミコン", wolf: "リアンドリーの苦悶" },
-        { citizen: "ソーンメイル", wolf: "ランデュイン" },
-        { citizen: "メジャイソウルスティーラー", wolf: "ダークシール" },
-        { citizen: "サンファイアイージス", wolf: "フロストファイアガントレット" },
-        { citizen: "エッセンスリーバー", wolf: "ナヴォリクイックブレード" },
-        { citizen: "デスダンス", wolf: "ステラックの篭手" },
-        { citizen: "ムーンストーンリニューアー", wolf: "シュレリアのレクイエム" }
-    ],
-    
-    // スキル・能力関連（15ペア）
-    skill: [
-        { citizen: "ブリンク", wolf: "ダッシュ" },
-        { citizen: "スタン", wolf: "ルート" },
-        { citizen: "サイレンス", wolf: "ディスアーム" },
-        { citizen: "ノックアップ", wolf: "ノックバック" },
-        { citizen: "インビジブル", wolf: "カモフラージュ" },
-        { citizen: "シールド", wolf: "バリア" },
-        { citizen: "ヒール", wolf: "リジェネ" },
-        { citizen: "スロー", wolf: "グラウンド" },
-        { citizen: "サプレッション", wolf: "スタン" },
-        { citizen: "パッシブ", wolf: "アクティブ" },
-        { citizen: "Qスキル", wolf: "Wスキル" },
-        { citizen: "Eスキル", wolf: "Rスキル" },
-        { citizen: "オンヒット", wolf: "スキルショット" },
-        { citizen: "エンパワー", wolf: "バフ" },
-        { citizen: "エグゼキュート", wolf: "トゥルーダメージ" }
-    ],
-    
-    // マップ・レーン関連（15ペア）
-    map: [
-        { citizen: "トップレーン", wolf: "ミッドレーン" },
-        { citizen: "ボットレーン", wolf: "トップレーン" },
-        { citizen: "ジャングル", wolf: "リバー" },
-        { citizen: "ブルーバフ", wolf: "レッドバフ" },
-        { citizen: "ドラゴン", wolf: "バロン" },
-        { citizen: "リフトヘラルド", wolf: "シャドーチェンジャー" },
-        { citizen: "タレット", wolf: "インヒビター" },
-        { citizen: "ネクサス", wolf: "インヒビター" },
-        { citizen: "ブッシュ", wolf: "リバー" },
-        { citizen: "レッドサイド", wolf: "ブルーサイド" },
-        { citizen: "クルーグ", wolf: "ラプター" },
-        { citizen: "ウルフ", wolf: "グロンプ" },
-        { citizen: "スカトル", wolf: "ハニーフルーツ" },
-        { citizen: "タワーダイブ", wolf: "ロームガンク" },
-        { citizen: "リコール", wolf: "テレポート" }
-    ],
-    
-    // スペル関連（8ペア）
-    spell: [
-        { citizen: "フラッシュ", wolf: "ゴースト" },
-        { citizen: "イグナイト", wolf: "テレポート" },
-        { citizen: "スマイト", wolf: "イグゾースト" },
-        { citizen: "ヒール", wolf: "バリア" },
-        { citizen: "クレンズ", wolf: "イグゾースト" },
-        { citizen: "イグナイト", wolf: "イグゾースト" },
-        { citizen: "テレポート", wolf: "フラッシュ" },
-        { citizen: "マーク", wolf: "ダッシュ" }
-    ]
+const wordData = {
+  // チャンピオン（20ペア）
+  champions: [
+    { majority: 'ヤスオ', minority: 'ヨネ' },
+    { majority: 'ジンクス', minority: 'ケイトリン' },
+    { majority: 'リー・シン', minority: 'ブラインドモンク' },
+    { majority: 'ルックス', minority: 'モルガナ' },
+    { majority: 'ゼド', minority: 'シェン' },
+    { majority: 'アッシュ', minority: 'セジュアニ' },
+    { majority: 'ダリウス', minority: 'ドレイヴン' },
+    { majority: 'ガレン', minority: 'ルクス' },
+    { majority: 'カタリナ', minority: 'タロン' },
+    { majority: 'アーリ', minority: 'イブリン' },
+    { majority: 'エズリアル', minority: 'ルシアン' },
+    { majority: 'ヴェイン', minority: 'カイサ' },
+    { majority: 'ティーモ', minority: 'トリスターナ' },
+    { majority: 'マスター・イー', minority: 'ワーウィック' },
+    { majority: 'ブリッツクランク', minority: 'スレッシュ' },
+    { majority: 'リヴェン', minority: 'イレリア' },
+    { majority: 'ジャックス', minority: 'フィオラ' },
+    { majority: 'マルファイト', minority: 'ガリオ' },
+    { majority: 'アニー', minority: 'ブランド' },
+    { majority: 'ソラカ', minority: 'ナミ' }
+  ],
+  
+  // アイテム（15ペア）
+  items: [
+    { majority: 'インフィニティエッジ', minority: 'ストームレイザー' },
+    { majority: 'トリニティフォース', minority: 'ディヴァインサンダラー' },
+    { majority: 'ブラッククリーバー', minority: 'ステラックの篭手' },
+    { majority: 'ガーディアンエンジェル', minority: 'ジョニャの砂時計' },
+    { majority: 'ルーデンテンペスト', minority: 'リアンドリーの苦悶' },
+    { majority: 'ラバドンデスキャップ', minority: 'ヴォイドスタッフ' },
+    { majority: 'ブラッドサースター', minority: 'シールドボウ' },
+    { majority: 'ガントレット', minority: 'サンファイアイージス' },
+    { majority: 'ソーンメイル', minority: 'フローズンハート' },
+    { majority: 'デッドマンプレート', minority: 'ランデュイン' },
+    { majority: 'ウィッツエンド', minority: 'ブレードオブザルーインドキング' },
+    { majority: 'ムーンストーンリニューアー', minority: 'シュレリアレクイエム' },
+    { majority: 'ゴアドリンカー', minority: 'ストライドブレイカー' },
+    { majority: 'クラーケンスレイヤー', minority: 'ゲイルフォース' },
+    { majority: 'サポートアイテム', minority: 'ワードストーン' }
+  ],
+  
+  // スキル・能力（15ペア）
+  skills: [
+    { majority: 'ブリンク', minority: 'ダッシュ' },
+    { majority: 'スタン', minority: 'ルート' },
+    { majority: 'ノックアップ', minority: 'ノックバック' },
+    { majority: 'スロウ', minority: 'グラウンド' },
+    { majority: 'サイレンス', minority: 'ディスアーム' },
+    { majority: 'シールド', minority: 'バリア' },
+    { majority: 'ライフスティール', minority: 'オムニヴァンプ' },
+    { majority: 'クリティカル', minority: 'レーシング' },
+    { majority: '物理防御', minority: '魔法防御' },
+    { majority: '攻撃速度', minority: '移動速度' },
+    { majority: 'マナ', minority: 'エナジー' },
+    { majority: 'パッシブ', minority: 'アクティブ' },
+    { majority: 'スキルショット', minority: 'ターゲット' },
+    { majority: 'エリア攻撃', minority: '単体攻撃' },
+    { majority: 'バフ', minority: 'デバフ' }
+  ],
+  
+  // マップ・レーン（15ペア）
+  map: [
+    { majority: 'トップレーン', minority: 'ミッドレーン' },
+    { majority: 'ボットレーン', minority: 'サポート' },
+    { majority: 'ジャングル', minority: 'ロースター' },
+    { majority: 'レッドバフ', minority: 'ブルーバフ' },
+    { majority: 'ドラゴン', minority: 'バロン' },
+    { majority: 'リフトヘラルド', minority: 'ボイド' },
+    { majority: 'タワー', minority: 'インヒビター' },
+    { majority: 'ネクサス', minority: 'クリスタル' },
+    { majority: 'リバー', minority: 'ジャングル' },
+    { majority: 'トライブッシュ', minority: 'ピクセルブッシュ' },
+    { majority: 'ベースキャンプ', minority: 'ファウンテン' },
+    { majority: 'マウンテンドラゴン', minority: 'クラウドドラゴン' },
+    { majority: 'オーシャンドラゴン', minority: 'インファーナルドラゴン' },
+    { majority: 'スカトル', minority: 'グロンプ' },
+    { majority: 'ラプター', minority: 'ウルフ' }
+  ],
+  
+  // スペル（8ペア）
+  spells: [
+    { majority: 'フラッシュ', minority: 'ゴースト' },
+    { majority: 'イグナイト', minority: 'テレポート' },
+    { majority: 'ヒール', minority: 'バリア' },
+    { majority: 'クレンズ', minority: 'エグゾースト' },
+    { majority: 'スマイト', minority: 'チャレンジャー' },
+    { majority: 'クラリティ', minority: 'マーク' },
+    { majority: '疾駆', minority: '俊敏' },
+    { majority: 'バースト', minority: 'プロテクト' }
+  ]
 };
 
-/**
- * カテゴリー名の日本語マップ
- */
-const CATEGORY_NAMES = {
-    champion: "チャンピオン",
-    item: "アイテム",
-    skill: "スキル・能力",
-    map: "マップ・レーン",
-    spell: "スペル"
+// カテゴリー名の定義
+const categoryNames = {
+  champions: 'チャンピオン',
+  items: 'アイテム',
+  skills: 'スキル・能力',
+  map: 'マップ・レーン',
+  spells: 'スペル'
 };
 
-/**
- * カテゴリーの説明
- */
-const CATEGORY_DESCRIPTIONS = {
-    champion: "LOLのプレイアブルキャラクター",
-    item: "ゲーム内で購入できる装備品",
-    skill: "チャンピオンの能力や効果",
-    map: "マップ上の場所やオブジェクト",
-    spell: "サモナースペル"
-};
-
-/**
- * 選択されたカテゴリーからランダムにお題ペアを取得
- * @param {string[]} categories - 選択されたカテゴリーの配列
- * @returns {Object} お題ペア { citizen: string, wolf: string, category: string }
- */
-function getRandomTopicPair(categories) {
-    if (!categories || categories.length === 0) {
-        throw new Error("少なくとも1つのカテゴリーを選択してください");
-    }
-    
-    // 全カテゴリーからお題を集める
-    const allPairs = [];
+// お題をランダムに選択する関数
+function getRandomTopic(categories) {
+  // 選択されたカテゴリーからお題を集める
+  let allTopics = [];
+  
+  if (categories.length === 0 || categories.includes('all')) {
+    // すべてのカテゴリーから選択
+    Object.values(wordData).forEach(categoryData => {
+      allTopics = allTopics.concat(categoryData);
+    });
+  } else {
+    // 選択されたカテゴリーのみ
     categories.forEach(category => {
-        if (TOPIC_PAIRS[category]) {
-            TOPIC_PAIRS[category].forEach(pair => {
-                allPairs.push({
-                    ...pair,
-                    category: category
-                });
-            });
-        }
+      if (wordData[category]) {
+        allTopics = allTopics.concat(wordData[category]);
+      }
     });
-    
-    if (allPairs.length === 0) {
-        throw new Error("有効なお題が見つかりません");
-    }
-    
-    // ランダムに1つ選択
-    const randomIndex = Math.floor(Math.random() * allPairs.length);
-    return allPairs[randomIndex];
-}
-
-/**
- * カテゴリー内のお題数を取得
- * @param {string} category - カテゴリー名
- * @returns {number} お題数
- */
-function getTopicCount(category) {
-    return TOPIC_PAIRS[category] ? TOPIC_PAIRS[category].length : 0;
-}
-
-/**
- * 全カテゴリーのお題数を取得
- * @returns {Object} カテゴリーごとのお題数
- */
-function getAllTopicCounts() {
-    const counts = {};
-    Object.keys(TOPIC_PAIRS).forEach(category => {
-        counts[category] = getTopicCount(category);
-    });
-    return counts;
-}
-
-/**
- * 総お題数を取得
- * @param {string[]} categories - カテゴリーの配列（省略時は全カテゴリー）
- * @returns {number} 総お題数
- */
-function getTotalTopicCount(categories = null) {
-    if (categories) {
-        return categories.reduce((total, category) => {
-            return total + getTopicCount(category);
-        }, 0);
-    }
-    return Object.values(TOPIC_PAIRS).reduce((total, pairs) => {
-        return total + pairs.length;
-    }, 0);
-}
-
-/**
- * カテゴリーの一覧を取得
- * @returns {string[]} カテゴリー名の配列
- */
-function getCategories() {
-    return Object.keys(TOPIC_PAIRS);
-}
-
-/**
- * カテゴリーの日本語名を取得
- * @param {string} category - カテゴリー名
- * @returns {string} 日本語カテゴリー名
- */
-function getCategoryName(category) {
-    return CATEGORY_NAMES[category] || category;
-}
-
-/**
- * カテゴリーの説明を取得
- * @param {string} category - カテゴリー名
- * @returns {string} カテゴリーの説明
- */
-function getCategoryDescription(category) {
-    return CATEGORY_DESCRIPTIONS[category] || "";
-}
-
-// モジュールとしてエクスポート（必要に応じて）
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-        TOPIC_PAIRS,
-        CATEGORY_NAMES,
-        CATEGORY_DESCRIPTIONS,
-        getRandomTopicPair,
-        getTopicCount,
-        getAllTopicCounts,
-        getTotalTopicCount,
-        getCategories,
-        getCategoryName,
-        getCategoryDescription
-    };
+  }
+  
+  // ランダムに1つ選択
+  const randomIndex = Math.floor(Math.random() * allTopics.length);
+  return allTopics[randomIndex];
 }

@@ -1,625 +1,407 @@
-/**
- * LOLワードウルフ - UI制御
- * DOM操作とユーザーインタラクション
- */
+// ========================================
+// UI制御とメイン処理
+// ========================================
 
-// グローバル変数
-let gameState;
-let syncInterval;
+let currentGame = null;
+let currentPlayer = null;
+let currentRoomId = null;
+let gameTimer = null;
 
-/**
- * ページ読み込み時の初期化
- */
+// ページ読み込み時
 document.addEventListener('DOMContentLoaded', () => {
-    // ゲーム状態を初期化
-    gameState = new GameState();
-    
-    // イベントリスナーを設定
-    setupEventListeners();
-    
-    // URLパラメータをチェック（ルームIDが含まれている場合）
-    checkUrlParams();
-    
-    // ホーム画面を表示
-    showScreen('homeScreen');
+  // URL パラメータからルームIDを取得
+  const urlParams = new URLSearchParams(window.location.search);
+  const roomIdFromUrl = urlParams.get('room');
+  
+  if (roomIdFromUrl) {
+    document.getElementById('join-room-id').value = roomIdFromUrl;
+    showScreen('join-screen');
+  } else {
+    showScreen('home-screen');
+  }
+  
+  // イベントリスナー設定
+  setupEventListeners();
+  
+  // Firebase接続状態表示
+  updateConnectionStatus();
 });
 
-/**
- * イベントリスナーの設定
- */
+// イベントリスナー設定
 function setupEventListeners() {
-    // ホーム画面
-    document.getElementById('createRoomBtn').addEventListener('click', showRoomSetup);
-    document.getElementById('joinRoomForm').addEventListener('submit', handleJoinRoom);
-    
-    // ルーム設定画面
-    document.getElementById('roomSetupForm').addEventListener('submit', handleCreateRoom);
-    document.getElementById('cancelSetupBtn').addEventListener('click', () => showScreen('homeScreen'));
-    
-    // ルーム待機画面
-    document.getElementById('copyRoomIdBtn').addEventListener('click', copyRoomId);
-    document.getElementById('copyUrlBtn').addEventListener('click', copyShareUrl);
-    document.getElementById('startGameBtn').addEventListener('click', handleStartGame);
-    document.getElementById('leaveRoomBtn').addEventListener('click', handleLeaveRoom);
-    
-    // ゲーム画面
-    document.getElementById('chatForm').addEventListener('submit', handleSendMessage);
-    document.getElementById('startVoteBtn').addEventListener('click', handleStartVote);
-    document.getElementById('toggleChatBtn')?.addEventListener('click', toggleChat);
-    
-    // 投票画面
-    document.getElementById('cancelVoteBtn').addEventListener('click', () => {
-        gameState.gameStatus = 'playing';
-        showScreen('gameScreen');
-    });
-    document.getElementById('submitVoteBtn').addEventListener('click', handleSubmitVote);
-    
-    // 結果画面
-    document.getElementById('backToHomeBtn').addEventListener('click', handleBackToHome);
-    
-    // ルール説明モーダル
-    document.getElementById('rulesBtn').addEventListener('click', () => showModal('rulesModal'));
-    document.getElementById('closeRulesBtn').addEventListener('click', () => hideModal('rulesModal'));
-    document.getElementById('closeRulesBtn2').addEventListener('click', () => hideModal('rulesModal'));
-    
-    // モーダルの背景クリックで閉じる
-    document.getElementById('rulesModal').addEventListener('click', (e) => {
-        if (e.target.id === 'rulesModal') {
-            hideModal('rulesModal');
-        }
-    });
+  // ホーム画面
+  document.getElementById('create-room-btn').addEventListener('click', () => showScreen('create-screen'));
+  document.getElementById('join-room-btn').addEventListener('click', () => showScreen('join-screen'));
+  document.getElementById('rules-btn').addEventListener('click', showRules);
+  
+  // ルーム作成
+  document.getElementById('start-create-btn').addEventListener('click', createRoom);
+  document.getElementById('back-from-create-btn').addEventListener('click', () => showScreen('home-screen'));
+  
+  // ルーム参加
+  document.getElementById('start-join-btn').addEventListener('click', joinRoom);
+  document.getElementById('back-from-join-btn').addEventListener('click', () => showScreen('home-screen'));
+  
+  // 待機室
+  document.getElementById('start-game-btn').addEventListener('click', startGame);
+  document.getElementById('leave-room-btn').addEventListener('click', leaveRoom);
+  document.getElementById('copy-room-url-btn').addEventListener('click', copyRoomUrl);
+  
+  // ゲーム画面
+  document.getElementById('end-discussion-btn').addEventListener('click', () => showScreen('voting-screen'));
+  document.getElementById('send-message-btn').addEventListener('click', sendMessage);
+  document.getElementById('chat-input').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') sendMessage();
+  });
+  
+  // 投票画面
+  document.getElementById('confirm-vote-btn').addEventListener('click', confirmVote);
+  
+  // 結果画面
+  document.getElementById('play-again-btn').addEventListener('click', resetGame);
+  document.getElementById('back-to-home-btn').addEventListener('click', backToHome);
 }
 
-/**
- * URLパラメータをチェック
- */
-function checkUrlParams() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const roomId = urlParams.get('room');
-    
-    if (roomId && roomId.length === 6) {
-        // ルームIDが指定されている場合、参加フォームに自動入力
-        document.getElementById('roomIdInput').value = roomId;
-    }
-}
-
-/**
- * 画面を切り替え
- */
+// 画面切り替え
 function showScreen(screenId) {
-    // 全画面を非表示
-    document.querySelectorAll('.screen').forEach(screen => {
-        screen.classList.remove('active');
-    });
-    
-    // 指定画面を表示
-    document.getElementById(screenId).classList.add('active');
+  document.querySelectorAll('.screen').forEach(screen => {
+    screen.classList.remove('active');
+  });
+  document.getElementById(screenId).classList.add('active');
 }
 
-/**
- * モーダルを表示
- */
-function showModal(modalId) {
-    document.getElementById(modalId).classList.add('active');
+// ルーム作成
+async function createRoom() {
+  const playerName = document.getElementById('create-player-name').value.trim();
+  const playerCount = parseInt(document.getElementById('player-count').value);
+  const timer = parseInt(document.getElementById('timer').value);
+  
+  // カテゴリー選択
+  const categories = [];
+  document.querySelectorAll('input[name="category"]:checked').forEach(checkbox => {
+    categories.push(checkbox.value);
+  });
+  
+  if (!playerName) {
+    alert('プレイヤー名を入力してください');
+    return;
+  }
+  
+  if (categories.length === 0) {
+    alert('カテゴリーを1つ以上選択してください');
+    return;
+  }
+  
+  // ルームID生成
+  currentRoomId = generateRoomId();
+  currentPlayer = playerName;
+  
+  // ゲーム作成
+  currentGame = new GameState(currentRoomId);
+  const success = await currentGame.createRoom(playerName, {
+    playerCount,
+    timer,
+    categories
+  });
+  
+  if (success) {
+    // 待機室へ
+    showWaitingRoom();
+    currentGame.watch(updateWaitingRoom);
+  } else {
+    alert('ルーム作成に失敗しました');
+  }
 }
 
-/**
- * モーダルを非表示
- */
-function hideModal(modalId) {
-    document.getElementById(modalId).classList.remove('active');
+// ルーム参加
+async function joinRoom() {
+  const roomId = document.getElementById('join-room-id').value.trim();
+  const playerName = document.getElementById('join-player-name').value.trim();
+  
+  if (!roomId || !playerName) {
+    alert('ルームIDとプレイヤー名を入力してください');
+    return;
+  }
+  
+  currentRoomId = roomId;
+  currentPlayer = playerName;
+  currentGame = new GameState(roomId);
+  
+  try {
+    await currentGame.joinRoom(playerName);
+    showWaitingRoom();
+    currentGame.watch(updateWaitingRoom);
+  } catch (error) {
+    alert(error.message);
+  }
 }
 
-/**
- * トースト通知を表示
- */
-function showToast(message, duration = 3000) {
-    const toast = document.getElementById('toast');
-    toast.textContent = message;
-    toast.classList.add('show');
-    
-    setTimeout(() => {
-        toast.classList.remove('show');
-    }, duration);
-}
-
-/**
- * ルーム設定画面を表示
- */
-function showRoomSetup() {
-    showScreen('roomSetupScreen');
-}
-
-/**
- * ルーム作成を処理
- */
-function handleCreateRoom(e) {
-    e.preventDefault();
-    
-    // プレイヤー名を入力
-    const playerName = prompt('あなたの名前を入力してください:', 'プレイヤー1');
-    if (!playerName) return;
-    
-    // 設定を取得
-    const playerCount = parseInt(document.getElementById('playerCount').value);
-    const selectedCategories = Array.from(
-        document.querySelectorAll('input[name="category"]:checked')
-    ).map(cb => cb.value);
-    const discussionTime = parseInt(document.getElementById('discussionTime').value);
-    
-    if (selectedCategories.length === 0) {
-        showToast('少なくとも1つのカテゴリーを選択してください');
-        return;
-    }
-    
-    // ルームを作成
-    try {
-        const roomId = gameState.createRoom(playerName, {
-            playerCount,
-            categories: selectedCategories,
-            discussionTime
-        });
-        
-        showToast(`ルーム ${roomId} を作成しました！`);
-        showWaitingRoom();
-        startSync();
-    } catch (error) {
-        showToast('ルーム作成エラー: ' + error.message);
-    }
-}
-
-/**
- * ルーム参加を処理
- */
-function handleJoinRoom(e) {
-    e.preventDefault();
-    
-    const roomId = document.getElementById('roomIdInput').value.trim();
-    if (roomId.length !== 6) {
-        showToast('ルームIDは6桁の数字です');
-        return;
-    }
-    
-    // プレイヤー名を入力
-    const playerName = prompt('あなたの名前を入力してください:', 'プレイヤー');
-    if (!playerName) return;
-    
-    // ルームに参加
-    try {
-        gameState.joinRoom(roomId, playerName);
-        showToast(`ルーム ${roomId} に参加しました！`);
-        showWaitingRoom();
-        startSync();
-    } catch (error) {
-        showToast('参加エラー: ' + error.message);
-    }
-}
-
-/**
- * ルーム待機画面を表示
- */
+// 待機室表示
 function showWaitingRoom() {
-    showScreen('roomWaitingScreen');
-    
-    // ルームIDを表示
-    document.getElementById('displayRoomId').textContent = gameState.roomId;
-    
-    // 共有URLを生成
-    const shareUrl = `${window.location.origin}${window.location.pathname}?room=${gameState.roomId}`;
-    document.getElementById('shareUrl').value = shareUrl;
-    
-    // プレイヤーリストを更新
-    updatePlayersList();
-    
-    // ホストの場合のみゲーム開始ボタンを有効化
-    updateStartButton();
+  document.getElementById('room-id-display').textContent = currentRoomId;
+  document.getElementById('room-url-display').textContent = 
+    `${window.location.origin}${window.location.pathname}?room=${currentRoomId}`;
+  
+  showScreen('waiting-screen');
 }
 
-/**
- * プレイヤーリストを更新
- */
-function updatePlayersList() {
-    const playersList = document.getElementById('playersList');
-    playersList.innerHTML = '';
-    
-    gameState.players.forEach(player => {
-        const playerItem = document.createElement('div');
-        playerItem.className = 'player-item';
-        playerItem.innerHTML = `
-            <div class="player-info">
-                <span class="player-icon">👤</span>
-                <span class="player-name">${escapeHtml(player.name)}</span>
-            </div>
-            ${player.isHost ? '<span class="player-badge">ホスト</span>' : ''}
-        `;
-        playersList.appendChild(playerItem);
-    });
-    
-    // プレイヤー数を更新
-    document.getElementById('playerCountDisplay').textContent = 
-        `${gameState.players.length}/${gameState.settings.playerCount}`;
-}
-
-/**
- * ゲーム開始ボタンの状態を更新
- */
-function updateStartButton() {
-    const startBtn = document.getElementById('startGameBtn');
-    const canStart = gameState.isHost && 
-                     gameState.players.length >= 3 && 
-                     gameState.players.length <= gameState.settings.playerCount;
-    
-    startBtn.disabled = !canStart;
-}
-
-/**
- * ルームIDをコピー
- */
-function copyRoomId() {
-    const roomId = gameState.roomId;
-    copyToClipboard(roomId);
-    showToast('ルームIDをコピーしました！');
-}
-
-/**
- * 共有URLをコピー
- */
-function copyShareUrl() {
-    const shareUrl = document.getElementById('shareUrl').value;
-    copyToClipboard(shareUrl);
-    showToast('URLをコピーしました！');
-}
-
-/**
- * クリップボードにコピー
- */
-function copyToClipboard(text) {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text);
-    } else {
-        // フォールバック
-        const textarea = document.createElement('textarea');
-        textarea.value = text;
-        textarea.style.position = 'fixed';
-        textarea.style.opacity = '0';
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textarea);
-    }
-}
-
-/**
- * ゲーム開始を処理
- */
-function handleStartGame() {
-    try {
-        gameState.startGame();
-        showGameScreen();
-        showToast('ゲーム開始！');
-    } catch (error) {
-        showToast('ゲーム開始エラー: ' + error.message);
-    }
-}
-
-/**
- * ゲーム画面を表示
- */
-function showGameScreen() {
-    showScreen('gameScreen');
-    
-    // お題を表示
-    document.getElementById('topicDisplay').textContent = gameState.myTopic;
-    
-    // タイマーを開始
-    updateTimer();
-    
-    // チャットをクリア
-    document.getElementById('chatMessages').innerHTML = '';
-}
-
-/**
- * タイマーを更新
- */
-function updateTimer() {
-    const minutes = Math.floor(gameState.timeRemaining / 60);
-    const seconds = gameState.timeRemaining % 60;
-    const timeText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-    
-    document.getElementById('timerDisplay').textContent = timeText;
-    
-    // プログレスバーを更新
-    const progress = (gameState.timeRemaining / gameState.settings.discussionTime) * 100;
-    document.getElementById('timerBar').style.width = `${progress}%`;
-    
-    // 時間切れ
-    if (gameState.timeRemaining <= 0) {
-        showToast('時間切れ！投票を開始してください');
-    }
-}
-
-/**
- * チャットメッセージを送信
- */
-function handleSendMessage(e) {
-    e.preventDefault();
-    
-    const input = document.getElementById('chatInput');
-    const message = input.value.trim();
-    
-    if (message) {
-        gameState.addChatMessage(message);
-        input.value = '';
-        updateChatMessages();
-    }
-}
-
-/**
- * チャットメッセージを更新
- */
-function updateChatMessages() {
-    const chatMessages = document.getElementById('chatMessages');
-    chatMessages.innerHTML = '';
-    
-    gameState.chatMessages.forEach(msg => {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = 'chat-message';
-        
-        const time = new Date(msg.timestamp);
-        const timeStr = `${time.getHours()}:${time.getMinutes().toString().padStart(2, '0')}`;
-        
-        messageDiv.innerHTML = `
-            <div class="chat-message-header">
-                <span class="chat-message-sender">${escapeHtml(msg.sender)}</span>
-                <span class="chat-message-time">${timeStr}</span>
-            </div>
-            <div class="chat-message-text">${escapeHtml(msg.text)}</div>
-        `;
-        
-        chatMessages.appendChild(messageDiv);
-    });
-    
-    // 最新メッセージまでスクロール
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-}
-
-/**
- * チャットの表示/非表示を切り替え（モバイル用）
- */
-function toggleChat() {
-    const chatPanel = document.getElementById('chatPanel');
-    chatPanel.classList.toggle('collapsed');
-}
-
-/**
- * 投票開始を処理
- */
-function handleStartVote() {
-    gameState.startVoting();
-    showVoteScreen();
-}
-
-/**
- * 投票画面を表示
- */
-function showVoteScreen() {
-    showScreen('voteScreen');
-    
-    const votePlayers = document.getElementById('votePlayers');
-    votePlayers.innerHTML = '';
-    
-    gameState.players.forEach(player => {
-        const voteDiv = document.createElement('div');
-        voteDiv.className = 'vote-player';
-        voteDiv.dataset.playerId = player.id;
-        voteDiv.innerHTML = `
-            <span class="player-icon">👤</span>
-            <span class="player-name">${escapeHtml(player.name)}</span>
-        `;
-        
-        voteDiv.addEventListener('click', () => selectVotePlayer(player.id));
-        votePlayers.appendChild(voteDiv);
-    });
-}
-
-/**
- * 投票プレイヤーを選択
- */
-function selectVotePlayer(playerId) {
-    // 既存の選択を解除
-    document.querySelectorAll('.vote-player').forEach(div => {
-        div.classList.remove('selected');
-    });
-    
-    // 新しい選択
-    const selectedDiv = document.querySelector(`[data-player-id="${playerId}"]`);
-    if (selectedDiv) {
-        selectedDiv.classList.add('selected');
-        document.getElementById('submitVoteBtn').disabled = false;
-    }
-}
-
-/**
- * 投票を送信
- */
-function handleSubmitVote() {
-    const selectedDiv = document.querySelector('.vote-player.selected');
-    if (!selectedDiv) return;
-    
-    const votedPlayerId = selectedDiv.dataset.playerId;
-    gameState.vote(votedPlayerId);
-    
-    showToast('投票しました！');
-    
-    // 全員が投票したかチェック
-    if (Object.keys(gameState.votes).length === gameState.players.length) {
-        showResultScreen();
-    } else {
-        // 待機画面に戻る
-        showScreen('gameScreen');
-        showToast('他のプレイヤーの投票を待っています...');
-    }
-}
-
-/**
- * 結果画面を表示
- */
-function showResultScreen() {
-    const result = gameState.showResult();
-    showScreen('resultScreen');
-    
-    // 勝敗を表示
-    const resultTitle = document.getElementById('resultTitle');
-    const resultEmoji = document.getElementById('resultEmoji');
-    
-    if (result.citizenWin) {
-        resultTitle.textContent = '市民の勝利！';
-        resultEmoji.textContent = '🎉';
-    } else {
-        resultTitle.textContent = 'ウルフの勝利！';
-        resultEmoji.textContent = '🐺';
-    }
-    
-    // 役割を表示
-    const rolesReveal = document.getElementById('rolesReveal');
-    rolesReveal.innerHTML = '';
-    
-    gameState.players.forEach(player => {
-        const roleDiv = document.createElement('div');
-        roleDiv.className = `role-item ${player.role === 'wolf' ? 'wolf' : ''}`;
-        roleDiv.innerHTML = `
-            <div class="player-info">
-                <span class="player-icon">${player.role === 'wolf' ? '🐺' : '👤'}</span>
-                <span class="player-name">${escapeHtml(player.name)}</span>
-            </div>
-            <span class="role-badge ${player.role}">${player.role === 'wolf' ? 'ウルフ' : '市民'}</span>
-        `;
-        rolesReveal.appendChild(roleDiv);
-    });
-    
-    // お題を表示
-    const topicsReveal = document.getElementById('topicsReveal');
-    topicsReveal.innerHTML = `
-        <div class="topic-item">
-            <div class="topic-label">市民のお題</div>
-            <div class="topic-value">${escapeHtml(gameState.currentTopic.citizen)}</div>
-        </div>
-        <div class="topic-item">
-            <div class="topic-label">ウルフのお題</div>
-            <div class="topic-value">${escapeHtml(gameState.currentTopic.wolf)}</div>
-        </div>
+// 待機室更新
+function updateWaitingRoom(roomData) {
+  if (!roomData) return;
+  
+  const playersList = document.getElementById('players-list');
+  playersList.innerHTML = '';
+  
+  const players = Object.values(roomData.players || {});
+  players.forEach(player => {
+    const playerDiv = document.createElement('div');
+    playerDiv.className = 'player-item';
+    playerDiv.innerHTML = `
+      <span>${player.name}</span>
+      ${player.name === roomData.host ? '<span class="host-badge">ホスト</span>' : ''}
     `;
-    
-    // 投票結果を表示
-    const voteResults = document.getElementById('voteResults');
-    voteResults.innerHTML = '';
-    
-    const { voteCounts } = gameState.calculateVoteResults();
-    
-    gameState.players.forEach(player => {
-        const voteCount = voteCounts[player.id] || 0;
-        const voteDiv = document.createElement('div');
-        voteDiv.className = 'vote-result-item';
-        voteDiv.innerHTML = `
-            <span class="player-name">${escapeHtml(player.name)}</span>
-            <span class="vote-count">${voteCount}票</span>
-        `;
-        voteResults.appendChild(voteDiv);
+    playersList.appendChild(playerDiv);
+  });
+  
+  // ホストのみゲーム開始ボタンを表示
+  const isHost = currentPlayer === roomData.host;
+  document.getElementById('start-game-btn').style.display = isHost ? 'block' : 'none';
+  
+  // ゲーム開始後の画面遷移
+  if (roomData.gameState === 'playing') {
+    showGameScreen(roomData);
+  } else if (roomData.gameState === 'voting') {
+    showVotingScreen(roomData);
+  } else if (roomData.gameState === 'finished') {
+    showResultScreen(roomData);
+  }
+}
+
+// ゲーム開始
+async function startGame() {
+  const success = await currentGame.startGame();
+  if (!success) {
+    alert('ゲーム開始に失敗しました');
+  }
+}
+
+// ゲーム画面表示
+function showGameScreen(roomData) {
+  const player = roomData.players[currentPlayer];
+  
+  // お題表示
+  document.getElementById('your-topic').textContent = player.topic;
+  document.getElementById('your-role').textContent = 
+    player.role === 'wolf' ? 'あなたはウルフです！' : 'あなたは市民です';
+  document.getElementById('your-role').className = 
+    player.role === 'wolf' ? 'role-wolf' : 'role-citizen';
+  
+  // タイマー開始
+  if (!gameTimer && roomData.timerDuration) {
+    gameTimer = new GameTimer(roomData.timerDuration, (status, remaining) => {
+      if (status === 'tick') {
+        const timer = new GameTimer(remaining, () => {});
+        document.getElementById('timer-display').textContent = timer.getFormattedTime();
+      } else if (status === 'finished') {
+        document.getElementById('timer-display').textContent = '00:00';
+        alert('討論時間が終了しました！');
+      }
     });
+    gameTimer.start();
+  }
+  
+  // チャット表示
+  updateChat(roomData.chat || []);
+  
+  showScreen('game-screen');
 }
 
-/**
- * ルーム退出を処理
- */
-function handleLeaveRoom() {
-    if (confirm('ルームから退出しますか？')) {
-        stopSync();
-        gameState.leaveRoom();
-        showScreen('homeScreen');
-        showToast('ルームから退出しました');
+// チャット更新
+function updateChat(messages) {
+  const chatMessages = document.getElementById('chat-messages');
+  chatMessages.innerHTML = '';
+  
+  messages.forEach(msg => {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'chat-message';
+    messageDiv.innerHTML = `
+      <span class="chat-player">${msg.player}:</span>
+      <span class="chat-text">${msg.message}</span>
+    `;
+    chatMessages.appendChild(messageDiv);
+  });
+  
+  // 最新メッセージにスクロール
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// メッセージ送信
+async function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const message = input.value.trim();
+  
+  if (message) {
+    await currentGame.sendMessage(currentPlayer, message);
+    input.value = '';
+  }
+}
+
+// 投票画面表示
+function showVotingScreen(roomData) {
+  const voteOptions = document.getElementById('vote-options');
+  voteOptions.innerHTML = '';
+  
+  Object.values(roomData.players).forEach(player => {
+    if (player.name !== currentPlayer) {
+      const optionDiv = document.createElement('div');
+      optionDiv.className = 'vote-option';
+      optionDiv.innerHTML = `
+        <input type="radio" name="vote" value="${player.name}" id="vote-${player.name}">
+        <label for="vote-${player.name}">${player.name}</label>
+      `;
+      voteOptions.appendChild(optionDiv);
     }
+  });
+  
+  showScreen('voting-screen');
 }
 
-/**
- * ホームに戻る
- */
-function handleBackToHome() {
-    stopSync();
-    gameState.reset();
-    showScreen('homeScreen');
+// 投票確定
+async function confirmVote() {
+  const selectedVote = document.querySelector('input[name="vote"]:checked');
+  
+  if (!selectedVote) {
+    alert('投票先を選択してください');
+    return;
+  }
+  
+  await currentGame.vote(currentPlayer, selectedVote.value);
+  
+  // 全員が投票完了したか確認
+  const snapshot = await currentGame.roomRef.once('value');
+  const roomData = snapshot.val();
+  const players = Object.values(roomData.players);
+  const allVoted = players.every(p => p.vote !== null);
+  
+  if (allVoted) {
+    await currentGame.endVoting();
+  } else {
+    alert('投票完了！他のプレイヤーの投票を待っています...');
+  }
 }
 
-/**
- * 同期を開始（2秒間隔でデータを更新）
- */
-function startSync() {
-    if (syncInterval) {
-        clearInterval(syncInterval);
+// 結果画面表示
+function showResultScreen(roomData) {
+  const result = roomData.result;
+  
+  document.getElementById('result-title').textContent = 
+    result.citizensWin ? '市民の勝利！' : 'ウルフの勝利！';
+  document.getElementById('result-title').className = 
+    result.citizensWin ? 'result-citizens-win' : 'result-wolf-win';
+  
+  document.getElementById('wolf-reveal').textContent = 
+    `ウルフは ${result.wolf} でした`;
+  
+  document.getElementById('voted-out').textContent = 
+    `追放されたのは ${result.votedOut} です`;
+  
+  // 投票結果
+  const voteResults = document.getElementById('vote-results');
+  voteResults.innerHTML = '';
+  Object.entries(result.voteCount).forEach(([name, count]) => {
+    const resultDiv = document.createElement('div');
+    resultDiv.textContent = `${name}: ${count}票`;
+    voteResults.appendChild(resultDiv);
+  });
+  
+  // タイマー停止
+  if (gameTimer) {
+    gameTimer.stop();
+    gameTimer = null;
+  }
+  
+  showScreen('result-screen');
+}
+
+// もう一度プレイ
+async function resetGame() {
+  await currentGame.resetRoom();
+  showWaitingRoom();
+}
+
+// ホームに戻る
+async function backToHome() {
+  if (currentGame) {
+    await currentGame.leaveRoom(currentPlayer);
+    currentGame.unwatch();
+  }
+  
+  currentGame = null;
+  currentPlayer = null;
+  currentRoomId = null;
+  
+  if (gameTimer) {
+    gameTimer.stop();
+    gameTimer = null;
+  }
+  
+  showScreen('home-screen');
+  
+  // URLパラメータをクリア
+  window.history.replaceState({}, document.title, window.location.pathname);
+}
+
+// ルーム退出
+async function leaveRoom() {
+  if (confirm('ルームを退出しますか？')) {
+    await backToHome();
+  }
+}
+
+// ルームURL コピー
+function copyRoomUrl() {
+  const url = document.getElementById('room-url-display').textContent;
+  navigator.clipboard.writeText(url).then(() => {
+    alert('URLをコピーしました！');
+  }).catch(() => {
+    alert('URLのコピーに失敗しました');
+  });
+}
+
+// ルール表示
+function showRules() {
+  alert(`
+【ワードウルフのルール】
+
+1. プレイヤーは「市民」と「ウルフ」に分かれます
+2. 市民には多数派のお題が、ウルフには少数派のお題が与えられます
+3. 全員でお題について話し合います（ただし具体的な単語は言わない）
+4. 討論時間終了後、誰がウルフか投票します
+5. ウルフを当てられれば市民の勝ち、外れればウルフの勝ちです
+
+【LOLテーマ】
+このゲームはLeague of Legendsをテーマにしたお題が登場します！
+- チャンピオン
+- アイテム
+- スキル・能力
+- マップ・レーン
+- スペル
+
+LOLの知識を活かして楽しんでください！
+  `);
+}
+
+// 接続状態更新
+function updateConnectionStatus() {
+  const connectedRef = database.ref('.info/connected');
+  connectedRef.on('value', (snap) => {
+    const statusEl = document.getElementById('connection-status');
+    if (snap.val() === true) {
+      statusEl.textContent = '✅ 接続中';
+      statusEl.className = 'status-connected';
+    } else {
+      statusEl.textContent = '❌ 切断';
+      statusEl.className = 'status-disconnected';
     }
-    
-    syncInterval = setInterval(() => {
-        const synced = gameState.syncRoomData();
-        
-        if (!synced) {
-            showToast('ルームが削除されました');
-            stopSync();
-            gameState.reset();
-            showScreen('homeScreen');
-            return;
-        }
-        
-        // 画面の状態に応じて更新
-        const currentScreen = document.querySelector('.screen.active');
-        
-        if (currentScreen && currentScreen.id === 'roomWaitingScreen') {
-            updatePlayersList();
-            updateStartButton();
-            
-            // ゲームが開始されたら画面を切り替え
-            if (gameState.gameStatus === 'playing') {
-                showGameScreen();
-                showToast('ホストがゲームを開始しました！');
-            }
-        } else if (currentScreen && currentScreen.id === 'gameScreen') {
-            updateTimer();
-            updateChatMessages();
-            
-            // 投票画面に移行
-            if (gameState.gameStatus === 'voting') {
-                showVoteScreen();
-            }
-        } else if (currentScreen && currentScreen.id === 'voteScreen') {
-            // 全員が投票したかチェック
-            if (Object.keys(gameState.votes).length === gameState.players.length) {
-                showResultScreen();
-            }
-        }
-    }, 2000);
+  });
 }
-
-/**
- * 同期を停止
- */
-function stopSync() {
-    if (syncInterval) {
-        clearInterval(syncInterval);
-        syncInterval = null;
-    }
-}
-
-/**
- * HTMLエスケープ
- */
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-// ページを離れる前にタイマーを停止
-window.addEventListener('beforeunload', () => {
-    if (gameState) {
-        gameState.stopTimer();
-    }
-    stopSync();
-});

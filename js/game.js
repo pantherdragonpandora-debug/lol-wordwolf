@@ -1,456 +1,318 @@
-/**
- * LOLワードウルフ - ゲームロジック
- * ゲームの状態管理とビジネスロジック
- */
+// ========================================
+// ゲームロジック
+// ========================================
+// Firebase Realtime Databaseを使用したマルチプレイヤーゲームロジック
 
-/**
- * ゲーム状態管理クラス
- */
 class GameState {
-    constructor() {
-        this.roomId = null;
-        this.isHost = false;
-        this.playerName = null;
-        this.players = [];
-        this.settings = {
-            playerCount: 4,
-            categories: ['champion', 'item', 'skill', 'map', 'spell'],
-            discussionTime: 180 // 秒
-        };
-        this.gameStatus = 'idle'; // idle, waiting, playing, voting, result
-        this.currentTopic = null;
-        this.wolfIndex = null;
-        this.myTopic = null;
-        this.isWolf = false;
-        this.timer = null;
-        this.timeRemaining = 0;
-        this.votes = {};
-        this.chatMessages = [];
-    }
-
-    /**
-     * ルームIDを生成（6桁の数字）
-     */
-    generateRoomId() {
-        return Math.floor(100000 + Math.random() * 900000).toString();
-    }
-
-    /**
-     * プレイヤーIDを生成
-     */
-    generatePlayerId() {
-        return 'player_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-    }
-
-    /**
-     * ルームを作成
-     */
-    createRoom(playerName, settings) {
-        this.roomId = this.generateRoomId();
-        this.isHost = true;
-        this.playerName = playerName;
-        this.settings = { ...this.settings, ...settings };
-        
-        const playerId = this.generatePlayerId();
-        this.players = [{
-            id: playerId,
-            name: playerName,
-            isHost: true,
+  constructor(roomId) {
+    this.roomId = roomId;
+    this.roomRef = database.ref(`rooms/${roomId}`);
+    this.listeners = [];
+  }
+  
+  // ルーム作成
+  async createRoom(hostName, settings) {
+    try {
+      await this.roomRef.set({
+        host: hostName,
+        settings: settings,
+        players: {
+          [hostName]: {
+            name: hostName,
+            ready: false,
+            role: null,
+            vote: null,
             joinedAt: Date.now()
-        }];
-        
-        this.gameStatus = 'waiting';
-        this.saveToStorage();
-        
-        return this.roomId;
+          }
+        },
+        gameState: 'waiting', // waiting, playing, voting, finished
+        createdAt: Date.now(),
+        timer: null,
+        chat: []
+      });
+      
+      console.log('✅ ルーム作成成功:', this.roomId);
+      return true;
+    } catch (error) {
+      console.error('❌ ルーム作成エラー:', error);
+      return false;
     }
-
-    /**
-     * ルームに参加
-     */
-    joinRoom(roomId, playerName) {
-        const roomData = this.loadRoomFromStorage(roomId);
-        if (!roomData) {
-            throw new Error('ルームが見つかりません');
+  }
+  
+  // ルーム参加
+  async joinRoom(playerName) {
+    try {
+      const snapshot = await this.roomRef.once('value');
+      
+      if (!snapshot.exists()) {
+        throw new Error('ルームが存在しません');
+      }
+      
+      const roomData = snapshot.val();
+      
+      // プレイヤー数チェック
+      const currentPlayers = Object.keys(roomData.players || {}).length;
+      const maxPlayers = roomData.settings?.playerCount || 5;
+      
+      if (currentPlayers >= maxPlayers) {
+        throw new Error('ルームが満員です');
+      }
+      
+      // ゲーム進行中チェック
+      if (roomData.gameState !== 'waiting') {
+        throw new Error('ゲームが既に開始されています');
+      }
+      
+      // プレイヤー追加
+      await this.roomRef.child(`players/${playerName}`).set({
+        name: playerName,
+        ready: false,
+        role: null,
+        vote: null,
+        joinedAt: Date.now()
+      });
+      
+      console.log('✅ ルーム参加成功:', playerName);
+      return true;
+    } catch (error) {
+      console.error('❌ ルーム参加エラー:', error);
+      throw error;
+    }
+  }
+  
+  // ゲーム開始
+  async startGame() {
+    try {
+      const snapshot = await this.roomRef.once('value');
+      const roomData = snapshot.val();
+      
+      const players = Object.keys(roomData.players || {});
+      const playerCount = players.length;
+      
+      if (playerCount < 3) {
+        throw new Error('プレイヤーが足りません（最低3人）');
+      }
+      
+      // お題選択
+      const topic = getRandomTopic(roomData.settings.categories || ['all']);
+      
+      // ウルフをランダムに決定（1人）
+      const wolfIndex = Math.floor(Math.random() * playerCount);
+      const wolfPlayer = players[wolfIndex];
+      
+      // 各プレイヤーに役割とお題を割り当て
+      const updates = {};
+      players.forEach((playerName, index) => {
+        const isWolf = index === wolfIndex;
+        updates[`players/${playerName}/role`] = isWolf ? 'wolf' : 'citizen';
+        updates[`players/${playerName}/topic`] = isWolf ? topic.minority : topic.majority;
+      });
+      
+      // ゲーム状態更新
+      updates['gameState'] = 'playing';
+      updates['startedAt'] = Date.now();
+      updates['timerDuration'] = roomData.settings.timer * 60 * 1000; // 分をミリ秒に変換
+      
+      await this.roomRef.update(updates);
+      
+      console.log('✅ ゲーム開始:', { wolfPlayer, topic });
+      return true;
+    } catch (error) {
+      console.error('❌ ゲーム開始エラー:', error);
+      throw error;
+    }
+  }
+  
+  // 投票
+  async vote(voterName, targetName) {
+    try {
+      await this.roomRef.child(`players/${voterName}/vote`).set(targetName);
+      console.log('✅ 投票完了:', voterName, '→', targetName);
+      return true;
+    } catch (error) {
+      console.error('❌ 投票エラー:', error);
+      return false;
+    }
+  }
+  
+  // 投票終了・結果判定
+  async endVoting() {
+    try {
+      const snapshot = await this.roomRef.once('value');
+      const roomData = snapshot.val();
+      const players = roomData.players;
+      
+      // 投票集計
+      const voteCount = {};
+      Object.values(players).forEach(player => {
+        if (player.vote) {
+          voteCount[player.vote] = (voteCount[player.vote] || 0) + 1;
         }
-
-        this.roomId = roomId;
-        this.isHost = false;
-        this.playerName = playerName;
-        this.settings = roomData.settings;
-        this.gameStatus = roomData.gameStatus;
-        
-        const playerId = this.generatePlayerId();
-        const newPlayer = {
-            id: playerId,
-            name: playerName,
-            isHost: false,
-            joinedAt: Date.now()
-        };
-        
-        this.players = [...roomData.players, newPlayer];
-        
-        if (this.players.length > this.settings.playerCount) {
-            throw new Error('ルームが満員です');
+      });
+      
+      // 最多得票者
+      let maxVotes = 0;
+      let votedOut = null;
+      Object.entries(voteCount).forEach(([name, count]) => {
+        if (count > maxVotes) {
+          maxVotes = count;
+          votedOut = name;
         }
-        
-        this.saveToStorage();
-        return playerId;
-    }
-
-    /**
-     * ルームから退出
-     */
-    leaveRoom() {
-        if (this.roomId) {
-            // ルームデータを削除
-            localStorage.removeItem(`room_${this.roomId}`);
-            localStorage.removeItem(`game_${this.roomId}`);
-            localStorage.removeItem(`chat_${this.roomId}`);
+      });
+      
+      // ウルフを探す
+      const wolf = Object.values(players).find(p => p.role === 'wolf');
+      
+      // 勝敗判定
+      const citizensWin = votedOut === wolf.name;
+      
+      // 結果保存
+      await this.roomRef.update({
+        gameState: 'finished',
+        result: {
+          votedOut: votedOut,
+          voteCount: voteCount,
+          wolf: wolf.name,
+          citizensWin: citizensWin,
+          finishedAt: Date.now()
         }
-        this.reset();
+      });
+      
+      console.log('✅ 投票終了:', { votedOut, citizensWin });
+      return true;
+    } catch (error) {
+      console.error('❌ 投票終了エラー:', error);
+      return false;
     }
-
-    /**
-     * ゲームを開始
-     */
-    startGame() {
-        if (!this.isHost) {
-            throw new Error('ホストのみがゲームを開始できます');
-        }
-
-        if (this.players.length < 3) {
-            throw new Error('最低3人のプレイヤーが必要です');
-        }
-
-        // ウルフをランダムに選択
-        this.wolfIndex = Math.floor(Math.random() * this.players.length);
-        
-        // お題ペアを選択
-        const topicPair = getRandomTopicPair(this.settings.categories);
-        this.currentTopic = topicPair;
-        
-        // 各プレイヤーにお題を割り当て
-        this.players.forEach((player, index) => {
-            if (index === this.wolfIndex) {
-                player.topic = topicPair.wolf;
-                player.role = 'wolf';
-            } else {
-                player.topic = topicPair.citizen;
-                player.role = 'citizen';
-            }
-        });
-        
-        // 自分のお題を設定
-        const myPlayerIndex = this.players.findIndex(p => p.name === this.playerName);
-        if (myPlayerIndex !== -1) {
-            this.myTopic = this.players[myPlayerIndex].topic;
-            this.isWolf = this.players[myPlayerIndex].role === 'wolf';
-        }
-        
-        this.gameStatus = 'playing';
-        this.timeRemaining = this.settings.discussionTime;
-        this.votes = {};
-        
-        this.saveToStorage();
-        this.startTimer();
+  }
+  
+  // チャットメッセージ送信
+  async sendMessage(playerName, message) {
+    try {
+      await this.roomRef.child('chat').push({
+        player: playerName,
+        message: message,
+        timestamp: Date.now()
+      });
+      return true;
+    } catch (error) {
+      console.error('❌ メッセージ送信エラー:', error);
+      return false;
     }
-
-    /**
-     * タイマーを開始
-     */
-    startTimer() {
-        if (this.timer) {
-            clearInterval(this.timer);
-        }
-        
-        this.timer = setInterval(() => {
-            this.timeRemaining--;
-            
-            if (this.timeRemaining <= 0) {
-                this.stopTimer();
-                // タイマー終了時の処理はUIで行う
-            }
-            
-            // タイマー更新をストレージに保存
-            this.saveTimerToStorage();
-        }, 1000);
+  }
+  
+  // リアルタイム監視開始
+  watch(callback) {
+    const listener = this.roomRef.on('value', (snapshot) => {
+      if (snapshot.exists()) {
+        callback(snapshot.val());
+      }
+    });
+    this.listeners.push({ ref: this.roomRef, listener });
+  }
+  
+  // 監視停止
+  unwatch() {
+    this.listeners.forEach(({ ref, listener }) => {
+      ref.off('value', listener);
+    });
+    this.listeners = [];
+  }
+  
+  // ルーム退出
+  async leaveRoom(playerName) {
+    try {
+      await this.roomRef.child(`players/${playerName}`).remove();
+      
+      // プレイヤーが0人になったらルーム削除
+      const snapshot = await this.roomRef.child('players').once('value');
+      if (!snapshot.exists() || Object.keys(snapshot.val()).length === 0) {
+        await this.roomRef.remove();
+        console.log('✅ ルーム削除（全員退出）');
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('❌ ルーム退出エラー:', error);
+      return false;
     }
-
-    /**
-     * タイマーを停止
-     */
-    stopTimer() {
-        if (this.timer) {
-            clearInterval(this.timer);
-            this.timer = null;
-        }
+  }
+  
+  // ルームリセット
+  async resetRoom() {
+    try {
+      const snapshot = await this.roomRef.once('value');
+      const roomData = snapshot.val();
+      
+      // プレイヤー情報をリセット
+      const updates = {};
+      Object.keys(roomData.players).forEach(playerName => {
+        updates[`players/${playerName}/ready`] = false;
+        updates[`players/${playerName}/role`] = null;
+        updates[`players/${playerName}/topic`] = null;
+        updates[`players/${playerName}/vote`] = null;
+      });
+      
+      updates['gameState'] = 'waiting';
+      updates['result'] = null;
+      updates['startedAt'] = null;
+      updates['chat'] = [];
+      
+      await this.roomRef.update(updates);
+      
+      console.log('✅ ルームリセット完了');
+      return true;
+    } catch (error) {
+      console.error('❌ ルームリセットエラー:', error);
+      return false;
     }
-
-    /**
-     * 投票を開始
-     */
-    startVoting() {
-        this.gameStatus = 'voting';
-        this.stopTimer();
-        this.saveToStorage();
-    }
-
-    /**
-     * 投票する
-     */
-    vote(votedPlayerId) {
-        const myPlayer = this.players.find(p => p.name === this.playerName);
-        if (!myPlayer) {
-            throw new Error('プレイヤーが見つかりません');
-        }
-        
-        this.votes[myPlayer.id] = votedPlayerId;
-        this.saveToStorage();
-    }
-
-    /**
-     * 投票結果を集計
-     */
-    calculateVoteResults() {
-        const voteCounts = {};
-        
-        // 投票数をカウント
-        Object.values(this.votes).forEach(votedId => {
-            voteCounts[votedId] = (voteCounts[votedId] || 0) + 1;
-        });
-        
-        // 最多票のプレイヤーを特定
-        let maxVotes = 0;
-        let executedPlayers = [];
-        
-        Object.entries(voteCounts).forEach(([playerId, count]) => {
-            if (count > maxVotes) {
-                maxVotes = count;
-                executedPlayers = [playerId];
-            } else if (count === maxVotes) {
-                executedPlayers.push(playerId);
-            }
-        });
-        
-        return {
-            voteCounts,
-            executedPlayers,
-            maxVotes
-        };
-    }
-
-    /**
-     * ゲーム結果を判定
-     */
-    judgeGameResult() {
-        const { executedPlayers } = this.calculateVoteResults();
-        const wolfPlayer = this.players[this.wolfIndex];
-        
-        // ウルフが処刑されたかチェック
-        const wolfExecuted = executedPlayers.includes(wolfPlayer.id);
-        
-        return {
-            citizenWin: wolfExecuted,
-            wolfWin: !wolfExecuted,
-            wolfPlayer: wolfPlayer,
-            executedPlayers: executedPlayers.map(id => 
-                this.players.find(p => p.id === id)
-            )
-        };
-    }
-
-    /**
-     * 結果画面に移行
-     */
-    showResult() {
-        this.gameStatus = 'result';
-        this.saveToStorage();
-        return this.judgeGameResult();
-    }
-
-    /**
-     * チャットメッセージを追加
-     */
-    addChatMessage(message) {
-        const chatMessage = {
-            id: Date.now(),
-            sender: this.playerName,
-            text: message,
-            timestamp: Date.now()
-        };
-        
-        this.chatMessages.push(chatMessage);
-        this.saveChatToStorage();
-        
-        return chatMessage;
-    }
-
-    /**
-     * LocalStorageに保存
-     */
-    saveToStorage() {
-        if (!this.roomId) return;
-        
-        const roomData = {
-            roomId: this.roomId,
-            players: this.players,
-            settings: this.settings,
-            gameStatus: this.gameStatus,
-            currentTopic: this.currentTopic,
-            wolfIndex: this.wolfIndex,
-            votes: this.votes,
-            updatedAt: Date.now()
-        };
-        
-        localStorage.setItem(`room_${this.roomId}`, JSON.stringify(roomData));
-        
-        // 個人データも保存
-        const myData = {
-            playerName: this.playerName,
-            isHost: this.isHost,
-            myTopic: this.myTopic,
-            isWolf: this.isWolf
-        };
-        
-        localStorage.setItem(`game_${this.roomId}_${this.playerName}`, JSON.stringify(myData));
-    }
-
-    /**
-     * タイマーをLocalStorageに保存
-     */
-    saveTimerToStorage() {
-        if (!this.roomId) return;
-        
-        localStorage.setItem(`timer_${this.roomId}`, JSON.stringify({
-            timeRemaining: this.timeRemaining,
-            updatedAt: Date.now()
-        }));
-    }
-
-    /**
-     * チャットをLocalStorageに保存
-     */
-    saveChatToStorage() {
-        if (!this.roomId) return;
-        
-        localStorage.setItem(`chat_${this.roomId}`, JSON.stringify({
-            messages: this.chatMessages,
-            updatedAt: Date.now()
-        }));
-    }
-
-    /**
-     * LocalStorageから読み込み
-     */
-    loadRoomFromStorage(roomId) {
-        const data = localStorage.getItem(`room_${roomId}`);
-        return data ? JSON.parse(data) : null;
-    }
-
-    /**
-     * タイマーをLocalStorageから読み込み
-     */
-    loadTimerFromStorage() {
-        if (!this.roomId) return;
-        
-        const data = localStorage.getItem(`timer_${this.roomId}`);
-        if (data) {
-            const timerData = JSON.parse(data);
-            this.timeRemaining = timerData.timeRemaining;
-        }
-    }
-
-    /**
-     * チャットをLocalStorageから読み込み
-     */
-    loadChatFromStorage() {
-        if (!this.roomId) return;
-        
-        const data = localStorage.getItem(`chat_${this.roomId}`);
-        if (data) {
-            const chatData = JSON.parse(data);
-            this.chatMessages = chatData.messages || [];
-        }
-    }
-
-    /**
-     * ルームデータを同期（他のプレイヤーの変更を取得）
-     */
-    syncRoomData() {
-        if (!this.roomId) return false;
-        
-        const roomData = this.loadRoomFromStorage(this.roomId);
-        if (!roomData) return false;
-        
-        // ルームデータを更新
-        this.players = roomData.players;
-        this.gameStatus = roomData.gameStatus;
-        this.currentTopic = roomData.currentTopic;
-        this.wolfIndex = roomData.wolfIndex;
-        this.votes = roomData.votes;
-        
-        // 自分のお題を再取得
-        const myPlayer = this.players.find(p => p.name === this.playerName);
-        if (myPlayer) {
-            this.myTopic = myPlayer.topic;
-            this.isWolf = myPlayer.role === 'wolf';
-        }
-        
-        // タイマーを同期
-        this.loadTimerFromStorage();
-        
-        // チャットを同期
-        this.loadChatFromStorage();
-        
-        return true;
-    }
-
-    /**
-     * ゲーム状態をリセット
-     */
-    reset() {
-        this.stopTimer();
-        this.roomId = null;
-        this.isHost = false;
-        this.playerName = null;
-        this.players = [];
-        this.gameStatus = 'idle';
-        this.currentTopic = null;
-        this.wolfIndex = null;
-        this.myTopic = null;
-        this.isWolf = false;
-        this.timeRemaining = 0;
-        this.votes = {};
-        this.chatMessages = [];
-    }
-
-    /**
-     * 現在のゲーム状態を取得
-     */
-    getState() {
-        return {
-            roomId: this.roomId,
-            isHost: this.isHost,
-            playerName: this.playerName,
-            players: this.players,
-            settings: this.settings,
-            gameStatus: this.gameStatus,
-            myTopic: this.myTopic,
-            isWolf: this.isWolf,
-            timeRemaining: this.timeRemaining,
-            votes: this.votes,
-            chatMessages: this.chatMessages
-        };
-    }
+  }
 }
 
-// グローバルに公開
-if (typeof window !== 'undefined') {
-    window.GameState = GameState;
+// ルームID生成
+function generateRoomId() {
+  return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-// モジュールとしてエクスポート（必要に応じて）
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { GameState };
+// タイマー管理
+class GameTimer {
+  constructor(duration, callback) {
+    this.duration = duration; // ミリ秒
+    this.callback = callback;
+    this.startTime = null;
+    this.interval = null;
+    this.remaining = duration;
+  }
+  
+  start() {
+    this.startTime = Date.now();
+    this.interval = setInterval(() => {
+      this.remaining = this.duration - (Date.now() - this.startTime);
+      
+      if (this.remaining <= 0) {
+        this.stop();
+        this.callback('finished');
+      } else {
+        this.callback('tick', this.remaining);
+      }
+    }, 1000);
+  }
+  
+  stop() {
+    if (this.interval) {
+      clearInterval(this.interval);
+      this.interval = null;
+    }
+  }
+  
+  getRemainingTime() {
+    return Math.max(0, this.remaining);
+  }
+  
+  getFormattedTime() {
+    const seconds = Math.floor(this.getRemainingTime() / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  }
 }
