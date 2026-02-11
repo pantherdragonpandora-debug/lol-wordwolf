@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="description" content="League of Legends（LOL）をテーマにしたワードウルフゲーム。友達と一緒に楽しめるオンラインパーティーゲーム！">
+    <meta name="keywords" content="LOL,リーグオブレジェンド,ワードウルフ,パーティーゲーム,オンラインゲーム">
+    <meta property="og:title" content="LOL ワードウルフ">
+    <meta property="og:description" content="League of Legendsをテーマにしたワードウルフゲーム！">
+    <meta property="og:type" content="website">
+    <title>LOL ワードウルフ</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header class="header">
+        <div class="container">
+            <h1 class="logo">
+                <span class="logo-icon">⚔️</span>
+                <span class="logo-text">LOL ワードウルフ</span>
+            </h1>
+            <button id="rulesBtn" class="icon-btn" aria-label="ルール説明">
+                <span class="icon">❓</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- メインコンテンツ -->
+    <main class="main">
+        <div class="container">
+            
+            <!-- ホーム画面 -->
+            <section id="homeScreen" class="screen active">
+                <div class="welcome-card">
+                    <h2 class="welcome-title">League of Legends<br>ワードウルフへようこそ！</h2>
+                    <p class="welcome-text">
+                        友達と一緒に楽しむパーティーゲーム。<br>
+                        LOLの世界で誰がウルフか見破ろう！
+                    </p>
+                </div>
+
+                <div class="action-cards">
+                    <div class="action-card">
+                        <div class="action-icon">🏠</div>
+                        <h3 class="action-title">ルームを作成</h3>
+                        <p class="action-desc">新しいゲームを開始して友達を招待</p>
+                        <button id="createRoomBtn" class="btn btn-primary">ルーム作成</button>
+                    </div>
+
+                    <div class="action-card">
+                        <div class="action-icon">🚪</div>
+                        <h3 class="action-title">ルームに参加</h3>
+                        <p class="action-desc">ルームIDを入力して参加</p>
+                        <form id="joinRoomForm" class="join-form">
+                            <input type="text" id="roomIdInput" class="input" placeholder="ルームID（6桁）" maxlength="6" pattern="[0-9]{6}" required>
+                            <button type="submit" class="btn btn-secondary">参加</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ルーム設定画面 -->
+            <section id="roomSetupScreen" class="screen">
+                <div class="card">
+                    <h2 class="card-title">ルーム設定</h2>
+                    
+                    <form id="roomSetupForm" class="setup-form">
+                        <div class="form-group">
+                            <label for="playerCount" class="form-label">
+                                <span class="label-icon">👥</span>
+                                プレイ人数
+                            </label>
+                            <select id="playerCount" class="select" required>
+                                <option value="3">3人</option>
+                                <option value="4" selected>4人</option>
+                                <option value="5">5人</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="label-icon">📚</span>
+                                お題のカテゴリー
+                            </label>
+                            <div class="checkbox-grid">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="category" value="champion" checked>
+                                    <span class="checkbox-text">チャンピオン</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="category" value="item" checked>
+                                    <span class="checkbox-text">アイテム</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="category" value="skill" checked>
+                                    <span class="checkbox-text">スキル・能力</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="category" value="map" checked>
+                                    <span class="checkbox-text">マップ・レーン</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="category" value="spell" checked>
+                                    <span class="checkbox-text">スペル</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="discussionTime" class="form-label">
+                                <span class="label-icon">⏱️</span>
+                                討論時間
+                            </label>
+                            <div class="time-selector">
+                                <select id="discussionTime" class="select">
+                                    <option value="60">1分</option>
+                                    <option value="120">2分</option>
+                                    <option value="180" selected>3分</option>
+                                    <option value="300">5分</option>
+                                    <option value="600">10分</option>
+                                    <option value="900">15分</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="button-group">
+                            <button type="button" id="cancelSetupBtn" class="btn btn-outline">キャンセル</button>
+                            <button type="submit" class="btn btn-primary">ルーム作成</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- ルーム待機画面 -->
+            <section id="roomWaitingScreen" class="screen">
+                <div class="card">
+                    <div class="room-header">
+                        <h2 class="card-title">ルーム待機中</h2>
+                        <div class="room-id-display">
+                            <span class="room-id-label">ルームID:</span>
+                            <span id="displayRoomId" class="room-id-value">------</span>
+                            <button id="copyRoomIdBtn" class="icon-btn-small" aria-label="コピー">📋</button>
+                        </div>
+                    </div>
+
+                    <div class="share-section">
+                        <p class="share-text">このURLを友達に共有してください：</p>
+                        <div class="share-url-container">
+                            <input type="text" id="shareUrl" class="input share-url" readonly>
+                            <button id="copyUrlBtn" class="btn btn-secondary btn-sm">URLコピー</button>
+                        </div>
+                    </div>
+
+                    <div class="players-section">
+                        <h3 class="section-title">
+                            <span class="icon">👥</span>
+                            参加プレイヤー
+                            <span id="playerCountDisplay" class="player-count-badge">0/4</span>
+                        </h3>
+                        <div id="playersList" class="players-list">
+                            <!-- プレイヤーが動的に追加されます -->
+                        </div>
+                    </div>
+
+                    <div class="button-group">
+                        <button id="leaveRoomBtn" class="btn btn-outline">退室</button>
+                        <button id="startGameBtn" class="btn btn-primary" disabled>ゲーム開始</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ゲーム画面 -->
+            <section id="gameScreen" class="screen">
+                <div class="game-container">
+                    <!-- タイマー -->
+                    <div class="timer-section">
+                        <div class="timer-display">
+                            <span class="timer-icon">⏱️</span>
+                            <span id="timerDisplay" class="timer-text">3:00</span>
+                        </div>
+                        <div id="timerProgress" class="timer-progress">
+                            <div id="timerBar" class="timer-bar"></div>
+                        </div>
+                    </div>
+
+                    <!-- お題表示 -->
+                    <div class="topic-card">
+                        <h3 class="topic-title">あなたのお題</h3>
+                        <div id="topicDisplay" class="topic-text">---</div>
+                        <p class="topic-hint">このお題について話し合いましょう！</p>
+                    </div>
+
+                    <!-- チャット -->
+                    <div class="chat-section">
+                        <div class="chat-header">
+                            <h3 class="chat-title">
+                                <span class="icon">💬</span>
+                                チャット
+                            </h3>
+                            <button id="toggleChatBtn" class="icon-btn-small mobile-only">▼</button>
+                        </div>
+                        <div id="chatPanel" class="chat-panel">
+                            <div id="chatMessages" class="chat-messages">
+                                <!-- メッセージが動的に追加されます -->
+                            </div>
+                            <form id="chatForm" class="chat-form">
+                                <input type="text" id="chatInput" class="input chat-input" placeholder="メッセージを入力..." maxlength="200">
+                                <button type="submit" class="btn btn-primary btn-sm">送信</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- 投票ボタン -->
+                    <div class="vote-section">
+                        <button id="startVoteBtn" class="btn btn-primary btn-lg">投票を開始</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 投票画面 -->
+            <section id="voteScreen" class="screen">
+                <div class="card">
+                    <h2 class="card-title">誰がウルフだと思う？</h2>
+                    <p class="vote-instruction">ウルフだと思うプレイヤーを選んでください</p>
+                    
+                    <div id="votePlayers" class="vote-players">
+                        <!-- プレイヤーが動的に追加されます -->
+                    </div>
+
+                    <div class="button-group">
+                        <button id="cancelVoteBtn" class="btn btn-outline">キャンセル</button>
+                        <button id="submitVoteBtn" class="btn btn-primary" disabled>投票する</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 結果画面 -->
+            <section id="resultScreen" class="screen">
+                <div class="card">
+                    <div class="result-header">
+                        <h2 id="resultTitle" class="result-title">ゲーム終了</h2>
+                        <div id="resultEmoji" class="result-emoji">🎉</div>
+                    </div>
+
+                    <div class="result-content">
+                        <div class="result-section">
+                            <h3 class="section-title">役割公開</h3>
+                            <div id="rolesReveal" class="roles-list">
+                                <!-- 役割が動的に追加されます -->
+                            </div>
+                        </div>
+
+                        <div class="result-section">
+                            <h3 class="section-title">お題</h3>
+                            <div id="topicsReveal" class="topics-display">
+                                <!-- お題が動的に追加されます -->
+                            </div>
+                        </div>
+
+                        <div class="result-section">
+                            <h3 class="section-title">投票結果</h3>
+                            <div id="voteResults" class="vote-results">
+                                <!-- 投票結果が動的に追加されます -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="button-group">
+                        <button id="backToHomeBtn" class="btn btn-primary">ホームに戻る</button>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- フッター -->
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">
+                &copy; 2024 LOL ワードウルフ | 
+                <a href="https://github.com/" target="_blank" rel="noopener" class="footer-link">GitHub</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- ルール説明モーダル -->
+    <div id="rulesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">ゲームルール</h2>
+                <button id="closeRulesBtn" class="modal-close" aria-label="閉じる">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="rules-section">
+                    <h3 class="rules-title">📖 ワードウルフとは？</h3>
+                    <p class="rules-text">
+                        プレイヤーの中に1人だけ「少し違うお題」を持つ人（ウルフ）がいます。
+                        話し合いを通じて、誰がウルフかを見破るゲームです！
+                    </p>
+                </div>
+
+                <div class="rules-section">
+                    <h3 class="rules-title">🎮 ゲームの流れ</h3>
+                    <ol class="rules-list">
+                        <li>各プレイヤーにお題が配られます</li>
+                        <li>制限時間内でお題について話し合います</li>
+                        <li>時間になったら、誰がウルフか投票します</li>
+                        <li>最多票を獲得したプレイヤーが処刑されます</li>
+                        <li>処刑されたのがウルフなら市民の勝利！</li>
+                        <li>ウルフが生き残ったらウルフの勝利！</li>
+                    </ol>
+                </div>
+
+                <div class="rules-section">
+                    <h3 class="rules-title">💡 遊び方のコツ</h3>
+                    <ul class="rules-tips">
+                        <li><strong>市民：</strong> お題について具体的に話して、ウルフを見つけよう</li>
+                        <li><strong>ウルフ：</strong> バレないように話を合わせて、市民になりきろう</li>
+                        <li><strong>注意：</strong> お題を直接言ってはいけません！</li>
+                    </ul>
+                </div>
+
+                <div class="rules-section">
+                    <h3 class="rules-title">🎯 LOLテーマの例</h3>
+                    <div class="rules-examples">
+                        <div class="example-card">
+                            <div class="example-label">市民のお題</div>
+                            <div class="example-text">ヤスオ</div>
+                        </div>
+                        <div class="example-vs">VS</div>
+                        <div class="example-card">
+                            <div class="example-label">ウルフのお題</div>
+                            <div class="example-text">ヨネ</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="closeRulesBtn2" class="btn btn-primary">閉じる</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- トースト通知 -->
+    <div id="toast" class="toast"></div>
+
+    <!-- JavaScriptファイル読み込み -->
+    <script src="./js/data.js"></script>
+    <script src="./js/game.js"></script>
+    <script src="./js/main.js"></script>
+</body>
+</html>
