@@ -46,11 +46,11 @@ function selectGame(gameType) {
   if (gameType === 'lol') {
     lolCategories.forEach(el => el.style.display = 'flex');
     valorantCategories.forEach(el => el.style.display = 'none');
-    document.getElementById('current-game-title').textContent = 'League of Legends ワードウルフ';
+    document.getElementById('current-game-title').textContent = t('home.titleLol');
   } else if (gameType === 'valorant') {
     lolCategories.forEach(el => el.style.display = 'none');
     valorantCategories.forEach(el => el.style.display = 'flex');
-    document.getElementById('current-game-title').textContent = 'VALORANT ワードウルフ';
+    document.getElementById('current-game-title').textContent = t('home.titleValorant');
   }
   
   // bodyにゲームタイプのクラスを追加（テーマカラー切り替え用）
@@ -92,7 +92,7 @@ function setupEventListeners() {
   document.getElementById('copy-room-url-btn').addEventListener('click', copyRoomUrl);
   
   // ゲーム画面
-  document.getElementById('end-discussion-btn').addEventListener('click', () => showScreen('voting-screen'));
+  document.getElementById('end-discussion-btn').addEventListener('click', moveToVoting);
   document.getElementById('send-message-btn').addEventListener('click', sendMessage);
   document.getElementById('chat-input').addEventListener('keypress', (e) => {
     if (e.key === 'Enter') sendMessage();
@@ -252,12 +252,11 @@ function showGameScreen(roomData) {
   
   // お題表示
   document.getElementById('your-topic').textContent = player.topic;
-  document.getElementById('your-role').textContent = 
-    player.role === 'wolf' ? t('game.roleWolf') : t('game.roleCitizen');
-  document.getElementById('your-role').className = 
-    player.role === 'wolf' ? 'role-wolf' : 'role-citizen';
   
-  // タイマー開始
+  // チャット更新（リアルタイム）
+  updateChat(roomData.chat || {});
+  
+  // タイマー開始（初回のみ）
   if (!gameTimer && roomData.timerDuration) {
     gameTimer = new GameTimer(roomData.timerDuration, (status, remaining) => {
       if (status === 'tick') {
@@ -271,9 +270,6 @@ function showGameScreen(roomData) {
     gameTimer.start();
   }
   
-  // チャット表示
-  updateChat(roomData.chat || []);
-  
   showScreen('game-screen');
 }
 
@@ -282,7 +278,10 @@ function updateChat(messages) {
   const chatMessages = document.getElementById('chat-messages');
   chatMessages.innerHTML = '';
   
-  messages.forEach(msg => {
+  // messagesがオブジェクトの場合は配列に変換
+  const messageArray = messages ? Object.values(messages) : [];
+  
+  messageArray.forEach(msg => {
     const messageDiv = document.createElement('div');
     messageDiv.className = 'chat-message';
     messageDiv.innerHTML = `
@@ -305,6 +304,13 @@ async function sendMessage() {
     await currentGame.sendMessage(currentPlayer, message);
     input.value = '';
   }
+}
+
+// 投票フェーズへ移行
+async function moveToVoting() {
+  await currentGame.roomRef.update({
+    gameState: 'voting'
+  });
 }
 
 // 投票画面表示

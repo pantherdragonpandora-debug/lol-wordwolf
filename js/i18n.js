@@ -20,6 +20,8 @@ const translations = {
     
     // ホーム画面
     'home.title': 'ワードウルフゲーム',
+    'home.titleLol': 'League of Legends ワードウルフ',
+    'home.titleValorant': 'VALORANT ワードウルフ',
     'home.backToSelect': 'ゲーム選択に戻る',
     'home.create': 'ルームを作成',
     'home.join': 'ルームに参加',
@@ -123,6 +125,8 @@ const translations = {
     'gameSelect.valorantDesc': 'Agents, Weapons, Maps',
     
     'home.title': 'Word Wolf Game',
+    'home.titleLol': 'League of Legends Word Wolf',
+    'home.titleValorant': 'VALORANT Word Wolf',
     'home.backToSelect': 'Back to Game Select',
     'home.create': 'Create Room',
     'home.join': 'Join Room',
@@ -217,6 +221,8 @@ const translations = {
     'gameSelect.valorantDesc': '요원, 무기, 맵',
     
     'home.title': '워드울프 게임',
+    'home.titleLol': 'League of Legends 워드울프',
+    'home.titleValorant': 'VALORANT 워드울프',
     'home.backToSelect': '게임 선택으로 돌아가기',
     'home.create': '방 만들기',
     'home.join': '방 참가',
@@ -311,6 +317,8 @@ const translations = {
     'gameSelect.valorantDesc': '特工、武器、地图',
     
     'home.title': '狼人游戏',
+    'home.titleLol': 'League of Legends 狼人游戏',
+    'home.titleValorant': 'VALORANT 狼人游戏',
     'home.backToSelect': '返回游戏选择',
     'home.create': '创建房间',
     'home.join': '加入房间',
