@@ -33,11 +33,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ゲーム選択関数
 function selectGame(gameType) {
+  console.log('🎮 Game selected:', gameType);
   selectedGameType = gameType;
   
   // カテゴリーの表示切り替え
   const lolCategories = document.querySelectorAll('.lol-category');
   const valorantCategories = document.querySelectorAll('.valorant-category');
+  
+  console.log('📊 LOL categories:', lolCategories.length);
+  console.log('📊 VALORANT categories:', valorantCategories.length);
   
   if (gameType === 'lol') {
     lolCategories.forEach(el => el.style.display = 'flex');
@@ -53,7 +57,9 @@ function selectGame(gameType) {
   document.body.classList.remove('game-lol', 'game-valorant');
   document.body.classList.add(`game-${gameType}`);
   
+  console.log('🖥️ Showing home-screen...');
   showScreen('home-screen');
+  console.log('✅ selectGame completed');
 }
 
 // イベントリスナー設定
@@ -102,10 +108,21 @@ function setupEventListeners() {
 
 // 画面切り替え
 function showScreen(screenId) {
+  console.log('🔄 showScreen called with:', screenId);
+  const allScreens = document.querySelectorAll('.screen');
+  console.log('📺 Total screens found:', allScreens.length);
+  
   document.querySelectorAll('.screen').forEach(screen => {
     screen.classList.remove('active');
   });
-  document.getElementById(screenId).classList.add('active');
+  
+  const targetScreen = document.getElementById(screenId);
+  if (targetScreen) {
+    targetScreen.classList.add('active');
+    console.log('✅ Screen activated:', screenId);
+  } else {
+    console.error('❌ Screen not found:', screenId);
+  }
 }
 
 // ルーム作成
