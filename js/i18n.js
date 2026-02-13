@@ -89,8 +89,8 @@ const translations = {
     'alert.discussionEnd': '討論時間が終了しました！',
     
     // フッター
-    'footer.fanMade': '⚠️ このサイトはファンが作成した非公式のウェブページです',
-    'footer.notAffiliated': 'League of Legends および Riot Games とは一切関係ありません',
+    'footer.fanMade': '🎮 League of Legends ファンによる非公式ゲームサイト',
+    'footer.notAffiliated': '本サイトは Riot Games によって承認されたものではありませんが、Riot Games の Legal Jibber Jabber ポリシーに準拠して運営されています',
     'footer.privacy': 'プライバシーポリシー',
     'footer.terms': '利用規約',
     'footer.copyright': '著作権ポリシー'
@@ -172,8 +172,8 @@ const translations = {
     'alert.discussionEnd': 'Discussion time is over!',
     
     // Footer
-    'footer.fanMade': '⚠️ This is an unofficial fan-made website',
-    'footer.notAffiliated': 'Not affiliated with League of Legends or Riot Games',
+    'footer.fanMade': '🎮 Unofficial League of Legends Fan Game Site',
+    'footer.notAffiliated': 'Not endorsed by Riot Games, but complies with Riot Games\' Legal Jibber Jabber policy',
     'footer.privacy': 'Privacy Policy',
     'footer.terms': 'Terms of Service',
     'footer.copyright': 'Copyright Policy'
@@ -255,8 +255,8 @@ const translations = {
     'alert.discussionEnd': '토론 시간이 종료되었습니다!',
     
     // 푸터
-    'footer.fanMade': '⚠️ 이 사이트는 팬이 만든 비공식 웹페이지입니다',
-    'footer.notAffiliated': 'League of Legends 및 Riot Games와는 관련이 없습니다',
+    'footer.fanMade': '🎮 League of Legends 팬이 만든 비공식 게임 사이트',
+    'footer.notAffiliated': 'Riot Games의 승인을 받지 않았으나, Riot Games의 Legal Jibber Jabber 정책을 준수합니다',
     'footer.privacy': '개인정보 처리방침',
     'footer.terms': '이용약관',
     'footer.copyright': '저작권 정책'
@@ -338,8 +338,8 @@ const translations = {
     'alert.discussionEnd': '讨论时间结束！',
     
     // 页脚
-    'footer.fanMade': '⚠️ 本站是粉丝制作的非官方网页',
-    'footer.notAffiliated': '与英雄联盟及 Riot Games 无任何关联',
+    'footer.fanMade': '🎮 League of Legends 粉丝非官方游戏网站',
+    'footer.notAffiliated': '未经 Riot Games 授权，但遵守 Riot Games 的 Legal Jibber Jabber 政策',
     'footer.privacy': '隐私政策',
     'footer.terms': '使用条款',
     'footer.copyright': '版权政策'

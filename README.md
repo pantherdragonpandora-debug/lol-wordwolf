@@ -22,7 +22,8 @@ League of Legendsをテーマにしたオンライン対戦型ワードウルフ
 - Riot Games, Inc. および League of Legends とは**一切関係ありません**
 - 純粋に娯楽目的の無料ファンサイトです
 - Riot Games の "Legal Jibber Jabber" ポリシーに準拠しています
-- 非営利で運営されています（広告・収益化なし）
+- 無料で提供されています（広告掲載により運営費をカバー）
+- 広告収入はサーバー費用・ドメイン費用などの運営コストに充当されます
 
 ## 🌍 対応言語
 
@@ -112,6 +113,17 @@ GitHub Pagesにデプロイ済み：
 ```
 https://pantherdragonpandora-debug.github.io/lol-wordwolf/
 ```
+
+### 5. 広告の実装（オプション）
+
+サイト運営費用をカバーするため、Google AdSense 広告を実装できます：
+
+1. **Google AdSense アカウントを作成**
+2. **Publisher ID（`ca-pub-XXXXXXXXXX`）を取得**
+3. **`index.html` を編集してコメントアウトを解除**
+4. **詳細は `ADS.md` を参照**
+
+**注意**: 広告実装は Riot Games の Legal Jibber Jabber ポリシーに準拠しています。
 
 ## 🎮 お題カテゴリー
 
@@ -237,6 +249,7 @@ ja: {
 ## 📄 ドキュメント
 
 - `README.md` - プロジェクト全体の説明（このファイル）
+- `ADS.md` - Google AdSense 広告実装ガイド（**NEW!**）
 - `QUICKSTART.md` - 5分で始められるガイド
 - `DEPLOY.md` - デプロイ方法の詳細
 - `TROUBLESHOOTING.md` - トラブルシューティング
@@ -289,6 +302,13 @@ ja: {
 - ✅ LocalStorage活用
 - ✅ エラーハンドリング
 - ✅ 接続状態表示
+
+### 収益化機能（NEW!）
+- ✅ Google AdSense 統合対応
+- ✅ Legal Jibber Jabber ポリシー準拠
+- ✅ プライバシーポリシー（広告・Cookie対応）
+- ✅ 利用規約（広告条項追加）
+- ✅ 詳細な実装ガイド（ADS.md）
 
 ## 📞 サポート
 

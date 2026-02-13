@@ -607,6 +607,36 @@ footer {
   box-shadow: 0 -2px 10px rgba(200, 155, 60, 0.2);
 }
 
+/* 広告エリア */
+.ad-container {
+  max-width: 800px;
+  margin: var(--spacing-lg) auto;
+  padding: var(--spacing-md);
+  text-align: center;
+  background: rgba(30, 35, 40, 0.3);
+  border: 1px solid var(--lol-border);
+  border-radius: 8px;
+}
+
+.ad-container::before {
+  content: 'Advertisement';
+  display: block;
+  font-size: 0.75rem;
+  color: rgba(205, 190, 145, 0.5);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* 広告がない場合は非表示 */
+.ad-container:empty::before {
+  display: none;
+}
+
+.ad-container:empty {
+  display: none;
+}
+
 .footer-content {
   max-width: 1200px;
   margin: 0 auto;
@@ -616,8 +646,8 @@ footer {
 .footer-disclaimer {
   margin-bottom: var(--spacing-md);
   padding: var(--spacing-sm);
-  background: rgba(231, 76, 60, 0.1);
-  border: 1px solid rgba(231, 76, 60, 0.3);
+  background: rgba(11, 198, 227, 0.1);
+  border: 1px solid rgba(11, 198, 227, 0.3);
   border-radius: 8px;
 }
 
