@@ -94,7 +94,7 @@ class GameState {
       }
       
       // お題選択
-      const topic = getRandomTopic(roomData.settings.categories || ['all']);
+      const topic = getRandomTopic(roomData.settings.categories || ['all'], roomData.settings.gameType || 'lol');
       
       // ウルフをランダムに決定（1人）
       const wolfIndex = Math.floor(Math.random() * playerCount);

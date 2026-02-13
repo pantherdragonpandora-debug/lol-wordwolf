@@ -7,13 +7,20 @@ const translations = {
   // 日本語
   ja: {
     // ヘッダー
-    'header.title': 'LOL ワードウルフ',
+    'header.title': 'Esports ワードウルフ',
     'header.connection.connected': '接続中',
     'header.connection.disconnected': '切断',
     'header.connection.connecting': '接続中...',
     
+    // ゲーム選択画面
+    'gameSelect.title': 'Esports ワードウルフ',
+    'gameSelect.subtitle': 'どのゲームで遊びますか？',
+    'gameSelect.lolDesc': 'チャンピオン・アイテム・スキル',
+    'gameSelect.valorantDesc': 'エージェント・武器・マップ',
+    
     // ホーム画面
-    'home.title': 'League of Legends<br>ワードウルフゲーム',
+    'home.title': 'ワードウルフゲーム',
+    'home.backToSelect': 'ゲーム選択に戻る',
     'home.create': 'ルームを作成',
     'home.join': 'ルームに参加',
     'home.rules': 'ルール説明',
@@ -25,11 +32,18 @@ const translations = {
     'create.playerCount': 'プレイ人数',
     'create.timer': '討論時間（分）',
     'create.categories': 'お題カテゴリー',
+    // LOL
     'create.category.champions': 'チャンピオン',
     'create.category.items': 'アイテム',
     'create.category.skills': 'スキル・能力',
     'create.category.map': 'マップ・レーン',
     'create.category.spells': 'スペル',
+    // VALORANT
+    'create.category.agents': 'エージェント',
+    'create.category.weapons': '武器',
+    'create.category.abilities': 'アビリティ',
+    'create.category.maps': 'マップ',
+    'create.category.terms': 'ゲーム用語',
     'create.createButton': '作成',
     'create.back': '戻る',
     
@@ -89,7 +103,7 @@ const translations = {
     'alert.discussionEnd': '討論時間が終了しました！',
     
     // フッター
-    'footer.fanMade': '🎮 League of Legends ファンによる非公式ゲームサイト',
+    'footer.fanMade': '🎮 Riot Games（League of Legends / VALORANT）ファンによる非公式ゲームサイト',
     'footer.notAffiliated': '本サイトは Riot Games によって承認されたものではありませんが、Riot Games の Legal Jibber Jabber ポリシーに準拠して運営されています',
     'footer.privacy': 'プライバシーポリシー',
     'footer.terms': '利用規約',
@@ -98,12 +112,18 @@ const translations = {
   
   // 英語
   en: {
-    'header.title': 'LOL Word Wolf',
+    'header.title': 'Esports Word Wolf',
     'header.connection.connected': 'Connected',
     'header.connection.disconnected': 'Disconnected',
     'header.connection.connecting': 'Connecting...',
     
-    'home.title': 'League of Legends<br>Word Wolf Game',
+    'gameSelect.title': 'Esports Word Wolf',
+    'gameSelect.subtitle': 'Which game do you want to play?',
+    'gameSelect.lolDesc': 'Champions, Items, Skills',
+    'gameSelect.valorantDesc': 'Agents, Weapons, Maps',
+    
+    'home.title': 'Word Wolf Game',
+    'home.backToSelect': 'Back to Game Select',
     'home.create': 'Create Room',
     'home.join': 'Join Room',
     'home.rules': 'Rules',
@@ -119,6 +139,11 @@ const translations = {
     'create.category.skills': 'Skills & Abilities',
     'create.category.map': 'Map & Lanes',
     'create.category.spells': 'Spells',
+    'create.category.agents': 'Agents',
+    'create.category.weapons': 'Weapons',
+    'create.category.abilities': 'Abilities',
+    'create.category.maps': 'Maps',
+    'create.category.terms': 'Game Terms',
     'create.createButton': 'Create',
     'create.back': 'Back',
     
@@ -172,7 +197,7 @@ const translations = {
     'alert.discussionEnd': 'Discussion time is over!',
     
     // Footer
-    'footer.fanMade': '🎮 Unofficial League of Legends Fan Game Site',
+    'footer.fanMade': '🎮 Unofficial Riot Games (LoL / VALORANT) Fan Game Site',
     'footer.notAffiliated': 'Not endorsed by Riot Games, but complies with Riot Games\' Legal Jibber Jabber policy',
     'footer.privacy': 'Privacy Policy',
     'footer.terms': 'Terms of Service',
@@ -181,12 +206,18 @@ const translations = {
   
   // 韓国語
   ko: {
-    'header.title': 'LOL 워드울프',
+    'header.title': '이스포츠 워드울프',
     'header.connection.connected': '연결됨',
     'header.connection.disconnected': '연결 끊김',
     'header.connection.connecting': '연결 중...',
     
-    'home.title': '리그 오브 레전드<br>워드울프 게임',
+    'gameSelect.title': '이스포츠 워드울프',
+    'gameSelect.subtitle': '어떤 게임을 플레이하시겠습니까?',
+    'gameSelect.lolDesc': '챔피언, 아이템, 스킬',
+    'gameSelect.valorantDesc': '요원, 무기, 맵',
+    
+    'home.title': '워드울프 게임',
+    'home.backToSelect': '게임 선택으로 돌아가기',
     'home.create': '방 만들기',
     'home.join': '방 참가',
     'home.rules': '규칙 설명',
@@ -202,6 +233,11 @@ const translations = {
     'create.category.skills': '스킬 및 능력',
     'create.category.map': '맵 및 라인',
     'create.category.spells': '스펠',
+    'create.category.agents': '요원',
+    'create.category.weapons': '무기',
+    'create.category.abilities': '능력',
+    'create.category.maps': '맵',
+    'create.category.terms': '게임 용어',
     'create.createButton': '만들기',
     'create.back': '뒤로',
     
@@ -255,7 +291,7 @@ const translations = {
     'alert.discussionEnd': '토론 시간이 종료되었습니다!',
     
     // 푸터
-    'footer.fanMade': '🎮 League of Legends 팬이 만든 비공식 게임 사이트',
+    'footer.fanMade': '🎮 Riot Games (LoL / VALORANT) 팬이 만든 비공식 게임 사이트',
     'footer.notAffiliated': 'Riot Games의 승인을 받지 않았으나, Riot Games의 Legal Jibber Jabber 정책을 준수합니다',
     'footer.privacy': '개인정보 처리방침',
     'footer.terms': '이용약관',
@@ -264,12 +300,18 @@ const translations = {
   
   // 中国語（簡体字）
   zh: {
-    'header.title': 'LOL 狼人游戏',
+    'header.title': '电竞狼人游戏',
     'header.connection.connected': '已连接',
     'header.connection.disconnected': '已断开',
     'header.connection.connecting': '连接中...',
     
-    'home.title': '英雄联盟<br>狼人游戏',
+    'gameSelect.title': '电竞狼人游戏',
+    'gameSelect.subtitle': '您想玩哪个游戏？',
+    'gameSelect.lolDesc': '英雄、物品、技能',
+    'gameSelect.valorantDesc': '特工、武器、地图',
+    
+    'home.title': '狼人游戏',
+    'home.backToSelect': '返回游戏选择',
     'home.create': '创建房间',
     'home.join': '加入房间',
     'home.rules': '游戏规则',
@@ -285,6 +327,11 @@ const translations = {
     'create.category.skills': '技能与能力',
     'create.category.map': '地图与线路',
     'create.category.spells': '召唤师技能',
+    'create.category.agents': '特工',
+    'create.category.weapons': '武器',
+    'create.category.abilities': '技能',
+    'create.category.maps': '地图',
+    'create.category.terms': '游戏术语',
     'create.createButton': '创建',
     'create.back': '返回',
     
@@ -338,7 +385,7 @@ const translations = {
     'alert.discussionEnd': '讨论时间结束！',
     
     // 页脚
-    'footer.fanMade': '🎮 League of Legends 粉丝非官方游戏网站',
+    'footer.fanMade': '🎮 Riot Games (LoL / VALORANT) 粉丝非官方游戏网站',
     'footer.notAffiliated': '未经 Riot Games 授权，但遵守 Riot Games 的 Legal Jibber Jabber 政策',
     'footer.privacy': '隐私政策',
     'footer.terms': '使用条款',

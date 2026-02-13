@@ -19,6 +19,15 @@
   --lol-text: #cdbe91;
   --lol-white: #f0e6d2;
   
+  /* VALORANT カラーテーマ */
+  --val-red: #ff4655;
+  --val-dark-red: #bd3944;
+  --val-dark: #0f1923;
+  --val-dark-secondary: #1f2326;
+  --val-border: #ff4655;
+  --val-text: #ece8e1;
+  --val-white: #ffffff;
+  
   /* ゲームカラー */
   --wolf-color: #e74c3c;
   --citizen-color: #3498db;
@@ -31,12 +40,32 @@
   --spacing-md: 1.5rem;
   --spacing-lg: 2rem;
   --spacing-xl: 3rem;
+  
+  /* デフォルトはLOL */
+  --primary-color: var(--lol-gold);
+  --primary-dark: var(--lol-blue);
+  --bg-dark: var(--lol-dark);
+  --bg-dark-secondary: var(--lol-dark-secondary);
+  --border-color: var(--lol-border);
+  --text-color: var(--lol-text);
+  --text-white: var(--lol-white);
+}
+
+/* VALORANTテーマ */
+body.game-valorant {
+  --primary-color: var(--val-red);
+  --primary-dark: var(--val-dark-red);
+  --bg-dark: var(--val-dark);
+  --bg-dark-secondary: var(--val-dark-secondary);
+  --border-color: var(--val-border);
+  --text-color: var(--val-text);
+  --text-white: var(--val-white);
 }
 
 body {
   font-family: 'Segoe UI', 'Yu Gothic', 'Meiryo', sans-serif;
-  background: linear-gradient(135deg, var(--lol-dark) 0%, var(--lol-dark-secondary) 100%);
-  color: var(--lol-white);
+  background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-dark-secondary) 100%);
+  color: var(--text-white);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -46,7 +75,7 @@ body {
 /* ヘッダー */
 header {
   background: rgba(1, 10, 19, 0.9);
-  border-bottom: 2px solid var(--lol-gold);
+  border-bottom: 2px solid var(--primary-color);
   padding: var(--spacing-sm) var(--spacing-md);
   box-shadow: 0 2px 10px rgba(200, 155, 60, 0.3);
 }
@@ -61,7 +90,7 @@ header {
 
 h1 {
   font-size: 1.8rem;
-  color: var(--lol-gold);
+  color: var(--primary-color);
   text-shadow: 0 0 10px rgba(200, 155, 60, 0.5);
   font-weight: 700;
 }
@@ -716,4 +745,110 @@ footer {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #a67c2b;
+}
+
+/* ゲーム選択画面 */
+.game-selection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.game-select-btn {
+  padding: var(--spacing-lg);
+  background: rgba(30, 35, 40, 0.6);
+  border: 3px solid var(--lol-border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 150px;
+  justify-content: center;
+}
+
+.game-select-btn:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(200, 155, 60, 0.4);
+}
+
+.game-select-btn.lol-game {
+  border-color: var(--lol-gold);
+}
+
+.game-select-btn.lol-game:hover {
+  background: rgba(200, 155, 60, 0.1);
+  border-color: var(--lol-gold);
+  box-shadow: 0 8px 25px rgba(200, 155, 60, 0.6);
+}
+
+.game-select-btn.valorant-game {
+  border-color: #ff4655;
+}
+
+.game-select-btn.valorant-game:hover {
+  background: rgba(255, 70, 85, 0.1);
+  border-color: #ff4655;
+  box-shadow: 0 8px 25px rgba(255, 70, 85, 0.6);
+}
+
+.game-icon {
+  font-size: 3rem;
+}
+
+.game-name {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--lol-gold);
+}
+
+.valorant-game .game-name {
+  color: #ff4655;
+}
+
+.game-desc {
+  font-size: 0.9rem;
+  color: var(--lol-text);
+  text-align: center;
+}
+
+.game-title-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.btn-back {
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--lol-border);
+  border-radius: 6px;
+  color: var(--lol-text);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-back:hover {
+  background: rgba(11, 198, 227, 0.2);
+  border-color: var(--lol-blue);
+  color: var(--lol-blue);
+}
+
+@media (max-width: 768px) {
+  .game-select-btn {
+    min-height: 120px;
+  }
+  
+  .game-icon {
+    font-size: 2.5rem;
+  }
+  
+  .game-name {
+    font-size: 1.3rem;
+  }
 }

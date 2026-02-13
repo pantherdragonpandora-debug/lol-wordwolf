@@ -2,6 +2,7 @@
 // UI制御とメイン処理
 // ========================================
 
+let selectedGameType = null; // 'lol' または 'valorant'
 let currentGame = null;
 let currentPlayer = null;
 let currentRoomId = null;
@@ -20,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('join-room-id').value = roomIdFromUrl;
     showScreen('join-screen');
   } else {
-    showScreen('home-screen');
+    showScreen('game-select-screen');
   }
   
   // イベントリスナー設定
@@ -30,8 +31,42 @@ document.addEventListener('DOMContentLoaded', () => {
   updateConnectionStatus();
 });
 
+// ゲーム選択関数
+function selectGame(gameType) {
+  selectedGameType = gameType;
+  
+  // カテゴリーの表示切り替え
+  const lolCategories = document.querySelectorAll('.lol-category');
+  const valorantCategories = document.querySelectorAll('.valorant-category');
+  
+  if (gameType === 'lol') {
+    lolCategories.forEach(el => el.style.display = 'flex');
+    valorantCategories.forEach(el => el.style.display = 'none');
+    document.getElementById('current-game-title').textContent = 'League of Legends ワードウルフ';
+  } else if (gameType === 'valorant') {
+    lolCategories.forEach(el => el.style.display = 'none');
+    valorantCategories.forEach(el => el.style.display = 'flex');
+    document.getElementById('current-game-title').textContent = 'VALORANT ワードウルフ';
+  }
+  
+  // bodyにゲームタイプのクラスを追加（テーマカラー切り替え用）
+  document.body.classList.remove('game-lol', 'game-valorant');
+  document.body.classList.add(`game-${gameType}`);
+  
+  showScreen('home-screen');
+}
+
 // イベントリスナー設定
 function setupEventListeners() {
+  // ゲーム選択画面
+  document.getElementById('select-lol-btn').addEventListener('click', () => selectGame('lol'));
+  document.getElementById('select-valorant-btn').addEventListener('click', () => selectGame('valorant'));
+  document.getElementById('back-to-game-select-btn').addEventListener('click', () => {
+    selectedGameType = null;
+    document.body.classList.remove('game-lol', 'game-valorant');
+    showScreen('game-select-screen');
+  });
+  
   // ホーム画面
   document.getElementById('create-room-btn').addEventListener('click', () => showScreen('create-screen'));
   document.getElementById('join-room-btn').addEventListener('click', () => showScreen('join-screen'));
@@ -95,6 +130,11 @@ async function createRoom() {
     return;
   }
   
+  if (!selectedGameType) {
+    alert(t('alert.selectGame'));
+    return;
+  }
+  
   // ルームID生成
   currentRoomId = generateRoomId();
   currentPlayer = playerName;
@@ -104,7 +144,8 @@ async function createRoom() {
   const success = await currentGame.createRoom(playerName, {
     playerCount,
     timer,
-    categories
+    categories,
+    gameType: selectedGameType
   });
   
   if (success) {

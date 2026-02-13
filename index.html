@@ -11,17 +11,14 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     
-    <title>LOL ワードウルフ</title>
+    <title>Esports ワードウルフ - LOL & VALORANT</title>
     
     <!-- CSS -->
     <link rel="stylesheet" href="css/style.css?v=2">
     
     <!-- Google AdSense -->
-  <!-- Google AdSense -->
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6628280908520822"
-     crossorigin="anonymous"></script>
-
-    -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6628280908520822"
+         crossorigin="anonymous"></script>
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -31,7 +28,7 @@
     <!-- ヘッダー -->
     <header>
         <div class="header-content">
-            <h1 data-i18n="header.title">🎮 LOL ワードウルフ</h1>
+            <h1 data-i18n="header.title">🎮 Esports ワードウルフ</h1>
             <div style="display: flex; align-items: center;">
                 <div class="language-switcher">
                     <button class="lang-btn" data-lang="ja" onclick="changeLanguage('ja')">日本語</button>
@@ -46,10 +43,35 @@
 
     <!-- メインコンテンツ -->
     <main>
-        <!-- ホーム画面 -->
-        <div id="home-screen" class="screen">
+        <!-- ゲーム選択画面 -->
+        <div id="game-select-screen" class="screen">
             <div class="card">
-                <h2 data-i18n="home.title">League of Legends<br>ワードウルフゲーム</h2>
+                <h2 data-i18n="gameSelect.title">Esports ワードウルフ</h2>
+                <p style="text-align: center; margin-bottom: 2rem; color: var(--lol-text);" data-i18n="gameSelect.subtitle">どのゲームで遊びますか？</p>
+                
+                <div class="game-selection">
+                    <button id="select-lol-btn" class="game-select-btn lol-game">
+                        <span class="game-icon">🎮</span>
+                        <span class="game-name">League of Legends</span>
+                        <span class="game-desc" data-i18n="gameSelect.lolDesc">チャンピオン・アイテム・スキル</span>
+                    </button>
+                    
+                    <button id="select-valorant-btn" class="game-select-btn valorant-game">
+                        <span class="game-icon">🔫</span>
+                        <span class="game-name">VALORANT</span>
+                        <span class="game-desc" data-i18n="gameSelect.valorantDesc">エージェント・武器・マップ</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ホーム画面 -->
+        <div id="home-screen" class="screen" style="display: none;">
+            <div class="card">
+                <div class="game-title-header">
+                    <button id="back-to-game-select-btn" class="btn-back">← <span data-i18n="home.backToSelect">ゲーム選択に戻る</span></button>
+                    <h2 id="current-game-title" data-i18n="home.title">ワードウルフゲーム</h2>
+                </div>
                 <button id="create-room-btn" class="btn-primary btn-full-width" data-i18n="home.create">ルームを作成</button>
                 <button id="join-room-btn" class="btn-secondary btn-full-width" data-i18n="home.join">ルームに参加</button>
                 <button id="rules-btn" class="btn-secondary btn-full-width" data-i18n="home.rules">ルール説明</button>
@@ -88,26 +110,49 @@
                 
                 <div class="form-group">
                     <label data-i18n="create.categories">お題カテゴリー</label>
-                    <div class="checkbox-group">
-                        <div class="checkbox-item">
+                    <div id="category-checkboxes" class="checkbox-group">
+                        <!-- LOL用カテゴリー（デフォルト） -->
+                        <div class="checkbox-item lol-category">
                             <input type="checkbox" name="category" value="champions" id="cat-champions" checked>
                             <label for="cat-champions" data-i18n="create.category.champions">チャンピオン</label>
                         </div>
-                        <div class="checkbox-item">
+                        <div class="checkbox-item lol-category">
                             <input type="checkbox" name="category" value="items" id="cat-items" checked>
                             <label for="cat-items" data-i18n="create.category.items">アイテム</label>
                         </div>
-                        <div class="checkbox-item">
+                        <div class="checkbox-item lol-category">
                             <input type="checkbox" name="category" value="skills" id="cat-skills" checked>
                             <label for="cat-skills" data-i18n="create.category.skills">スキル・能力</label>
                         </div>
-                        <div class="checkbox-item">
+                        <div class="checkbox-item lol-category">
                             <input type="checkbox" name="category" value="map" id="cat-map" checked>
                             <label for="cat-map" data-i18n="create.category.map">マップ・レーン</label>
                         </div>
-                        <div class="checkbox-item">
+                        <div class="checkbox-item lol-category">
                             <input type="checkbox" name="category" value="spells" id="cat-spells" checked>
                             <label for="cat-spells" data-i18n="create.category.spells">スペル</label>
+                        </div>
+                        
+                        <!-- VALORANT用カテゴリー -->
+                        <div class="checkbox-item valorant-category" style="display:none;">
+                            <input type="checkbox" name="category" value="agents" id="cat-agents" checked>
+                            <label for="cat-agents" data-i18n="create.category.agents">エージェント</label>
+                        </div>
+                        <div class="checkbox-item valorant-category" style="display:none;">
+                            <input type="checkbox" name="category" value="weapons" id="cat-weapons" checked>
+                            <label for="cat-weapons" data-i18n="create.category.weapons">武器</label>
+                        </div>
+                        <div class="checkbox-item valorant-category" style="display:none;">
+                            <input type="checkbox" name="category" value="abilities" id="cat-abilities" checked>
+                            <label for="cat-abilities" data-i18n="create.category.abilities">アビリティ</label>
+                        </div>
+                        <div class="checkbox-item valorant-category" style="display:none;">
+                            <input type="checkbox" name="category" value="maps" id="cat-maps" checked>
+                            <label for="cat-maps" data-i18n="create.category.maps">マップ</label>
+                        </div>
+                        <div class="checkbox-item valorant-category" style="display:none;">
+                            <input type="checkbox" name="category" value="terms" id="cat-terms" checked>
+                            <label for="cat-terms" data-i18n="create.category.terms">ゲーム用語</label>
                         </div>
                     </div>
                 </div>
@@ -252,7 +297,7 @@
     <footer>
         <div class="footer-content">
             <div class="footer-disclaimer">
-                <p data-i18n="footer.fanMade">🎮 League of Legends ファンによる非公式ゲームサイト</p>
+                <p data-i18n="footer.fanMade">🎮 Riot Games（League of Legends / VALORANT）ファンによる非公式ゲームサイト</p>
                 <p data-i18n="footer.notAffiliated">本サイトは Riot Games によって承認されたものではありませんが、Riot Games の Legal Jibber Jabber ポリシーに準拠して運営されています</p>
             </div>
             <div class="footer-links">
@@ -270,10 +315,11 @@
     </footer>
 
     <!-- JavaScript -->
-    <script src="js/firebase-config.js?v=2"></script>
-    <script src="js/i18n.js?v=2"></script>
-    <script src="js/data.js?v=2"></script>
-    <script src="js/game.js?v=2"></script>
-    <script src="js/main.js?v=2"></script>
+    <script src="js/firebase-config.js?v=3"></script>
+    <script src="js/i18n.js?v=3"></script>
+    <script src="js/data.js?v=3"></script>
+    <script src="js/data-valorant.js?v=3"></script>
+    <script src="js/game.js?v=3"></script>
+    <script src="js/main.js?v=3"></script>
 </body>
 </html>

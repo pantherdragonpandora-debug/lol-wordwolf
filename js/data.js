@@ -108,20 +108,23 @@ const categoryNames = {
 };
 
 // お題をランダムに選択する関数
-function getRandomTopic(categories) {
+function getRandomTopic(categories, gameType = 'lol') {
   // 選択されたカテゴリーからお題を集める
   let allTopics = [];
   
+  // ゲームタイプに応じたデータを選択
+  const dataSource = gameType === 'valorant' ? valorantData : wordData;
+  
   if (categories.length === 0 || categories.includes('all')) {
     // すべてのカテゴリーから選択
-    Object.values(wordData).forEach(categoryData => {
+    Object.values(dataSource).forEach(categoryData => {
       allTopics = allTopics.concat(categoryData);
     });
   } else {
     // 選択されたカテゴリーのみ
     categories.forEach(category => {
-      if (wordData[category]) {
-        allTopics = allTopics.concat(wordData[category]);
+      if (dataSource[category]) {
+        allTopics = allTopics.concat(dataSource[category]);
       }
     });
   }
