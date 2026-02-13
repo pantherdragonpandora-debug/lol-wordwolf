@@ -18,8 +18,16 @@
     <!-- ヘッダー -->
     <header>
         <div class="header-content">
-            <h1>🎮 LOL ワードウルフ</h1>
-            <div id="connection-status" class="connection-status">接続中...</div>
+            <h1 data-i18n="header.title">🎮 LOL ワードウルフ</h1>
+            <div style="display: flex; align-items: center;">
+                <div class="language-switcher">
+                    <button class="lang-btn" data-lang="ja" onclick="changeLanguage('ja')">日本語</button>
+                    <button class="lang-btn" data-lang="en" onclick="changeLanguage('en')">EN</button>
+                    <button class="lang-btn" data-lang="ko" onclick="changeLanguage('ko')">한국어</button>
+                    <button class="lang-btn" data-lang="zh" onclick="changeLanguage('zh')">中文</button>
+                </div>
+                <div id="connection-status" class="connection-status" data-i18n="header.connection.connecting">接続中...</div>
+            </div>
         </div>
     </header>
 
@@ -28,72 +36,72 @@
         <!-- ホーム画面 -->
         <div id="home-screen" class="screen">
             <div class="card">
-                <h2>League of Legends<br>ワードウルフゲーム</h2>
-                <button id="create-room-btn" class="btn-primary btn-full-width">ルームを作成</button>
-                <button id="join-room-btn" class="btn-secondary btn-full-width">ルームに参加</button>
-                <button id="rules-btn" class="btn-secondary btn-full-width">ルール説明</button>
+                <h2 data-i18n="home.title">League of Legends<br>ワードウルフゲーム</h2>
+                <button id="create-room-btn" class="btn-primary btn-full-width" data-i18n="home.create">ルームを作成</button>
+                <button id="join-room-btn" class="btn-secondary btn-full-width" data-i18n="home.join">ルームに参加</button>
+                <button id="rules-btn" class="btn-secondary btn-full-width" data-i18n="home.rules">ルール説明</button>
             </div>
         </div>
 
         <!-- ルーム作成画面 -->
         <div id="create-screen" class="screen">
             <div class="card">
-                <h2>ルーム作成</h2>
+                <h2 data-i18n="create.title">ルーム作成</h2>
                 
                 <div class="form-group">
-                    <label for="create-player-name">プレイヤー名</label>
-                    <input type="text" id="create-player-name" placeholder="名前を入力" maxlength="20">
+                    <label for="create-player-name" data-i18n="create.playerName">プレイヤー名</label>
+                    <input type="text" id="create-player-name" data-i18n="create.playerNamePlaceholder" placeholder="名前を入力" maxlength="20">
                 </div>
                 
                 <div class="form-group">
-                    <label for="player-count">プレイ人数</label>
+                    <label for="player-count" data-i18n="create.playerCount">プレイ人数</label>
                     <select id="player-count">
-                        <option value="3">3人</option>
-                        <option value="4" selected>4人</option>
-                        <option value="5">5人</option>
+                        <option value="3">3</option>
+                        <option value="4" selected>4</option>
+                        <option value="5">5</option>
                     </select>
                 </div>
                 
                 <div class="form-group">
-                    <label for="timer">討論時間（分）</label>
+                    <label for="timer" data-i18n="create.timer">討論時間（分）</label>
                     <select id="timer">
-                        <option value="3">3分</option>
-                        <option value="5" selected>5分</option>
-                        <option value="7">7分</option>
-                        <option value="10">10分</option>
-                        <option value="15">15分</option>
+                        <option value="3">3</option>
+                        <option value="5" selected>5</option>
+                        <option value="7">7</option>
+                        <option value="10">10</option>
+                        <option value="15">15</option>
                     </select>
                 </div>
                 
                 <div class="form-group">
-                    <label>お題カテゴリー</label>
+                    <label data-i18n="create.categories">お題カテゴリー</label>
                     <div class="checkbox-group">
                         <div class="checkbox-item">
                             <input type="checkbox" name="category" value="champions" id="cat-champions" checked>
-                            <label for="cat-champions">チャンピオン</label>
+                            <label for="cat-champions" data-i18n="create.category.champions">チャンピオン</label>
                         </div>
                         <div class="checkbox-item">
                             <input type="checkbox" name="category" value="items" id="cat-items" checked>
-                            <label for="cat-items">アイテム</label>
+                            <label for="cat-items" data-i18n="create.category.items">アイテム</label>
                         </div>
                         <div class="checkbox-item">
                             <input type="checkbox" name="category" value="skills" id="cat-skills" checked>
-                            <label for="cat-skills">スキル・能力</label>
+                            <label for="cat-skills" data-i18n="create.category.skills">スキル・能力</label>
                         </div>
                         <div class="checkbox-item">
                             <input type="checkbox" name="category" value="map" id="cat-map" checked>
-                            <label for="cat-map">マップ・レーン</label>
+                            <label for="cat-map" data-i18n="create.category.map">マップ・レーン</label>
                         </div>
                         <div class="checkbox-item">
                             <input type="checkbox" name="category" value="spells" id="cat-spells" checked>
-                            <label for="cat-spells">スペル</label>
+                            <label for="cat-spells" data-i18n="create.category.spells">スペル</label>
                         </div>
                     </div>
                 </div>
                 
                 <div class="button-group">
-                    <button id="start-create-btn" class="btn-primary">作成</button>
-                    <button id="back-from-create-btn" class="btn-secondary">戻る</button>
+                    <button id="start-create-btn" class="btn-primary" data-i18n="create.createButton">作成</button>
+                    <button id="back-from-create-btn" class="btn-secondary" data-i18n="create.back">戻る</button>
                 </div>
             </div>
         </div>
@@ -101,21 +109,21 @@
         <!-- ルーム参加画面 -->
         <div id="join-screen" class="screen">
             <div class="card">
-                <h2>ルームに参加</h2>
+                <h2 data-i18n="join.title">ルームに参加</h2>
                 
                 <div class="form-group">
-                    <label for="join-room-id">ルームID</label>
-                    <input type="text" id="join-room-id" placeholder="6桁のルームID" maxlength="6">
+                    <label for="join-room-id" data-i18n="join.roomId">ルームID</label>
+                    <input type="text" id="join-room-id" data-i18n="join.roomIdPlaceholder" placeholder="6桁のルームID" maxlength="6">
                 </div>
                 
                 <div class="form-group">
-                    <label for="join-player-name">プレイヤー名</label>
-                    <input type="text" id="join-player-name" placeholder="名前を入力" maxlength="20">
+                    <label for="join-player-name" data-i18n="join.playerName">プレイヤー名</label>
+                    <input type="text" id="join-player-name" data-i18n="join.playerNamePlaceholder" placeholder="名前を入力" maxlength="20">
                 </div>
                 
                 <div class="button-group">
-                    <button id="start-join-btn" class="btn-primary">参加</button>
-                    <button id="back-from-join-btn" class="btn-secondary">戻る</button>
+                    <button id="start-join-btn" class="btn-primary" data-i18n="join.joinButton">参加</button>
+                    <button id="back-from-join-btn" class="btn-secondary" data-i18n="join.back">戻る</button>
                 </div>
             </div>
         </div>
@@ -123,22 +131,22 @@
         <!-- 待機室画面 -->
         <div id="waiting-screen" class="screen">
             <div class="card">
-                <h2>待機室</h2>
+                <h2 data-i18n="waiting.title">待機室</h2>
                 
                 <div class="room-info">
-                    <div class="room-id">ルームID: <span id="room-id-display">------</span></div>
+                    <div class="room-id"><span data-i18n="waiting.roomId">ルームID:</span> <span id="room-id-display">------</span></div>
                     <div class="room-url" id="room-url-display"></div>
-                    <button id="copy-room-url-btn" class="btn-secondary btn-full-width">URLをコピー</button>
+                    <button id="copy-room-url-btn" class="btn-secondary btn-full-width" data-i18n="waiting.copyUrl">URLをコピー</button>
                 </div>
                 
                 <div class="form-group">
-                    <label>参加プレイヤー</label>
+                    <label data-i18n="waiting.players">参加プレイヤー</label>
                     <div id="players-list" class="players-list"></div>
                 </div>
                 
                 <div class="button-group">
-                    <button id="start-game-btn" class="btn-primary" style="display: none;">ゲーム開始</button>
-                    <button id="leave-room-btn" class="btn-danger">退出</button>
+                    <button id="start-game-btn" class="btn-primary" style="display: none;" data-i18n="waiting.startGame">ゲーム開始</button>
+                    <button id="leave-room-btn" class="btn-danger" data-i18n="waiting.leave">退出</button>
                 </div>
             </div>
         </div>
@@ -146,7 +154,7 @@
         <!-- ゲーム画面 -->
         <div id="game-screen" class="screen">
             <div class="card">
-                <h2>討論タイム</h2>
+                <h2 data-i18n="game.title">討論タイム</h2>
                 
                 <div class="timer">
                     <div class="timer-display" id="timer-display">00:00</div>
@@ -154,61 +162,83 @@
                 
                 <div class="topic-display">
                     <div class="topic-text" id="your-topic">-</div>
-                    <div id="your-role" class="role-citizen">あなたは市民です</div>
+                    <div id="your-role" class="role-citizen" data-i18n="game.roleCitizen">あなたは市民です</div>
                 </div>
                 
                 <div class="chat-container">
                     <div id="chat-messages" class="chat-messages"></div>
                     <div class="chat-input-group">
-                        <input type="text" id="chat-input" placeholder="メッセージを入力..." maxlength="100">
-                        <button id="send-message-btn" class="btn-primary">送信</button>
+                        <input type="text" id="chat-input" data-i18n="game.chatPlaceholder" placeholder="メッセージを入力..." maxlength="100">
+                        <button id="send-message-btn" class="btn-primary" data-i18n="game.send">送信</button>
                     </div>
                 </div>
                 
-                <button id="end-discussion-btn" class="btn-primary btn-full-width">投票へ進む</button>
+                <button id="end-discussion-btn" class="btn-primary btn-full-width" data-i18n="game.endDiscussion">投票へ進む</button>
             </div>
         </div>
 
         <!-- 投票画面 -->
         <div id="voting-screen" class="screen">
             <div class="card">
-                <h2>投票タイム</h2>
+                <h2 data-i18n="voting.title">投票タイム</h2>
                 
-                <p style="text-align: center; margin-bottom: 1.5rem; color: var(--lol-text);">
+                <p style="text-align: center; margin-bottom: 1.5rem; color: var(--lol-text);" data-i18n="voting.question">
                     誰がウルフだと思いますか？
                 </p>
                 
                 <div id="vote-options" class="vote-options"></div>
                 
-                <button id="confirm-vote-btn" class="btn-primary btn-full-width">投票確定</button>
+                <button id="confirm-vote-btn" class="btn-primary btn-full-width" data-i18n="voting.confirm">投票確定</button>
             </div>
         </div>
 
         <!-- 結果画面 -->
         <div id="result-screen" class="screen">
             <div class="card">
-                <h2 id="result-title" class="result-title">結果発表</h2>
+                <h2 id="result-title" class="result-title" data-i18n="result.title">結果発表</h2>
                 
                 <div class="result-info">
-                    <p id="wolf-reveal">ウルフは ？ でした</p>
-                    <p id="voted-out">追放されたのは ？ です</p>
+                    <p id="wolf-reveal" data-i18n="result.wolfWas">ウルフは ？ でした</p>
+                    <p id="voted-out" data-i18n="result.votedOut">追放されたのは ？ です</p>
                     
                     <div style="margin-top: 1.5rem;">
-                        <label style="color: var(--lol-gold); margin-bottom: 0.5rem;">投票結果</label>
+                        <label style="color: var(--lol-gold); margin-bottom: 0.5rem;" data-i18n="result.voteResults">投票結果</label>
                         <div id="vote-results"></div>
                     </div>
                 </div>
                 
                 <div class="button-group">
-                    <button id="play-again-btn" class="btn-primary">もう一度</button>
-                    <button id="back-to-home-btn" class="btn-secondary">ホームへ</button>
+                    <button id="play-again-btn" class="btn-primary" data-i18n="result.playAgain">もう一度</button>
+                    <button id="back-to-home-btn" class="btn-secondary" data-i18n="result.backToHome">ホームへ</button>
                 </div>
             </div>
         </div>
     </main>
 
+    <!-- フッター -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-disclaimer">
+                <p data-i18n="footer.fanMade">⚠️ このサイトはファンが作成した非公式のウェブページです</p>
+                <p data-i18n="footer.notAffiliated">League of Legends および Riot Games とは一切関係ありません</p>
+            </div>
+            <div class="footer-links">
+                <a href="./privacy.html" data-i18n="footer.privacy">プライバシーポリシー</a>
+                <span class="separator">|</span>
+                <a href="./terms.html" data-i18n="footer.terms">利用規約</a>
+                <span class="separator">|</span>
+                <a href="./copyright.html" data-i18n="footer.copyright">著作権ポリシー</a>
+            </div>
+            <div class="footer-copyright">
+                <p>&copy; 2025 LOL Word Wolf Fan Site. All rights reserved.</p>
+                <p class="small-text">League of Legends and Riot Games are trademarks or registered trademarks of Riot Games, Inc.</p>
+            </div>
+        </div>
+    </footer>
+
     <!-- JavaScript -->
     <script src="./js/firebase-config.js"></script>
+    <script src="./js/i18n.js"></script>
     <script src="./js/data.js"></script>
     <script src="./js/game.js"></script>
     <script src="./js/main.js"></script>

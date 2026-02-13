@@ -9,6 +9,9 @@ let gameTimer = null;
 
 // ページ読み込み時
 document.addEventListener('DOMContentLoaded', () => {
+  // 多言語初期化
+  initLanguage();
+  
   // URL パラメータからルームIDを取得
   const urlParams = new URLSearchParams(window.location.search);
   const roomIdFromUrl = urlParams.get('room');
@@ -83,12 +86,12 @@ async function createRoom() {
   });
   
   if (!playerName) {
-    alert('プレイヤー名を入力してください');
+    alert(t('alert.enterPlayerName'));
     return;
   }
   
   if (categories.length === 0) {
-    alert('カテゴリーを1つ以上選択してください');
+    alert(t('alert.selectCategory'));
     return;
   }
   
@@ -109,7 +112,7 @@ async function createRoom() {
     showWaitingRoom();
     currentGame.watch(updateWaitingRoom);
   } else {
-    alert('ルーム作成に失敗しました');
+    alert(t('alert.createFailed'));
   }
 }
 
@@ -119,7 +122,7 @@ async function joinRoom() {
   const playerName = document.getElementById('join-player-name').value.trim();
   
   if (!roomId || !playerName) {
-    alert('ルームIDとプレイヤー名を入力してください');
+    alert(t('alert.enterRoomIdAndName'));
     return;
   }
   
@@ -158,7 +161,7 @@ function updateWaitingRoom(roomData) {
     playerDiv.className = 'player-item';
     playerDiv.innerHTML = `
       <span>${player.name}</span>
-      ${player.name === roomData.host ? '<span class="host-badge">ホスト</span>' : ''}
+      ${player.name === roomData.host ? `<span class="host-badge">${t('waiting.host')}</span>` : ''}
     `;
     playersList.appendChild(playerDiv);
   });
@@ -181,7 +184,7 @@ function updateWaitingRoom(roomData) {
 async function startGame() {
   const success = await currentGame.startGame();
   if (!success) {
-    alert('ゲーム開始に失敗しました');
+    alert(t('alert.createFailed'));
   }
 }
 
@@ -192,7 +195,7 @@ function showGameScreen(roomData) {
   // お題表示
   document.getElementById('your-topic').textContent = player.topic;
   document.getElementById('your-role').textContent = 
-    player.role === 'wolf' ? 'あなたはウルフです！' : 'あなたは市民です';
+    player.role === 'wolf' ? t('game.roleWolf') : t('game.roleCitizen');
   document.getElementById('your-role').className = 
     player.role === 'wolf' ? 'role-wolf' : 'role-citizen';
   
@@ -204,7 +207,7 @@ function showGameScreen(roomData) {
         document.getElementById('timer-display').textContent = timer.getFormattedTime();
       } else if (status === 'finished') {
         document.getElementById('timer-display').textContent = '00:00';
-        alert('討論時間が終了しました！');
+        alert(t('alert.discussionEnd'));
       }
     });
     gameTimer.start();
@@ -271,7 +274,7 @@ async function confirmVote() {
   const selectedVote = document.querySelector('input[name="vote"]:checked');
   
   if (!selectedVote) {
-    alert('投票先を選択してください');
+    alert(t('alert.selectVote'));
     return;
   }
   
@@ -286,7 +289,7 @@ async function confirmVote() {
   if (allVoted) {
     await currentGame.endVoting();
   } else {
-    alert('投票完了！他のプレイヤーの投票を待っています...');
+    alert(t('alert.votingComplete'));
   }
 }
 
@@ -295,22 +298,22 @@ function showResultScreen(roomData) {
   const result = roomData.result;
   
   document.getElementById('result-title').textContent = 
-    result.citizensWin ? '市民の勝利！' : 'ウルフの勝利！';
+    result.citizensWin ? t('result.citizensWin') : t('result.wolfWin');
   document.getElementById('result-title').className = 
     result.citizensWin ? 'result-citizens-win' : 'result-wolf-win';
   
   document.getElementById('wolf-reveal').textContent = 
-    `ウルフは ${result.wolf} でした`;
+    t('result.wolfWas', { wolf: result.wolf });
   
   document.getElementById('voted-out').textContent = 
-    `追放されたのは ${result.votedOut} です`;
+    t('result.votedOut', { player: result.votedOut });
   
   // 投票結果
   const voteResults = document.getElementById('vote-results');
   voteResults.innerHTML = '';
   Object.entries(result.voteCount).forEach(([name, count]) => {
     const resultDiv = document.createElement('div');
-    resultDiv.textContent = `${name}: ${count}票`;
+    resultDiv.textContent = `${name}: ${count} ${t('result.votes')}`;
     voteResults.appendChild(resultDiv);
   });
   
@@ -353,7 +356,7 @@ async function backToHome() {
 
 // ルーム退出
 async function leaveRoom() {
-  if (confirm('ルームを退出しますか？')) {
+  if (confirm(t('alert.confirmLeave'))) {
     await backToHome();
   }
 }
@@ -362,9 +365,9 @@ async function leaveRoom() {
 function copyRoomUrl() {
   const url = document.getElementById('room-url-display').textContent;
   navigator.clipboard.writeText(url).then(() => {
-    alert('URLをコピーしました！');
+    alert(t('alert.urlCopied'));
   }).catch(() => {
-    alert('URLのコピーに失敗しました');
+    alert(t('alert.urlCopyFailed'));
   });
 }
 
@@ -397,10 +400,10 @@ function updateConnectionStatus() {
   connectedRef.on('value', (snap) => {
     const statusEl = document.getElementById('connection-status');
     if (snap.val() === true) {
-      statusEl.textContent = '✅ 接続中';
+      statusEl.textContent = '✅ ' + t('header.connection.connected');
       statusEl.className = 'status-connected';
     } else {
-      statusEl.textContent = '❌ 切断';
+      statusEl.textContent = '❌ ' + t('header.connection.disconnected');
       statusEl.className = 'status-disconnected';
     }
   });
