@@ -625,7 +625,8 @@ function updateWaitingRoom(roomData) {
   
   // ゲーム状態による画面遷移
   // ゲームモードを判定
-  const isDemaciaMode = roomData.gameMode === 'demacia' || 
+  const isDemaciaMode = (currentDemaciaGame !== null) || 
+                        roomData.gameMode === 'demacia' || 
                         roomData.gameState === 'performer_selection' || 
                         roomData.gameState === 'performing' || 
                         roomData.gameState === 'round_result';
@@ -1148,8 +1149,16 @@ async function startDemaciaVoting() {
 
 // 投票画面表示
 function showDemaciaVotingScreen() {
+  console.log('🎭 デマーシア投票画面を表示します');
+  
   const roomData = currentDemaciaGame.roomData;
   const isPerformer = roomData.currentPerformer === currentPlayer;
+  
+  console.log('🎭 演技者判定:', {
+    currentPerformer: roomData.currentPerformer,
+    currentPlayer: currentPlayer,
+    isPerformer: isPerformer
+  });
   
   // 投票状況を更新
   const players = Object.values(roomData.players || {});
@@ -1185,12 +1194,29 @@ function showDemaciaVotingScreen() {
   }
   
   if (isPerformer) {
+    console.log('🎭 演技者用の画面を表示します');
     // 演技者は投票しない
+    // セリフを表示
+    document.getElementById('demacia-voting-phrase').textContent = roomData.currentPhrase.text;
+    
     const optionsContainer = document.getElementById('demacia-situation-options');
     if (optionsContainer) {
-      optionsContainer.innerHTML = '<p style="text-align: center; padding: 2rem; color: #c89b3c;">👀 他のプレイヤーの投票を待っています...</p>';
+      optionsContainer.innerHTML = `
+        <div style="text-align: center; padding: 3rem 1rem; background: linear-gradient(135deg, rgba(200,155,60,0.1) 0%, rgba(200,155,60,0.05) 100%); border-radius: 12px; margin: 2rem 0;">
+          <div style="font-size: 3rem; margin-bottom: 1rem;">👀</div>
+          <h3 style="color: #c89b3c; margin-bottom: 1rem; font-size: 1.2rem;">投票をお待ちください</h3>
+          <p style="color: rgba(255,255,255,0.7); line-height: 1.6;">
+            あなたは演技者です。<br>
+            他のプレイヤーが投票を完了するまでお待ちください。
+          </p>
+          <div style="margin-top: 1.5rem; font-size: 0.9rem; color: #c89b3c;">
+            投票状況: <span id="performer-vote-count">${voteCount}</span> / <span id="performer-total-voters">${expectedVoters}</span> 人が投票完了
+          </div>
+        </div>
+      `;
     }
   } else {
+    console.log('🗳️ 投票者用の画面を表示します');
     // 投票者の表示
     document.getElementById('demacia-voting-phrase').textContent = roomData.currentPhrase.text;
     
@@ -1302,10 +1328,6 @@ function showDemaciaRoundResult() {
   // 正解者数
   document.getElementById('demacia-correct-count').textContent = 
     `✅ 正解者: ${roundResults.correctVotes} / ${roundResults.totalVoters}人`;
-  
-  // 演技者の獲得ポイント
-  document.getElementById('demacia-performer-score').textContent = 
-    `🎭 ${roundResults.performer}さんの獲得ポイント: +${roundResults.pointsEarned}`;
   
   // 投票者の結果を表示
   const voterResultsContainer = document.getElementById('demacia-voter-results');
