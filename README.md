@@ -387,7 +387,9 @@ ja: {
 - `VERSION_MANAGEMENT.md` - バージョン管理とキャッシュクリアガイド
 - `DEMACIA_VOTING_SYSTEM.md` - デマーシア投票システムの完全ガイド
 - `DEMACIA_DISPLAY_FIX.md` - デマーシアモード表示不具合の修正記録
+- `DEMACIA_VOTING_SCREEN_FIX_v1.0.15.md` - デマーシア投票画面修正（v1.0.15）
 - `WORDWOLF_VOTING_FIX_v1.0.14.md` - ワードウルフ投票システム修正（v1.0.14）
+- `RELEASE_NOTES_v1.0.15.md` - v1.0.15リリースノート
 - `RELEASE_NOTES_v1.0.14.md` - v1.0.14リリースノート
 - `RELEASE_NOTES_v1.0.12.md` - v1.0.12リリースノート
 - `RELEASE_NOTES_v1.0.11.md` - v1.0.11リリースノート

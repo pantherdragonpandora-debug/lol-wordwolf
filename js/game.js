@@ -20,6 +20,7 @@ class GameState {
       
       await this.roomRef.set({
         host: hostName,
+        gameMode: 'wordwolf', // ゲームモードを明示的に保存
         settings: settings,
         players: {
           [hostName]: {

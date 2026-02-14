@@ -21,6 +21,7 @@ class DemaciaGame {
       
       const roomData = {
         host: hostName,
+        gameMode: 'demacia', // ゲームモードを明示的に保存
         settings: {
           playerCount: settings.playerCount || 10,
           roundCount: settings.roundCount || 5,
