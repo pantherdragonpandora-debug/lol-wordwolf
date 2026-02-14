@@ -303,9 +303,11 @@ async function createRoom() {
     }
   }
   
-  // ルームID生成
-  currentRoomId = generateRoomId();
+  // ルームID生成（重複チェック付き）
+  console.log('🔑 ユニークなルームIDを生成中...');
+  currentRoomId = await generateRoomId();
   currentPlayer = playerName;
+  console.log('✅ ルームID生成完了:', currentRoomId);
   
   // ゲームモードに応じたゲーム作成
   if (selectedGameMode === 'demacia') {

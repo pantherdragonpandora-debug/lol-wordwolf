@@ -302,8 +302,36 @@ class GameState {
 }
 
 // ルームID生成
-function generateRoomId() {
-  return Math.floor(100000 + Math.random() * 900000).toString();
+// ルームID生成（重複チェック付き）
+async function generateRoomId() {
+  const maxAttempts = 10; // 最大試行回数
+  
+  for (let i = 0; i < maxAttempts; i++) {
+    // 6桁のランダムなIDを生成
+    const roomId = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    // ワードウルフとデマーシアの両方で重複チェック
+    const wordwolfRef = firebase.database().ref(`rooms/${roomId}`);
+    const demaciaRef = firebase.database().ref(`demacia_rooms/${roomId}`);
+    
+    const [wordwolfSnapshot, demaciaSnapshot] = await Promise.all([
+      wordwolfRef.once('value'),
+      demaciaRef.once('value')
+    ]);
+    
+    // 両方とも存在しない場合は使用可能
+    if (!wordwolfSnapshot.exists() && !demaciaSnapshot.exists()) {
+      console.log('✅ ユニークなルームID生成:', roomId);
+      return roomId;
+    }
+    
+    console.log('⚠️ ルームID重複:', roomId, '再試行中...', i + 1, '/', maxAttempts);
+  }
+  
+  // 最大試行回数を超えた場合はタイムスタンプベースのIDを生成
+  const fallbackId = (Date.now() % 1000000).toString().padStart(6, '0');
+  console.log('⚠️ タイムスタンプベースのIDを使用:', fallbackId);
+  return fallbackId;
 }
 
 // タイマー管理
