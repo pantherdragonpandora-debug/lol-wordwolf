@@ -158,6 +158,7 @@ class DemaciaGame {
       await this.roomRef.update({
         gameState: 'performing',
         currentPerformer: performerName,
+        correctSituation: randomSituationIndex,  // 正解のインデックスを保存
         performerSituation: {
           id: performerSituation.id,
           text: performerSituation.text,
@@ -190,17 +191,58 @@ class DemaciaGame {
   }
 
   // 投票（投票者が演技者のシチュエーションを推測）
-  async vote(voterName, guessedSituationId) {
+  async submitVote(voterName, guessedSituationIndex) {
     try {
-      await this.roomRef.child(`votes/${voterName}`).set({
-        guessedSituation: guessedSituationId,
+      const snapshot = await this.roomRef.once('value');
+      const room = snapshot.val();
+      
+      // 選択されたシチュエーション情報を取得
+      const selectedSituation = room.currentPhrase.situations[guessedSituationIndex];
+      const correctSituationIndex = room.correctSituation;
+      const isCorrect = (guessedSituationIndex === correctSituationIndex);
+      
+      await this.roomRef.child(`currentVotes/${voterName}`).set({
+        guessedSituationIndex: guessedSituationIndex,
+        guessedSituationText: selectedSituation.text,
+        isCorrect: isCorrect,
         timestamp: Date.now()
       });
 
-      console.log(`✅ 投票: ${voterName} → Situation ${guessedSituationId}`);
+      console.log(`✅ 投票完了: ${voterName} → ${selectedSituation.text} (${isCorrect ? '正解' : '不正解'})`);
+      
+      // 全員の投票が完了したかチェック
+      await this.checkVotingComplete();
+      
       return true;
     } catch (error) {
       console.error('❌ 投票エラー:', error);
+      return false;
+    }
+  }
+  
+  // 投票完了チェック
+  async checkVotingComplete() {
+    try {
+      const snapshot = await this.roomRef.once('value');
+      const room = snapshot.val();
+      
+      const playerCount = Object.keys(room.players || {}).length;
+      const voteCount = Object.keys(room.currentVotes || {}).length;
+      const performerName = room.currentPerformer;
+      
+      // 演技者を除いた全員が投票したか（演技者は投票しない）
+      const expectedVotes = playerCount - 1;
+      
+      console.log(`📊 投票状況: ${voteCount}/${expectedVotes}`);
+      
+      if (voteCount >= expectedVotes) {
+        console.log('🎉 全員の投票が完了！結果を集計します');
+        await this.calculateResults();
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('❌ 投票完了チェックエラー:', error);
       return false;
     }
   }
@@ -210,37 +252,41 @@ class DemaciaGame {
     try {
       const snapshot = await this.roomRef.once('value');
       const room = snapshot.val();
-      const votes = room.votes || {};
-      const correctSituationId = room.performerSituation.id;
-      const difficulty = room.performerSituation.difficulty;
+      const votes = room.currentVotes || {};
+      const correctSituationIndex = room.correctSituation;
+      const correctSituation = room.currentPhrase.situations[correctSituationIndex];
       const performerName = room.currentPerformer;
       
       // 正解した投票者の数をカウント
       let correctVotes = 0;
-      const voterResults = {};
+      const voterResults = [];
 
       Object.entries(votes).forEach(([voterName, vote]) => {
-        const isCorrect = vote.guessedSituation === correctSituationId;
-        voterResults[voterName] = {
-          guessed: vote.guessedSituation,
-          correct: isCorrect
-        };
+        const isCorrect = vote.isCorrect;
+        voterResults.push({
+          name: voterName,
+          guessedIndex: vote.guessedSituationIndex,
+          guessedText: vote.guessedSituationText,
+          isCorrect: isCorrect
+        });
         if (isCorrect) {
           correctVotes++;
         }
       });
 
       // 演技者にポイント付与（正解者数 × 難易度ポイント）
-      const performerPoints = correctVotes * demaciaData.points[difficulty];
-      const currentPerformerScore = room.players[performerName].score || 0;
+      const difficulty = correctSituation.difficulty;
+      const difficultyPoints = { easy: 1, medium: 2, hard: 3 };
+      const performerPoints = correctVotes * (difficultyPoints[difficulty] || 1);
+      const currentPerformerScore = room.players[performerName]?.score || 0;
 
       const updates = {};
       updates[`players/${performerName}/score`] = currentPerformerScore + performerPoints;
-      updates['gameState'] = 'results';
+      updates['gameState'] = 'round_result';
       updates['roundResults'] = {
         performer: performerName,
-        correctSituationId: correctSituationId,
-        correctSituationText: room.performerSituation.text,
+        correctSituationIndex: correctSituationIndex,
+        correctSituationText: correctSituation.text,
         correctVotes: correctVotes,
         totalVoters: Object.keys(votes).length,
         pointsEarned: performerPoints,
@@ -251,6 +297,9 @@ class DemaciaGame {
       await this.roomRef.update(updates);
       
       console.log('✅ 結果集計完了');
+      console.log('📊 正解者:', correctVotes, '/', Object.keys(votes).length);
+      console.log('🎁 演技者獲得ポイント:', performerPoints);
+      
       return true;
     } catch (error) {
       console.error('❌ 結果集計エラー:', error);

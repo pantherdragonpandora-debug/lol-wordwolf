@@ -147,13 +147,18 @@ esports-wordwolf/
 
 ```javascript
 const firebaseConfig = {
-  apiKey: "AIzaSyCICMaHGGxE4KLZLldB7DbatX5eS-jbt3Q",
-  authDomain: "lol-word-wolf.firebaseapp.com",
-  databaseURL: "https://lol-word-wolf-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "lol-word-wolf",
+  apiKey: "YOUR_API_KEY",  // ← あなたのAPIキー
+  authDomain: "your-project.firebaseapp.com",
+  databaseURL: "https://your-project.firebasedatabase.app",
+  projectId: "your-project-id",
   // ...
 };
 ```
+
+⚠️ **セキュリティ上の注意**:
+- 実際のAPIキーは `js/firebase-config.js` で管理
+- README.mdには例示用の値のみ記載
+- APIキーには必ずHTTPリファラー制限を設定
 
 ### 2. Firebase セキュリティルール
 
@@ -314,6 +319,22 @@ ja: {
 
 ## 🆘 トラブルシューティング
 
+### ❌ 🚨 「APIキーが一般公開されています」という通知を受け取った
+
+**重要**: すぐに対応が必要です
+
+**クイックガイド**: `QUICK_API_KEY_FIX.md` を開いて10分で対応  
+**詳細ガイド**: `HOW_TO_REGENERATE_API_KEY.md` を参照  
+**セキュリティ全般**: `SECURITY_API_KEY_LEAK.md` を参照
+
+**概要**:
+1. Google Cloud Console で古いAPIキーを無効化
+2. 新しいAPIキーを作成
+3. HTTPリファラー制限とAPI制限を設定
+4. コードを更新してデプロイ
+
+所要時間: 約10分
+
 ### ❌ 「ルーム作成に失敗しました」
 
 **原因**: Firebase セキュリティルール
@@ -356,17 +377,32 @@ ja: {
 
 ## 📄 ドキュメント
 
+### 🔒 セキュリティ関連（重要！）
+- `QUICK_API_KEY_FIX.md` - APIキー漏洩の10分対応ガイド（**最優先**）
+- `HOW_TO_REGENERATE_API_KEY.md` - APIキー再生成の詳細手順
+- `SECURITY_API_KEY_LEAK.md` - セキュリティ対応の完全ガイド
+
+### 📚 プロジェクトドキュメント
 - `README.md` - プロジェクト全体の説明（このファイル）
 - `VERSION_MANAGEMENT.md` - バージョン管理とキャッシュクリアガイド
-- `DEMACIA_DISPLAY_FIX.md` - デマーシアモード表示不具合の修正記録（**NEW!**）
+- `DEMACIA_VOTING_SYSTEM.md` - デマーシア投票システムの完全ガイド
+- `DEMACIA_DISPLAY_FIX.md` - デマーシアモード表示不具合の修正記録
+- `WORDWOLF_VOTING_FIX_v1.0.14.md` - ワードウルフ投票システム修正（v1.0.14）
+- `RELEASE_NOTES_v1.0.14.md` - v1.0.14リリースノート
+- `RELEASE_NOTES_v1.0.12.md` - v1.0.12リリースノート
+- `RELEASE_NOTES_v1.0.11.md` - v1.0.11リリースノート
+
+### 🔧 技術ドキュメント
 - `ROOM_JOIN_FIX.md` - ルーム参加問題の修正記録
 - `MULTI_ROOM_SUPPORT.md` - 複数ルーム対応の実装記録
-- `ADS.md` - Google AdSense 広告実装ガイド
+- `FIREBASE_AUTH_FIX.md` - 承認済みドメインの設定
+- `FIREBASE_RULES_FIX.md` - セキュリティルールの設定
+
+### 🚀 デプロイ・運用
 - `QUICKSTART.md` - 5分で始められるガイド
 - `DEPLOY.md` - デプロイ方法の詳細
 - `TROUBLESHOOTING.md` - トラブルシューティング
-- `FIREBASE_AUTH_FIX.md` - 承認済みドメインの設定
-- `FIREBASE_RULES_FIX.md` - セキュリティルールの設定
+- `ADS.md` - Google AdSense 広告実装ガイド
 
 ## 📢 Google AdSense 審査対策
 

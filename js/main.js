@@ -216,7 +216,7 @@ function setupEventListeners() {
   document.getElementById('random-performer-btn').addEventListener('click', selectRandomPerformer);
   
   // デマーシアゲーム - 演技・投票
-  document.getElementById('demacia-start-voting-btn')?.addEventListener('click', showDemaciaVotingScreen);
+  document.getElementById('demacia-start-voting-btn')?.addEventListener('click', startDemaciaVoting);
   document.getElementById('demacia-submit-vote-btn')?.addEventListener('click', confirmDemaciaVote);
   document.getElementById('demacia-next-round-btn')?.addEventListener('click', startNextDemaciaRound);
   document.getElementById('demacia-show-results-btn')?.addEventListener('click', showDemaciaFinalResults);
@@ -629,6 +629,8 @@ function updateWaitingRoom(roomData) {
     showGameScreen(roomData);
   } else if (roomData.gameState === 'voting') {
     showVotingScreen(roomData);
+    // 投票完了チェック
+    checkWordWolfVotingComplete(roomData);
   } else if (roomData.gameState === 'finished') {
     showResultScreen(roomData);
   }
@@ -639,8 +641,12 @@ function updateWaitingRoom(roomData) {
     showDemaciaPerformScreen();
   } else if (roomData.gameState === 'voting') {
     showDemaciaVotingScreen();
-  } else if (roomData.gameState === 'results') {
+    // デマーシア投票完了チェック
+    checkDemaciaVotingComplete();
+  } else if (roomData.gameState === 'round_result') {
     showDemaciaRoundResult();
+  } else if (roomData.gameState === 'finished') {
+    showDemaciaFinalResults();
   }
 }
 
@@ -746,12 +752,35 @@ function showVotingScreen(roomData) {
   const voteOptions = document.getElementById('vote-options');
   voteOptions.innerHTML = '';
   
+  // 投票状況を更新
+  const players = Object.values(roomData.players || {});
+  const totalPlayers = players.length;
+  const votedPlayers = players.filter(p => p.vote !== null && p.vote !== undefined).length;
+  
+  document.getElementById('wordwolf-vote-count').textContent = votedPlayers;
+  document.getElementById('wordwolf-total-players').textContent = totalPlayers;
+  
+  // 自分が既に投票済みの場合、ボタンを無効化
+  const currentPlayerData = players.find(p => p.name === currentPlayer);
+  const hasVoted = currentPlayerData && currentPlayerData.vote !== null && currentPlayerData.vote !== undefined;
+  
+  const voteBtn = document.getElementById('confirm-vote-btn');
+  if (voteBtn) {
+    if (hasVoted) {
+      voteBtn.disabled = true;
+      voteBtn.textContent = '投票完了';
+    } else {
+      voteBtn.disabled = false;
+      voteBtn.textContent = '投票確定';
+    }
+  }
+  
   Object.values(roomData.players).forEach(player => {
     if (player.name !== currentPlayer) {
       const optionDiv = document.createElement('div');
       optionDiv.className = 'vote-option';
       optionDiv.innerHTML = `
-        <input type="radio" name="vote" value="${player.name}" id="vote-${player.name}">
+        <input type="radio" name="vote" value="${player.name}" id="vote-${player.name}" ${hasVoted ? 'disabled' : ''}>
         <label for="vote-${player.name}">${player.name}</label>
       `;
       voteOptions.appendChild(optionDiv);
@@ -770,18 +799,39 @@ async function confirmVote() {
     return;
   }
   
+  const voteBtn = document.getElementById('confirm-vote-btn');
+  if (voteBtn) {
+    voteBtn.disabled = true;
+    voteBtn.textContent = '投票完了';
+  }
+  
+  console.log(`📤 投票送信中: ${currentPlayer} → ${selectedVote.value}`);
+  
+  // Firebaseに投票を送信
   await currentGame.vote(currentPlayer, selectedVote.value);
   
-  // 全員が投票完了したか確認
-  const snapshot = await currentGame.roomRef.once('value');
-  const roomData = snapshot.val();
-  const players = Object.values(roomData.players);
-  const allVoted = players.every(p => p.vote !== null);
+  console.log(`✅ 投票完了: ${currentPlayer}`);
   
-  if (allVoted) {
+  // 投票完了メッセージを表示
+  alert('投票が完了しました。他のプレイヤーの投票を待っています...');
+  
+  // 全員の投票完了チェックはwatcherで自動的に行われる
+}
+
+// ワードウルフの投票完了チェック
+async function checkWordWolfVotingComplete(roomData) {
+  if (!roomData || !roomData.players) return;
+  
+  const players = Object.values(roomData.players);
+  const totalPlayers = players.length;
+  const votedPlayers = players.filter(p => p.vote !== null && p.vote !== undefined).length;
+  
+  console.log(`🗳️ 投票状況: ${votedPlayers}/${totalPlayers}`);
+  
+  // 全員が投票完了したら結果集計
+  if (votedPlayers === totalPlayers && totalPlayers > 0) {
+    console.log('🎉 全員の投票が完了！結果を集計します');
     await currentGame.endVoting();
-  } else {
-    alert(t('alert.votingComplete'));
   }
 }
 
@@ -809,11 +859,36 @@ function showResultScreen(roomData) {
   // 投票結果
   const voteResults = document.getElementById('vote-results');
   voteResults.innerHTML = '';
+  
+  // 各プレイヤーの投票先を表示
+  const players = Object.values(roomData.players || {});
+  const voteDetailsDiv = document.createElement('div');
+  voteDetailsDiv.style.marginBottom = '1rem';
+  voteDetailsDiv.style.padding = '0.5rem';
+  voteDetailsDiv.style.background = 'rgba(255,255,255,0.05)';
+  voteDetailsDiv.style.borderRadius = '8px';
+  
+  players.forEach(player => {
+    const voteDetail = document.createElement('div');
+    voteDetail.style.padding = '0.3rem 0';
+    voteDetail.style.color = player.name === result.wolf ? 'var(--wolf-color)' : 'var(--citizen-color)';
+    voteDetail.textContent = `${player.name} → ${player.vote || '投票なし'}`;
+    voteDetailsDiv.appendChild(voteDetail);
+  });
+  voteResults.appendChild(voteDetailsDiv);
+  
+  // 投票数の集計結果を表示
+  const voteSummaryDiv = document.createElement('div');
+  voteSummaryDiv.innerHTML = '<strong>投票数:</strong>';
+  voteSummaryDiv.style.marginTop = '1rem';
+  
   Object.entries(result.voteCount).forEach(([name, count]) => {
     const resultDiv = document.createElement('div');
+    resultDiv.style.padding = '0.3rem 0';
     resultDiv.textContent = `${name}: ${count} ${t('result.votes')}`;
-    voteResults.appendChild(resultDiv);
+    voteSummaryDiv.appendChild(resultDiv);
   });
+  voteResults.appendChild(voteSummaryDiv);
   
   // タイマー停止
   if (gameTimer) {
@@ -967,13 +1042,38 @@ function showDemaciaPerformScreen() {
   const roomData = currentDemaciaGame.roomData;
   const isPerformer = roomData.currentPerformer === currentPlayer;
   
+  console.log('🎭 演技画面表示:', {
+    isPerformer,
+    currentPlayer,
+    performer: roomData.currentPerformer,
+    correctSituation: roomData.correctSituation,
+    performerSituation: roomData.performerSituation,
+    phraseText: roomData.currentPhrase?.text,
+    situationsCount: roomData.currentPhrase?.situations?.length
+  });
+  
   // 共通のセリフ・キャラ表示
   document.getElementById('demacia-phrase').textContent = roomData.currentPhrase.text;
   document.getElementById('demacia-character').textContent = roomData.currentPhrase.character;
   
   if (isPerformer) {
     // 演技者側の表示
-    const performerSituation = roomData.currentPhrase.situations[roomData.correctSituation];
+    let performerSituation;
+    
+    // correctSituation インデックスから取得
+    if (typeof roomData.correctSituation === 'number') {
+      performerSituation = roomData.currentPhrase.situations[roomData.correctSituation];
+    }
+    // フォールバック: performerSituation オブジェクトから取得
+    else if (roomData.performerSituation) {
+      performerSituation = roomData.performerSituation;
+    }
+    // エラーハンドリング
+    else {
+      console.error('❌ シチュエーション情報が見つかりません', roomData);
+      performerSituation = { text: 'エラー: シチュエーション情報なし', difficulty: 'unknown' };
+    }
+    
     document.getElementById('demacia-situation').textContent = performerSituation.text;
     document.getElementById('demacia-difficulty').textContent = 
       `難易度: ${performerSituation.difficulty}`;
@@ -981,6 +1081,12 @@ function showDemaciaPerformScreen() {
     // 演技者情報を表示
     document.getElementById('current-performer-name').textContent = currentPlayer;
     document.querySelector('.situation-display').style.display = 'block';
+    
+    console.log('🎭 演技者表示:', {
+      performer: currentPlayer,
+      situation: performerSituation.text,
+      difficulty: performerSituation.difficulty
+    });
   } else {
     // 投票者側は正解シチュエーションを隠す
     document.querySelector('.situation-display').style.display = 'none';
@@ -1013,15 +1119,46 @@ function startPerformTimer(seconds) {
   }, 1000);
 }
 
+// 投票フェーズ開始（演技終了ボタン押下時）
+async function startDemaciaVoting() {
+  console.log('🗳️ 投票フェーズを開始します');
+  
+  const isPerformer = currentDemaciaGame.roomData.currentPerformer === currentPlayer;
+  
+  if (!isPerformer) {
+    alert('演技者のみが投票を開始できます');
+    return;
+  }
+  
+  // Firebaseに投票状態を保存
+  await currentDemaciaGame.startVoting();
+  
+  // 投票画面に遷移（watcherが自動で反映）
+  console.log('✅ 投票フェーズ開始完了');
+}
+
 // 投票画面表示
 function showDemaciaVotingScreen() {
   const roomData = currentDemaciaGame.roomData;
   const isPerformer = roomData.currentPerformer === currentPlayer;
   
+  // 投票ボタンをリセット
+  const voteBtn = document.getElementById('demacia-submit-vote-btn');
+  if (voteBtn) {
+    voteBtn.disabled = false;
+    voteBtn.textContent = '投票する';
+  }
+  
   if (isPerformer) {
     // 演技者は投票しない
-    document.getElementById('demacia-voting-message').textContent = t('demacia.performerWait');
-    document.getElementById('demacia-situation-options').style.display = 'none';
+    const optionsContainer = document.getElementById('demacia-situation-options');
+    if (optionsContainer) {
+      optionsContainer.innerHTML = '<p style="text-align: center; padding: 2rem; color: #c89b3c;">👀 他のプレイヤーの投票を待っています...</p>';
+    }
+    
+    if (voteBtn) {
+      voteBtn.style.display = 'none';
+    }
   } else {
     // 投票者の表示
     document.getElementById('demacia-voting-phrase').textContent = roomData.currentPhrase.text;
@@ -1042,6 +1179,10 @@ function showDemaciaVotingScreen() {
     });
     
     document.getElementById('demacia-situation-options').style.display = 'block';
+    
+    if (voteBtn) {
+      voteBtn.style.display = 'block';
+    }
   }
   
   showScreen('demacia-voting-screen');
@@ -1050,46 +1191,124 @@ function showDemaciaVotingScreen() {
 // デマーシア投票確定
 async function confirmDemaciaVote() {
   if (selectedVoteSituation === null || selectedVoteSituation === undefined) {
-    alert(t('alert.selectSituation'));
+    alert('シチュエーションを選択してください');
     return;
   }
   
-  await currentDemaciaGame.submitVote(currentPlayer, selectedVoteSituation);
-  selectedVoteSituation = null;
+  console.log('📤 投票送信中:', currentPlayer, '→', selectedVoteSituation);
   
-  // 全員の投票が完了したらラウンド結果表示
-  checkDemaciaVotingComplete();
-}
-
-// 投票完了チェック
-function checkDemaciaVotingComplete() {
-  const roomData = currentDemaciaGame.roomData;
-  const playerCount = Object.keys(roomData.players).length;
-  const voteCount = Object.keys(roomData.currentVotes || {}).length;
+  // 投票ボタンを無効化
+  const voteBtn = document.getElementById('demacia-vote-btn');
+  if (voteBtn) {
+    voteBtn.disabled = true;
+    voteBtn.textContent = '投票済み...';
+  }
   
-  // 演技者を除いた人数が投票したか
-  if (voteCount >= playerCount - 1) {
-    showDemaciaRoundResult();
+  try {
+    await currentDemaciaGame.submitVote(currentPlayer, selectedVoteSituation);
+    console.log('✅ 投票送信完了');
+    
+    // 投票後の表示
+    const optionsContainer = document.getElementById('demacia-situation-options');
+    if (optionsContainer) {
+      optionsContainer.innerHTML = '<p style="text-align: center; padding: 2rem; color: #c89b3c;">✅ 投票完了！<br>他のプレイヤーの投票を待っています...</p>';
+    }
+    
+    selectedVoteSituation = null;
+  } catch (error) {
+    console.error('❌ 投票エラー:', error);
+    alert('投票に失敗しました');
+    
+    // エラー時はボタンを再有効化
+    if (voteBtn) {
+      voteBtn.disabled = false;
+      voteBtn.textContent = '投票';
+    }
   }
 }
+
+// 投票完了チェック（削除 - demacia-game.jsで処理）
+// function checkDemaciaVotingComplete() {
+//   const roomData = currentDemaciaGame.roomData;
+//   const playerCount = Object.keys(roomData.players).length;
+//   const voteCount = Object.keys(roomData.currentVotes || {}).length;
+//   
+//   // 演技者を除いた人数が投票したか
+//   if (voteCount >= playerCount - 1) {
+//     showDemaciaRoundResult();
+//   }
+// }
 
 // ラウンド結果表示
 function showDemaciaRoundResult() {
   const roomData = currentDemaciaGame.roomData;
-  const result = currentDemaciaGame.calculateRoundResult();
+  const roundResults = roomData.roundResults;
   
+  if (!roundResults) {
+    console.error('❌ roundResults が存在しません');
+    return;
+  }
+  
+  console.log('📊 結果表示:', roundResults);
+  
+  // セリフと正解シチュエーション
   document.getElementById('demacia-round-result-phrase').textContent = roomData.currentPhrase.text;
-  const correctSituation = roomData.currentPhrase.situations[roomData.correctSituation];
-  document.getElementById('demacia-correct-situation').textContent = correctSituation.text;
+  const correctSituation = roomData.currentPhrase.situations[roundResults.correctSituationIndex];
+  document.getElementById('demacia-correct-situation').textContent = 
+    `正解: ${correctSituation.text} (難易度: ${roundResults.difficulty})`;
+  
+  // 正解者数
   document.getElementById('demacia-correct-count').textContent = 
-    t('demacia.correctCount').replace('{count}', result.correctCount);
+    `✅ 正解者: ${roundResults.correctVotes} / ${roundResults.totalVoters}人`;
+  
+  // 演技者の獲得ポイント
   document.getElementById('demacia-performer-score').textContent = 
-    t('demacia.performerScore')
-      .replace('{performer}', roomData.currentPerformer)
-      .replace('{score}', result.score);
+    `🎭 ${roundResults.performer}さんの獲得ポイント: +${roundResults.pointsEarned}`;
+  
+  // 投票者の結果を表示
+  const voterResultsContainer = document.getElementById('demacia-voter-results');
+  if (voterResultsContainer && roundResults.voterResults) {
+    voterResultsContainer.innerHTML = '<h3 style="margin: 1rem 0;">🗳️ 投票結果</h3>';
+    
+    roundResults.voterResults.forEach(voter => {
+      const resultDiv = document.createElement('div');
+      resultDiv.className = 'voter-result-item';
+      resultDiv.style.cssText = `
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        margin: 0.5rem 0;
+        background: ${voter.isCorrect ? 'rgba(76, 175, 80, 0.2)' : 'rgba(244, 67, 54, 0.2)'};
+        border-left: 4px solid ${voter.isCorrect ? '#4caf50' : '#f44336'};
+        border-radius: 4px;
+      `;
+      
+      const nameSpan = document.createElement('span');
+      nameSpan.style.fontWeight = '600';
+      nameSpan.textContent = voter.name;
+      
+      const choiceSpan = document.createElement('span');
+      choiceSpan.style.cssText = 'font-size: 0.9rem; color: rgba(255,255,255,0.8);';
+      choiceSpan.textContent = `${voter.guessedText}`;
+      
+      const statusSpan = document.createElement('span');
+      statusSpan.style.cssText = `
+        font-weight: 600;
+        color: ${voter.isCorrect ? '#4caf50' : '#f44336'};
+      `;
+      statusSpan.textContent = voter.isCorrect ? '✅ 正解' : '❌ 不正解';
+      
+      resultDiv.appendChild(nameSpan);
+      resultDiv.appendChild(choiceSpan);
+      resultDiv.appendChild(statusSpan);
+      
+      voterResultsContainer.appendChild(resultDiv);
+    });
+  }
   
   // 次のラウンドまたは最終結果ボタン
-  if (roomData.currentRound < roomData.totalRounds) {
+  if (roomData.currentRound < (roomData.settings?.roundCount || 5)) {
     document.getElementById('demacia-next-round-btn').style.display = 'block';
     document.getElementById('demacia-show-results-btn').style.display = 'none';
   } else {
