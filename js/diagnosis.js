@@ -139,7 +139,12 @@ window.checkRoom = async function(roomId) {
   console.log('\n📦 ワードウルフルーム (rooms/' + roomId + '):');
   console.log('   存在:', wordwolfSnap.exists());
   if (wordwolfSnap.exists()) {
-    console.log('   データ:', wordwolfSnap.val());
+    const data = wordwolfSnap.val();
+    console.log('   データ:', data);
+    console.log('   ゲームタイプ:', data.settings?.gameType);
+    console.log('   ホスト:', data.host);
+    console.log('   ゲーム状態:', data.gameState);
+    console.log('   プレイヤー数:', Object.keys(data.players || {}).length);
   }
   
   // デマーシアルームを確認
@@ -148,12 +153,36 @@ window.checkRoom = async function(roomId) {
   console.log('\n📦 デマーシアルーム (demacia_rooms/' + roomId + '):');
   console.log('   存在:', demaciaSnap.exists());
   if (demaciaSnap.exists()) {
-    console.log('   データ:', demaciaSnap.val());
+    const data = demaciaSnap.val();
+    console.log('   データ:', data);
+    console.log('   ゲームタイプ:', data.settings?.gameType);
+    console.log('   ホスト:', data.host);
+    console.log('   ゲーム状態:', data.gameState);
+    console.log('   プレイヤー数:', Object.keys(data.players || {}).length);
   }
   
   if (!wordwolfSnap.exists() && !demaciaSnap.exists()) {
     console.log('\n❌ ルームが見つかりません');
     console.log('💡 ルームIDが正しいか確認してください');
+  }
+  
+  // 現在選択中のモードとの互換性チェック
+  console.log('\n🔍 現在の選択状態:');
+  console.log('   ゲームモード:', window.selectedGameMode || '未選択');
+  console.log('   ゲームタイプ:', window.selectedGameType || '未選択');
+  
+  if (window.selectedGameMode) {
+    if (window.selectedGameMode === 'wordwolf' && wordwolfSnap.exists()) {
+      console.log('   ✅ ワードウルフモードで参加可能');
+    } else if (window.selectedGameMode === 'demacia' && demaciaSnap.exists()) {
+      console.log('   ✅ デマーシアモードで参加可能');
+    } else if (window.selectedGameMode === 'wordwolf' && demaciaSnap.exists()) {
+      console.log('   ❌ モード不一致: ワードウルフを選択中だがデマーシアルーム');
+    } else if (window.selectedGameMode === 'demacia' && wordwolfSnap.exists()) {
+      console.log('   ❌ モード不一致: デマーシアを選択中だがワードウルフルーム');
+    }
+  } else {
+    console.log('   ⚠️ ゲームモードが選択されていません');
   }
 };
 

@@ -21,8 +21,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const roomIdFromUrl = urlParams.get('room');
   
   if (roomIdFromUrl) {
+    // URL経由でアクセスされた場合、まずモード選択画面へ
+    console.log('🔗 URL経由でアクセス。ルームID:', roomIdFromUrl);
     document.getElementById('join-room-id').value = roomIdFromUrl;
-    showScreen('join-screen');
+    // モード選択画面を表示
+    showScreen('mode-select-screen');
+    // 注意メッセージを表示（オプション）
+    setTimeout(() => {
+      alert('招待されたルームに参加するには、まずゲームモードとゲームタイプを選択してください。');
+    }, 500);
   } else {
     showScreen('mode-select-screen');
   }
@@ -390,6 +397,14 @@ async function joinRoom() {
   console.log('🎮 選択中のゲームタイプ:', selectedGameType);
   console.log('🎭 選択中のゲームモード:', selectedGameMode);
   
+  // ゲームモードが正しく選択されているか厳密にチェック
+  if (!selectedGameMode || (selectedGameMode !== 'wordwolf' && selectedGameMode !== 'demacia')) {
+    alert('エラー: ゲームモードが正しく選択されていません。\n最初からやり直してください。');
+    console.error('❌ 不正なゲームモード:', selectedGameMode);
+    backToHome();
+    return;
+  }
+  
   currentRoomId = roomId;
   currentPlayer = playerName;
   
@@ -479,18 +494,27 @@ async function joinRoom() {
       
     } else if (selectedGameMode === 'demacia') {
       // デマーシアモード選択中
+      console.log('🎭 デマーシアモード: demacia_rooms/' + roomId + ' をチェック');
+      
       if (!demaciaSnapshot.exists()) {
+        // デマーシアルームが存在しない
+        console.log('❌ デマーシアルームが存在しません');
+        
         // ワードウルフルームしか存在しない
         if (wordwolfSnapshot.exists()) {
+          console.log('⚠️ ワードウルフルームが存在します（モード不一致）');
           throw new Error(
             'このルームは「ワードウルフ」用です。\n' +
             '現在「デマーシアに心を込めて」モードを選択しています。\n' +
             'モード選択画面に戻ってワードウルフモードを選択してください。'
           );
         } else {
+          console.log('❌ どちらのルームも存在しません');
           throw new Error('ルームが存在しません。ルームIDを確認してください。');
         }
       }
+      
+      console.log('✅ デマーシアルームが存在します');
       
       // デマーシアルームに参加
       const roomGameType = demaciaData?.settings?.gameType;
@@ -505,10 +529,11 @@ async function joinRoom() {
         );
       }
       
-      console.log('✅ デマーシアルームに参加');
+      console.log('✅ デマーシアルームに参加処理を開始');
       currentDemaciaGame = new DemaciaGame(roomId);
       const success = await currentDemaciaGame.joinRoom(playerName);
       if (success) {
+        console.log('✅ デマーシアルーム参加成功');
         showWaitingRoom();
         currentDemaciaGame.watch(updateWaitingRoom);
       } else {
@@ -530,7 +555,50 @@ function showWaitingRoom() {
   document.getElementById('room-url-display').textContent = 
     `${window.location.origin}${window.location.pathname}?room=${currentRoomId}`;
   
+  // ゲーム情報を表示
+  updateWaitingGameInfo();
+  
   showScreen('waiting-screen');
+}
+
+// 待機室のゲーム情報を更新
+function updateWaitingGameInfo() {
+  const waitingGameInfo = document.getElementById('waiting-game-info');
+  if (!waitingGameInfo) return;
+  
+  let gameText = '';
+  let modeText = '';
+  let modeIcon = '';
+  
+  // ゲームタイプ
+  if (selectedGameType === 'lol') {
+    gameText = 'League of Legends';
+  } else if (selectedGameType === 'valorant') {
+    gameText = 'VALORANT';
+  } else if (selectedGameType === 'tft') {
+    gameText = 'Teamfight Tactics';
+  } else {
+    gameText = '不明';
+  }
+  
+  // ゲームモード
+  if (selectedGameMode === 'wordwolf') {
+    modeText = 'ワードウルフ';
+    modeIcon = '🐺';
+  } else if (selectedGameMode === 'demacia') {
+    modeText = 'デマーシアに心を込めて';
+    modeIcon = '💖';
+  } else {
+    modeText = '不明';
+    modeIcon = '❓';
+  }
+  
+  waitingGameInfo.innerHTML = `
+    <div style="display: flex; flex-direction: column; gap: 0.3rem;">
+      <div style="font-size: 1.3rem;">${modeIcon} ${modeText}</div>
+      <div style="font-size: 1rem; opacity: 0.8;">🎮 ${gameText}</div>
+    </div>
+  `;
 }
 
 // 待機室更新
