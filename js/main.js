@@ -339,15 +339,49 @@ async function joinRoom() {
     return;
   }
   
+  console.log('🔍 ルーム参加試行:', roomId, 'プレイヤー:', playerName);
+  
   currentRoomId = roomId;
   currentPlayer = playerName;
-  currentGame = new GameState(roomId);
   
+  // まず、どちらのゲームタイプのルームか確認
   try {
-    await currentGame.joinRoom(playerName);
-    showWaitingRoom();
-    currentGame.watch(updateWaitingRoom);
+    // ワードウルフルームを確認
+    const wordwolfRef = firebase.database().ref(`rooms/${roomId}`);
+    const wordwolfSnapshot = await wordwolfRef.once('value');
+    
+    // デマーシアルームを確認
+    const demaciaRef = firebase.database().ref(`demacia_rooms/${roomId}`);
+    const demaciaSnapshot = await demaciaRef.once('value');
+    
+    console.log('ワードウルフルーム存在:', wordwolfSnapshot.exists());
+    console.log('デマーシアルーム存在:', demaciaSnapshot.exists());
+    
+    if (wordwolfSnapshot.exists()) {
+      // ワードウルフルーム
+      console.log('✅ ワードウルフルームに参加');
+      currentGame = new GameState(roomId);
+      await currentGame.joinRoom(playerName);
+      showWaitingRoom();
+      currentGame.watch(updateWaitingRoom);
+    } else if (demaciaSnapshot.exists()) {
+      // デマーシアルーム
+      console.log('✅ デマーシアルームに参加');
+      currentDemaciaGame = new DemaciaGame(roomId);
+      const success = await currentDemaciaGame.joinRoom(playerName);
+      if (success) {
+        showWaitingRoom();
+        currentDemaciaGame.watch(updateWaitingRoom);
+      } else {
+        throw new Error('ルームへの参加に失敗しました');
+      }
+    } else {
+      // どちらも存在しない
+      console.error('❌ ルームが見つかりません:', roomId);
+      throw new Error('ルームが存在しません。ルームIDを確認してください。');
+    }
   } catch (error) {
+    console.error('❌ ルーム参加エラー:', error);
     alert(error.message);
   }
 }

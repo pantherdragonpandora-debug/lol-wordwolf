@@ -45,6 +45,18 @@ class DemaciaGame {
       await this.roomRef.set(roomData);
       
       console.log('✅ デマーシアルーム作成成功:', this.roomId);
+      
+      // 作成直後に確認
+      const verifySnapshot = await this.roomRef.once('value');
+      const verifyData = verifySnapshot.val();
+      console.log('🔍 作成確認:', verifyData ? '成功' : '失敗');
+      console.log('🔍 確認データ:', verifyData);
+      
+      if (!verifyData) {
+        console.error('⚠️ ルームが作成されていません！Firebaseルールを確認してください');
+        throw new Error('ルーム作成の確認に失敗しました');
+      }
+      
       return true;
     } catch (error) {
       console.error('❌ ルーム作成エラー:', error);
