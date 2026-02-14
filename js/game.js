@@ -93,8 +93,15 @@ class GameState {
         throw new Error('プレイヤーが足りません（最低3人）');
       }
       
+      // 現在の言語を取得（i18n.jsのcurrentLanguageを使用）
+      const currentLang = typeof currentLanguage !== 'undefined' ? currentLanguage : 'ja';
+      
       // お題選択
-      const topic = getRandomTopic(roomData.settings.categories || ['all'], roomData.settings.gameType || 'lol');
+      const topic = getRandomTopic(
+        roomData.settings.categories || ['all'], 
+        roomData.settings.gameType || 'lol',
+        currentLang
+      );
       
       // ウルフをランダムに決定（1人）
       const wolfIndex = Math.floor(Math.random() * playerCount);
@@ -106,6 +113,11 @@ class GameState {
         const isWolf = index === wolfIndex;
         updates[`players/${playerName}/role`] = isWolf ? 'wolf' : 'citizen';
         updates[`players/${playerName}/topic`] = isWolf ? topic.minority : topic.majority;
+        
+        // 画像URLがあれば保存
+        if (topic.images) {
+          updates[`players/${playerName}/topicImage`] = isWolf ? topic.images.minority : topic.images.majority;
+        }
       });
       
       // ゲーム状態更新
@@ -162,6 +174,7 @@ class GameState {
       
       // ウルフを探す
       const wolf = Object.values(players).find(p => p.role === 'wolf');
+      const citizen = Object.values(players).find(p => p.role === 'citizen');
       
       // 勝敗判定
       const citizensWin = votedOut === wolf.name;
@@ -173,6 +186,8 @@ class GameState {
           votedOut: votedOut,
           voteCount: voteCount,
           wolf: wolf.name,
+          wolfTopic: wolf.topic,
+          citizenTopic: citizen.topic,
           citizensWin: citizensWin,
           finishedAt: Date.now()
         }

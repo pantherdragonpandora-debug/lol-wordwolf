@@ -14,7 +14,8 @@
     <title>Esports ワードウルフ - LOL & VALORANT</title>
     
     <!-- CSS -->
-    <link rel="stylesheet" href="css/style.css?v=5">
+    <link rel="stylesheet" href="css/style.css?v=8">
+    <link rel="stylesheet" href="css/demacia-style.css?v=8">
     
     <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6628280908520822"
@@ -28,7 +29,7 @@
     <!-- ヘッダー -->
     <header>
         <div class="header-content">
-            <h1 data-i18n="header.title">🎮 Esports ワードウルフ</h1>
+            <h1 id="site-title" data-i18n="header.title" style="cursor: pointer;">🎮 Esports ワードウルフ</h1>
             <div style="display: flex; align-items: center;">
                 <div class="language-switcher">
                     <button class="lang-btn" data-lang="ja" onclick="changeLanguage('ja')">日本語</button>
@@ -43,24 +44,87 @@
 
     <!-- メインコンテンツ -->
     <main>
-        <!-- ゲーム選択画面 -->
-        <div id="game-select-screen" class="screen active">
+        <!-- モード選択画面（最初の画面） -->
+        <div id="mode-select-screen" class="screen active">
             <div class="card">
-                <h2 data-i18n="gameSelect.title">Esports ワードウルフ</h2>
+                <h2 data-i18n="modeSelect.title">ゲームモード選択</h2>
+                <p style="text-align: center; margin-bottom: 2rem; color: var(--text-color);" data-i18n="modeSelect.subtitle">どのモードで遊びますか？</p>
+                
+                <div class="mode-selection-grid">
+                    <button id="select-wordwolf-mode-btn" class="mode-card">
+                        <div class="mode-icon-large">🐺</div>
+                        <h3 class="mode-title" data-i18n="modeSelect.wordwolf">ワードウルフ</h3>
+                        <p class="mode-description" data-i18n="modeSelect.wordwolfDesc">少数派のウルフを見つけ出すゲーム</p>
+                        <p class="mode-players" data-i18n="modeSelect.wordwolfPlayers">👥 3〜6人</p>
+                    </button>
+                    
+                    <button id="select-demacia-mode-btn" class="mode-card">
+                        <div class="mode-icon-large">💖</div>
+                        <h3 class="mode-title" data-i18n="modeSelect.demacia">デマーシアに心を込めて</h3>
+                        <p class="mode-description" data-i18n="modeSelect.demaciaDesc">セリフを演技して当ててもらうゲーム</p>
+                        <p class="mode-players" data-i18n="modeSelect.demaciaPlayers">👥 3〜10人</p>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ゲームタイプ選択画面 -->
+        <div id="game-select-screen" class="screen">
+            <div class="card">
+                <div class="game-title-header">
+                    <button id="back-to-mode-select-btn" class="btn-back">← <span data-i18n="gameSelect.backToMode">モード選択に戻る</span></button>
+                    <h2 id="game-select-title" data-i18n="gameSelect.title">ゲームタイプ選択</h2>
+                </div>
                 <p style="text-align: center; margin-bottom: 2rem; color: var(--text-color);" data-i18n="gameSelect.subtitle">どのゲームで遊びますか？</p>
                 
                 <div class="game-selection">
                     <button id="select-lol-btn" class="game-select-btn lol-game">
                         <span class="game-icon">🎮</span>
                         <span class="game-name">League of Legends</span>
-                        <span class="game-desc" data-i18n="gameSelect.lolDesc">チャンピオン・アイテム・スキル</span>
+                        <span id="lol-desc" class="game-desc" data-i18n="gameSelect.lolDesc">チャンピオン・アイテム・スキル</span>
                     </button>
                     
                     <button id="select-valorant-btn" class="game-select-btn valorant-game">
                         <span class="game-icon">🔫</span>
                         <span class="game-name">VALORANT</span>
-                        <span class="game-desc" data-i18n="gameSelect.valorantDesc">エージェント・武器・マップ</span>
+                        <span id="valorant-desc" class="game-desc" data-i18n="gameSelect.valorantDesc">エージェント・武器・マップ</span>
                     </button>
+                    
+                    <!-- TFTはワードウルフモードでのみ表示 -->
+                    <button id="select-tft-btn" class="game-select-btn tft-game" style="display: none;">
+                        <span class="game-icon">♟️</span>
+                        <span class="game-name">Teamfight Tactics</span>
+                        <span id="tft-desc" class="game-desc" data-i18n="gameSelect.tftDesc">ユニット・特性・アイテム</span>
+                    </button>
+                        <span class="game-desc" data-i18n="gameSelect.tftDesc">ユニット・特性・アイテム</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ゲームモード選択画面 -->
+        <div id="mode-select-screen" class="screen">
+            <div class="card">
+                <div class="game-title-header">
+                    <button id="back-to-game-select-btn" class="btn-back">← <span data-i18n="home.backToSelect">ゲーム選択に戻る</span></button>
+                    <h2 id="current-game-title" data-i18n="home.title">ゲームモード選択</h2>
+                </div>
+                
+                <!-- ゲームモード選択 -->
+                <div class="game-mode-selection">
+                    <h3 data-i18n="home.selectMode">どのモードで遊びますか？</h3>
+                    <div class="mode-buttons">
+                        <button id="mode-wordwolf-btn" class="mode-btn">
+                            <span class="mode-icon">🐺</span>
+                            <span class="mode-name" data-i18n="home.modeWordwolf">ワードウルフ</span>
+                            <span class="mode-desc" data-i18n="home.modeWordwolfDesc">少数派のウルフを見つけ出せ！</span>
+                        </button>
+                        <button id="mode-demacia-btn" class="mode-btn">
+                            <span class="mode-icon">💖</span>
+                            <span class="mode-name" data-i18n="home.modeDemacia">デマーシアに心を込めて</span>
+                            <span class="mode-desc" data-i18n="home.modeDemaciaDesc">LOLのセリフを演技して当てろ！</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -69,9 +133,10 @@
         <div id="home-screen" class="screen">
             <div class="card">
                 <div class="game-title-header">
-                    <button id="back-to-game-select-btn" class="btn-back">← <span data-i18n="home.backToSelect">ゲーム選択に戻る</span></button>
-                    <h2 id="current-game-title" data-i18n="home.title">ワードウルフゲーム</h2>
+                    <button id="back-to-game-type-btn" class="btn-back">← <span data-i18n="home.backToGameType">ゲーム選択に戻る</span></button>
+                    <h2 id="home-game-mode-title" data-i18n="home.title">ワードウルフゲーム</h2>
                 </div>
+                
                 <button id="create-room-btn" class="btn-primary btn-full-width" data-i18n="home.create">ルームを作成</button>
                 <button id="join-room-btn" class="btn-secondary btn-full-width" data-i18n="home.join">ルームに参加</button>
                 <button id="rules-btn" class="btn-secondary btn-full-width" data-i18n="home.rules">ルール説明</button>
@@ -88,12 +153,13 @@
                     <input type="text" id="create-player-name" data-i18n="create.playerNamePlaceholder" placeholder="名前を入力" maxlength="20">
                 </div>
                 
-                <div class="form-group">
+                <div id="player-count-section" class="form-group">
                     <label for="player-count" data-i18n="create.playerCount">プレイ人数</label>
                     <select id="player-count">
                         <option value="3">3</option>
                         <option value="4" selected>4</option>
                         <option value="5">5</option>
+                        <option value="6">6</option>
                     </select>
                 </div>
                 
@@ -108,7 +174,8 @@
                     </select>
                 </div>
                 
-                <div class="form-group">
+                <!-- ワードウルフ用：お題カテゴリー -->
+                <div id="wordwolf-categories" class="form-group">
                     <label data-i18n="create.categories">お題カテゴリー</label>
                     <div id="category-checkboxes" class="checkbox-group">
                         <!-- LOL用カテゴリー（デフォルト） -->
@@ -153,6 +220,82 @@
                         <div class="checkbox-item valorant-category" style="display:none;">
                             <input type="checkbox" name="category" value="terms" id="cat-terms" checked>
                             <label for="cat-terms" data-i18n="create.category.terms">ゲーム用語</label>
+                        </div>
+                        
+                        <!-- TFT用カテゴリー -->
+                        <div class="checkbox-item tft-category" style="display:none;">
+                            <input type="checkbox" name="category" value="units" id="cat-units" checked>
+                            <label for="cat-units" data-i18n="create.category.units">ユニット</label>
+                        </div>
+                        <div class="checkbox-item tft-category" style="display:none;">
+                            <input type="checkbox" name="category" value="traits" id="cat-traits" checked>
+                            <label for="cat-traits" data-i18n="create.category.traits">特性</label>
+                        </div>
+                        <div class="checkbox-item tft-category" style="display:none;">
+                            <input type="checkbox" name="category" value="items" id="cat-tft-items" checked>
+                            <label for="cat-tft-items" data-i18n="create.category.tftItems">アイテム</label>
+                        </div>
+                        <div class="checkbox-item tft-category" style="display:none;">
+                            <input type="checkbox" name="category" value="tft_terms" id="cat-tft-terms" checked>
+                            <label for="cat-tft-terms" data-i18n="create.category.tftTerms">ゲーム用語</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- デマーシア用：シチュエーションジャンル -->
+                <div id="demacia-genres" class="form-group" style="display:none;">
+                    <label data-i18n="create.situationGenres">シチュエーションジャンル</label>
+                    <div id="genre-checkboxes" class="checkbox-group">
+                        <!-- LOL用ジャンル -->
+                        <div class="checkbox-item lol-genre">
+                            <input type="checkbox" name="genre" value="battle" id="genre-battle" checked>
+                            <label for="genre-battle" data-i18n="create.genre.battle">戦闘シーン</label>
+                        </div>
+                        <div class="checkbox-item lol-genre">
+                            <input type="checkbox" name="genre" value="victory" id="genre-victory" checked>
+                            <label for="genre-victory" data-i18n="create.genre.victory">勝利・エース</label>
+                        </div>
+                        <div class="checkbox-item lol-genre">
+                            <input type="checkbox" name="genre" value="emotion" id="genre-emotion" checked>
+                            <label for="genre-emotion" data-i18n="create.genre.emotion">感情表現</label>
+                        </div>
+                        <div class="checkbox-item lol-genre">
+                            <input type="checkbox" name="genre" value="strategy" id="genre-strategy" checked>
+                            <label for="genre-strategy" data-i18n="create.genre.strategy">戦略・判断</label>
+                        </div>
+                        <div class="checkbox-item lol-genre">
+                            <input type="checkbox" name="genre" value="teamwork" id="genre-teamwork" checked>
+                            <label for="genre-teamwork" data-i18n="create.genre.teamwork">チームワーク</label>
+                        </div>
+                        <div class="checkbox-item lol-genre">
+                            <input type="checkbox" name="genre" value="casual" id="genre-casual" checked>
+                            <label for="genre-casual" data-i18n="create.genre.casual">カジュアル</label>
+                        </div>
+                        
+                        <!-- VALORANT用ジャンル -->
+                        <div class="checkbox-item valorant-genre" style="display:none;">
+                            <input type="checkbox" name="genre" value="clutch" id="genre-clutch" checked>
+                            <label for="genre-clutch" data-i18n="create.genre.clutch">クラッチ状況</label>
+                        </div>
+                        <div class="checkbox-item valorant-genre" style="display:none;">
+                            <input type="checkbox" name="genre" value="ace" id="genre-ace" checked>
+                            <label for="genre-ace" data-i18n="create.genre.ace">エース獲得</label>
+                        </div>
+                        <div class="checkbox-item valorant-genre" style="display:none;">
+                            <input type="checkbox" name="genre" value="ability" id="genre-ability" checked>
+                            <label for="genre-ability" data-i18n="create.genre.ability">アビリティ使用</label>
+                        </div>
+                        <div class="checkbox-item valorant-genre" style="display:none;">
+                            <input type="checkbox" name="genre" value="teamwork-val" id="genre-teamwork-val" checked>
+                            <label for="genre-teamwork-val" data-i18n="create.genre.teamworkVal">チーム連携</label>
+                        </div>
+                        <div class="checkbox-item valorant-genre" style="display:none;">
+                            <input type="checkbox" name="genre" value="defuse" id="genre-defuse" checked>
+                            <label for="genre-defuse" data-i18n="create.genre.defuse">設置・解除</label>
+                        </div>
+                        <div class="checkbox-item valorant-genre" style="display:none;">
+                            <input type="checkbox" name="genre" value="humor" id="genre-humor" checked>
+                            <label for="genre-humor" data-i18n="create.genre.humor">ユーモア</label>
                         </div>
                     </div>
                 </div>
@@ -219,6 +362,7 @@
                 </div>
                 
                 <div class="topic-display">
+                    <img id="topic-image" class="topic-image" src="" alt="" style="display: none;">
                     <div class="topic-text" id="your-topic">-</div>
                 </div>
                 
@@ -259,7 +403,13 @@
                     <p id="voted-out" data-i18n="result.votedOut">追放されたのは ？ です</p>
                     
                     <div style="margin-top: 1.5rem;">
-                        <label style="color: var(--lol-gold); margin-bottom: 0.5rem;" data-i18n="result.voteResults">投票結果</label>
+                        <label style="color: var(--primary-color); margin-bottom: 0.5rem; display: block;" data-i18n="result.topics">お題</label>
+                        <p id="wolf-topic" style="color: var(--wolf-color); margin: 0.5rem 0;"></p>
+                        <p id="citizen-topic" style="color: var(--citizen-color); margin: 0.5rem 0;"></p>
+                    </div>
+                    
+                    <div style="margin-top: 1.5rem;">
+                        <label style="color: var(--primary-color); margin-bottom: 0.5rem; display: block;" data-i18n="result.voteResults">投票結果</label>
                         <div id="vote-results"></div>
                     </div>
                 </div>
@@ -267,6 +417,137 @@
                 <div class="button-group">
                     <button id="play-again-btn" class="btn-primary" data-i18n="result.playAgain">もう一度</button>
                     <button id="back-to-home-btn" class="btn-secondary" data-i18n="result.backToHome">ホームへ</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- デマーシアゲーム: 演技者選択画面 -->
+        <div id="demacia-performer-selection-screen" class="screen">
+            <div class="card">
+                <h2 data-i18n="demacia.selectPerformerTitle">演技者を選択</h2>
+                
+                <div class="demacia-phrase-display">
+                    <div class="phrase-label" data-i18n="demacia.phrase">セリフ:</div>
+                    <div id="demacia-phrase-preview" class="demacia-phrase">デマーシアァァァァ！</div>
+                    <div class="character-label" data-i18n="demacia.character">キャラクター:</div>
+                    <div id="demacia-character-preview" class="demacia-character">ガレン</div>
+                </div>
+                
+                <div class="performer-selection-mode">
+                    <button id="random-performer-btn" class="btn-primary btn-full-width" data-i18n="demacia.randomPerformer">ランダムに選ぶ</button>
+                    <div class="or-divider" data-i18n="demacia.or">または</div>
+                    <div class="manual-performer-list" id="manual-performer-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- デマーシアゲーム: 演技画面 -->
+        <div id="demacia-perform-screen" class="screen">
+            <div class="card">
+                <h2 data-i18n="demacia.performTitle">演技タイム</h2>
+                
+                <div class="timer-display">
+                    <div id="demacia-timer" class="timer">01:30</div>
+                </div>
+                
+                <div class="demacia-phrase-display">
+                    <div class="phrase-label" data-i18n="demacia.phrase">セリフ:</div>
+                    <div id="demacia-phrase" class="demacia-phrase">デマーシアァァァァ！</div>
+                    <div class="character-label" data-i18n="demacia.character">キャラクター:</div>
+                    <div id="demacia-character" class="demacia-character">ガレン</div>
+                </div>
+                
+                <div class="situation-display">
+                    <div class="situation-label" data-i18n="demacia.yourSituation">あなたのシチュエーション:</div>
+                    <div id="demacia-situation" class="demacia-situation">ペンタキルを決めた時</div>
+                    <div class="difficulty-badge" id="demacia-difficulty">難易度: Medium</div>
+                </div>
+                
+                <div class="performer-info">
+                    <div class="current-performer-label" data-i18n="demacia.currentPerformer">現在の演技者:</div>
+                    <div id="current-performer-name" class="current-performer">プレイヤー1</div>
+                </div>
+                
+                <div class="performer-instruction">
+                    <p data-i18n="demacia.performInstruction">上記のシチュエーションで、このセリフを演技してください！</p>
+                    <p data-i18n="demacia.performWaiting">他のプレイヤーは演技を見て、どのシチュエーションか推理してください。</p>
+                </div>
+                
+                <button id="demacia-start-voting-btn" class="btn-primary btn-full-width" data-i18n="demacia.startVoting">投票を開始</button>
+            </div>
+        </div>
+
+        <!-- デマーシアゲーム: 投票画面 -->
+        <div id="demacia-voting-screen" class="screen">
+            <div class="card">
+                <h2 data-i18n="demacia.votingTitle">投票タイム</h2>
+                
+                <div class="demacia-phrase-display">
+                    <div class="phrase-label" data-i18n="demacia.phrase">セリフ:</div>
+                    <div id="demacia-voting-phrase" class="demacia-phrase">デマーシアァァァァ！</div>
+                </div>
+                
+                <p class="voting-instruction" data-i18n="demacia.votingInstruction">
+                    演技者はどのシチュエーションを演じていましたか？
+                </p>
+                
+                <div id="demacia-situation-options" class="demacia-situation-options"></div>
+                
+                <button id="demacia-submit-vote-btn" class="btn-primary btn-full-width" data-i18n="demacia.submitVote">投票する</button>
+            </div>
+        </div>
+
+        <!-- デマーシアゲーム: 結果画面 -->
+        <div id="demacia-result-screen" class="screen">
+            <div class="card">
+                <h2 data-i18n="demacia.resultTitle">ラウンド結果</h2>
+                
+                <div id="demacia-round-results" class="demacia-round-results"></div>
+                
+                <div class="score-board">
+                    <h3 data-i18n="demacia.scores">現在のスコア</h3>
+                    <div id="demacia-score-list"></div>
+                </div>
+                
+                <button id="demacia-next-round-btn" class="btn-primary btn-full-width" data-i18n="demacia.nextRound">次のラウンドへ</button>
+            </div>
+        </div>
+        
+        <!-- デマーシアゲーム: ラウンド結果画面 -->
+        <div id="demacia-round-result-screen" class="screen">
+            <div class="card">
+                <h2 data-i18n="demacia.roundResult">ラウンド結果</h2>
+                
+                <div class="demacia-phrase-display">
+                    <div class="phrase-label" data-i18n="demacia.phrase">セリフ:</div>
+                    <div id="demacia-round-result-phrase" class="demacia-phrase"></div>
+                </div>
+                
+                <div class="result-info">
+                    <p><strong data-i18n="demacia.correctSituation">正解:</strong></p>
+                    <p id="demacia-correct-situation" class="correct-situation"></p>
+                    
+                    <p id="demacia-correct-count" class="correct-count"></p>
+                    <p id="demacia-performer-score" class="performer-score"></p>
+                </div>
+                
+                <div class="button-group">
+                    <button id="demacia-next-round-btn" class="btn-primary btn-full-width" data-i18n="demacia.nextRound">次のラウンドへ</button>
+                    <button id="demacia-show-results-btn" class="btn-secondary btn-full-width" data-i18n="demacia.showResults">最終結果を見る</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- デマーシアゲーム: 最終結果画面 -->
+        <div id="demacia-final-result-screen" class="screen">
+            <div class="card">
+                <h2 data-i18n="demacia.finalResults">最終結果</h2>
+                
+                <div id="demacia-final-rankings" class="rankings-container"></div>
+                
+                <div class="button-group">
+                    <button id="demacia-play-again-btn" class="btn-primary" data-i18n="result.playAgain">もう一度</button>
+                    <button id="demacia-back-to-home-btn" class="btn-secondary" data-i18n="result.backToHome">ホームへ</button>
                 </div>
             </div>
         </div>
@@ -305,6 +586,10 @@
                 <a href="terms.html" data-i18n="footer.terms">利用規約</a>
                 <span class="separator">|</span>
                 <a href="copyright.html" data-i18n="footer.copyright">著作権ポリシー</a>
+                <span class="separator">|</span>
+                <a href="faq.html">FAQ</a>
+                <span class="separator">|</span>
+                <a href="contact.html">お問い合わせ</a>
             </div>
             <div class="footer-copyright">
                 <p>&copy; 2025 LOL Word Wolf Fan Site. All rights reserved.</p>
@@ -314,11 +599,16 @@
     </footer>
 
     <!-- JavaScript -->
-    <script src="js/firebase-config.js?v=5"></script>
-    <script src="js/i18n.js?v=5"></script>
-    <script src="js/data.js?v=5"></script>
-    <script src="js/data-valorant.js?v=5"></script>
-    <script src="js/game.js?v=5"></script>
-    <script src="js/main.js?v=5"></script>
+    <script src="js/firebase-config.js?v=9"></script>
+    <script src="js/i18n.js?v=9"></script>
+    <script src="js/data.js?v=9"></script>
+    <script src="js/data-valorant.js?v=9"></script>
+    <script src="js/data-tft.js?v=9"></script>
+    <script src="js/data-i18n.js?v=9"></script>
+    <script src="js/demacia-data.js?v=9"></script>
+    <script src="js/demacia-data-valorant.js?v=9"></script>
+    <script src="js/game.js?v=9"></script>
+    <script src="js/demacia-game.js?v=9"></script>
+    <script src="js/main.js?v=9"></script>
 </body>
 </html>

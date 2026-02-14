@@ -28,6 +28,15 @@
   --val-text: #ece8e1;
   --val-white: #ffffff;
   
+  /* TFT カラーテーマ */
+  --tft-purple: #9d4dbb;
+  --tft-gold: #e6c374;
+  --tft-dark: #111826;
+  --tft-dark-secondary: #1a2332;
+  --tft-border: #9d4dbb;
+  --tft-text: #d4c8ff;
+  --tft-white: #ffffff;
+  
   /* ゲームカラー */
   --wolf-color: #e74c3c;
   --citizen-color: #3498db;
@@ -60,6 +69,17 @@ body.game-valorant {
   --border-color: var(--val-border);
   --text-color: var(--val-text);
   --text-white: var(--val-white);
+}
+
+/* TFTテーマ */
+body.game-tft {
+  --primary-color: var(--tft-purple);
+  --primary-dark: var(--tft-gold);
+  --bg-dark: var(--tft-dark);
+  --bg-dark-secondary: var(--tft-dark-secondary);
+  --border-color: var(--tft-border);
+  --text-color: var(--tft-text);
+  --text-white: var(--tft-white);
 }
 
 body {
@@ -390,6 +410,21 @@ button {
   padding: var(--spacing-lg);
   text-align: center;
   margin-bottom: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.topic-image {
+  max-width: 200px;
+  max-height: 200px;
+  width: auto;
+  height: auto;
+  border-radius: 8px;
+  border: 2px solid var(--primary-color);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  object-fit: contain;
 }
 
 .topic-text {
@@ -397,7 +432,7 @@ button {
   color: var(--lol-gold);
   font-weight: 700;
   text-shadow: 0 0 15px rgba(200, 155, 60, 0.6);
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: 0;
 }
 
 .role-wolf {
@@ -794,6 +829,16 @@ footer {
   box-shadow: 0 8px 25px rgba(255, 70, 85, 0.6);
 }
 
+.game-select-btn.tft-game {
+  border-color: #9d4dbb;
+}
+
+.game-select-btn.tft-game:hover {
+  background: rgba(157, 77, 187, 0.1);
+  border-color: #9d4dbb;
+  box-shadow: 0 8px 25px rgba(157, 77, 187, 0.6);
+}
+
 .game-icon {
   font-size: 3rem;
 }
@@ -806,6 +851,10 @@ footer {
 
 .valorant-game .game-name {
   color: #ff4655;
+}
+
+.tft-game .game-name {
+  color: #9d4dbb;
 }
 
 .game-desc {
@@ -839,7 +888,105 @@ footer {
   color: var(--lol-blue);
 }
 
+/* ========================================
+   モード選択画面（左右並び）
+   ======================================== */
+
+.mode-selection-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-lg);
+  margin: var(--spacing-lg) 0;
+}
+
+.mode-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 3px solid rgba(200, 155, 60, 0.3);
+  border-radius: 20px;
+  padding: var(--spacing-xl);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+  min-height: 300px;
+  justify-content: center;
+  text-align: center;
+}
+
+.mode-card:hover {
+  transform: translateY(-8px);
+  background: rgba(200, 155, 60, 0.1);
+  border-color: var(--primary-color);
+  box-shadow: 0 10px 30px rgba(200, 155, 60, 0.5);
+}
+
+.mode-card:active {
+  transform: translateY(-4px);
+}
+
+.mode-icon-large {
+  font-size: 5rem;
+  margin-bottom: var(--spacing-sm);
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+.mode-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin: 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.mode-description {
+  font-size: 1rem;
+  color: var(--text-color);
+  opacity: 0.9;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.mode-players {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin: var(--spacing-sm) 0 0 0;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: rgba(11, 198, 227, 0.15);
+  border-radius: 20px;
+  display: inline-block;
+}
+
+
 @media (max-width: 768px) {
+  .mode-selection-grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+  }
+  
+  .mode-card {
+    min-height: 200px;
+    padding: var(--spacing-lg);
+  }
+  
+  .mode-icon-large {
+    font-size: 4rem;
+  }
+  
+  .mode-title {
+    font-size: 1.5rem;
+  }
+  
+  .mode-description {
+    font-size: 0.9rem;
+  }
+  
+  .mode-players {
+    font-size: 1rem;
+  }
+  
   .game-select-btn {
     min-height: 120px;
   }

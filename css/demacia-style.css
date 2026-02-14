@@ -1,0 +1,465 @@
+
+/* ========================================
+   デマーシアに心を込めて - 専用スタイル
+   ======================================== */
+
+/* ゲームモード選択 */
+.game-mode-selection {
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+}
+
+.game-mode-selection h3 {
+  text-align: center;
+  color: var(--primary-color);
+  margin-bottom: var(--spacing-md);
+  font-size: 1.2rem;
+}
+
+.mode-buttons {
+  display: flex;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.mode-btn {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(200, 155, 60, 0.3);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.mode-btn:hover {
+  background: rgba(200, 155, 60, 0.1);
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+}
+
+.mode-btn.active {
+  background: rgba(200, 155, 60, 0.2);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 20px rgba(200, 155, 60, 0.3);
+}
+
+.mode-icon {
+  font-size: 2.5rem;
+}
+
+.mode-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+/* 演技者選択 */
+.performer-selection-mode {
+  margin-top: var(--spacing-md);
+}
+
+.or-divider {
+  text-align: center;
+  color: var(--text-color);
+  opacity: 0.6;
+  margin: var(--spacing-md) 0;
+  font-size: 0.9rem;
+}
+
+.manual-performer-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.performer-btn {
+  padding: var(--spacing-md);
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(200, 155, 60, 0.3);
+  border-radius: 8px;
+  color: var(--text-color);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.performer-btn:hover {
+  background: rgba(200, 155, 60, 0.1);
+  border-color: var(--primary-color);
+  transform: translateX(5px);
+}
+
+/* デマーシアゲーム: セリフ表示 */
+.demacia-phrase-display {
+  background: linear-gradient(135deg, rgba(200, 155, 60, 0.2), rgba(11, 198, 227, 0.2));
+  border: 3px solid var(--primary-color);
+  border-radius: 12px;
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
+  text-align: center;
+}
+
+.phrase-label,
+.character-label {
+  font-size: 0.9rem;
+  color: var(--text-color);
+  margin-bottom: var(--spacing-xs);
+  opacity: 0.8;
+}
+
+.demacia-phrase {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  text-shadow: 0 0 15px rgba(200, 155, 60, 0.6);
+  margin-bottom: var(--spacing-md);
+  padding: var(--spacing-sm) 0;
+}
+
+.demacia-character {
+  font-size: 1.3rem;
+  color: var(--secondary-color);
+  font-weight: 600;
+}
+
+/* シチュエーション表示 */
+.situation-display {
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid var(--primary-color);
+  border-radius: 12px;
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  text-align: center;
+}
+
+.situation-label {
+  font-size: 0.9rem;
+  color: var(--text-color);
+  margin-bottom: var(--spacing-sm);
+  opacity: 0.8;
+}
+
+.demacia-situation {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  padding: var(--spacing-sm) 0;
+}
+
+.difficulty-badge {
+  display: inline-block;
+  margin-top: var(--spacing-sm);
+  padding: 0.3rem 0.8rem;
+  background: rgba(11, 198, 227, 0.2);
+  border: 1px solid var(--secondary-color);
+  border-radius: 20px;
+  font-size: 0.85rem;
+  color: var(--secondary-color);
+  font-weight: 600;
+}
+
+/* 演技者情報 */
+.performer-info {
+  background: rgba(11, 198, 227, 0.1);
+  border: 2px solid var(--secondary-color);
+  border-radius: 12px;
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  text-align: center;
+}
+
+.current-performer-label {
+  font-size: 0.9rem;
+  color: var(--text-color);
+  margin-bottom: var(--spacing-sm);
+}
+
+.current-performer {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--secondary-color);
+}
+
+/* 演技説明 */
+.performer-instruction {
+  background: rgba(255, 193, 7, 0.1);
+  border: 2px solid rgba(255, 193, 7, 0.3);
+  border-radius: 12px;
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  text-align: center;
+}
+
+.performer-instruction p {
+  margin: var(--spacing-xs) 0;
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+/* 投票エリア */
+.voting-instruction {
+  text-align: center;
+  color: var(--text-color);
+  margin-bottom: var(--spacing-lg);
+  line-height: 1.6;
+}
+
+.demacia-situation-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.situation-option-btn {
+  padding: var(--spacing-md);
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(200, 155, 60, 0.3);
+  border-radius: 8px;
+  color: var(--text-color);
+  font-size: 1.1rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.situation-option-btn:hover {
+  background: rgba(200, 155, 60, 0.1);
+  border-color: var(--primary-color);
+  transform: translateX(5px);
+}
+
+.situation-option-btn.selected {
+  background: rgba(200, 155, 60, 0.2);
+  border-color: var(--primary-color);
+  font-weight: 600;
+  box-shadow: 0 0 15px rgba(200, 155, 60, 0.3);
+}
+
+.situation-difficulty {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.5rem;
+  background: rgba(11, 198, 227, 0.2);
+  border-radius: 12px;
+  color: var(--secondary-color);
+}
+
+/* ラウンド結果 */
+.demacia-round-results {
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid var(--primary-color);
+  border-radius: 12px;
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.result-performer {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: var(--spacing-sm);
+  text-align: center;
+}
+
+.result-situation {
+  font-size: 1.1rem;
+  color: var(--text-color);
+  margin-bottom: var(--spacing-md);
+  text-align: center;
+}
+
+.result-stats {
+  display: flex;
+  justify-content: space-around;
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.result-stat {
+  text-align: center;
+}
+
+.result-stat-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.result-stat-label {
+  font-size: 0.85rem;
+  color: var(--text-color);
+  opacity: 0.8;
+}
+
+/* スコアボード */
+.score-board {
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid var(--primary-color);
+  border-radius: 12px;
+  padding: var(--spacing-md);
+  margin-top: var(--spacing-lg);
+}
+
+.score-board h3 {
+  text-align: center;
+  color: var(--primary-color);
+  margin-bottom: var(--spacing-md);
+}
+
+#demacia-score-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.score-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-sm);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(200, 155, 60, 0.2);
+}
+
+.score-item.winner {
+  background: rgba(200, 155, 60, 0.2);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 15px rgba(200, 155, 60, 0.3);
+}
+
+.score-player-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.score-points {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.winner-badge {
+  display: inline-block;
+  margin-left: var(--spacing-xs);
+  padding: 0.2rem 0.5rem;
+  background: var(--primary-color);
+  color: var(--bg-dark);
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .mode-buttons {
+    flex-direction: column;
+  }
+  
+  .mode-btn {
+    min-width: 100%;
+  }
+  
+  .demacia-phrase {
+    font-size: 1.5rem;
+  }
+  
+  .demacia-situation {
+    font-size: 1.2rem;
+  }
+  
+  .result-stats {
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+}
+
+/* ランキング表示 */
+.rankings-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  margin: var(--spacing-lg) 0;
+}
+
+.ranking-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md);
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(200, 155, 60, 0.3);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.ranking-item:first-child {
+  background: rgba(200, 155, 60, 0.2);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 20px rgba(200, 155, 60, 0.3);
+}
+
+.rank {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  min-width: 60px;
+}
+
+.ranking-item:first-child .rank {
+  font-size: 2rem;
+}
+
+.player-name {
+  flex: 1;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin: 0 var(--spacing-md);
+}
+
+.score {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--secondary-color);
+}
+
+.ranking-item:first-child .score {
+  font-size: 1.5rem;
+}
+
+/* 結果情報 */
+.result-info {
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid var(--primary-color);
+  border-radius: 12px;
+  padding: var(--spacing-lg);
+  margin: var(--spacing-lg) 0;
+  text-align: center;
+}
+
+.correct-situation {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin: var(--spacing-md) 0;
+}
+
+.correct-count, .performer-score {
+  font-size: 1.1rem;
+  color: var(--text-color);
+  margin: var(--spacing-sm) 0;
+}
