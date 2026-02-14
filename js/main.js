@@ -928,7 +928,7 @@ function showDemaciaPerformerSelection() {
   const roomData = currentDemaciaGame.roomData;
   
   // セリフ表示
-  document.getElementById('demacia-phrase-preview').textContent = roomData.currentPhrase.phrase;
+  document.getElementById('demacia-phrase-preview').textContent = roomData.currentPhrase.text;
   document.getElementById('demacia-character-preview').textContent = roomData.currentPhrase.character;
   
   // プレイヤーリスト作成
@@ -968,15 +968,15 @@ function showDemaciaPerformScreen() {
   const isPerformer = roomData.currentPerformer === currentPlayer;
   
   // 共通のセリフ・キャラ表示
-  document.getElementById('demacia-phrase').textContent = roomData.currentPhrase.phrase;
+  document.getElementById('demacia-phrase').textContent = roomData.currentPhrase.text;
   document.getElementById('demacia-character').textContent = roomData.currentPhrase.character;
   
   if (isPerformer) {
     // 演技者側の表示
-    document.getElementById('demacia-situation').textContent = 
-      roomData.currentPhrase.situations[roomData.correctSituation];
+    const performerSituation = roomData.currentPhrase.situations[roomData.correctSituation];
+    document.getElementById('demacia-situation').textContent = performerSituation.text;
     document.getElementById('demacia-difficulty').textContent = 
-      `難易度: ${roomData.currentPhrase.difficulty}`;
+      `難易度: ${performerSituation.difficulty}`;
     
     // 演技者情報を表示
     document.getElementById('current-performer-name').textContent = currentPlayer;
@@ -1024,7 +1024,7 @@ function showDemaciaVotingScreen() {
     document.getElementById('demacia-situation-options').style.display = 'none';
   } else {
     // 投票者の表示
-    document.getElementById('demacia-voting-phrase').textContent = roomData.currentPhrase.phrase;
+    document.getElementById('demacia-voting-phrase').textContent = roomData.currentPhrase.text;
     
     const optionsContainer = document.getElementById('demacia-situation-options');
     optionsContainer.innerHTML = '';
@@ -1032,7 +1032,7 @@ function showDemaciaVotingScreen() {
     roomData.currentPhrase.situations.forEach((situation, index) => {
       const btn = document.createElement('button');
       btn.className = 'situation-option-btn';
-      btn.textContent = `${index + 1}. ${situation}`;
+      btn.textContent = `${index + 1}. ${situation.text}`;
       btn.onclick = () => {
         document.querySelectorAll('.situation-option-btn').forEach(b => b.classList.remove('selected'));
         btn.classList.add('selected');
@@ -1078,9 +1078,9 @@ function showDemaciaRoundResult() {
   const roomData = currentDemaciaGame.roomData;
   const result = currentDemaciaGame.calculateRoundResult();
   
-  document.getElementById('demacia-round-result-phrase').textContent = roomData.currentPhrase.phrase;
-  document.getElementById('demacia-correct-situation').textContent = 
-    roomData.currentPhrase.situations[roomData.correctSituation];
+  document.getElementById('demacia-round-result-phrase').textContent = roomData.currentPhrase.text;
+  const correctSituation = roomData.currentPhrase.situations[roomData.correctSituation];
+  document.getElementById('demacia-correct-situation').textContent = correctSituation.text;
   document.getElementById('demacia-correct-count').textContent = 
     t('demacia.correctCount').replace('{count}', result.correctCount);
   document.getElementById('demacia-performer-score').textContent = 

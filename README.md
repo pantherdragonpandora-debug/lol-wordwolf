@@ -325,6 +325,17 @@ ja: {
 
 詳細は `FIREBASE_RULES_FIX.md` を参照
 
+### ❌ デマーシアでシチュエーションが「[Object Object]」と表示される
+
+**原因**: データ構造の不一致（v1.0.10で修正済み）
+
+**解決策**:
+1. Ctrl + Shift + R でスーパーリロード
+2. バージョン 1.0.10 以降が読み込まれていることを確認
+3. それでも解決しない場合は、ブラウザのキャッシュをすべてクリア
+
+詳細は `DEMACIA_DISPLAY_FIX.md` を参照
+
 ### ❌ 友達が参加できない
 
 **原因**: 承認済みドメインが未設定
@@ -346,7 +357,10 @@ ja: {
 ## 📄 ドキュメント
 
 - `README.md` - プロジェクト全体の説明（このファイル）
-- `VERSION_MANAGEMENT.md` - バージョン管理とキャッシュクリアガイド（**NEW!**）
+- `VERSION_MANAGEMENT.md` - バージョン管理とキャッシュクリアガイド
+- `DEMACIA_DISPLAY_FIX.md` - デマーシアモード表示不具合の修正記録（**NEW!**）
+- `ROOM_JOIN_FIX.md` - ルーム参加問題の修正記録
+- `MULTI_ROOM_SUPPORT.md` - 複数ルーム対応の実装記録
 - `ADS.md` - Google AdSense 広告実装ガイド
 - `QUICKSTART.md` - 5分で始められるガイド
 - `DEPLOY.md` - デプロイ方法の詳細
