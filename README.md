@@ -346,7 +346,8 @@ ja: {
 ## 📄 ドキュメント
 
 - `README.md` - プロジェクト全体の説明（このファイル）
-- `ADS.md` - Google AdSense 広告実装ガイド（**NEW!**）
+- `VERSION_MANAGEMENT.md` - バージョン管理とキャッシュクリアガイド（**NEW!**）
+- `ADS.md` - Google AdSense 広告実装ガイド
 - `QUICKSTART.md` - 5分で始められるガイド
 - `DEPLOY.md` - デプロイ方法の詳細
 - `TROUBLESHOOTING.md` - トラブルシューティング
