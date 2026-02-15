@@ -124,6 +124,16 @@ function selectGame(gameType) {
     }
   }
   
+  // ホーム画面のソロプレイボタン表示制御
+  const soloPlayBtn = document.getElementById('solo-play-btn');
+  if (soloPlayBtn) {
+    if (selectedGameMode === 'demacia') {
+      soloPlayBtn.style.display = 'block';
+    } else {
+      soloPlayBtn.style.display = 'none';
+    }
+  }
+  
   // ホーム画面のタイトルを更新
   const titleKey = selectedGameMode === 'wordwolf' ? 
     `home.title${gameType.charAt(0).toUpperCase() + gameType.slice(1)}` : 
@@ -177,6 +187,12 @@ function setupEventListeners() {
     showScreen('game-select-screen');
   });
   
+  // ソロプレイボタン（デマーシア専用）
+  document.getElementById('solo-play-btn')?.addEventListener('click', () => {
+    console.log('🎭 ソロプレイモード開始');
+    startDemaciaSoloPlay();
+  });
+  
   // ホーム画面
   document.getElementById('create-room-btn').addEventListener('click', () => showScreen('create-screen'));
   document.getElementById('join-room-btn').addEventListener('click', () => {
@@ -222,6 +238,14 @@ function setupEventListeners() {
   document.getElementById('demacia-show-results-btn')?.addEventListener('click', showDemaciaFinalResults);
   document.getElementById('demacia-play-again-btn')?.addEventListener('click', resetGame);
   document.getElementById('demacia-back-to-home-btn')?.addEventListener('click', backToHome);
+  
+  // デマーシアゲーム - ソロプレイモード
+  document.getElementById('demacia-solo-show-situation-btn')?.addEventListener('click', showDemaciaSoloSituation);
+  document.getElementById('demacia-solo-start-perform-btn')?.addEventListener('click', startDemaciaSoloPerform);
+  document.getElementById('demacia-solo-end-perform-btn')?.addEventListener('click', endDemaciaSoloPerform);
+  document.getElementById('demacia-solo-reveal-answer-btn')?.addEventListener('click', revealDemaciaSoloAnswer);
+  document.getElementById('demacia-solo-next-btn')?.addEventListener('click', startDemaciaSoloNext);
+  document.getElementById('demacia-solo-home-btn')?.addEventListener('click', backToHome);
 }
 
 // ルーム参加画面の情報を更新
@@ -322,6 +346,7 @@ async function createRoom() {
     console.log('- ルームID:', currentRoomId);
     console.log('- プレイヤー名:', playerName);
     console.log('- ゲームタイプ:', selectedGameType);
+    
     console.log('- DemaciaGameクラス:', typeof DemaciaGame);
     console.log('- window.DemaciaGame:', typeof window.DemaciaGame);
     
@@ -968,7 +993,47 @@ function copyRoomUrl() {
 
 // ルール表示
 function showRules() {
-  alert(`
+  const mode = selectedGameMode || 'wordwolf';
+  const gameType = selectedGameType || 'lol';
+  
+  let rules = '';
+  
+  if (mode === 'demacia') {
+    // デマーシアのルール
+    const gameName = gameType === 'lol' ? 'League of Legends' : 'VALORANT';
+    const examples = gameType === 'lol' 
+      ? '「デマーシアァァァァ！」「僕が悪いんだ」「ハサキ！」など'
+      : '「Sage、復活！」「オーディン買え！」「タップ撃ちだ！」など';
+    
+    rules = `
+【デマーシアに心を込めて - ルール】
+
+1. 有名なセリフが1つ選ばれます
+   例：${examples}
+
+2. ランダムで1人が「演技者」になります
+
+3. 演技者だけに「シチュエーション」が示されます
+   例：ペンタキルを決めた時、味方が全滅した時など
+
+4. 演技者がそのシチュエーションで演技します
+
+5. 他のプレイヤーは6つの選択肢から、どのシチュエーションだったか投票します
+
+6. 正解者が多いほど良い演技です！
+
+【ポイント】
+- 難易度: Easy / Medium / Hard
+- 3〜8人でプレイ可能
+- 演技力と推理力が試されます
+- ${gameName}の知識があるとより楽しめます！
+    `;
+  } else {
+    // ワードウルフのルール
+    const gameName = gameType === 'lol' ? 'League of Legends' : 
+                     gameType === 'valorant' ? 'VALORANT' : 'Teamfight Tactics';
+    
+    rules = `
 【ワードウルフのルール】
 
 1. プレイヤーは「市民」と「ウルフ」に分かれます
@@ -977,16 +1042,19 @@ function showRules() {
 4. 検討時間終了後、誰がウルフか投票します
 5. ウルフを当てられれば市民の勝ち、外れればウルフの勝ちです
 
-【LOLテーマ】
-このゲームはLeague of Legendsをテーマにしたお題が登場します！
-- チャンピオン
-- アイテム
+【${gameName}テーマ】
+このゲームは${gameName}をテーマにしたお題が登場します！
+- チャンピオン / エージェント
+- アイテム / 武器
 - スキル・能力
 - マップ・レーン
-- スペル
+- スペル / アビリティ
 
-LOLの知識を活かして楽しんでください！
-  `);
+${gameName}の知識を活かして楽しんでください！
+    `;
+  }
+  
+  alert(rules);
 }
 
 // 接続状態更新
@@ -1084,9 +1152,25 @@ function showDemaciaPerformScreen() {
       performerSituation = { text: 'エラー: シチュエーション情報なし', difficulty: 'unknown' };
     }
     
-    document.getElementById('demacia-situation').textContent = performerSituation.text;
+    console.log('🔍 デバッグ - performerSituation:', performerSituation);
+    console.log('🔍 デバッグ - typeof performerSituation:', typeof performerSituation);
+    
+    // performerSituationからテキストと難易度を確実に取得
+    let situationText, situationDifficulty;
+    if (typeof performerSituation === 'string') {
+      situationText = performerSituation;
+      situationDifficulty = 'unknown';
+    } else if (performerSituation && typeof performerSituation === 'object') {
+      situationText = performerSituation.text || JSON.stringify(performerSituation);
+      situationDifficulty = performerSituation.difficulty || 'unknown';
+    } else {
+      situationText = 'エラー: シチュエーションが見つかりません';
+      situationDifficulty = 'unknown';
+    }
+    
+    document.getElementById('demacia-situation').textContent = situationText;
     document.getElementById('demacia-difficulty').textContent = 
-      `難易度: ${performerSituation.difficulty}`;
+      `難易度: ${situationDifficulty}`;
     
     // 演技者情報を表示
     document.getElementById('current-performer-name').textContent = currentPlayer;
@@ -1094,8 +1178,8 @@ function showDemaciaPerformScreen() {
     
     console.log('🎭 演技者表示:', {
       performer: currentPlayer,
-      situation: performerSituation.text,
-      difficulty: performerSituation.difficulty
+      situation: situationText,
+      difficulty: situationDifficulty
     });
   } else {
     // 投票者側は正解シチュエーションを隠す
@@ -1232,7 +1316,18 @@ function showDemaciaVotingScreen() {
       roomData.currentPhrase.situations.forEach((situation, index) => {
         const btn = document.createElement('button');
         btn.className = 'situation-option-btn';
-        btn.textContent = `${index + 1}. ${situation.text}`;
+        
+        // situationからテキストを確実に取得
+        let situationText;
+        if (typeof situation === 'string') {
+          situationText = situation;
+        } else if (situation && typeof situation === 'object') {
+          situationText = situation.text || JSON.stringify(situation);
+        } else {
+          situationText = 'シチュエーション情報なし';
+        }
+        
+        btn.textContent = `${index + 1}. ${situationText}`;
         btn.onclick = () => {
           document.querySelectorAll('.situation-option-btn').forEach(b => b.classList.remove('selected'));
           btn.classList.add('selected');

@@ -45,6 +45,7 @@ const translations = {
     'home.create': 'ルームを作成',
     'home.join': 'ルームに参加',
     'home.rules': 'ルール説明',
+    'home.soloPlay': '🎭 ソロプレイ（配信者向け）',
     
     // デマーシアゲーム
     'demacia.performTitle': '演技タイム',
@@ -235,6 +236,7 @@ const translations = {
     'home.create': 'Create Room',
     'home.join': 'Join Room',
     'home.rules': 'Rules',
+    'home.soloPlay': '🎭 Solo Play (for Streamers)',
     
     'create.title': 'Create Room',
     'create.playerName': 'Player Name',
@@ -370,6 +372,7 @@ const translations = {
     'home.create': '방 만들기',
     'home.join': '방 참가',
     'home.rules': '규칙 설명',
+    'home.soloPlay': '🎭 솔로 플레이 (스트리머용)',
     
     'create.title': '방 만들기',
     'create.playerName': '플레이어 이름',
@@ -505,6 +508,7 @@ const translations = {
     'home.create': '创建房间',
     'home.join': '加入房间',
     'home.rules': '游戏规则',
+    'home.soloPlay': '🎭 单人模式（主播专用）',
     
     'create.title': '创建房间',
     'create.playerName': '玩家名称',

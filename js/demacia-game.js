@@ -120,7 +120,20 @@ class DemaciaGame {
 
       // ゲームタイプに応じてランダムにお題を選択
       const gameType = room.settings.gameType || 'lol';
+      console.log('🎮 ゲームタイプ:', gameType);
+      console.log('🔍 getRandomDemaciaPhrase関数:', typeof getRandomDemaciaPhrase);
+      
       const phrase = getRandomDemaciaPhrase(gameType);
+      
+      console.log('📝 選択されたセリフ:', phrase);
+      console.log('📝 セリフテキスト:', phrase?.text);
+      console.log('📝 シチュエーション数:', phrase?.situations?.length);
+      
+      if (!phrase || !phrase.situations || phrase.situations.length === 0) {
+        console.error('❌ セリフまたはシチュエーションが見つかりません');
+        alert('セリフの取得に失敗しました');
+        return false;
+      }
       
       await this.roomRef.update({
         gameState: 'performer_selection',
@@ -153,8 +166,20 @@ class DemaciaGame {
 
       // ランダムにシチュエーションを1つ選択（演技者用）
       const situations = room.currentPhrase.situations;
+      console.log('🎭 シチュエーション一覧:', situations);
+      console.log('🎭 シチュエーション数:', situations?.length);
+      
+      if (!situations || situations.length === 0) {
+        console.error('❌ シチュエーションが存在しません');
+        alert('シチュエーションの取得に失敗しました');
+        return false;
+      }
+      
       const randomSituationIndex = Math.floor(Math.random() * situations.length);
       const performerSituation = situations[randomSituationIndex];
+      
+      console.log('🎯 選択されたシチュエーション:', performerSituation);
+      console.log('🎯 シチュエーションインデックス:', randomSituationIndex);
 
       await this.roomRef.update({
         gameState: 'performing',
@@ -199,17 +224,31 @@ class DemaciaGame {
       
       // 選択されたシチュエーション情報を取得
       const selectedSituation = room.currentPhrase.situations[guessedSituationIndex];
+      console.log('🔍 デバッグ - selectedSituation:', selectedSituation);
+      console.log('🔍 デバッグ - selectedSituation.text:', selectedSituation?.text);
+      console.log('🔍 デバッグ - typeof selectedSituation:', typeof selectedSituation);
+      
       const correctSituationIndex = room.correctSituation;
       const isCorrect = (guessedSituationIndex === correctSituationIndex);
       
+      // シチュエーションテキストを確実に取得
+      let situationText;
+      if (typeof selectedSituation === 'string') {
+        situationText = selectedSituation;
+      } else if (selectedSituation && typeof selectedSituation === 'object') {
+        situationText = selectedSituation.text || JSON.stringify(selectedSituation);
+      } else {
+        situationText = 'エラー: シチュエーションが見つかりません';
+      }
+      
       await this.roomRef.child(`currentVotes/${voterName}`).set({
         guessedSituationIndex: guessedSituationIndex,
-        guessedSituationText: selectedSituation.text,
+        guessedSituationText: situationText,
         isCorrect: isCorrect,
         timestamp: Date.now()
       });
 
-      console.log(`✅ 投票完了: ${voterName} → ${selectedSituation.text} (${isCorrect ? '正解' : '不正解'})`);
+      console.log(`✅ 投票完了: ${voterName} → ${situationText} (${isCorrect ? '正解' : '不正解'})`);
       
       // 全員の投票が完了したかチェック
       await this.checkVotingComplete();

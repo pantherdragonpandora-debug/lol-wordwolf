@@ -140,6 +140,11 @@
                 <button id="create-room-btn" class="btn-primary btn-full-width" data-i18n="home.create">ルームを作成</button>
                 <button id="join-room-btn" class="btn-secondary btn-full-width" data-i18n="home.join">ルームに参加</button>
                 <button id="rules-btn" class="btn-secondary btn-full-width" data-i18n="home.rules">ルール説明</button>
+                
+                <!-- デマーシア専用：ソロプレイモード -->
+                <button id="solo-play-btn" class="btn-secondary btn-full-width" style="display:none; background: linear-gradient(135deg, #c89b3c 0%, #a67c2b 100%); color: #0a1428; font-weight: 600;">
+                    <span data-i18n="home.soloPlay">🎭 ソロプレイ（配信者向け）</span>
+                </button>
             </div>
         </div>
 
@@ -582,6 +587,150 @@
                 </div>
             </div>
         </div>
+
+        <!-- デマーシアゲーム: ソロプレイ - セリフ表示画面 -->
+        <div id="demacia-solo-phrase-screen" class="screen">
+            <div class="card">
+                <h2>🎭 セリフが決定しました</h2>
+                
+                <div class="demacia-phrase-display" style="margin: 2rem 0;">
+                    <div class="phrase-label">セリフ:</div>
+                    <div id="demacia-solo-phrase" class="demacia-phrase" style="font-size: 1.8rem; font-weight: bold;"></div>
+                    <div id="demacia-solo-character" class="demacia-character" style="font-size: 1.2rem; color: rgba(255,255,255,0.7); margin-top: 0.5rem;"></div>
+                </div>
+                
+                <div style="text-align: center; margin: 2rem 0; padding: 1.5rem; background: rgba(200,155,60,0.1); border-radius: 12px;">
+                    <p style="font-size: 1.1rem; margin-bottom: 1rem;">
+                        このセリフで演技を行います。<br>
+                        次の画面でシチュエーションが表示されます。
+                    </p>
+                    <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem;">
+                        ⚠️ 視聴者に見えないようご注意ください
+                    </p>
+                </div>
+                
+                <button id="demacia-solo-show-situation-btn" class="btn-primary btn-full-width">
+                    シチュエーションを確認する
+                </button>
+            </div>
+        </div>
+
+        <!-- デマーシアゲーム: ソロプレイ - シチュエーション確認画面 -->
+        <div id="demacia-solo-situation-screen" class="screen">
+            <div class="card">
+                <h2 style="color: #c89b3c;">🎯 あなたのシチュエーション</h2>
+                
+                <div style="margin: 2rem 0; padding: 2rem; background: linear-gradient(135deg, rgba(200,155,60,0.2) 0%, rgba(200,155,60,0.05) 100%); border-radius: 12px; border: 2px solid rgba(200,155,60,0.3);">
+                    <div style="text-align: center; margin-bottom: 1.5rem;">
+                        <div class="phrase-label" style="font-size: 0.9rem;">セリフ:</div>
+                        <div id="demacia-solo-situation-phrase" style="font-size: 1.5rem; font-weight: bold; margin: 0.5rem 0;"></div>
+                    </div>
+                    
+                    <div style="text-align: center; padding: 2rem; background: rgba(0,0,0,0.3); border-radius: 8px;">
+                        <div style="font-size: 0.9rem; color: rgba(255,255,255,0.6); margin-bottom: 0.5rem;">シチュエーション:</div>
+                        <div id="demacia-solo-situation-text" style="font-size: 2rem; font-weight: bold; color: #c89b3c;"></div>
+                        <div id="demacia-solo-situation-difficulty" style="margin-top: 1rem; font-size: 0.9rem; color: rgba(255,255,255,0.7);"></div>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin: 1.5rem 0; padding: 1rem; background: rgba(255,215,0,0.1); border-radius: 8px;">
+                    <p style="color: rgba(255,255,255,0.8);">
+                        このシチュエーションで演技してください。<br>
+                        準備ができたら「演技開始」を押してください。
+                    </p>
+                </div>
+                
+                <button id="demacia-solo-start-perform-btn" class="btn-primary btn-full-width">
+                    演技開始
+                </button>
+            </div>
+        </div>
+
+        <!-- デマーシアゲーム: ソロプレイ - 演技中画面 -->
+        <div id="demacia-solo-perform-screen" class="screen">
+            <div class="card">
+                <h2>🎭 演技中...</h2>
+                
+                <div class="demacia-phrase-display" style="margin: 2rem 0;">
+                    <div class="phrase-label">セリフ:</div>
+                    <div id="demacia-solo-perform-phrase" class="demacia-phrase" style="font-size: 1.8rem; font-weight: bold;"></div>
+                </div>
+                
+                <div style="text-align: center; margin: 3rem 0; padding: 2rem; background: linear-gradient(135deg, rgba(200,155,60,0.1) 0%, rgba(200,155,60,0.05) 100%); border-radius: 12px;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">🎬</div>
+                    <p style="font-size: 1.2rem; margin-bottom: 1rem;">
+                        視聴者にセリフを読んで演技してください
+                    </p>
+                    <p style="color: rgba(255,255,255,0.6); font-size: 0.9rem;">
+                        シチュエーションは伝えないでください
+                    </p>
+                </div>
+                
+                <button id="demacia-solo-end-perform-btn" class="btn-primary btn-full-width">
+                    演技終了
+                </button>
+            </div>
+        </div>
+
+        <!-- デマーシアゲーム: ソロプレイ - 正解選択画面 -->
+        <div id="demacia-solo-answer-screen" class="screen">
+            <div class="card">
+                <h2>📝 正解のシチュエーションを選択</h2>
+                
+                <div class="demacia-phrase-display" style="margin: 2rem 0;">
+                    <div class="phrase-label">セリフ:</div>
+                    <div id="demacia-solo-answer-phrase" class="demacia-phrase"></div>
+                </div>
+                
+                <div style="text-align: center; margin: 1.5rem 0; padding: 1rem; background: rgba(200,155,60,0.1); border-radius: 8px;">
+                    <p style="color: rgba(255,255,255,0.8);">
+                        視聴者のコメントを確認してから、<br>
+                        正解のシチュエーションを選んでください。
+                    </p>
+                </div>
+                
+                <div id="demacia-solo-situation-options" class="demacia-situation-options" style="margin: 2rem 0;"></div>
+                
+                <button id="demacia-solo-reveal-answer-btn" class="btn-primary btn-full-width" disabled>
+                    結果発表
+                </button>
+            </div>
+        </div>
+
+        <!-- デマーシアゲーム: ソロプレイ - 結果発表画面 -->
+        <div id="demacia-solo-result-screen" class="screen">
+            <div class="card">
+                <h2>🎉 正解発表！</h2>
+                
+                <div class="demacia-phrase-display" style="margin: 2rem 0;">
+                    <div class="phrase-label">セリフ:</div>
+                    <div id="demacia-solo-result-phrase" class="demacia-phrase"></div>
+                </div>
+                
+                <div class="result-info" style="margin: 2rem 0;">
+                    <div style="text-align: center; padding: 2rem; background: linear-gradient(135deg, rgba(76,175,80,0.2) 0%, rgba(76,175,80,0.05) 100%); border-radius: 12px; border: 2px solid rgba(76,175,80,0.3);">
+                        <p style="font-size: 1rem; color: rgba(255,255,255,0.7); margin-bottom: 0.5rem;">正解:</p>
+                        <p id="demacia-solo-correct-situation" style="font-size: 2rem; font-weight: bold; color: #4caf50; margin: 1rem 0;"></p>
+                        <p id="demacia-solo-difficulty" style="font-size: 0.9rem; color: rgba(255,255,255,0.6);"></p>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin: 2rem 0; padding: 1.5rem; background: rgba(200,155,60,0.1); border-radius: 8px;">
+                    <p style="font-size: 1.1rem; color: rgba(255,255,255,0.9);">
+                        視聴者の皆さん、お疲れさまでした！
+                    </p>
+                </div>
+                
+                <div class="button-group">
+                    <button id="demacia-solo-next-btn" class="btn-primary btn-full-width">
+                        次のセリフで遊ぶ
+                    </button>
+                    <button id="demacia-solo-home-btn" class="btn-secondary btn-full-width">
+                        ホームに戻る
+                    </button>
+                </div>
+            </div>
+        </div>
     </main>
 
     <!-- 広告エリア（フッター上部） -->
@@ -641,9 +790,10 @@
     <script src="js/data-tft.js?v=13"></script>
     <script src="js/data-i18n.js?v=13"></script>
     <script src="js/demacia-data.js?v=13"></script>
-    <script src="js/demacia-data-valorant.js?v=13"></script>
-    <script src="js/game.js?v=13"></script>
-    <script src="js/demacia-game.js?v=13"></script>
-    <script src="js/main.js?v=13"></script>
+    <script src="js/demacia-data-valorant.js?v=18"></script>
+    <script src="js/game.js?v=18"></script>
+    <script src="js/demacia-game.js?v=18"></script>
+    <script src="js/demacia-solo.js?v=18"></script>
+    <script src="js/main.js?v=18"></script>
 </body>
 </html>

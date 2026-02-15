@@ -814,14 +814,56 @@ const demaciaData = {
   }
 };
 
+// VALORANTデータを正しい形式に変換する関数
+function normalizeValorantData(data) {
+  if (!data) return [];
+  
+  return data.map((phrase, index) => {
+    // situationsが文字列配列の場合、オブジェクト配列に変換
+    let normalizedSituations = [];
+    
+    if (Array.isArray(phrase.situations)) {
+      normalizedSituations = phrase.situations.map((situation, sIndex) => {
+        if (typeof situation === 'string') {
+          // 文字列の場合、オブジェクトに変換
+          return {
+            id: sIndex + 1,
+            text: situation,
+            difficulty: phrase.difficulty || 'medium'
+          };
+        } else if (situation && typeof situation === 'object') {
+          // 既にオブジェクトの場合、そのまま返す
+          return situation;
+        }
+        return null;
+      }).filter(s => s !== null);
+    }
+    
+    // phraseの正規化
+    return {
+      id: phrase.id || (index + 1),
+      text: phrase.phrase || phrase.text || '',
+      character: phrase.character || '',
+      image: phrase.image || '',
+      situations: normalizedSituations
+    };
+  });
+}
+
 // ランダムにお題を選択する関数（ゲームタイプ対応）
 function getRandomDemaciaPhrase(gameType = 'lol') {
   let phrases = [];
   
   if (gameType === 'valorant' && window.valorantDemaciaData) {
-    phrases = window.valorantDemaciaData;
+    // VALORANTデータを正規化
+    phrases = normalizeValorantData(window.valorantDemaciaData);
   } else {
     phrases = demaciaData.phrases;
+  }
+  
+  if (!phrases || phrases.length === 0) {
+    console.error('❌ セリフデータが見つかりません');
+    return null;
   }
   
   const randomIndex = Math.floor(Math.random() * phrases.length);
@@ -833,7 +875,8 @@ function getDemaciaPhraseById(id, gameType = 'lol') {
   let phrases = [];
   
   if (gameType === 'valorant' && window.valorantDemaciaData) {
-    phrases = window.valorantDemaciaData;
+    // VALORANTデータを正規化
+    phrases = normalizeValorantData(window.valorantDemaciaData);
   } else {
     phrases = demaciaData.phrases;
   }
