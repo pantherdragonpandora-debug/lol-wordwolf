@@ -1061,8 +1061,7 @@ function showRules() {
       ? '「デマーシアァァァァ！」「僕が悪いんだ」「ハサキ！」など'
       : '「Sage、復活！」「オーディン買え！」「タップ撃ちだ！」など';
     
-    rules = `
-【デマーシアに心を込めて - ルール】
+    rules = `【デマーシアに心を込めて - ルール】
 
 1. 有名なセリフが1つ選ばれます
    例：${examples}
@@ -1080,17 +1079,15 @@ function showRules() {
 
 【ポイント】
 - 難易度: Easy / Medium / Hard
-- 3〜8人でプレイ可能
+- 3〜10人でプレイ可能
 - 演技力と推理力が試されます
-- ${gameName}の知識があるとより楽しめます！
-    `;
+- ${gameName}の知識があるとより楽しめます！`;
   } else {
     // ワードウルフのルール
     const gameName = gameType === 'lol' ? 'League of Legends' : 
                      gameType === 'valorant' ? 'VALORANT' : 'Teamfight Tactics';
     
-    rules = `
-【ワードウルフのルール】
+    rules = `【ワードウルフのルール】
 
 1. プレイヤーは「市民」と「ウルフ」に分かれます
 2. 市民には多数派のお題が、ウルフには少数派のお題が与えられます
@@ -1106,11 +1103,77 @@ function showRules() {
 - マップ・レーン
 - スペル / アビリティ
 
-${gameName}の知識を活かして楽しんでください！
-    `;
+${gameName}の知識を活かして楽しんでください！`;
   }
   
-  alert(rules);
+  // モーダルで表示（スマホ対応）
+  showRulesModal(mode === 'demacia' ? 'デマーシアに心を込めて - ルール' : 'ワードウルフのルール', rules);
+}
+
+// ルール説明用モーダル表示
+function showRulesModal(title, content) {
+  // 既存のモーダルがあれば削除
+  const existingModal = document.getElementById('rules-modal');
+  if (existingModal) {
+    existingModal.remove();
+  }
+  
+  // モーダル作成
+  const modal = document.createElement('div');
+  modal.id = 'rules-modal';
+  modal.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    overflow-y: auto;
+  `;
+  
+  const modalContent = document.createElement('div');
+  modalContent.style.cssText = `
+    background: var(--card-bg);
+    border-radius: 12px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 2rem;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    margin: auto;
+  `;
+  
+  modalContent.innerHTML = `
+    <h2 style="color: var(--primary-color); margin-bottom: 1.5rem; font-size: 1.5rem;">${title}</h2>
+    <div style="color: var(--text-color); line-height: 1.8; white-space: pre-wrap; font-size: 0.95rem;">
+      ${content}
+    </div>
+    <button id="close-rules-btn" class="btn-primary" style="width: 100%; margin-top: 1.5rem; padding: 0.75rem;">
+      閉じる
+    </button>
+  `;
+  
+  modal.appendChild(modalContent);
+  document.body.appendChild(modal);
+  
+  // 閉じるボタン
+  document.getElementById('close-rules-btn').addEventListener('click', () => {
+    modal.remove();
+  });
+  
+  // 背景クリックで閉じる
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.remove();
+    }
+  });
 }
 
 // 接続状態更新
