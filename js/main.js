@@ -303,10 +303,24 @@ function showScreen(screenId) {
 
 // ルーム作成
 async function createRoom() {
-  const playerName = document.getElementById('create-player-name').value.trim();
+  // レート制限チェック（5秒に1回まで）
+  if (!rateLimiter.check('createRoom', 5000, 3, 60000)) {
+    alert(t('alert.tooManyRequests') || 'ルーム作成が早すぎます。5秒後にもう一度お試しください。');
+    return;
+  }
   
-  if (!playerName) {
+  const playerNameInput = document.getElementById('create-player-name').value.trim();
+  
+  // 入力検証
+  if (!playerNameInput) {
     alert(t('alert.enterPlayerName'));
+    return;
+  }
+  
+  // プレイヤー名のサニタイズと検証
+  const playerName = sanitizeInput(playerNameInput, 20);
+  if (!validatePlayerName(playerName)) {
+    alert(t('alert.invalidPlayerName') || 'プレイヤー名は1〜20文字で入力してください');
     return;
   }
   
@@ -410,11 +424,31 @@ async function createRoom() {
 
 // ルーム参加
 async function joinRoom() {
-  const roomId = document.getElementById('join-room-id').value.trim();
-  const playerName = document.getElementById('join-player-name').value.trim();
+  // レート制限チェック（3秒に1回まで）
+  if (!rateLimiter.check('joinRoom', 3000, 5, 60000)) {
+    alert(t('alert.tooManyRequests') || 'ルーム参加の試行が早すぎます。3秒後にもう一度お試しください。');
+    return;
+  }
   
-  if (!roomId || !playerName) {
+  const roomIdInput = document.getElementById('join-room-id').value.trim();
+  const playerNameInput = document.getElementById('join-player-name').value.trim();
+  
+  if (!roomIdInput || !playerNameInput) {
     alert(t('alert.enterRoomIdAndName'));
+    return;
+  }
+  
+  // ルームIDの検証
+  const roomId = sanitizeInput(roomIdInput, 6);
+  if (!validateRoomId(roomId)) {
+    alert(t('alert.invalidRoomId') || 'ルームIDは6桁の数字で入力してください');
+    return;
+  }
+  
+  // プレイヤー名のサニタイズと検証
+  const playerName = sanitizeInput(playerNameInput, 20);
+  if (!validatePlayerName(playerName)) {
+    alert(t('alert.invalidPlayerName') || 'プレイヤー名は1〜20文字で入力してください');
     return;
   }
   
@@ -766,13 +800,29 @@ function updateChat(messages) {
 
 // メッセージ送信
 async function sendMessage() {
-  const input = document.getElementById('chat-input');
-  const message = input.value.trim();
-  
-  if (message) {
-    await currentGame.sendMessage(currentPlayer, message);
-    input.value = '';
+  // レート制限チェック（1秒に1回まで、連続5回で60秒ブロック）
+  if (!rateLimiter.check('sendMessage', 1000, 5, 60000)) {
+    // 無言で無視（スパム防止）
+    return;
   }
+  
+  const input = document.getElementById('chat-input');
+  const messageInput = input.value.trim();
+  
+  // メッセージの検証
+  if (!messageInput) {
+    return;
+  }
+  
+  // メッセージのサニタイズと検証
+  const message = sanitizeInput(messageInput, 500);
+  if (!validateChatMessage(message)) {
+    alert(t('alert.invalidMessage') || 'メッセージは1〜500文字で入力してください');
+    return;
+  }
+  
+  await currentGame.sendMessage(currentPlayer, message);
+  input.value = '';
 }
 
 // 投票フェーズへ移行
@@ -827,6 +877,12 @@ function showVotingScreen(roomData) {
 
 // 投票確定
 async function confirmVote() {
+  // レート制限チェック（2秒に1回まで）
+  if (!rateLimiter.check('confirmVote', 2000)) {
+    alert(t('alert.votingTooFast') || '投票が早すぎます。2秒後にもう一度お試しください。');
+    return;
+  }
+  
   const selectedVote = document.querySelector('input[name="vote"]:checked');
   
   if (!selectedVote) {
@@ -1345,6 +1401,12 @@ function showDemaciaVotingScreen() {
 
 // デマーシア投票確定
 async function confirmDemaciaVote() {
+  // レート制限チェック（2秒に1回まで）
+  if (!rateLimiter.check('confirmDemaciaVote', 2000)) {
+    alert(t('alert.votingTooFast') || '投票が早すぎます。2秒後にもう一度お試しください。');
+    return;
+  }
+  
   if (selectedVoteSituation === null || selectedVoteSituation === undefined) {
     alert('シチュエーションを選択してください');
     return;

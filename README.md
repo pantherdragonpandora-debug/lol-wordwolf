@@ -382,9 +382,17 @@ ja: {
 ## 📄 ドキュメント
 
 ### 🔒 セキュリティ関連（重要！）
+- `SITE_TAKEOVER_PREVENTION.md` - サイト乗っ取り防止の完全ガイド（**最重要**）
+- `SECURITY_CHECKLIST_v1.0.21.md` - セキュリティチェックリスト
+- `SECURITY_SUMMARY.md` - セキュリティ概要と現状分析
+- `GITHUB_SECRETS_ALERT_RESPONSE.md` - GitHub Alertへの対応ガイド
 - `QUICK_API_KEY_FIX.md` - APIキー漏洩の10分対応ガイド（**最優先**）
 - `HOW_TO_REGENERATE_API_KEY.md` - APIキー再生成の詳細手順
 - `SECURITY_API_KEY_LEAK.md` - セキュリティ対応の完全ガイド
+
+### 🆕 最新リリース
+- `RELEASE_NOTES_v1.0.22.md` - v1.0.22リリースノート（**最新・セキュリティ強化**）
+- `IMPLEMENTATION_SUMMARY_v1.0.22.md` - v1.0.22実装サマリー
 
 ### 📚 プロジェクトドキュメント
 - `README.md` - プロジェクト全体の説明（このファイル）
@@ -395,7 +403,7 @@ ja: {
 - `DEMACIA_PERFORMER_VOTING_FIX_v1.0.16.md` - デマーシア演技者投票画面修正（v1.0.16）
 - `DEMACIA_VOTING_SCREEN_FIX_v1.0.15.md` - デマーシア投票画面修正（v1.0.15）
 - `WORDWOLF_VOTING_FIX_v1.0.14.md` - ワードウルフ投票システム修正（v1.0.14）
-- `RELEASE_NOTES_v1.0.21.md` - v1.0.21リリースノート（最新・VALORANT修正）
+- `RELEASE_NOTES_v1.0.21.md` - v1.0.21リリースノート（VALORANT修正）
 - `RELEASE_NOTES_v1.0.20.md` - v1.0.20リリースノート
 - `RELEASE_NOTES_v1.0.19.md` - v1.0.19リリースノート
 - `RELEASE_NOTES_v1.0.15.md` - v1.0.15リリースノート
