@@ -88,6 +88,18 @@ function selectGame(gameType) {
   
   // ヴォイドモードの場合
   if (selectedGameMode === 'void') {
+    // ヴォイド用カテゴリー表示切り替え
+    const voidLolCategories = document.querySelectorAll('.void-lol-category');
+    const voidValorantCategories = document.querySelectorAll('.void-valorant-category');
+    
+    if (gameType === 'lol') {
+      voidLolCategories.forEach(el => el.style.display = 'flex');
+      voidValorantCategories.forEach(el => el.style.display = 'none');
+    } else if (gameType === 'valorant') {
+      voidLolCategories.forEach(el => el.style.display = 'none');
+      voidValorantCategories.forEach(el => el.style.display = 'flex');
+    }
+    
     showScreen('void-home-screen');
     return;
   }

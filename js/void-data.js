@@ -305,3 +305,48 @@ function getVoidThemesByCategory(gameType, category) {
   }
   return [];
 }
+
+// 選択されたカテゴリーに基づいてランダムテーマを取得
+function getRandomVoidThemeByCategories(gameType, selectedCategories) {
+  let allThemes = [];
+  
+  if (gameType === 'lol') {
+    selectedCategories.forEach(category => {
+      if (voidThemes.lol[category]) {
+        allThemes.push(...voidThemes.lol[category]);
+      }
+    });
+  } else if (gameType === 'valorant') {
+    selectedCategories.forEach(category => {
+      allThemes.push(...voidThemes.valorant.filter(t => t.category === category));
+    });
+  }
+  
+  if (allThemes.length === 0) {
+    // カテゴリーが選択されていない場合は全テーマから
+    return getRandomVoidTheme(gameType);
+  }
+  
+  const randomIndex = Math.floor(Math.random() * allThemes.length);
+  return allThemes[randomIndex];
+}
+
+// ゲームタイプの全カテゴリーを取得
+function getVoidCategories(gameType) {
+  if (gameType === 'lol') {
+    return {
+      champions: { key: 'champions', nameKey: 'void.category.champions' },
+      items: { key: 'items', nameKey: 'void.category.items' },
+      places: { key: 'places', nameKey: 'void.category.places' },
+      concepts: { key: 'concepts', nameKey: 'void.category.concepts' }
+    };
+  } else if (gameType === 'valorant') {
+    return {
+      agent: { key: 'agent', nameKey: 'void.category.agents' },
+      weapon: { key: 'weapon', nameKey: 'void.category.weapons' },
+      map: { key: 'map', nameKey: 'void.category.maps' },
+      concept: { key: 'concept', nameKey: 'void.category.concepts' }
+    };
+  }
+  return {};
+}

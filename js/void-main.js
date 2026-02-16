@@ -114,6 +114,18 @@ async function createVoidRoom() {
     return;
   }
 
+  // カテゴリー選択の取得（ランダムモード時）
+  let selectedCategories = [];
+  if (themeMode === 'random') {
+    const categoryCheckboxes = document.querySelectorAll('input[name="void-category"]:checked');
+    selectedCategories = Array.from(categoryCheckboxes).map(cb => cb.value);
+    
+    if (selectedCategories.length === 0) {
+      alert('カテゴリーを1つ以上選択してください');
+      return;
+    }
+  }
+
   try {
     // ルームID生成
     currentVoidRoomId = await generateRoomId();
@@ -122,8 +134,14 @@ async function createVoidRoom() {
     // ゲーム作成
     currentVoidGame = new VoidGame(currentVoidRoomId, selectedGameType);
 
-    // テーマ選択（ランダムのみ実装）
-    await currentVoidGame.createRoom(playerName, maxPlayers);
+    // テーマ選択
+    let theme = null;
+    if (themeMode === 'random') {
+      theme = getRandomVoidThemeByCategories(selectedGameType, selectedCategories);
+    }
+    // 選択モードは未実装（将来的に実装予定）
+    
+    await currentVoidGame.createRoom(playerName, maxPlayers, theme);
 
     console.log('✅ ヴォイドルーム作成成功:', currentVoidRoomId);
 
@@ -191,7 +209,35 @@ async function joinVoidRoom() {
 // ========================================
 function showVoidWaitingScreen() {
   showScreen('void-waiting-screen');
+  
+  // ルームID表示
   document.getElementById('void-room-id-display').textContent = currentVoidRoomId;
+  
+  // ゲーム情報表示
+  const gameInfo = document.getElementById('void-waiting-game-info');
+  if (gameInfo) {
+    const gameTypeName = selectedGameType === 'lol' ? 'League of Legends' : 'VALORANT';
+    gameInfo.textContent = `ヴォイドに届くは光か闇か (${gameTypeName})`;
+  }
+  
+  // ルームURL表示
+  const roomUrl = `${window.location.origin}${window.location.pathname}?room=${currentVoidRoomId}&mode=void&game=${selectedGameType}`;
+  const roomUrlDisplay = document.getElementById('void-room-url-display');
+  if (roomUrlDisplay) {
+    roomUrlDisplay.textContent = roomUrl;
+  }
+  
+  // URLコピーボタン
+  const copyBtn = document.getElementById('void-copy-room-url-btn');
+  if (copyBtn) {
+    copyBtn.onclick = () => {
+      navigator.clipboard.writeText(roomUrl).then(() => {
+        alert('URLをコピーしました！');
+      }).catch(() => {
+        alert('URLのコピーに失敗しました');
+      });
+    };
+  }
 }
 
 // ========================================
@@ -238,17 +284,15 @@ function updateVoidPlayerList(roomData) {
   const playerOrder = roomData.playerOrder || [];
   playerOrder.forEach((playerName, index) => {
     const playerDiv = document.createElement('div');
-    playerDiv.className = 'void-player-item';
+    playerDiv.className = 'player-item';
     
     const isHost = roomData.players[playerName]?.isHost;
     const hostBadge = isHost ? ' 👑' : '';
     
     playerDiv.innerHTML = `
-      <div class="void-player-info">
-        <div class="void-player-order">${index + 1}</div>
-        <div class="void-player-name">${playerName}${hostBadge}</div>
-      </div>
-      <div class="void-player-status">✓ 準備完了</div>
+      <span class="player-number">${index + 1}</span>
+      <span class="player-name">${playerName}${hostBadge}</span>
+      <span class="player-ready">✓ 準備完了</span>
     `;
     
     playerList.appendChild(playerDiv);

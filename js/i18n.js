@@ -107,6 +107,15 @@ const translations = {
     'create.genre.teamworkVal': 'チーム連携',
     'create.genre.defuse': '設置・解除',
     'create.genre.humor': 'ユーモア',
+    // ヴォイド：LOL用カテゴリー
+    'void.category.champions': 'チャンピオン',
+    'void.category.items': 'アイテム',
+    'void.category.places': '地域',
+    'void.category.concepts': 'ゲーム用語',
+    // ヴォイド：VALORANT用カテゴリー
+    'void.category.agents': 'エージェント',
+    'void.category.weapons': '武器',
+    'void.category.maps': 'マップ',
     'create.createButton': '作成',
     'create.back': '戻る',
     
@@ -283,6 +292,15 @@ const translations = {
     'create.genre.teamworkVal': 'Team Coordination',
     'create.genre.defuse': 'Plant/Defuse',
     'create.genre.humor': 'Humor',
+    // Void: LOL Categories
+    'void.category.champions': 'Champions',
+    'void.category.items': 'Items',
+    'void.category.places': 'Regions',
+    'void.category.concepts': 'Game Terms',
+    // Void: VALORANT Categories
+    'void.category.agents': 'Agents',
+    'void.category.weapons': 'Weapons',
+    'void.category.maps': 'Maps',
     'create.createButton': 'Create',
     'create.back': 'Back',
     
@@ -424,6 +442,15 @@ const translations = {
     'create.genre.teamworkVal': '팀 협동',
     'create.genre.defuse': '설치/해제',
     'create.genre.humor': '유머',
+    // 보이드: LOL 카테고리
+    'void.category.champions': '챔피언',
+    'void.category.items': '아이템',
+    'void.category.places': '지역',
+    'void.category.concepts': '게임 용어',
+    // 보이드: VALORANT 카테고리
+    'void.category.agents': '요원',
+    'void.category.weapons': '무기',
+    'void.category.maps': '맵',
     'create.createButton': '만들기',
     'create.back': '뒤로',
     
@@ -565,6 +592,15 @@ const translations = {
     'create.genre.teamworkVal': '团队协作',
     'create.genre.defuse': '安装/拆除',
     'create.genre.humor': '幽默',
+    // 虚空: LOL 类别
+    'void.category.champions': '英雄',
+    'void.category.items': '物品',
+    'void.category.places': '地区',
+    'void.category.concepts': '游戏术语',
+    // 虚空: VALORANT 类别
+    'void.category.agents': '特工',
+    'void.category.weapons': '武器',
+    'void.category.maps': '地图',
     'create.createButton': '创建',
     'create.back': '返回',
     

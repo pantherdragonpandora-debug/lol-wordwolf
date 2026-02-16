@@ -242,19 +242,33 @@ main {
 /* カード */
 .card {
   background: rgba(30, 35, 40, 0.8);
-  border: 2px solid var(--lol-border);
+  border: 2px solid var(--border-color);
   border-radius: 12px;
   padding: var(--spacing-lg);
   margin-bottom: var(--spacing-md);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
+/* ヴォイドモード専用カードスタイル */
+body.mode-void .card {
+  background: rgba(30, 27, 75, 0.9);
+  border: 2px solid var(--void-primary);
+  box-shadow: 0 0 40px rgba(139, 92, 246, 0.2);
+  backdrop-filter: blur(10px);
+}
+
 .card h2 {
-  color: var(--lol-gold);
+  color: var(--primary-color);
   font-size: 1.8rem;
   margin-bottom: var(--spacing-md);
   text-align: center;
   text-shadow: 0 0 8px rgba(200, 155, 60, 0.4);
+}
+
+/* ヴォイドモード専用h2スタイル */
+body.mode-void .card h2 {
+  color: var(--void-glow);
+  text-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
 }
 
 /* フォーム */
@@ -264,10 +278,16 @@ main {
 
 label {
   display: block;
-  color: var(--lol-text);
+  color: var(--text-color);
   font-size: 1rem;
   margin-bottom: var(--spacing-xs);
   font-weight: 600;
+}
+
+/* ヴォイドモード専用ラベルスタイル */
+body.mode-void label {
+  color: var(--void-glow);
+  text-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
 }
 
 input[type="text"],
@@ -277,11 +297,21 @@ textarea {
   width: 100%;
   padding: 0.8rem;
   background: rgba(10, 20, 40, 0.6);
-  border: 2px solid var(--lol-border);
+  border: 2px solid var(--border-color);
   border-radius: 8px;
-  color: var(--lol-white);
+  color: var(--text-white);
   font-size: 1rem;
   transition: all 0.3s ease;
+}
+
+/* ヴォイドモード専用インプットスタイル */
+body.mode-void input[type="text"],
+body.mode-void input[type="number"],
+body.mode-void select,
+body.mode-void textarea {
+  background: rgba(15, 10, 30, 0.8);
+  border: 2px solid var(--void-primary);
+  color: white;
 }
 
 input[type="text"]:focus,
@@ -289,8 +319,18 @@ input[type="number"]:focus,
 select:focus,
 textarea:focus {
   outline: none;
-  border-color: var(--lol-blue);
+  border-color: var(--primary-dark);
   box-shadow: 0 0 10px rgba(11, 198, 227, 0.3);
+}
+
+/* ヴォイドモード専用フォーカススタイル */
+body.mode-void input[type="text"]:focus,
+body.mode-void input[type="number"]:focus,
+body.mode-void select:focus,
+body.mode-void textarea:focus {
+  border-color: var(--void-glow);
+  background: rgba(15, 10, 30, 0.95);
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
 }
 
 /* チェックボックス */
@@ -307,25 +347,43 @@ textarea:focus {
   background: rgba(10, 20, 40, 0.4);
   padding: 0.5rem 1rem;
   border-radius: 6px;
-  border: 2px solid var(--lol-border);
+  border: 2px solid var(--border-color);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
+/* ヴォイドモード専用チェックボックス/ラジオボタンスタイル */
+body.mode-void .checkbox-item {
+  background: rgba(15, 10, 30, 0.6);
+  border: 2px solid var(--void-primary);
+}
+
 .checkbox-item:hover {
-  border-color: var(--lol-blue);
+  border-color: var(--primary-dark);
   background: rgba(11, 198, 227, 0.1);
 }
 
-.checkbox-item input[type="checkbox"] {
+/* ヴォイドモード専用ホバースタイル */
+body.mode-void .checkbox-item:hover {
+  border-color: var(--void-glow);
+  background: rgba(139, 92, 246, 0.1);
+}
+
+.checkbox-item input[type="checkbox"],
+.checkbox-item input[type="radio"] {
   margin-right: 0.5rem;
   width: 18px;
   height: 18px;
   cursor: pointer;
 }
 
+/* ヴォイドモード専用ラジオボタンカラー */
+body.mode-void .checkbox-item input[type="radio"] {
+  accent-color: var(--void-primary);
+}
+
 .checkbox-item input[type="checkbox"]:checked + label {
-  color: var(--lol-blue);
+  color: var(--primary-dark);
 }
 
 /* ボタン */
@@ -342,9 +400,16 @@ button {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--lol-gold) 0%, #a67c2b 100%);
-  color: var(--lol-dark);
+  background: linear-gradient(135deg, var(--primary-color) 0%, #a67c2b 100%);
+  color: var(--bg-dark);
   text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
+}
+
+/* ヴォイドモード専用プライマリボタン */
+body.mode-void .btn-primary {
+  background: linear-gradient(135deg, var(--void-primary) 0%, var(--void-secondary) 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
 }
 
 .btn-primary:hover {
@@ -352,15 +417,33 @@ button {
   box-shadow: 0 6px 15px rgba(200, 155, 60, 0.4);
 }
 
+/* ヴォイドモード専用プライマリボタンホバー */
+body.mode-void .btn-primary:hover {
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+}
+
 .btn-secondary {
   background: rgba(11, 198, 227, 0.2);
-  color: var(--lol-blue);
-  border: 2px solid var(--lol-blue);
+  color: var(--primary-dark);
+  border: 2px solid var(--primary-dark);
+}
+
+/* ヴォイドモード専用セカンダリボタン */
+body.mode-void .btn-secondary {
+  background: transparent;
+  color: var(--void-primary);
+  border: 2px solid var(--void-primary);
 }
 
 .btn-secondary:hover {
   background: rgba(11, 198, 227, 0.3);
   transform: translateY(-2px);
+}
+
+/* ヴォイドモード専用セカンダリボタンホバー */
+body.mode-void .btn-secondary:hover {
+  background: rgba(139, 92, 246, 0.1);
+  border-color: var(--void-glow);
 }
 
 .btn-danger {
@@ -400,11 +483,47 @@ button {
   background: rgba(10, 20, 40, 0.6);
   padding: 1rem;
   border-radius: 8px;
-  border: 2px solid var(--lol-border);
+  border: 2px solid var(--border-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
   min-height: 44px;
+}
+
+/* ヴォイドモード専用プレイヤーアイテム */
+body.mode-void .player-item {
+  background: rgba(15, 10, 30, 0.6);
+  border: 2px solid var(--void-primary);
+}
+
+.player-number {
+  background: var(--primary-color);
+  color: var(--bg-dark);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  margin-right: 1rem;
+}
+
+/* ヴォイドモード専用プレイヤーナンバー */
+body.mode-void .player-number {
+  background: var(--void-primary);
+  color: white;
+}
+
+.player-name {
+  flex: 1;
+  color: var(--text-white);
+  font-weight: 600;
+}
+
+.player-ready {
+  color: var(--success-color);
+  font-size: 0.9rem;
 }
 
 .host-badge {
@@ -419,27 +538,44 @@ button {
 /* ルーム情報 */
 .room-info {
   background: rgba(11, 198, 227, 0.1);
-  border: 2px solid var(--lol-blue);
+  border: 2px solid var(--primary-dark);
   border-radius: 8px;
   padding: var(--spacing-md);
   margin-bottom: var(--spacing-md);
 }
 
+/* ヴォイドモード専用ルーム情報 */
+body.mode-void .room-info {
+  background: rgba(139, 92, 246, 0.1);
+  border: 2px solid var(--void-primary);
+}
+
 .room-id {
   font-size: 2rem;
-  color: var(--lol-gold);
+  color: var(--primary-color);
   text-align: center;
   font-weight: 700;
   letter-spacing: 0.2rem;
   margin-bottom: var(--spacing-sm);
 }
 
+/* ヴォイドモード専用ルームID */
+body.mode-void .room-id {
+  color: var(--void-glow);
+  text-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+}
+
 .room-url {
   font-size: 0.9rem;
-  color: var(--lol-blue);
+  color: var(--primary-dark);
   text-align: center;
   word-break: break-all;
   margin-bottom: var(--spacing-sm);
+}
+
+/* ヴォイドモード専用ルームURL */
+body.mode-void .room-url {
+  color: var(--void-primary);
 }
 
 /* お題表示 */
@@ -934,9 +1070,12 @@ footer {
 
 .mode-selection-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: var(--spacing-lg);
   margin: var(--spacing-lg) 0;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .mode-card {
@@ -951,8 +1090,10 @@ footer {
   align-items: center;
   gap: var(--spacing-md);
   min-height: 300px;
+  max-width: 400px;
   justify-content: center;
   text-align: center;
+  overflow: hidden;
 }
 
 .mode-card:hover {
@@ -976,12 +1117,15 @@ footer {
 .mode-icon-image {
   width: 160px;
   height: 160px;
+  max-width: 160px;
+  max-height: 160px;
   border-radius: 50%;
   object-fit: cover;
   margin-bottom: var(--spacing-sm);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
   border: 4px solid var(--primary-color);
   transition: all 0.3s ease;
+  flex-shrink: 0;
 }
 
 .mode-card:hover .mode-icon-image {
@@ -1068,10 +1212,18 @@ footer {
   .mode-card {
     min-height: 200px;
     padding: var(--spacing-lg);
+    max-width: 100%;
   }
   
   .mode-icon-large {
     font-size: 4rem;
+  }
+  
+  .mode-icon-image {
+    width: 120px;
+    height: 120px;
+    max-width: 120px;
+    max-height: 120px;
   }
   
   .mode-title {
@@ -1096,5 +1248,32 @@ footer {
   
   .game-name {
     font-size: 1.3rem;
+  }
+}
+
+/* タブレット用 */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .mode-selection-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
+  }
+  
+  .mode-card {
+    max-width: 100%;
+  }
+  
+  .mode-icon-image {
+    width: 140px;
+    height: 140px;
+    max-width: 140px;
+    max-height: 140px;
+  }
+}
+
+/* PC大画面用 */
+@media (min-width: 1400px) {
+  .mode-selection-grid {
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 1400px;
   }
 }
