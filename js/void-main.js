@@ -58,6 +58,36 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ========================================
+// バリデーション関数
+// ========================================
+
+// テーマ単語との一致チェック（大文字小文字、全角半角を無視）
+function isMatchingTheme(word, themeName) {
+  if (!word || !themeName) return false;
+  
+  // 正規化関数
+  const normalize = (str) => {
+    return str
+      .toLowerCase() // 小文字化
+      .replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xFEE0)) // 全角英数字を半角に
+      .replace(/[\s　]/g, '') // スペースを除去
+      .trim();
+  };
+  
+  const normalizedWord = normalize(word);
+  const normalizedTheme = normalize(themeName);
+  
+  // 完全一致チェック
+  return normalizedWord === normalizedTheme;
+}
+
+// テーマ名を取得
+function getCurrentThemeName() {
+  if (!currentVoidGame || !currentVoidGame.roomData) return null;
+  return currentVoidGame.roomData.theme?.name;
+}
+
+// ========================================
 // 画面遷移関数
 // ========================================
 function showVoidCreateScreen() {
@@ -455,8 +485,18 @@ async function submitVoidFirstWords() {
   const words = [word1, word2, word3].map(w => sanitizeInput(w, 30));
 
   if (words.some(w => !w || w.length === 0)) {
-    alert('3つすべての言葉を入力してください');
+    alert(t('void.alert.enterAllWords'));
     return;
+  }
+
+  // テーマ名との一致チェック
+  const themeName = getCurrentThemeName();
+  if (themeName) {
+    const matchingWords = words.filter(w => isMatchingTheme(w, themeName));
+    if (matchingWords.length > 0) {
+      alert(t('void.alert.themeWordNotAllowed', { theme: themeName }));
+      return;
+    }
   }
 
   try {
@@ -479,8 +519,18 @@ async function submitVoidMiddleWords() {
   const words = [word1, word2, word3].map(w => sanitizeInput(w, 30));
 
   if (words.some(w => !w || w.length === 0)) {
-    alert('3つすべての言葉を入力してください');
+    alert(t('void.alert.enterAllWords'));
     return;
+  }
+
+  // テーマ名との一致チェック
+  const themeName = getCurrentThemeName();
+  if (themeName) {
+    const matchingWords = words.filter(w => isMatchingTheme(w, themeName));
+    if (matchingWords.length > 0) {
+      alert(t('void.alert.themeWordNotAllowed', { theme: themeName }));
+      return;
+    }
   }
 
   // 修正されたワードのインデックスを取得
@@ -512,7 +562,7 @@ async function submitVoidFinalAnswer() {
   const sanitizedAnswer = sanitizeInput(answer, 30);
 
   if (!sanitizedAnswer || sanitizedAnswer.length === 0) {
-    alert('回答を入力してください');
+    alert(t('void.alert.enterAnswer'));
     return;
   }
 

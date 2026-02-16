@@ -211,7 +211,12 @@ const translations = {
     'demacia.showResults': '最終結果を見る',
     'demacia.finalResults': '最終結果',
     'demacia.scores': '現在のスコア',
-    'alert.selectSituation': 'シチュエーションを選択してください'
+    'alert.selectSituation': 'シチュエーションを選択してください',
+    
+    // ヴォイド
+    'void.alert.themeWordNotAllowed': 'テーマと同じ単語「{theme}」は使用できません。\n別の連想ワードを入力してください。',
+    'void.alert.enterAllWords': '3つすべての言葉を入力してください',
+    'void.alert.enterAnswer': '回答を入力してください'
   },
   
   // 英語
@@ -355,6 +360,11 @@ const translations = {
     'alert.urlCopyFailed': 'Failed to copy URL',
     'alert.confirmLeave': 'Do you want to leave the room?',
     'alert.discussionEnd': 'Discussion time is over!',
+    
+    // Void
+    'void.alert.themeWordNotAllowed': 'You cannot use the theme word "{theme}".\nPlease enter different associated words.',
+    'void.alert.enterAllWords': 'Please enter all 3 words',
+    'void.alert.enterAnswer': 'Please enter your answer',
     
     // Footer
     'footer.fanMade': '🎮 Unofficial Riot Games (LoL / VALORANT) Fan Game Site',
@@ -506,6 +516,11 @@ const translations = {
     'alert.confirmLeave': '방에서 나가시겠습니까?',
     'alert.discussionEnd': '토론 시간이 종료되었습니다!',
     
+    // 보이드
+    'void.alert.themeWordNotAllowed': '테마와 같은 단어 "{theme}"는 사용할 수 없습니다.\n다른 연상 단어를 입력하세요.',
+    'void.alert.enterAllWords': '3개의 단어를 모두 입력하세요',
+    'void.alert.enterAnswer': '답변을 입력하세요',
+    
     // 푸터
     'footer.fanMade': '🎮 Riot Games (LoL / VALORANT) 팬이 만든 비공식 게임 사이트',
     'footer.notAffiliated': 'Riot Games의 승인을 받지 않았으나, Riot Games의 Legal Jibber Jabber 정책을 준수합니다',
@@ -655,6 +670,11 @@ const translations = {
     'alert.urlCopyFailed': '复制链接失败',
     'alert.confirmLeave': '确定要离开房间吗？',
     'alert.discussionEnd': '讨论时间结束！',
+    
+    // 虚空
+    'void.alert.themeWordNotAllowed': '不能使用主题词 "{theme}"。\n请输入其他联想词。',
+    'void.alert.enterAllWords': '请输入全部3个词语',
+    'void.alert.enterAnswer': '请输入您的答案',
     
     // 页脚
     'footer.fanMade': '🎮 Riot Games (LoL / VALORANT) 粉丝非官方游戏网站',
