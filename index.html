@@ -924,10 +924,59 @@
         </div>
     </div>
 
+    <!-- ヴォイド - 順番選択画面 -->
+    <div id="void-order-select-screen" class="screen">
+        <div class="card">
+            <h2 data-i18n="void.orderSelect.title">回答順番を選択</h2>
+            
+            <!-- テーマジャンル表示 -->
+            <div class="form-group" style="background: rgba(139, 92, 246, 0.1); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; text-align: center;">
+                <div style="font-size: 0.9rem; color: #a78bfa; margin-bottom: 0.5rem;" data-i18n="void.orderSelect.themeGenre">テーマジャンル</div>
+                <div id="void-theme-category-display" style="font-size: 1.3rem; font-weight: 600; color: var(--void-glow);">
+                    ---
+                </div>
+            </div>
+            
+            <p style="text-align: center; margin-bottom: 1.5rem; color: #94a3b8;">
+                <span data-i18n="void.orderSelect.description">全員が順番を選んでください。</span><br>
+                <strong style="color: var(--void-glow);" data-i18n="void.orderSelect.firstInfo">1番目：テーマを見て3つのワードを入力</strong><br>
+                <strong style="color: var(--void-glow);" data-i18n="void.orderSelect.lastInfo">最後：ワードを見てテーマを回答</strong>
+            </p>
+            
+            <!-- 選択状況 -->
+            <div class="form-group">
+                <label data-i18n="void.orderSelect.selectionStatus">選択状況</label>
+                <div id="void-order-status-list" class="players-list"></div>
+            </div>
+            
+            <!-- 順番選択 -->
+            <div class="form-group">
+                <label data-i18n="void.orderSelect.yourOrder">あなたの順番</label>
+                <select id="void-select-order" class="form-control">
+                    <option value="" data-i18n="void.orderSelect.selectPlaceholder">選択してください</option>
+                </select>
+            </div>
+            
+            <div class="button-group">
+                <button id="void-confirm-order-btn" class="btn-primary" data-i18n="void.orderSelect.confirm">決定</button>
+            </div>
+            
+            <p style="text-align: center; margin-top: 1rem; font-size: 0.9rem; color: #64748b;" data-i18n="void.orderSelect.autoStart">
+                全員が選択するとゲームが自動的に開始されます
+            </p>
+        </div>
+    </div>
+
     <!-- ヴォイド - プレイ画面（最初のプレイヤー） -->
     <div id="void-play-first-screen" class="screen">
         <div class="void-card">
             <div class="void-turn-indicator">あなたの番です (1/<span id="void-total-players-first">0</span>)</div>
+            
+            <!-- テーマジャンル表示 -->
+            <div style="background: rgba(139, 92, 246, 0.15); padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem; text-align: center;">
+                <div style="font-size: 0.85rem; color: #a78bfa; margin-bottom: 0.3rem;">ジャンル</div>
+                <div id="void-first-theme-category" style="font-size: 1rem; font-weight: 600; color: var(--void-glow);">---</div>
+            </div>
             
             <div class="void-theme-display">
                 <div class="void-theme-label">テーマ</div>
@@ -959,6 +1008,12 @@
     <div id="void-play-middle-screen" class="screen">
         <div class="void-card">
             <div class="void-turn-indicator">あなたの番です (<span id="void-current-turn-middle">0</span>/<span id="void-total-players-middle">0</span>)</div>
+            
+            <!-- テーマジャンル表示 -->
+            <div style="background: rgba(139, 92, 246, 0.15); padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem; text-align: center;">
+                <div style="font-size: 0.85rem; color: #a78bfa; margin-bottom: 0.3rem;">ジャンル</div>
+                <div id="void-middle-theme-category" style="font-size: 1rem; font-weight: 600; color: var(--void-glow);">---</div>
+            </div>
             
             <div class="void-previous-words">
                 <h3>前の人が選んだ言葉:</h3>
@@ -1000,6 +1055,12 @@
         <div class="void-card">
             <div class="void-turn-indicator">最終回答 (<span id="void-total-players-last">0</span>/<span id="void-total-players-last-2">0</span>)</div>
             
+            <!-- テーマジャンル表示 -->
+            <div style="background: rgba(139, 92, 246, 0.15); padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem; text-align: center;">
+                <div style="font-size: 0.85rem; color: #a78bfa; margin-bottom: 0.3rem;">ジャンル</div>
+                <div id="void-last-theme-category" style="font-size: 1rem; font-weight: 600; color: var(--void-glow);">---</div>
+            </div>
+            
             <div class="void-previous-words">
                 <h3>前の人が選んだ言葉:</h3>
                 <div class="void-word-list" id="void-last-previous-word-list">
@@ -1012,6 +1073,38 @@
             <input type="text" class="void-word-input" id="void-final-answer" placeholder="回答を入力" maxlength="30" style="width: 100%; font-size: 1.2rem;">
             
             <button id="void-submit-answer-btn" class="void-btn-primary btn-full-width" style="margin-top: 2rem;">回答</button>
+        </div>
+    </div>
+
+    <!-- ヴォイド - 待機中画面（他のプレイヤーのターン） -->
+    <div id="void-waiting-turn-screen" class="screen">
+        <div class="void-card">
+            <div class="void-turn-indicator" data-i18n="void.waiting.otherTurn">他のプレイヤーの番です</div>
+            
+            <!-- テーマジャンル表示 -->
+            <div style="background: rgba(139, 92, 246, 0.15); padding: 0.75rem; border-radius: 8px; margin-bottom: 1.5rem; text-align: center;">
+                <div style="font-size: 0.85rem; color: #a78bfa; margin-bottom: 0.3rem;" data-i18n="void.waiting.genre">ジャンル</div>
+                <div id="void-waiting-theme-category" style="font-size: 1rem; font-weight: 600; color: var(--void-glow);">---</div>
+            </div>
+            
+            <!-- 現在のターン表示 -->
+            <div style="text-align: center; margin: 2rem 0;">
+                <div style="font-size: 3rem; font-weight: 700; color: var(--void-glow);">
+                    <span id="void-waiting-current-turn">1</span> / <span id="void-waiting-total-turns">4</span>
+                </div>
+                <div style="font-size: 1.1rem; color: #94a3b8; margin-top: 0.5rem;">
+                    <strong id="void-waiting-current-player" style="color: var(--void-light);">プレイヤー名</strong> <span data-i18n="void.waiting.answering">が回答中...</span>
+                </div>
+            </div>
+            
+            <div style="text-align: center; color: #64748b; margin-top: 2rem;">
+                <p data-i18n="void.waiting.pleaseWait">しばらくお待ちください</p>
+                <div class="loading-dots" style="margin-top: 1rem;">
+                    <span style="animation: pulse 1.5s ease-in-out infinite;">●</span>
+                    <span style="animation: pulse 1.5s ease-in-out 0.2s infinite;">●</span>
+                    <span style="animation: pulse 1.5s ease-in-out 0.4s infinite;">●</span>
+                </div>
+            </div>
         </div>
     </div>
 

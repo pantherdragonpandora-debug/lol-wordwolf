@@ -38,6 +38,9 @@ function initVoidGameListeners() {
   // 待機画面
   document.getElementById('void-start-game-btn')?.addEventListener('click', startVoidGame);
   document.getElementById('void-leave-room-btn')?.addEventListener('click', leaveVoidRoom);
+  
+  // 順番選択画面
+  document.getElementById('void-confirm-order-btn')?.addEventListener('click', confirmVoidOrder);
 
   // プレイ画面
   document.getElementById('void-submit-first-words-btn')?.addEventListener('click', submitVoidFirstWords);
@@ -85,6 +88,21 @@ function isMatchingTheme(word, themeName) {
 function getCurrentThemeName() {
   if (!currentVoidGame || !currentVoidGame.roomData) return null;
   return currentVoidGame.roomData.theme?.name;
+}
+
+// テーマジャンルを取得（多言語対応）
+function getThemeCategoryName(category) {
+  const categoryMap = {
+    'champion': 'void.category.champions',
+    'item': 'void.category.items',
+    'place': 'void.category.places',
+    'concept': 'void.category.concepts',
+    'agent': 'void.category.agents',
+    'weapon': 'void.category.weapons',
+    'map': 'void.category.maps'
+  };
+  
+  return t(categoryMap[category] || 'void.category.concepts');
 }
 
 // ========================================
@@ -292,6 +310,10 @@ function onVoidRoomUpdate(roomData) {
       startBtn.style.display = (isHost && canStart) ? 'block' : 'none';
     }
     
+  } else if (gameState === 'selecting_order') {
+    // 順番選択画面を表示
+    showVoidOrderSelectScreen(roomData);
+    
   } else if (gameState === 'playing') {
     // プレイ画面を表示
     showVoidPlayScreen(roomData);
@@ -339,7 +361,7 @@ function updateVoidPlayerList(roomData) {
 async function startVoidGame() {
   try {
     await currentVoidGame.startGame();
-    console.log('✅ ヴォイドゲーム開始');
+    console.log('✅ ヴォイドゲーム開始（順番選択フェーズ）');
   } catch (error) {
     console.error('❌ ゲーム開始エラー:', error);
     alert('ゲーム開始に失敗しました');
@@ -347,17 +369,126 @@ async function startVoidGame() {
 }
 
 // ========================================
+// 順番選択画面表示
+// ========================================
+function showVoidOrderSelectScreen(roomData) {
+  showScreen('void-order-select-screen');
+  
+  // テーマジャンル表示
+  const categoryDisplay = document.getElementById('void-theme-category-display');
+  if (categoryDisplay && roomData.theme) {
+    categoryDisplay.textContent = getThemeCategoryName(roomData.theme.category);
+  }
+  
+  // 選択状況リスト更新
+  updateVoidOrderStatusList(roomData);
+  
+  // 順番選択ドロップダウン更新
+  updateVoidOrderSelectOptions(roomData);
+}
+
+// 選択状況リストの更新
+function updateVoidOrderStatusList(roomData) {
+  const statusList = document.getElementById('void-order-status-list');
+  if (!statusList) return;
+  
+  statusList.innerHTML = '';
+  
+  const playerOrder = roomData.playerOrder || [];
+  const selections = roomData.orderSelections || {};
+  
+  playerOrder.forEach((playerName) => {
+    const playerDiv = document.createElement('div');
+    playerDiv.className = 'player-item';
+    
+    const selectedOrder = selections[playerName];
+    const statusText = selectedOrder ? `${selectedOrder}${t('void.orderSelect.orderSuffix')}` : t('void.orderSelect.selecting');
+    const statusColor = selectedOrder ? 'var(--void-glow)' : '#94a3b8';
+    
+    playerDiv.innerHTML = `
+      <span class="player-name">${playerName}</span>
+      <span style="color: ${statusColor}; font-weight: 600;">${statusText}</span>
+    `;
+    
+    statusList.appendChild(playerDiv);
+  });
+}
+
+// 順番選択ドロップダウンの更新
+function updateVoidOrderSelectOptions(roomData) {
+  const selectElement = document.getElementById('void-select-order');
+  if (!selectElement) return;
+  
+  const playerOrder = roomData.playerOrder || [];
+  const selections = roomData.orderSelections || {};
+  const selectedOrders = Object.values(selections);
+  const mySelection = selections[currentVoidPlayer];
+  
+  // ドロップダウンをクリア
+  selectElement.innerHTML = `<option value="">${t('void.orderSelect.selectPlaceholder')}</option>`;
+  
+  // 既に自分が選択済みの場合
+  if (mySelection) {
+    selectElement.innerHTML = `<option value="${mySelection}" selected>${mySelection}${t('void.orderSelect.orderSuffix')}（${t('void.orderSelect.selected')}）</option>`;
+    selectElement.disabled = true;
+    document.getElementById('void-confirm-order-btn').disabled = true;
+    document.getElementById('void-confirm-order-btn').textContent = t('void.orderSelect.selected');
+    return;
+  }
+  
+  // 利用可能な順番をドロップダウンに追加
+  for (let i = 1; i <= playerOrder.length; i++) {
+    if (!selectedOrders.includes(i)) {
+      const option = document.createElement('option');
+      option.value = i;
+      option.textContent = `${i}${t('void.orderSelect.orderSuffix')}`;
+      selectElement.appendChild(option);
+    }
+  }
+}
+
+// 順番確定
+async function confirmVoidOrder() {
+  const selectElement = document.getElementById('void-select-order');
+  const selectedOrder = parseInt(selectElement.value);
+  
+  if (!selectedOrder) {
+    alert(t('void.alert.selectOrder'));
+    return;
+  }
+  
+  try {
+    await currentVoidGame.selectOrder(currentVoidPlayer, selectedOrder);
+    console.log('✅ 順番選択成功:', selectedOrder);
+  } catch (error) {
+    console.error('❌ 順番選択エラー:', error);
+    alert('順番選択に失敗しました: ' + error.message);
+  }
+}
+
+// ========================================
 // プレイ画面表示
 // ========================================
 function showVoidPlayScreen(roomData) {
-  const playerOrder = roomData.playerOrder || [];
-  const myOrder = playerOrder.indexOf(currentVoidPlayer);
+  const playOrder = roomData.playOrder || [];
+  const myOrder = playOrder.indexOf(currentVoidPlayer);
   const currentTurn = roomData.currentTurn;
-  const totalPlayers = playerOrder.length;
-
+  const totalPlayers = playOrder.length;
+  
+  // 回答済みかチェック
+  const hasSubmitted = roomData.players[currentVoidPlayer]?.hasSubmitted;
+  
   // 自分の番かチェック
   if (myOrder !== currentTurn) {
-    // 他のプレイヤーの番
+    // 他のプレイヤーの番 → 待機画面表示
+    showVoidWaitingTurnScreen(roomData);
+    return;
+  }
+  
+  // 既に回答済みの場合は入力を無効化
+  if (hasSubmitted) {
+    alert(t('void.alert.alreadySubmitted'));
+    showVoidWaitingTurnScreen(roomData);
     return;
   }
 
@@ -374,14 +505,48 @@ function showVoidPlayScreen(roomData) {
 }
 
 // ========================================
+// 待機中画面表示（他のプレイヤーのターン）
+// ========================================
+function showVoidWaitingTurnScreen(roomData) {
+  showScreen('void-waiting-turn-screen');
+  
+  const playOrder = roomData.playOrder || [];
+  const currentTurn = roomData.currentTurn;
+  const currentPlayer = playOrder[currentTurn] || 'プレイヤー';
+  
+  // テーマジャンル表示
+  const categoryDisplay = document.getElementById('void-waiting-theme-category');
+  if (categoryDisplay && roomData.theme) {
+    categoryDisplay.textContent = getThemeCategoryName(roomData.theme.category);
+  }
+  
+  // 現在のターン表示
+  document.getElementById('void-waiting-current-turn').textContent = currentTurn + 1;
+  document.getElementById('void-waiting-total-turns').textContent = playOrder.length;
+  document.getElementById('void-waiting-current-player').textContent = currentPlayer;
+}
+
+// ========================================
 // 最初のプレイヤー画面
 // ========================================
 function showVoidFirstPlayerScreen(roomData) {
   showScreen('void-play-first-screen');
   
-  const totalPlayers = roomData.playerOrder.length;
+  const playOrder = roomData.playOrder || [];
+  const totalPlayers = playOrder.length;
   document.getElementById('void-total-players-first').textContent = totalPlayers;
   document.getElementById('void-theme-name-display').textContent = roomData.theme.name;
+  
+  // テーマジャンル表示
+  const categoryDisplay = document.getElementById('void-first-theme-category');
+  if (categoryDisplay && roomData.theme) {
+    categoryDisplay.textContent = getThemeCategoryName(roomData.theme.category);
+  }
+  
+  // 入力欄をクリア
+  document.getElementById('void-first-word-1').value = '';
+  document.getElementById('void-first-word-2').value = '';
+  document.getElementById('void-first-word-3').value = '';
 }
 
 // ========================================
@@ -390,13 +555,19 @@ function showVoidFirstPlayerScreen(roomData) {
 function showVoidMiddlePlayerScreen(roomData) {
   showScreen('void-play-middle-screen');
   
-  const playerOrder = roomData.playerOrder || [];
-  const myOrder = playerOrder.indexOf(currentVoidPlayer);
-  const totalPlayers = playerOrder.length;
+  const playOrder = roomData.playOrder || [];
+  const myOrder = playOrder.indexOf(currentVoidPlayer);
+  const totalPlayers = playOrder.length;
   const previousTurn = roomData.turns[myOrder - 1];
 
   document.getElementById('void-current-turn-middle').textContent = myOrder + 1;
   document.getElementById('void-total-players-middle').textContent = totalPlayers;
+  
+  // テーマジャンル表示
+  const categoryDisplay = document.getElementById('void-middle-theme-category');
+  if (categoryDisplay && roomData.theme) {
+    categoryDisplay.textContent = getThemeCategoryName(roomData.theme.category);
+  }
 
   // 前のワードを表示
   const previousWordList = document.getElementById('void-previous-word-list');
@@ -449,9 +620,16 @@ function showVoidMiddlePlayerScreen(roomData) {
 function showVoidLastPlayerScreen(roomData) {
   showScreen('void-play-last-screen');
   
-  const totalPlayers = roomData.playerOrder.length;
+  const playOrder = roomData.playOrder || [];
+  const totalPlayers = playOrder.length;
   document.getElementById('void-total-players-last').textContent = totalPlayers;
   document.getElementById('void-total-players-last-2').textContent = totalPlayers;
+  
+  // テーマジャンル表示
+  const categoryDisplay = document.getElementById('void-last-theme-category');
+  if (categoryDisplay && roomData.theme) {
+    categoryDisplay.textContent = getThemeCategoryName(roomData.theme.category);
+  }
 
   // 前のワードを表示
   const previousTurn = roomData.turns[totalPlayers - 2];
@@ -466,6 +644,9 @@ function showVoidLastPlayerScreen(roomData) {
       previousWordList.appendChild(wordDiv);
     });
   }
+  
+  // 入力欄をクリア
+  document.getElementById('void-final-answer').value = '';
 }
 
 // ワードアイコン取得
@@ -543,8 +724,8 @@ async function submitVoidMiddleWords() {
   }
 
   try {
-    const playerOrder = currentVoidGame.roomData.playerOrder;
-    const myOrder = playerOrder.indexOf(currentVoidPlayer);
+    const playOrder = currentVoidGame.roomData.playOrder;
+    const myOrder = playOrder.indexOf(currentVoidPlayer);
     
     await currentVoidGame.submitWords(currentVoidPlayer, myOrder, words, modified);
     console.log('✅ 中間ワード送信成功');

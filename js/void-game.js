@@ -33,10 +33,12 @@ class VoidGame {
           name: selectedTheme.name,
           category: selectedTheme.category
         },
-        gameState: 'waiting', // waiting, playing, finished
+        gameState: 'waiting', // waiting, selecting_order, playing, finished
         currentTurn: 0,
         players: {},
-        playerOrder: [hostName],
+        playerOrder: [], // ゲーム開始後に順番選択で確定
+        playOrder: [], // 実際のプレイ順番（選択後に確定）
+        orderSelections: {}, // プレイヤーごとの順番選択 {playerName: selectedOrder}
         turns: {},
         finalAnswer: null,
         isCorrect: null,
@@ -45,10 +47,14 @@ class VoidGame {
 
       // ホストを追加
       roomData.players[hostName] = {
-        order: 0,
+        joinOrder: 0, // 参加順
         ready: true,
-        isHost: true
+        isHost: true,
+        hasSubmitted: false // 回答済みフラグ
       };
+      
+      // 参加順のプレイヤーリスト
+      roomData.playerOrder = [hostName];
 
       await this.roomRef.set(roomData);
       console.log('✅ ヴォイドルーム作成成功:', this.roomId);
@@ -86,11 +92,12 @@ class VoidGame {
       }
 
       // プレイヤーを追加
-      const order = roomData.playerOrder.length;
+      const joinOrder = roomData.playerOrder.length;
       await this.roomRef.child(`players/${playerName}`).set({
-        order: order,
+        joinOrder: joinOrder, // 参加順
         ready: true,
-        isHost: false
+        isHost: false,
+        hasSubmitted: false // 回答済みフラグ
       });
 
       await this.roomRef.child('playerOrder').set([...roomData.playerOrder, playerName]);
@@ -104,14 +111,99 @@ class VoidGame {
   }
 
   // ========================================
-  // ゲーム開始
+  // ゲーム開始（順番選択フェーズへ）
   // ========================================
   async startGame() {
     try {
       await this.roomRef.update({
+        gameState: 'selecting_order',
+        orderSelections: {}
+      });
+      
+      console.log('✅ 順番選択フェーズ開始');
+      return true;
+    } catch (error) {
+      console.error('❌ ゲーム開始エラー:', error);
+      throw error;
+    }
+  }
+
+  // ========================================
+  // 順番を選択
+  // ========================================
+  async selectOrder(playerName, selectedOrder) {
+    try {
+      const snapshot = await this.roomRef.once('value');
+      const roomData = snapshot.val();
+      
+      if (roomData.gameState !== 'selecting_order') {
+        throw new Error('順番選択フェーズではありません');
+      }
+      
+      // 既に他のプレイヤーが選択済みかチェック
+      const selections = roomData.orderSelections || {};
+      const selectedOrders = Object.values(selections);
+      
+      if (selectedOrders.includes(selectedOrder)) {
+        throw new Error('その順番は既に選択されています');
+      }
+      
+      // 順番を保存
+      await this.roomRef.child(`orderSelections/${playerName}`).set(selectedOrder);
+      
+      // 全員が選択したかチェック
+      const allSelected = Object.keys(selections).length + 1 === roomData.playerOrder.length;
+      
+      if (allSelected) {
+        // 全員選択完了 → プレイ順を確定してゲーム開始
+        await this.finalizePlayOrder();
+      }
+      
+      console.log('✅ 順番選択成功:', playerName, selectedOrder);
+      return true;
+    } catch (error) {
+      console.error('❌ 順番選択エラー:', error);
+      throw error;
+    }
+  }
+
+  // ========================================
+  // プレイ順を確定してゲーム開始
+  // ========================================
+  async finalizePlayOrder() {
+    try {
+      const snapshot = await this.roomRef.once('value');
+      const roomData = snapshot.val();
+      
+      const selections = roomData.orderSelections || {};
+      const playerOrder = roomData.playerOrder || [];
+      
+      // 選択された順番でプレイヤーを並べ替え
+      const playOrder = [];
+      for (let i = 1; i <= playerOrder.length; i++) {
+        const player = Object.keys(selections).find(p => selections[p] === i);
+        if (player) {
+          playOrder.push(player);
+        }
+      }
+      
+      await this.roomRef.update({
         gameState: 'playing',
+        playOrder: playOrder,
         currentTurn: 0
       });
+      
+      console.log('✅ プレイ順確定:', playOrder);
+      return true;
+    } catch (error) {
+      console.error('❌ プレイ順確定エラー:', error);
+      throw error;
+    }
+  }
+
+  // ========================================
+  // 最初のワードを送信
+  // ========================================
 
       console.log('✅ ゲーム開始');
       return true;
@@ -143,6 +235,7 @@ class VoidGame {
       };
 
       await this.roomRef.child('turns/0').set(turnData);
+      await this.roomRef.child(`players/${playerName}/hasSubmitted`).set(true);
       await this.roomRef.update({
         currentTurn: 1
       });
@@ -176,6 +269,7 @@ class VoidGame {
       };
 
       await this.roomRef.child(`turns/${turnIndex}`).set(turnData);
+      await this.roomRef.child(`players/${playerName}/hasSubmitted`).set(true);
       await this.roomRef.update({
         currentTurn: turnIndex + 1
       });
@@ -210,6 +304,8 @@ class VoidGame {
         isCorrect: isCorrect,
         gameState: 'finished'
       });
+      
+      await this.roomRef.child(`players/${playerName}/hasSubmitted`).set(true);
 
       console.log('✅ 最終回答送信:', answer, '正解:', isCorrect);
       return isCorrect;
