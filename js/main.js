@@ -46,6 +46,19 @@ function selectGameMode(mode) {
   console.log('🎮 Game mode selected:', mode);
   selectedGameMode = mode;
   
+  // モードごとにbodyクラスを変更（テーマカラー切り替え）
+  document.body.classList.remove('mode-wordwolf', 'mode-demacia', 'mode-void');
+  document.body.classList.add(`mode-${mode}`);
+  
+  // ヴォイドモードの場合は直接ゲーム選択画面へ
+  if (mode === 'void') {
+    showScreen('game-select-screen');
+    // TFTボタンを非表示
+    const tftBtn = document.getElementById('select-tft-btn');
+    if (tftBtn) tftBtn.style.display = 'none';
+    return;
+  }
+  
   // デマーシアモードの場合、TFTボタンを非表示に＆説明文を空に
   const tftBtn = document.getElementById('select-tft-btn');
   const lolDesc = document.getElementById('lol-desc');
@@ -72,6 +85,12 @@ function selectGameMode(mode) {
 function selectGame(gameType) {
   console.log('🎮 Game selected:', gameType);
   selectedGameType = gameType;
+  
+  // ヴォイドモードの場合
+  if (selectedGameMode === 'void') {
+    showScreen('void-home-screen');
+    return;
+  }
   
   // カテゴリー/ジャンルセクションの表示切り替え
   const wordwolfCategories = document.getElementById('wordwolf-categories');
@@ -161,13 +180,14 @@ function setupEventListeners() {
       showScreen('mode-select-screen');
       selectedGameType = null;
       selectedGameMode = null;
-      document.body.classList.remove('game-lol', 'game-valorant', 'game-tft');
+      document.body.classList.remove('game-lol', 'game-valorant', 'game-tft', 'mode-wordwolf', 'mode-demacia', 'mode-void');
     }
   });
   
   // モード選択画面
   document.getElementById('select-wordwolf-mode-btn').addEventListener('click', () => selectGameMode('wordwolf'));
   document.getElementById('select-demacia-mode-btn').addEventListener('click', () => selectGameMode('demacia'));
+  document.getElementById('select-void-mode-btn').addEventListener('click', () => selectGameMode('void'));
   
   // ゲームタイプ選択画面
   document.getElementById('select-lol-btn').addEventListener('click', () => selectGame('lol'));
@@ -176,7 +196,7 @@ function setupEventListeners() {
   document.getElementById('back-to-mode-select-btn').addEventListener('click', () => {
     selectedGameType = null;
     selectedGameMode = null;
-    document.body.classList.remove('game-lol', 'game-valorant', 'game-tft');
+    document.body.classList.remove('game-lol', 'game-valorant', 'game-tft', 'mode-wordwolf', 'mode-demacia', 'mode-void');
     showScreen('mode-select-screen');
   });
   
@@ -184,7 +204,16 @@ function setupEventListeners() {
   document.getElementById('back-to-game-type-btn').addEventListener('click', () => {
     selectedGameType = null;
     document.body.classList.remove('game-lol', 'game-valorant', 'game-tft');
-    showScreen('game-select-screen');
+    // 現在のモードに応じてゲーム選択画面を表示
+    if (selectedGameMode === 'void') {
+      showScreen('game-select-screen');
+      const tftBtn = document.getElementById('select-tft-btn');
+      if (tftBtn) tftBtn.style.display = 'none';
+    } else if (selectedGameMode === 'demacia') {
+      selectGameMode('demacia'); // デマーシアのゲーム選択画面
+    } else {
+      selectGameMode('wordwolf'); // ワードウルフのゲーム選択画面
+    }
   });
   
   // ソロプレイボタン（デマーシア専用）
@@ -1087,6 +1116,27 @@ function showRules() {
     const gameName = gameType === 'lol' ? 'League of Legends' : 
                      gameType === 'valorant' ? 'VALORANT' : 'Teamfight Tactics';
     
+    let categoryList = '';
+    if (gameType === 'tft') {
+      categoryList = `- ユニット（チャンピオン）
+- 特性（トレイト）
+- アイテム
+- ゲーム用語
+- 戦略・構成`;
+    } else if (gameType === 'valorant') {
+      categoryList = `- エージェント
+- 武器
+- アビリティ
+- マップ
+- 用語`;
+    } else {
+      categoryList = `- チャンピオン
+- アイテム
+- スキル
+- マップ・レーン
+- スペル`;
+    }
+    
     rules = `【ワードウルフのルール】
 
 1. プレイヤーは「市民」と「ウルフ」に分かれます
@@ -1097,11 +1147,7 @@ function showRules() {
 
 【${gameName}テーマ】
 このゲームは${gameName}をテーマにしたお題が登場します！
-- チャンピオン / エージェント
-- アイテム / 武器
-- スキル・能力
-- マップ・レーン
-- スペル / アビリティ
+${categoryList}
 
 ${gameName}の知識を活かして楽しんでください！`;
   }

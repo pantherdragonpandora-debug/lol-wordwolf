@@ -37,6 +37,24 @@
   --tft-text: #d4c8ff;
   --tft-white: #ffffff;
   
+  /* デマーシア カラーテーマ（シルバー） */
+  --demacia-silver: #c0c0c0;
+  --demacia-gold: #daa520;
+  --demacia-dark: #1a1a2e;
+  --demacia-dark-secondary: #16213e;
+  --demacia-border: #c0c0c0;
+  --demacia-text: #e8e8e8;
+  --demacia-white: #ffffff;
+  
+  /* ヴォイド カラーテーマ（紫/青グラデーション） */
+  --void-purple: #8b5cf6;
+  --void-blue: #3b82f6;
+  --void-dark: #0f0a1e;
+  --void-dark-secondary: #1a1333;
+  --void-border: #8b5cf6;
+  --void-text: #d4b5ff;
+  --void-white: #ffffff;
+  
   /* ゲームカラー */
   --wolf-color: #e74c3c;
   --citizen-color: #3498db;
@@ -80,6 +98,28 @@ body.game-tft {
   --border-color: var(--tft-border);
   --text-color: var(--tft-text);
   --text-white: var(--tft-white);
+}
+
+/* デマーシアモードテーマ（シルバー） */
+body.mode-demacia {
+  --primary-color: var(--demacia-silver);
+  --primary-dark: var(--demacia-gold);
+  --bg-dark: var(--demacia-dark);
+  --bg-dark-secondary: var(--demacia-dark-secondary);
+  --border-color: var(--demacia-border);
+  --text-color: var(--demacia-text);
+  --text-white: var(--demacia-white);
+}
+
+/* ヴォイドモードテーマ（紫/青） */
+body.mode-void {
+  --primary-color: var(--void-purple);
+  --primary-dark: var(--void-blue);
+  --bg-dark: var(--void-dark);
+  --bg-dark-secondary: var(--void-dark-secondary);
+  --border-color: var(--void-border);
+  --text-color: var(--void-text);
+  --text-white: var(--void-white);
 }
 
 body {
@@ -932,6 +972,23 @@ footer {
   filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
 }
 
+/* ワードウルフアイコン画像 */
+.mode-icon-image {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: var(--spacing-sm);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+  border: 4px solid var(--primary-color);
+  transition: all 0.3s ease;
+}
+
+.mode-card:hover .mode-icon-image {
+  transform: scale(1.05);
+  box-shadow: 0 12px 30px rgba(200, 155, 60, 0.6);
+}
+
 .mode-title {
   font-size: 1.8rem;
   font-weight: 700;
@@ -959,6 +1016,48 @@ footer {
   display: inline-block;
 }
 
+/* モード別カラー */
+#select-wordwolf-mode-btn {
+  border-color: rgba(200, 155, 60, 0.3);
+}
+
+#select-wordwolf-mode-btn:hover {
+  background: rgba(200, 155, 60, 0.1);
+  border-color: #c89b3c;
+  box-shadow: 0 10px 30px rgba(200, 155, 60, 0.5);
+}
+
+#select-wordwolf-mode-btn .mode-title {
+  color: #c89b3c;
+}
+
+#select-demacia-mode-btn {
+  border-color: rgba(192, 192, 192, 0.3);
+}
+
+#select-demacia-mode-btn:hover {
+  background: rgba(192, 192, 192, 0.1);
+  border-color: #c0c0c0;
+  box-shadow: 0 10px 30px rgba(192, 192, 192, 0.5);
+}
+
+#select-demacia-mode-btn .mode-title {
+  color: #c0c0c0;
+}
+
+#select-void-mode-btn {
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+#select-void-mode-btn:hover {
+  background: rgba(139, 92, 246, 0.1);
+  border-color: #8b5cf6;
+  box-shadow: 0 10px 30px rgba(139, 92, 246, 0.5);
+}
+
+#select-void-mode-btn .mode-title {
+  color: #8b5cf6;
+}
 
 @media (max-width: 768px) {
   .mode-selection-grid {

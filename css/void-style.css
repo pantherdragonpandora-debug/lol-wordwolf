@@ -1,0 +1,514 @@
+/* ========================================
+   ヴォイドに届くは光か闇か - 専用スタイル
+   ======================================== */
+
+:root {
+  --void-primary: #8B5CF6;
+  --void-secondary: #3B82F6;
+  --void-dark: #1E1B4B;
+  --void-glow: #C084FC;
+  --void-light: #EDE9FE;
+  --void-gradient: linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%);
+}
+
+/* ヴォイドモードカード */
+.void-mode-card {
+  background: var(--void-gradient);
+  border: 2px solid var(--void-glow);
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+  transition: all 0.3s ease;
+}
+
+.void-mode-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
+}
+
+/* ヴォイド画面共通 */
+.void-screen {
+  background: linear-gradient(180deg, var(--void-dark) 0%, #0f172a 100%);
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+/* ヴォイドカード */
+.void-card {
+  background: rgba(30, 27, 75, 0.9);
+  border: 2px solid var(--void-primary);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 0 40px rgba(139, 92, 246, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+/* ヴォイドカード内のフォーム要素 */
+.void-card .form-group {
+  margin-bottom: 1.5rem;
+}
+
+.void-card label {
+  display: block;
+  color: var(--void-glow);
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  text-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+}
+
+.void-card select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: rgba(15, 10, 30, 0.8);
+  border: 2px solid var(--void-primary);
+  border-radius: 8px;
+  color: white;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.void-card select:focus {
+  outline: none;
+  border-color: var(--void-glow);
+  background: rgba(15, 10, 30, 0.95);
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+}
+
+.void-card select option {
+  background: #1a1333;
+  color: white;
+  padding: 0.5rem;
+}
+
+/* ラジオボタンのラベル */
+.void-card input[type="radio"] {
+  accent-color: var(--void-primary);
+  cursor: pointer;
+}
+
+.void-radio-label {
+  display: flex !important;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--void-glow) !important;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 0 !important;
+}
+
+.void-radio-label:hover {
+  color: white !important;
+  text-shadow: 0 0 15px rgba(139, 92, 246, 0.8);
+}
+
+/* ヴォイドボタン */
+.void-btn-primary {
+  background: var(--void-gradient);
+  color: white;
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+}
+
+.void-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+}
+
+.void-btn-primary:active {
+  transform: translateY(0);
+}
+
+.void-btn-secondary {
+  background: transparent;
+  color: var(--void-primary);
+  border: 2px solid var(--void-primary);
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.void-btn-secondary:hover {
+  background: rgba(139, 92, 246, 0.1);
+  border-color: var(--void-glow);
+}
+
+/* ワード入力エリア */
+.void-word-input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.void-word-input-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.void-word-number {
+  width: 40px;
+  height: 40px;
+  background: var(--void-gradient);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.void-word-input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid var(--void-primary);
+  border-radius: 8px;
+  color: white;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.void-word-input:focus {
+  outline: none;
+  border-color: var(--void-glow);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+}
+
+.void-word-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* 前のワード表示 */
+.void-previous-words {
+  background: rgba(59, 130, 246, 0.1);
+  border: 2px solid var(--void-secondary);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.void-previous-words h3 {
+  color: var(--void-glow);
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+.void-word-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.void-word-item {
+  background: rgba(139, 92, 246, 0.15);
+  border: 1px solid var(--void-primary);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+}
+
+.void-word-icon {
+  font-size: 1.3rem;
+}
+
+/* 修正チェックボックス */
+.void-modify-section {
+  background: rgba(192, 132, 252, 0.1);
+  border: 2px solid var(--void-glow);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.void-modify-section h3 {
+  color: var(--void-light);
+  margin-bottom: 1rem;
+}
+
+.void-modify-option {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  background: rgba(139, 92, 246, 0.1);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.void-modify-option:hover {
+  background: rgba(139, 92, 246, 0.2);
+}
+
+.void-modify-checkbox {
+  width: 24px;
+  height: 24px;
+  accent-color: var(--void-primary);
+  cursor: pointer;
+}
+
+.void-modify-original {
+  color: rgba(255, 255, 255, 0.7);
+  flex: 1;
+}
+
+.void-modify-arrow {
+  color: var(--void-glow);
+}
+
+.void-modify-input {
+  flex: 2;
+  padding: 0.5rem 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid var(--void-primary);
+  border-radius: 6px;
+  color: white;
+}
+
+.void-modify-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* プレイヤーリスト */
+.void-player-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 1.5rem 0;
+}
+
+.void-player-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid var(--void-primary);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.void-player-item:hover {
+  background: rgba(139, 92, 246, 0.2);
+}
+
+.void-player-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.void-player-order {
+  width: 36px;
+  height: 36px;
+  background: var(--void-gradient);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.void-player-name {
+  color: white;
+  font-weight: 500;
+}
+
+.void-player-status {
+  color: var(--void-glow);
+  font-size: 0.9rem;
+}
+
+/* ターン表示 */
+.void-turn-indicator {
+  background: var(--void-gradient);
+  color: white;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 0 30px rgba(139, 92, 246, 0.4);
+}
+
+/* テーマ表示（最初のプレイヤー用） */
+.void-theme-display {
+  background: var(--void-gradient);
+  border: 3px solid var(--void-glow);
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: center;
+  margin: 2rem 0;
+  box-shadow: 0 0 40px rgba(139, 92, 246, 0.5);
+  animation: void-glow-pulse 2s ease-in-out infinite;
+}
+
+@keyframes void-glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 40px rgba(139, 92, 246, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 60px rgba(139, 92, 246, 0.8);
+  }
+}
+
+.void-theme-label {
+  color: var(--void-light);
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  opacity: 0.8;
+}
+
+.void-theme-name {
+  color: white;
+  font-size: 2.5rem;
+  font-weight: 900;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+}
+
+/* 結果表示 */
+.void-result-container {
+  margin: 2rem 0;
+}
+
+.void-result-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.void-result-correct {
+  color: #10b981;
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.void-result-wrong {
+  color: #ef4444;
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.void-answer-comparison {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin: 2rem 0;
+  flex-wrap: wrap;
+}
+
+.void-answer-box {
+  background: rgba(139, 92, 246, 0.15);
+  border: 2px solid var(--void-primary);
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  min-width: 200px;
+}
+
+.void-answer-label {
+  color: var(--void-glow);
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.void-answer-text {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+/* ワードの推移表示 */
+.void-word-history {
+  margin: 2rem 0;
+}
+
+.void-history-item {
+  background: rgba(139, 92, 246, 0.1);
+  border-left: 4px solid var(--void-primary);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-radius: 8px;
+}
+
+.void-history-player {
+  color: var(--void-glow);
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.void-history-words {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+
+.void-history-word {
+  background: rgba(139, 92, 246, 0.2);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  color: white;
+}
+
+.void-history-modified {
+  background: rgba(192, 132, 252, 0.3);
+  border: 1px solid var(--void-glow);
+}
+
+.void-history-arrow {
+  text-align: center;
+  color: var(--void-glow);
+  font-size: 1.5rem;
+  margin: 0.5rem 0;
+}
+
+/* レスポンシブ */
+@media (max-width: 768px) {
+  .void-screen {
+    padding: 1rem;
+  }
+
+  .void-card {
+    padding: 1.5rem;
+  }
+
+  .void-theme-name {
+    font-size: 2rem;
+  }
+
+  .void-word-input-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .void-answer-comparison {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .void-modify-option {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+}

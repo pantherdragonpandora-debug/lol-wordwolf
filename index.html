@@ -16,6 +16,7 @@
     <!-- CSS -->
     <link rel="stylesheet" href="css/style.css?v=13">
     <link rel="stylesheet" href="css/demacia-style.css?v=13">
+    <link rel="stylesheet" href="css/void-style.css?v=23">
     
     <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6628280908520822"
@@ -57,17 +58,24 @@
                 
                 <div class="mode-selection-grid">
                     <button id="select-wordwolf-mode-btn" class="mode-card">
-                        <div class="mode-icon-large">🐺</div>
+                        <img src="images/wordwolf-icon.jpg" alt="ワードウルフ" class="mode-icon-image">
                         <h3 class="mode-title" data-i18n="modeSelect.wordwolf">ワードウルフ</h3>
                         <p class="mode-description" data-i18n="modeSelect.wordwolfDesc">少数派のウルフを見つけ出すゲーム</p>
                         <p class="mode-players" data-i18n="modeSelect.wordwolfPlayers">👥 3〜6人</p>
                     </button>
                     
                     <button id="select-demacia-mode-btn" class="mode-card">
-                        <div class="mode-icon-large">💖</div>
+                        <img src="images/demacia-icon.jpg" alt="デマーシアに心を込めて" class="mode-icon-image">
                         <h3 class="mode-title" data-i18n="modeSelect.demacia">デマーシアに心を込めて</h3>
                         <p class="mode-description" data-i18n="modeSelect.demaciaDesc">セリフを演技して当ててもらうゲーム</p>
                         <p class="mode-players" data-i18n="modeSelect.demaciaPlayers">👥 3〜10人</p>
+                    </button>
+                    
+                    <button id="select-void-mode-btn" class="mode-card void-mode-card">
+                        <img src="images/void-icon.jpg" alt="ヴォイドに届くは光か闇か" class="mode-icon-image">
+                        <h3 class="mode-title" data-i18n="modeSelect.void">ヴォイドに届くは光か闇か</h3>
+                        <p class="mode-description" data-i18n="modeSelect.voidDesc">連想ワードを伝えてテーマを当てるゲーム</p>
+                        <p class="mode-players" data-i18n="modeSelect.voidPlayers">👥 2〜8人</p>
                     </button>
                 </div>
             </div>
@@ -758,6 +766,224 @@
         -->
     </div>
 
+    <!-- ========================================
+         ヴォイドに届くは光か闇か - 画面
+         ======================================== -->
+    
+    <!-- ヴォイド - ホーム画面 -->
+    <div id="void-home-screen" class="screen">
+        <div class="void-card">
+            <h2>🌌 ヴォイドに届くは光か闇か</h2>
+            <p style="text-align: center; margin-bottom: 2rem; color: var(--void-light);">連想ワードを伝えてテーマを当てよう</p>
+            
+            <button id="void-create-room-btn" class="void-btn-primary btn-full-width" style="margin-bottom: 1rem;">ルームを作成</button>
+            <button id="void-join-room-btn" class="void-btn-secondary btn-full-width" style="margin-bottom: 1rem;">ルームに参加</button>
+            <button id="void-rules-btn" class="void-btn-secondary btn-full-width" style="margin-bottom: 1rem;">ルール説明</button>
+            <button id="void-back-to-game-type-btn" class="void-btn-secondary btn-full-width">ゲーム選択に戻る</button>
+        </div>
+    </div>
+
+    <!-- ヴォイド - ルーム作成画面 -->
+    <div id="void-create-screen" class="screen">
+        <div class="void-card">
+            <h2>ルーム作成</h2>
+            
+            <div class="form-group">
+                <label for="void-create-player-name">プレイヤー名</label>
+                <input type="text" id="void-create-player-name" class="void-word-input" placeholder="名前を入力" maxlength="20">
+            </div>
+            
+            <div class="form-group">
+                <label for="void-max-players">参加人数</label>
+                <select id="void-max-players" class="void-word-input">
+                    <option value="2">2人</option>
+                    <option value="3">3人</option>
+                    <option value="4" selected>4人</option>
+                    <option value="5">5人</option>
+                    <option value="6">6人</option>
+                    <option value="7">7人</option>
+                    <option value="8">8人</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>テーマ選択</label>
+                <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+                    <label class="void-radio-label">
+                        <input type="radio" name="void-theme-mode" value="random" checked>
+                        <span>ランダム</span>
+                    </label>
+                    <label class="void-radio-label">
+                        <input type="radio" name="void-theme-mode" value="select">
+                        <span>選択</span>
+                    </label>
+                </div>
+            </div>
+            
+            <button id="void-create-btn" class="void-btn-primary btn-full-width" style="margin-top: 1.5rem;">作成</button>
+            <button id="void-cancel-create-btn" class="void-btn-secondary btn-full-width" style="margin-top: 1rem;">キャンセル</button>
+        </div>
+    </div>
+
+    <!-- ヴォイド - ルーム参加画面 -->
+    <div id="void-join-screen" class="screen">
+        <div class="void-card">
+            <h2>ルーム参加</h2>
+            
+            <div class="form-group">
+                <label for="void-join-room-id">ルームID</label>
+                <input type="text" id="void-join-room-id" class="void-word-input" placeholder="6桁の数字" maxlength="6">
+            </div>
+            
+            <div class="form-group">
+                <label for="void-join-player-name">プレイヤー名</label>
+                <input type="text" id="void-join-player-name" class="void-word-input" placeholder="名前を入力" maxlength="20">
+            </div>
+            
+            <button id="void-join-btn" class="void-btn-primary btn-full-width" style="margin-top: 1.5rem;">参加</button>
+            <button id="void-cancel-join-btn" class="void-btn-secondary btn-full-width" style="margin-top: 1rem;">キャンセル</button>
+        </div>
+    </div>
+
+    <!-- ヴォイド - 待機画面 -->
+    <div id="void-waiting-screen" class="screen">
+        <div class="void-card">
+            <h2>ルーム: <span id="void-room-id-display">------</span></h2>
+            
+            <div class="void-player-list" id="void-player-list">
+                <!-- プレイヤーリストが動的に追加される -->
+            </div>
+            
+            <p style="text-align: center; color: var(--void-light); margin: 1.5rem 0;">
+                <span id="void-current-players">0</span> / <span id="void-max-players-display">0</span> 人
+            </p>
+            
+            <button id="void-start-game-btn" class="void-btn-primary btn-full-width" style="margin-top: 1.5rem; display: none;">ゲーム開始</button>
+            <button id="void-leave-room-btn" class="void-btn-secondary btn-full-width" style="margin-top: 1rem;">退出</button>
+        </div>
+    </div>
+
+    <!-- ヴォイド - プレイ画面（最初のプレイヤー） -->
+    <div id="void-play-first-screen" class="screen">
+        <div class="void-card">
+            <div class="void-turn-indicator">あなたの番です (1/<span id="void-total-players-first">0</span>)</div>
+            
+            <div class="void-theme-display">
+                <div class="void-theme-label">テーマ</div>
+                <div class="void-theme-name" id="void-theme-name-display">-----</div>
+            </div>
+            
+            <h3 style="color: var(--void-light); margin: 2rem 0 1rem;">連想する言葉を3つ入力:</h3>
+            
+            <div class="void-word-input-container">
+                <div class="void-word-input-group">
+                    <div class="void-word-number">1</div>
+                    <input type="text" class="void-word-input" id="void-first-word-1" placeholder="1つ目の言葉" maxlength="30">
+                </div>
+                <div class="void-word-input-group">
+                    <div class="void-word-number">2</div>
+                    <input type="text" class="void-word-input" id="void-first-word-2" placeholder="2つ目の言葉" maxlength="30">
+                </div>
+                <div class="void-word-input-group">
+                    <div class="void-word-number">3</div>
+                    <input type="text" class="void-word-input" id="void-first-word-3" placeholder="3つ目の言葉" maxlength="30">
+                </div>
+            </div>
+            
+            <button id="void-submit-first-words-btn" class="void-btn-primary btn-full-width" style="margin-top: 2rem;">送信</button>
+        </div>
+    </div>
+
+    <!-- ヴォイド - プレイ画面（中間プレイヤー） -->
+    <div id="void-play-middle-screen" class="screen">
+        <div class="void-card">
+            <div class="void-turn-indicator">あなたの番です (<span id="void-current-turn-middle">0</span>/<span id="void-total-players-middle">0</span>)</div>
+            
+            <div class="void-previous-words">
+                <h3>前の人が選んだ言葉:</h3>
+                <div class="void-word-list" id="void-previous-word-list">
+                    <!-- 前のワードが表示される -->
+                </div>
+            </div>
+            
+            <div class="void-modify-section">
+                <h3>伝わりにくい言葉を修正:</h3>
+                <div id="void-modify-options">
+                    <!-- 修正オプションが動的に追加される -->
+                </div>
+            </div>
+            
+            <h3 style="color: var(--void-light); margin: 2rem 0 1rem;">新しい3つの言葉:</h3>
+            
+            <div class="void-word-input-container">
+                <div class="void-word-input-group">
+                    <div class="void-word-number">1</div>
+                    <input type="text" class="void-word-input" id="void-middle-word-1" placeholder="1つ目の言葉" maxlength="30">
+                </div>
+                <div class="void-word-input-group">
+                    <div class="void-word-number">2</div>
+                    <input type="text" class="void-word-input" id="void-middle-word-2" placeholder="2つ目の言葉" maxlength="30">
+                </div>
+                <div class="void-word-input-group">
+                    <div class="void-word-number">3</div>
+                    <input type="text" class="void-word-input" id="void-middle-word-3" placeholder="3つ目の言葉" maxlength="30">
+                </div>
+            </div>
+            
+            <button id="void-submit-middle-words-btn" class="void-btn-primary btn-full-width" style="margin-top: 2rem;">送信</button>
+        </div>
+    </div>
+
+    <!-- ヴォイド - プレイ画面（最後のプレイヤー） -->
+    <div id="void-play-last-screen" class="screen">
+        <div class="void-card">
+            <div class="void-turn-indicator">最終回答 (<span id="void-total-players-last">0</span>/<span id="void-total-players-last-2">0</span>)</div>
+            
+            <div class="void-previous-words">
+                <h3>前の人が選んだ言葉:</h3>
+                <div class="void-word-list" id="void-last-previous-word-list">
+                    <!-- 前のワードが表示される -->
+                </div>
+            </div>
+            
+            <h3 style="color: var(--void-light); margin: 2rem 0 1rem;">元のテーマは何だと思いますか？</h3>
+            
+            <input type="text" class="void-word-input" id="void-final-answer" placeholder="回答を入力" maxlength="30" style="width: 100%; font-size: 1.2rem;">
+            
+            <button id="void-submit-answer-btn" class="void-btn-primary btn-full-width" style="margin-top: 2rem;">回答</button>
+        </div>
+    </div>
+
+    <!-- ヴォイド - 結果画面 -->
+    <div id="void-result-screen" class="screen">
+        <div class="void-card">
+            <div class="void-result-header">
+                <div id="void-result-icon" class="void-result-correct">🎉</div>
+                <h2 id="void-result-title" style="color: var(--void-light);">正解！</h2>
+            </div>
+            
+            <div class="void-answer-comparison">
+                <div class="void-answer-box">
+                    <div class="void-answer-label">元のテーマ</div>
+                    <div class="void-answer-text" id="void-correct-answer">-----</div>
+                </div>
+                <div class="void-answer-box">
+                    <div class="void-answer-label">あなたの回答</div>
+                    <div class="void-answer-text" id="void-your-answer">-----</div>
+                </div>
+            </div>
+            
+            <h3 style="color: var(--void-light); margin: 2rem 0 1rem;">言葉の推移:</h3>
+            
+            <div class="void-word-history" id="void-word-history">
+                <!-- ワードの推移が動的に追加される -->
+            </div>
+            
+            <button id="void-play-again-btn" class="void-btn-primary btn-full-width" style="margin-top: 2rem;">もう一度遊ぶ</button>
+            <button id="void-back-to-home-btn" class="void-btn-secondary btn-full-width" style="margin-top: 1rem;">ホームに戻る</button>
+        </div>
+    </div>
+
     <!-- フッター -->
     <footer>
         <div class="footer-content">
@@ -798,10 +1024,13 @@
     <script src="js/data-i18n.js?v=13"></script>
     <script src="js/demacia-data.js?v=13"></script>
     <script src="js/demacia-data-valorant.js?v=18"></script>
+    <script src="js/void-data.js?v=23"></script>
     <script src="js/game.js?v=18"></script>
     <script src="js/demacia-game.js?v=18"></script>
+    <script src="js/void-game.js?v=23"></script>
     <script src="js/demacia-solo.js?v=18"></script>
     <script src="js/pageview-counter.js?v=22"></script>
-    <script src="js/main.js?v=18"></script>
+    <script src="js/void-main.js?v=23"></script>
+    <script src="js/main.js?v=23"></script>
 </body>
 </html>
