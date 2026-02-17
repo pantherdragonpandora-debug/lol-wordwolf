@@ -678,7 +678,6 @@ async function confirmVoidOrder() {
     alert('順番確定に失敗しました: ' + error.message);
   }
 }
-}
 
 // ========================================
 // プレイ画面表示
