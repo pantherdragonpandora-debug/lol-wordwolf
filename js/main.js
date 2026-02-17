@@ -841,7 +841,9 @@ function updateWaitingRoom(roomData) {
   // ゲーム状態による画面遷移
   if (isDemaciaMode) {
     // デマーシアモードの画面遷移
-    if (roomData.gameState === 'performer_selection') {
+    if (roomData.gameState === 'waiting') {
+      showScreen('waiting-screen');
+    } else if (roomData.gameState === 'performer_selection') {
       showDemaciaPerformerSelection();
     } else if (roomData.gameState === 'performing') {
       showDemaciaPerformScreen();
@@ -856,7 +858,9 @@ function updateWaitingRoom(roomData) {
     }
   } else {
     // ワードウルフモードの画面遷移
-    if (roomData.gameState === 'playing') {
+    if (roomData.gameState === 'waiting') {
+      showScreen('waiting-screen');
+    } else if (roomData.gameState === 'playing') {
       showGameScreen(roomData);
     } else if (roomData.gameState === 'voting') {
       showVotingScreen(roomData);

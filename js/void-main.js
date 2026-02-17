@@ -385,9 +385,12 @@ function onVoidRoomUpdate(roomData) {
   if (!roomData) return;
 
   const gameState = roomData.gameState;
+  
+  console.log('📊 ルームデータ更新:', { gameState, currentScreen: document.querySelector('.screen.active')?.id });
 
   if (gameState === 'waiting') {
-    // 待機画面を更新
+    // 待機画面を表示
+    showScreen('void-waiting-screen');
     updateVoidPlayerList(roomData);
     
     // ホストのみゲーム開始ボタンを表示
