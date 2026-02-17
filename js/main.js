@@ -340,6 +340,80 @@ function showScreen(screenId) {
   } else {
     console.error('❌ Screen not found:', screenId);
   }
+  
+  // スタート画面に戻るボタンの表示制御
+  updateHomeButton(screenId);
+}
+
+// スタート画面に戻るボタンの表示制御
+function updateHomeButton(screenId) {
+  const homeButton = document.getElementById('btn-home-fixed');
+  if (!homeButton) return;
+  
+  // スタート画面（モード選択画面）では非表示
+  if (screenId === 'mode-select-screen') {
+    homeButton.style.display = 'none';
+  } else {
+    homeButton.style.display = 'block';
+  }
+}
+
+// スタート画面に戻る
+function goToStart() {
+  const confirmMsg = 'スタート画面に戻りますか？\n進行中のゲームがある場合は退出されます。';
+  if (!confirm(confirmMsg)) {
+    return;
+  }
+  
+  // 現在のゲームから退出
+  if (currentGame && currentPlayer && currentRoomId) {
+    try {
+      currentGame.stopWatching();
+      currentGame = null;
+    } catch (error) {
+      console.error('ゲーム退出エラー:', error);
+    }
+  }
+  
+  if (currentDemaciaGame && currentPlayer && currentRoomId) {
+    try {
+      currentDemaciaGame.stopWatching();
+      currentDemaciaGame = null;
+    } catch (error) {
+      console.error('デマーシアゲーム退出エラー:', error);
+    }
+  }
+  
+  if (currentVoidGame && currentVoidPlayer && currentVoidRoomId) {
+    try {
+      currentVoidGame.stopWatching();
+      currentVoidGame = null;
+    } catch (error) {
+      console.error('ヴォイドゲーム退出エラー:', error);
+    }
+  }
+  
+  // 変数をリセット
+  selectedGameType = null;
+  selectedGameMode = 'wordwolf';
+  currentPlayer = null;
+  currentRoomId = null;
+  currentVoidPlayer = null;
+  currentVoidRoomId = null;
+  
+  // タイマーをクリア
+  if (gameTimer) {
+    clearInterval(gameTimer);
+    gameTimer = null;
+  }
+  
+  // body classをリセット
+  document.body.className = '';
+  
+  // モード選択画面に戻る
+  showScreen('mode-select-screen');
+  
+  console.log('🏠 スタート画面に戻りました');
 }
 
 // ルーム作成

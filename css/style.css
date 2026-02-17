@@ -457,6 +457,45 @@ body.mode-void .btn-secondary:hover {
   transform: translateY(-2px);
 }
 
+/* スタート画面に戻るボタン（固定） */
+.btn-home-fixed {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  z-index: 9999;
+  background: rgba(99, 102, 241, 0.9);
+  color: white;
+  border: 2px solid rgba(99, 102, 241, 1);
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.btn-home-fixed:hover {
+  background: rgba(99, 102, 241, 1);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.5);
+}
+
+.btn-home-fixed:active {
+  transform: translateY(0);
+}
+
+/* モバイル対応 */
+@media (max-width: 768px) {
+  .btn-home-fixed {
+    top: 70px;
+    right: 10px;
+    padding: 8px 16px;
+    font-size: 12px;
+  }
+}
+
 .btn-full-width {
   width: 100%;
   margin-bottom: var(--spacing-sm);

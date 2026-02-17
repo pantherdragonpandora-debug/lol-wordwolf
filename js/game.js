@@ -47,7 +47,8 @@ class GameState {
       
       if (!verifyData) {
         console.error('⚠️ ルームが作成されていません！Firebaseルールを確認してください');
-        throw new Error('ルーム作成の確認に失敗しました');
+        const errorMsg = 'ルーム作成の確認に失敗しました。\n\n接続に問題がある場合は、画面下部の「🔍 接続診断」をクリックして診断ツールをお試しください。';
+        throw new Error(errorMsg);
       }
       
       return true;
@@ -63,10 +64,27 @@ class GameState {
       const snapshot = await this.roomRef.once('value');
       
       if (!snapshot.exists()) {
-        throw new Error('ルームが存在しません');
+        const errorMsg = 'ルームが存在しません。\n\nルームIDが正しいか確認してください。\n接続に問題がある場合は、画面下部の「🔍 接続診断」をクリックして診断ツールをお試しください。';
+        throw new Error(errorMsg);
       }
       
       const roomData = snapshot.val();
+      
+      // ゲームタイプが一致するかチェック
+      const roomGameType = roomData.settings?.gameType;
+      if (roomGameType) {
+        // selectedGameTypeはglobalに定義されている（main.jsより）
+        const currentGameType = typeof selectedGameType !== 'undefined' ? selectedGameType : null;
+        if (currentGameType && roomGameType !== currentGameType) {
+          const roomGameTypeName = roomGameType.toUpperCase();
+          const currentGameTypeName = currentGameType.toUpperCase();
+          throw new Error(
+            `このルームは ${roomGameTypeName} 用です。\n` +
+            `現在 ${currentGameTypeName} を選択しています。\n` +
+            `ゲーム選択画面に戻って正しいゲームタイプを選択してください。`
+          );
+        }
+      }
       
       // プレイヤー数チェック
       const currentPlayers = Object.keys(roomData.players || {}).length;
@@ -255,13 +273,37 @@ class GameState {
   // ルーム退出
   async leaveRoom(playerName) {
     try {
+      const snapshot = await this.roomRef.once('value');
+      const roomData = snapshot.val();
+      
+      if (!roomData) {
+        console.log('ルームが存在しません');
+        return true;
+      }
+      
+      const isHost = roomData.host === playerName;
+      
+      // プレイヤーを削除
       await this.roomRef.child(`players/${playerName}`).remove();
       
-      // プレイヤーが0人になったらルーム削除
-      const snapshot = await this.roomRef.child('players').once('value');
-      if (!snapshot.exists() || Object.keys(snapshot.val()).length === 0) {
+      // 残りのプレイヤーを確認
+      const playersSnapshot = await this.roomRef.child('players').once('value');
+      const remainingPlayers = playersSnapshot.val();
+      
+      if (!remainingPlayers || Object.keys(remainingPlayers).length === 0) {
+        // 全員退出したらルーム削除
         await this.roomRef.remove();
         console.log('✅ ルーム削除（全員退出）');
+        return true;
+      }
+      
+      // ホストが退出した場合、次の人をホストに昇格
+      if (isHost) {
+        const newHostName = Object.keys(remainingPlayers)[0];
+        await this.roomRef.update({
+          host: newHostName
+        });
+        console.log(`✅ ホスト移譲: ${playerName} → ${newHostName}`);
       }
       
       return true;

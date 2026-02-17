@@ -48,6 +48,11 @@
         </div>
     </header>
 
+    <!-- スタート画面に戻るボタン（固定） -->
+    <button id="btn-home-fixed" class="btn-home-fixed" style="display: none;" onclick="goToStart()">
+        🏠 スタート画面に戻る
+    </button>
+
     <!-- メインコンテンツ -->
     <main>
         <!-- モード選択画面（最初の画面） -->
@@ -1023,26 +1028,13 @@
             </div>
             
             <div class="void-modify-section">
-                <h3>伝わりにくい言葉を修正:</h3>
+                <h3 style="color: var(--void-light); margin: 1.5rem 0 1rem;">伝わりにくい言葉があれば修正してください:</h3>
+                <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 1rem;">
+                    修正したい言葉にチェックを入れて、新しい言葉を入力してください。<br>
+                    修正しない言葉はそのまま次の人に伝わります。
+                </p>
                 <div id="void-modify-options">
                     <!-- 修正オプションが動的に追加される -->
-                </div>
-            </div>
-            
-            <h3 style="color: var(--void-light); margin: 2rem 0 1rem;">新しい3つの言葉:</h3>
-            
-            <div class="void-word-input-container">
-                <div class="void-word-input-group">
-                    <div class="void-word-number">1</div>
-                    <input type="text" class="void-word-input" id="void-middle-word-1" placeholder="1つ目の言葉" maxlength="30">
-                </div>
-                <div class="void-word-input-group">
-                    <div class="void-word-number">2</div>
-                    <input type="text" class="void-word-input" id="void-middle-word-2" placeholder="2つ目の言葉" maxlength="30">
-                </div>
-                <div class="void-word-input-group">
-                    <div class="void-word-number">3</div>
-                    <input type="text" class="void-word-input" id="void-middle-word-3" placeholder="3つ目の言葉" maxlength="30">
                 </div>
             </div>
             
@@ -1155,6 +1147,8 @@
                 <a href="faq.html">FAQ</a>
                 <span class="separator">|</span>
                 <a href="contact.html">お問い合わせ</a>
+                <span class="separator">|</span>
+                <a href="diagnosis.html" style="color: #fbbf24;">🔍 接続診断</a>
             </div>
             <div class="footer-copyright">
                 <p>&copy; 2025 LOL Word Wolf Fan Site. All rights reserved.</p>

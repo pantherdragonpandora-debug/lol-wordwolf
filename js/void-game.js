@@ -75,7 +75,19 @@ class VoidGame {
       const roomData = snapshot.val();
 
       if (!roomData) {
-        throw new Error('ルームが存在しません');
+        const errorMsg = 'ルームが存在しません。\n\nルームIDが正しいか確認してください。\n接続に問題がある場合は、画面下部の「🔍 接続診断」をクリックして診断ツールをお試しください。';
+        throw new Error(errorMsg);
+      }
+
+      // ゲームタイプが一致するかチェック
+      if (roomData.gameType && roomData.gameType !== this.gameType) {
+        const roomGameTypeName = roomData.gameType === 'lol' ? 'League of Legends' : 'VALORANT';
+        const currentGameTypeName = this.gameType === 'lol' ? 'League of Legends' : 'VALORANT';
+        throw new Error(
+          `このルームは ${roomGameTypeName} 用です。\n` +
+          `現在 ${currentGameTypeName} を選択しています。\n` +
+          `ゲーム選択画面に戻って正しいゲームタイプを選択してください。`
+        );
       }
 
       if (roomData.gameState !== 'waiting') {
@@ -346,13 +358,45 @@ class VoidGame {
   // ========================================
   async leaveRoom(playerName) {
     try {
+      const snapshot = await this.roomRef.once('value');
+      const roomData = snapshot.val();
+      
+      if (!roomData) {
+        console.log('ルームが存在しません');
+        return true;
+      }
+      
+      const isHost = roomData.hostName === playerName;
+      
+      // プレイヤーを削除
       await this.roomRef.child(`players/${playerName}`).remove();
       
       // プレイヤー順序からも削除
-      const snapshot = await this.roomRef.child('playerOrder').once('value');
-      const playerOrder = snapshot.val() || [];
+      const playerOrder = roomData.playerOrder || [];
       const newOrder = playerOrder.filter(p => p !== playerName);
       await this.roomRef.child('playerOrder').set(newOrder);
+      
+      // 残りのプレイヤーを確認
+      const playersSnapshot = await this.roomRef.child('players').once('value');
+      const remainingPlayers = playersSnapshot.val();
+      
+      if (!remainingPlayers || Object.keys(remainingPlayers).length === 0) {
+        // 全員退出したらルーム削除
+        await this.roomRef.remove();
+        console.log('✅ ヴォイドルーム削除（全員退出）');
+        return true;
+      }
+      
+      // ホストが退出した場合、次の人をホストに昇格
+      if (isHost && newOrder.length > 0) {
+        const newHostName = newOrder[0];
+        await this.roomRef.update({
+          hostName: newHostName
+        });
+        // 新しいホストのisHostフラグを更新
+        await this.roomRef.child(`players/${newHostName}/isHost`).set(true);
+        console.log(`✅ ヴォイドホスト移譲: ${playerName} → ${newHostName}`);
+      }
 
       console.log('✅ ルーム退出:', playerName);
       return true;

@@ -235,7 +235,8 @@ const translations = {
     'void.waiting.otherTurn': '他のプレイヤーの番です',
     'void.waiting.genre': 'ジャンル',
     'void.waiting.answering': 'が回答中...',
-    'void.waiting.pleaseWait': 'しばらくお待ちください'
+    'void.waiting.pleaseWait': 'しばらくお待ちください',
+    'void.word.modified': '✏️ 修正済み'
   },
   
   // 英語
@@ -403,6 +404,7 @@ const translations = {
     'void.waiting.genre': 'Genre',
     'void.waiting.answering': 'is answering...',
     'void.waiting.pleaseWait': 'Please wait',
+    'void.word.modified': '✏️ Modified',
     
     // Footer
     'footer.fanMade': '🎮 Unofficial Riot Games (LoL / VALORANT) Fan Game Site',
@@ -577,6 +579,7 @@ const translations = {
     'void.waiting.genre': '장르',
     'void.waiting.answering': '가 답변 중...',
     'void.waiting.pleaseWait': '잠시만 기다려주세요',
+    'void.word.modified': '✏️ 수정됨',
     
     // 푸터
     'footer.fanMade': '🎮 Riot Games (LoL / VALORANT) 팬이 만든 비공식 게임 사이트',
@@ -751,6 +754,7 @@ const translations = {
     'void.waiting.genre': '类别',
     'void.waiting.answering': '正在回答...',
     'void.waiting.pleaseWait': '请稍候',
+    'void.word.modified': '✏️ 已修改',
     
     // 页脚
     'footer.fanMade': '🎮 Riot Games (LoL / VALORANT) 粉丝非官方游戏网站',

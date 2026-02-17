@@ -55,7 +55,8 @@ class DemaciaGame {
       
       if (!verifyData) {
         console.error('⚠️ ルームが作成されていません！Firebaseルールを確認してください');
-        throw new Error('ルーム作成の確認に失敗しました');
+        const errorMsg = 'ルーム作成の確認に失敗しました。\n\n接続に問題がある場合は、画面下部の「🔍 接続診断」をクリックして診断ツールをお試しください。';
+        throw new Error(errorMsg);
       }
       
       return true;
@@ -74,7 +75,21 @@ class DemaciaGame {
       const room = snapshot.val();
 
       if (!room) {
-        alert('ルームが存在しません');
+        const errorMsg = 'ルームが存在しません。\n\nルームIDが正しいか確認してください。\n接続に問題がある場合は、画面下部の「🔍 接続診断」をクリックして診断ツールをお試しください。';
+        alert(errorMsg);
+        return false;
+      }
+
+      // ゲームタイプが一致するかチェック
+      const roomGameType = room.settings?.gameType;
+      if (roomGameType && roomGameType !== this.gameType) {
+        const roomGameTypeName = roomGameType === 'lol' ? 'League of Legends' : 'VALORANT';
+        const currentGameTypeName = this.gameType === 'lol' ? 'League of Legends' : 'VALORANT';
+        alert(
+          `このルームは ${roomGameTypeName} 用です。\n` +
+          `現在 ${currentGameTypeName} を選択しています。\n` +
+          `ゲーム選択画面に戻って正しいゲームタイプを選択してください。`
+        );
         return false;
       }
 
@@ -408,7 +423,41 @@ class DemaciaGame {
   // ルーム退出
   async leaveRoom(playerName) {
     try {
+      const snapshot = await this.roomRef.once('value');
+      const roomData = snapshot.val();
+      
+      if (!roomData) {
+        console.log('ルームが存在しません');
+        return true;
+      }
+      
+      const isHost = roomData.host === playerName;
+      
+      // プレイヤーを削除
       await this.roomRef.child(`players/${playerName}`).remove();
+      
+      // 残りのプレイヤーを確認
+      const playersSnapshot = await this.roomRef.child('players').once('value');
+      const remainingPlayers = playersSnapshot.val();
+      
+      if (!remainingPlayers || Object.keys(remainingPlayers).length === 0) {
+        // 全員退出したらルーム削除
+        await this.roomRef.remove();
+        console.log('✅ デマーシアルーム削除（全員退出）');
+        return true;
+      }
+      
+      // ホストが退出した場合、次の人をホストに昇格
+      if (isHost) {
+        const newHostName = Object.keys(remainingPlayers)[0];
+        await this.roomRef.update({
+          host: newHostName
+        });
+        // 新しいホストのisHostフラグを更新
+        await this.roomRef.child(`players/${newHostName}/isHost`).set(true);
+        console.log(`✅ デマーシアホスト移譲: ${playerName} → ${newHostName}`);
+      }
+      
       return true;
     } catch (error) {
       console.error('❌ 退出エラー:', error);

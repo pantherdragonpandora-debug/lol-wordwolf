@@ -569,7 +569,7 @@ function showVoidMiddlePlayerScreen(roomData) {
     categoryDisplay.textContent = getThemeCategoryName(roomData.theme.category);
   }
 
-  // 前のワードを表示
+  // 前のワードを表示（修正されたものを視覚的に示す）
   const previousWordList = document.getElementById('void-previous-word-list');
   previousWordList.innerHTML = '';
   
@@ -577,7 +577,17 @@ function showVoidMiddlePlayerScreen(roomData) {
     previousTurn.words.forEach((word, index) => {
       const wordDiv = document.createElement('div');
       wordDiv.className = 'void-word-item';
-      wordDiv.innerHTML = `<span class="void-word-icon">${getWordIcon(index)}</span> ${word}`;
+      
+      // このワードが修正されたものかチェック
+      const wasModified = previousTurn.modified && previousTurn.modified.includes(index);
+      
+      if (wasModified) {
+        // 修正された言葉には特別なスタイルとアイコンを追加
+        wordDiv.innerHTML = `<span class="void-word-icon">${getWordIcon(index)}</span> <span style="color: #fbbf24; font-weight: 600;">${word}</span> <span style="font-size: 0.8rem; color: #fbbf24;">${t('void.word.modified')}</span>`;
+      } else {
+        wordDiv.innerHTML = `<span class="void-word-icon">${getWordIcon(index)}</span> ${word}`;
+      }
+      
       previousWordList.appendChild(wordDiv);
     });
 
@@ -589,9 +599,13 @@ function showVoidMiddlePlayerScreen(roomData) {
       const optionDiv = document.createElement('div');
       optionDiv.className = 'void-modify-option';
       
+      // このワードが前のプレイヤーによって修正されたものかチェック
+      const wasModified = previousTurn.modified && previousTurn.modified.includes(index);
+      const modifiedLabel = wasModified ? ' <span style="font-size: 0.8rem; color: #fbbf24;">✏️</span>' : '';
+      
       optionDiv.innerHTML = `
         <input type="checkbox" class="void-modify-checkbox" id="void-modify-${index}" data-index="${index}">
-        <span class="void-modify-original">${word}</span>
+        <span class="void-modify-original">${word}${modifiedLabel}</span>
         <span class="void-modify-arrow">→</span>
         <input type="text" class="void-modify-input void-word-input" id="void-modify-input-${index}" placeholder="修正後の言葉" maxlength="30" disabled>
       `;
@@ -631,7 +645,7 @@ function showVoidLastPlayerScreen(roomData) {
     categoryDisplay.textContent = getThemeCategoryName(roomData.theme.category);
   }
 
-  // 前のワードを表示
+  // 前のワードを表示（修正されたものを視覚的に示す）
   const previousTurn = roomData.turns[totalPlayers - 2];
   const previousWordList = document.getElementById('void-last-previous-word-list');
   previousWordList.innerHTML = '';
@@ -640,7 +654,17 @@ function showVoidLastPlayerScreen(roomData) {
     previousTurn.words.forEach((word, index) => {
       const wordDiv = document.createElement('div');
       wordDiv.className = 'void-word-item';
-      wordDiv.innerHTML = `<span class="void-word-icon">${getWordIcon(index)}</span> ${word}`;
+      
+      // このワードが修正されたものかチェック
+      const wasModified = previousTurn.modified && previousTurn.modified.includes(index);
+      
+      if (wasModified) {
+        // 修正された言葉には特別なスタイルとアイコンを追加
+        wordDiv.innerHTML = `<span class="void-word-icon">${getWordIcon(index)}</span> <span style="color: #fbbf24; font-weight: 600;">${word}</span> <span style="font-size: 0.8rem; color: #fbbf24;">${t('void.word.modified')}</span>`;
+      } else {
+        wordDiv.innerHTML = `<span class="void-word-icon">${getWordIcon(index)}</span> ${word}`;
+      }
+      
       previousWordList.appendChild(wordDiv);
     });
   }
@@ -683,6 +707,8 @@ async function submitVoidFirstWords() {
   try {
     await currentVoidGame.submitFirstWords(currentVoidPlayer, words);
     console.log('✅ 最初のワード送信成功');
+    // 送信後は待機画面を表示
+    // onVoidRoomUpdateが自動的に呼ばれて画面が更新される
   } catch (error) {
     console.error('❌ ワード送信エラー:', error);
     alert('送信に失敗しました: ' + error.message);
@@ -693,42 +719,49 @@ async function submitVoidFirstWords() {
 // 中間ワード送信
 // ========================================
 async function submitVoidMiddleWords() {
-  const word1 = document.getElementById('void-middle-word-1').value.trim();
-  const word2 = document.getElementById('void-middle-word-2').value.trim();
-  const word3 = document.getElementById('void-middle-word-3').value.trim();
-
-  const words = [word1, word2, word3].map(w => sanitizeInput(w, 30));
-
-  if (words.some(w => !w || w.length === 0)) {
-    alert(t('void.alert.enterAllWords'));
+  // 前のワードを取得
+  const playOrder = currentVoidGame.roomData.playOrder;
+  const myOrder = playOrder.indexOf(currentVoidPlayer);
+  const previousTurn = currentVoidGame.roomData.turns[myOrder - 1];
+  
+  if (!previousTurn || !previousTurn.words) {
+    alert('前のワードが見つかりません');
     return;
   }
-
-  // テーマ名との一致チェック
-  const themeName = getCurrentThemeName();
-  if (themeName) {
-    const matchingWords = words.filter(w => isMatchingTheme(w, themeName));
-    if (matchingWords.length > 0) {
-      alert(t('void.alert.themeWordNotAllowed', { theme: themeName }));
-      return;
-    }
-  }
-
-  // 修正されたワードのインデックスを取得
-  const modified = [];
+  
+  // 修正されたワードを収集
+  const modifiedWords = [];
+  const newWords = [...previousTurn.words]; // 元のワードをコピー
+  
   for (let i = 0; i < 3; i++) {
     const checkbox = document.getElementById(`void-modify-${i}`);
+    const input = document.getElementById(`void-modify-input-${i}`);
+    
     if (checkbox && checkbox.checked) {
-      modified.push(i);
+      const modifiedWord = sanitizeInput(input.value.trim(), 30);
+      
+      if (!modifiedWord || modifiedWord.length === 0) {
+        alert(`修正後の言葉を入力してください（${i + 1}つ目）`);
+        return;
+      }
+      
+      // テーマ名との一致チェック
+      const themeName = getCurrentThemeName();
+      if (themeName && isMatchingTheme(modifiedWord, themeName)) {
+        alert(t('void.alert.themeWordNotAllowed', { theme: themeName }));
+        return;
+      }
+      
+      modifiedWords.push(i);
+      newWords[i] = modifiedWord;
     }
   }
 
   try {
-    const playOrder = currentVoidGame.roomData.playOrder;
-    const myOrder = playOrder.indexOf(currentVoidPlayer);
-    
-    await currentVoidGame.submitWords(currentVoidPlayer, myOrder, words, modified);
+    await currentVoidGame.submitWords(currentVoidPlayer, myOrder, newWords, modifiedWords);
     console.log('✅ 中間ワード送信成功');
+    // 送信後は待機画面を表示
+    // onVoidRoomUpdateが自動的に呼ばれて画面が更新される
   } catch (error) {
     console.error('❌ ワード送信エラー:', error);
     alert('送信に失敗しました: ' + error.message);
@@ -750,6 +783,7 @@ async function submitVoidFinalAnswer() {
   try {
     await currentVoidGame.submitFinalAnswer(currentVoidPlayer, sanitizedAnswer);
     console.log('✅ 最終回答送信成功');
+    // 結果画面は自動的に表示される（gameState='finished'）
   } catch (error) {
     console.error('❌ 回答送信エラー:', error);
     alert('送信に失敗しました: ' + error.message);
