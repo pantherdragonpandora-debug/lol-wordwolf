@@ -80,6 +80,9 @@ League of Legends、VALORANTをテーマにしたオンライン対戦型パー�
 
 ### 共通機能
 - **🌐 簡単招待** - ルームIDまたはURL共有で友達を招待
+- **👥 リアルタイム人数表示** - 待機画面で現在の参加者数と最大人数をリアルタイム表示（例: 👥 3 / 6）
+- **🏠 スタート画面に戻るボタン** - すべての画面から右上の「🏠」ボタンでモード選択画面に戻れる
+- **👑 ホスト移譲機能** - ホストが退出しても、次に入室したプレイヤーが自動的にホストになり、ゲームを継続できる
 - **⚖️ 法的情報完備** - プライバシーポリシー、利用規約、著作権ポリシー、FAQ、お問い合わせページ
 
 ## ⚠️ 重要な注意事項
@@ -461,6 +464,17 @@ ja: {
 - `MULTI_ROOM_SUPPORT.md` - 複数ルーム対応の実装記録
 - `FIREBASE_AUTH_FIX.md` - 承認済みドメインの設定
 - `FIREBASE_RULES_FIX.md` - セキュリティルールの設定
+- `FIREBASE_PERMISSION_FIX.md` - ヴォイドゲームのFirebase権限エラー修正
+- `VOID_LEAVE_BUTTON_VERIFICATION.md` - ヴォイド退出ボタンの動作確認（v1.0.28） **NEW!**
+- `VOID_FIX_V28.md` - VoidGameクラス再構築記録（v1.0.28）
+- `PLAYER_COUNT_DISPLAY.md` - 残り人数表示の実装記録
+- `PLAYER_COUNT_DISPLAY_FIX.md` - デマーシア人数表示非表示対応
+- `PLAYER_COUNT_DISPLAY.md` - プレイヤー人数表示機能の実装記録
+- `PLAYER_COUNT_DISPLAY_FIX.md` - 人数表示修正（デマーシア対応、ヴォイドエラー修正）
+- `VOID_ROOM_CREATION_FIX.md` - ヴォイドルーム作成エラー修正（VoidGameクラスエクスポート）
+- `CROSS_DEVICE_JOIN_FIX.md` - クロスデバイス参加問題の修正記録
+- `MOBILE_CONNECTION_TROUBLESHOOTING.md` - モバイル接続トラブルシューティング
+- `UX_IMPROVEMENTS_HOME_BUTTON_HOST_TRANSFER.md` - UX改善（ホームボタン、ホスト移譲）
 
 ### 🚀 デプロイ・運用
 - `QUICKSTART.md` - 5分で始められるガイド
@@ -501,15 +515,16 @@ ja: {
 
 ## 📊 プロジェクト統計
 
-- **ゲームモード**: 2種類（ワードウルフ、デマーシアに心を込めて）
+- **ゲームモード**: 3種類（ワードウルフ、デマーシアに心を込めて、ヴォイドに届くは光か闇か）
 - **サポート言語**: 4言語（日本語、英語、韓国語、中国語）
-- **翻訳キー数**: 120+
+- **翻訳キー数**: 150+
 - **ワードウルフお題**: 225ペア（LOL: 73 + VALORANT: 77 + TFT: 75）
 - **デマーシアセリフ**: 120種類（LOL: 60 + VALORANT: 60）× 6シチュエーション = 合計720パターン
-- **ファイル数**: 18
-- **コード行数**: 5,500+
+- **ヴォイドテーマ**: 40種類（LOL: 25 + VALORANT: 15）
+- **ファイル数**: 25+
+- **コード行数**: 8,000+
 - **対応ゲームタイトル**: 3（League of Legends、VALORANT、Teamfight Tactics）
-- **ゲームタイプ対応**: ワードウルフ（LOL/VALORANT/TFT）、デマーシア（LOL/VALORANT）
+- **ゲームタイプ対応**: ワードウルフ（LOL/VALORANT/TFT）、デマーシア（LOL/VALORANT）、ヴォイド（LOL/VALORANT）
 
 ## 💡 プロのヒント
 

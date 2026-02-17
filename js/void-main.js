@@ -9,6 +9,20 @@ let currentVoidRoomId = null;
 let currentVoidPlayer = null;
 
 // ========================================
+// VoidGameクラス取得ヘルパー
+// ========================================
+function getVoidGameClass() {
+  // window.VoidGameを優先、フォールバックでグローバルVoidGameを確認
+  if (typeof window.VoidGame !== 'undefined') {
+    return window.VoidGame;
+  }
+  if (typeof VoidGame !== 'undefined') {
+    return VoidGame;
+  }
+  return null;
+}
+
+// ========================================
 // ヴォイドゲーム - イベントリスナー初期化
 // ========================================
 function initVoidGameListeners() {
@@ -146,14 +160,45 @@ function showVoidRules() {
 // ルーム作成
 // ========================================
 async function createVoidRoom() {
+  console.log('🚀 createVoidRoom 呼び出し');
+  
+  const VoidGameClass = getVoidGameClass();
+  console.log('🔍 VoidGameClass:', VoidGameClass ? 'found' : 'not found');
+  
+  if (!VoidGameClass) {
+    alert('エラー: VoidGameクラスが読み込まれていません。\nブラウザを完全リロード（Ctrl+Shift+R）してください。');
+    console.error('❌ VoidGameが未定義です。void-game.jsが読み込まれていない可能性があります。');
+    console.error('- typeof VoidGame:', typeof VoidGame);
+    console.error('- typeof window.VoidGame:', typeof window.VoidGame);
+    return;
+  }
+  
   if (!rateLimiter.check('createVoidRoom', 5000)) {
     alert('ルーム作成が早すぎます。5秒後にもう一度お試しください。');
     return;
   }
 
   const playerNameInput = document.getElementById('void-create-player-name').value.trim();
-  const maxPlayers = parseInt(document.getElementById('void-max-players').value);
-  const themeMode = document.querySelector('input[name="void-theme-mode"]:checked').value;
+  const maxPlayersElement = document.getElementById('void-max-players');
+  const themeModeElement = document.querySelector('input[name="void-theme-mode"]:checked');
+  
+  console.log('📋 入力値チェック:');
+  console.log('- プレイヤー名入力:', playerNameInput);
+  console.log('- 最大人数要素:', maxPlayersElement ? 'あり' : 'なし');
+  console.log('- テーマモード要素:', themeModeElement ? 'あり' : 'なし');
+  
+  if (!maxPlayersElement) {
+    alert('エラー: 人数選択要素が見つかりません');
+    return;
+  }
+  
+  if (!themeModeElement) {
+    alert('エラー: テーマモード選択要素が見つかりません');
+    return;
+  }
+  
+  const maxPlayers = parseInt(maxPlayersElement.value);
+  const themeMode = themeModeElement.value;
 
   // 入力検証
   const playerName = sanitizeInput(playerNameInput, 20);
@@ -175,32 +220,59 @@ async function createVoidRoom() {
   }
 
   try {
+    console.log('🎮 ヴォイドルーム作成開始...');
+    console.log('- プレイヤー名:', playerName);
+    console.log('- 最大人数:', maxPlayers);
+    console.log('- テーマモード:', themeMode);
+    console.log('- ゲームタイプ:', selectedGameType);
+    console.log('- 選択カテゴリー:', selectedCategories);
+    
     // ルームID生成
+    console.log('📝 ルームID生成中...');
     currentVoidRoomId = await generateRoomId();
+    console.log('✅ ルームID生成完了:', currentVoidRoomId);
+    
     currentVoidPlayer = playerName;
 
     // ゲーム作成
-    currentVoidGame = new VoidGame(currentVoidRoomId, selectedGameType);
+    console.log('🎲 VoidGameインスタンス作成中...');
+    const VoidGameClass = getVoidGameClass();
+    
+    if (!VoidGameClass) {
+      throw new Error('VoidGameクラスが見つかりません。ページをリロードしてください。');
+    }
+    
+    console.log('🔍 使用するクラス:', VoidGameClass.name || 'VoidGame');
+    currentVoidGame = new VoidGameClass(currentVoidRoomId, selectedGameType);
+    console.log('✅ VoidGameインスタンス作成完了');
 
     // テーマ選択
+    console.log('🎯 テーマ選択中...');
     let theme = null;
     if (themeMode === 'random') {
       theme = getRandomVoidThemeByCategories(selectedGameType, selectedCategories);
+      console.log('✅ ランダムテーマ選択完了:', theme);
     }
     // 選択モードは未実装（将来的に実装予定）
     
+    console.log('💾 Firebaseにルーム作成中...');
     await currentVoidGame.createRoom(playerName, maxPlayers, theme);
+    console.log('✅ Firebase書き込み完了');
 
     console.log('✅ ヴォイドルーム作成成功:', currentVoidRoomId);
 
     // 待機画面へ
+    console.log('📱 待機画面表示中...');
     showVoidWaitingScreen();
     
     // ルームデータ監視開始
+    console.log('👀 ルームデータ監視開始...');
     currentVoidGame.watchRoom(onVoidRoomUpdate);
+    console.log('✅ すべての処理完了');
 
   } catch (error) {
     console.error('❌ ヴォイドルーム作成エラー:', error);
+    console.error('エラースタック:', error.stack);
     alert('ルーム作成に失敗しました: ' + error.message);
   }
 }
@@ -235,7 +307,13 @@ async function joinVoidRoom() {
     currentVoidPlayer = playerName;
 
     // ゲーム参加
-    currentVoidGame = new VoidGame(currentVoidRoomId, selectedGameType);
+    const VoidGameClass = getVoidGameClass();
+    
+    if (!VoidGameClass) {
+      throw new Error('VoidGameクラスが見つかりません。ページをリロードしてください。');
+    }
+    
+    currentVoidGame = new VoidGameClass(currentVoidRoomId, selectedGameType);
     await currentVoidGame.joinRoom(playerName);
 
     console.log('✅ ヴォイドルーム参加成功:', currentVoidRoomId);
@@ -875,18 +953,35 @@ function showVoidResultScreen(roomData) {
 // ルーム退出
 // ========================================
 async function leaveVoidRoom() {
-  if (!currentVoidGame || !currentVoidPlayer) return;
+  if (!currentVoidGame || !currentVoidPlayer) {
+    console.warn('⚠️ ゲームまたはプレイヤーが未設定です');
+    showScreen('void-home-screen');
+    return;
+  }
 
   try {
+    console.log('🚪 ルーム退出処理開始...');
+    console.log('- プレイヤー名:', currentVoidPlayer);
+    console.log('- ルームID:', currentVoidRoomId);
+    
+    // ルームから退出
     await currentVoidGame.leaveRoom(currentVoidPlayer);
-    currentVoidGame.stopWatching();
+    console.log('✅ Firebaseから退出完了');
+    
+    // 監視を停止
+    currentVoidGame.unwatchRoom();
+    console.log('✅ 監視停止完了');
+    
+    // 変数をクリア
     currentVoidGame = null;
     currentVoidRoomId = null;
     currentVoidPlayer = null;
 
+    // ホーム画面に戻る
     showScreen('void-home-screen');
     console.log('✅ ルーム退出成功');
   } catch (error) {
     console.error('❌ ルーム退出エラー:', error);
+    alert('退出に失敗しました: ' + error.message);
   }
 }

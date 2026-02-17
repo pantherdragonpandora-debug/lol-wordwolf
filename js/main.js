@@ -793,11 +793,10 @@ function updateWaitingRoom(roomData) {
     playersList.appendChild(playerDiv);
   });
   
-  // ホストのみゲーム開始ボタンを表示
-  const isHost = currentPlayer === roomData.host;
-  document.getElementById('start-game-btn').style.display = isHost ? 'block' : 'none';
+  // 人数表示を更新
+  const currentCount = players.length;
+  const maxCount = roomData.settings?.playerCount || 5;
   
-  // ゲーム状態による画面遷移
   // ゲームモードを判定
   const isDemaciaMode = (currentDemaciaGame !== null) || 
                         roomData.gameMode === 'demacia' || 
@@ -805,6 +804,23 @@ function updateWaitingRoom(roomData) {
                         roomData.gameState === 'performing' || 
                         roomData.gameState === 'round_result';
   
+  // デマーシアモードの場合は人数表示を非表示にする
+  const playerCountDisplay = document.getElementById('waiting-player-count-display');
+  if (playerCountDisplay) {
+    playerCountDisplay.style.display = isDemaciaMode ? 'none' : 'block';
+  }
+  
+  // ワードウルフモードのみ人数表示を更新
+  if (!isDemaciaMode) {
+    document.getElementById('current-player-count').textContent = currentCount;
+    document.getElementById('max-player-count').textContent = maxCount;
+  }
+  
+  // ホストのみゲーム開始ボタンを表示
+  const isHost = currentPlayer === roomData.host;
+  document.getElementById('start-game-btn').style.display = isHost ? 'block' : 'none';
+  
+  // ゲーム状態による画面遷移
   if (isDemaciaMode) {
     // デマーシアモードの画面遷移
     if (roomData.gameState === 'performer_selection') {

@@ -14,9 +14,9 @@
     <title>Esports ワードウルフ - LOL & VALORANT</title>
     
     <!-- CSS -->
-    <link rel="stylesheet" href="css/style.css?v=13">
-    <link rel="stylesheet" href="css/demacia-style.css?v=13">
-    <link rel="stylesheet" href="css/void-style.css?v=23">
+    <link rel="stylesheet" href="css/style.css?v=28">
+    <link rel="stylesheet" href="css/demacia-style.css?v=28">
+    <link rel="stylesheet" href="css/void-style.css?v=28">
     
     <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6628280908520822"
@@ -374,6 +374,14 @@
                             <!-- JavaScriptで動的に設定 -->
                         </div>
                     </div>
+                </div>
+                
+                <!-- 人数表示（ワードウルフモードのみ） -->
+                <div id="waiting-player-count-display" class="form-group" style="background: rgba(255, 255, 255, 0.05); padding: 1rem; border-radius: 8px; margin-bottom: 1rem; text-align: center;">
+                    <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary-color);">
+                        👥 <span id="current-player-count">0</span> / <span id="max-player-count">0</span>
+                    </div>
+                    <div style="font-size: 0.9rem; color: var(--text-color); margin-top: 0.5rem;" data-i18n="waiting.remainingSlots">残り人数</div>
                 </div>
                 
                 <div class="room-info">
@@ -911,6 +919,14 @@
                 </div>
             </div>
             
+            <!-- 人数表示 -->
+            <div class="form-group" style="background: rgba(139, 92, 246, 0.15); padding: 1rem; border-radius: 8px; margin-bottom: 1rem; text-align: center; border: 2px solid rgba(139, 92, 246, 0.3);">
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--void-glow);">
+                    👥 <span id="void-current-players">0</span> / <span id="void-max-players-display">0</span>
+                </div>
+                <div style="font-size: 0.9rem; color: var(--void-light); margin-top: 0.5rem;" data-i18n="waiting.remainingSlots">残り人数</div>
+            </div>
+            
             <div class="room-info">
                 <div class="room-id">ルームID: <span id="void-room-id-display">------</span></div>
                 <div class="room-url" id="void-room-url-display"></div>
@@ -918,7 +934,7 @@
             </div>
             
             <div class="form-group">
-                <label>参加プレイヤー (<span id="void-current-players">0</span> / <span id="void-max-players-display">0</span> 人)</label>
+                <label>参加プレイヤー</label>
                 <div id="void-player-list" class="players-list"></div>
             </div>
             
@@ -1172,13 +1188,13 @@
     <script src="js/data-i18n.js?v=13"></script>
     <script src="js/demacia-data.js?v=13"></script>
     <script src="js/demacia-data-valorant.js?v=18"></script>
-    <script src="js/void-data.js?v=23"></script>
+    <script src="js/void-data.js?v=29"></script>
     <script src="js/game.js?v=18"></script>
     <script src="js/demacia-game.js?v=18"></script>
-    <script src="js/void-game.js?v=23"></script>
+    <script src="js/void-game.js?v=29"></script>
     <script src="js/demacia-solo.js?v=18"></script>
     <script src="js/pageview-counter.js?v=22"></script>
-    <script src="js/void-main.js?v=23"></script>
-    <script src="js/main.js?v=23"></script>
+    <script src="js/void-main.js?v=29"></script>
+    <script src="js/main.js?v=29"></script>
 </body>
 </html>

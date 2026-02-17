@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ヴォイドゲーム診断ツール</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #0a0e27;
+            color: #e0e0e0;
+        }
+        .test-result {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 5px solid;
+        }
+        .success {
+            background: rgba(0, 255, 0, 0.1);
+            border-color: #00ff00;
+        }
+        .error {
+            background: rgba(255, 0, 0, 0.1);
+            border-color: #ff0000;
+        }
+        .info {
+            background: rgba(0, 150, 255, 0.1);
+            border-color: #0096ff;
+        }
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: none;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        #console-output {
+            background: #000;
+            padding: 20px;
+            border-radius: 8px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .log-entry {
+            margin: 5px 0;
+        }
+        .log-success { color: #00ff00; }
+        .log-error { color: #ff0000; }
+        .log-info { color: #0096ff; }
+        .log-warn { color: #ffaa00; }
+    </style>
+</head>
+<body>
+    <h1>🔧 ヴォイドゲーム診断ツール</h1>
+    
+    <div id="results"></div>
+    
+    <h2>📋 コンソール出力</h2>
+    <div id="console-output"></div>
+    
+    <div style="margin-top: 20px;">
+        <button onclick="runTests()">🔍 診断を再実行</button>
+        <button onclick="testCreateRoom()">🎮 ルーム作成テスト</button>
+        <button onclick="clearConsole()">🗑️ クリア</button>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <!-- Firebase設定 -->
+    <script src="js/firebase-config.js"></script>
+    
+    <!-- ヴォイドゲーム関連 -->
+    <script src="js/void-data.js?v=26&t=20260217"></script>
+    <script src="js/void-game.js?v=26&t=20260217"></script>
+    
+    <script>
+        const resultsDiv = document.getElementById('results');
+        const consoleOutput = document.getElementById('console-output');
+        
+        // コンソール出力をキャプチャ
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        function addToConsole(message, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = message;
+            consoleOutput.appendChild(entry);
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addToConsole(args.join(' '), 'info');
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addToConsole('ERROR: ' + args.join(' '), 'error');
+        };
+        
+        console.warn = function(...args) {
+            originalWarn.apply(console, args);
+            addToConsole('WARN: ' + args.join(' '), 'warn');
+        };
+        
+        function clearConsole() {
+            consoleOutput.innerHTML = '';
+        }
+        
+        function addResult(title, status, message) {
+            const div = document.createElement('div');
+            div.className = `test-result ${status}`;
+            div.innerHTML = `<strong>${title}</strong><br>${message}`;
+            resultsDiv.appendChild(div);
+        }
+        
+        function clearResults() {
+            resultsDiv.innerHTML = '';
+        }
+        
+        function runTests() {
+            clearResults();
+            console.log('=== 診断開始 ===');
+            
+            // テスト1: Firebase接続
+            if (typeof firebase !== 'undefined') {
+                addResult('✅ Firebase SDK', 'success', 'Firebase SDKが読み込まれています');
+                console.log('✅ Firebase SDK: OK');
+            } else {
+                addResult('❌ Firebase SDK', 'error', 'Firebase SDKが読み込まれていません');
+                console.error('❌ Firebase SDK: 未読み込み');
+            }
+            
+            // テスト2: void-data.js
+            if (typeof getRandomVoidTheme !== 'undefined') {
+                addResult('✅ void-data.js', 'success', 'ヴォイドデータが読み込まれています');
+                console.log('✅ void-data.js: OK');
+            } else {
+                addResult('❌ void-data.js', 'error', 'void-data.jsが読み込まれていません');
+                console.error('❌ void-data.js: 未読み込み');
+            }
+            
+            // テスト3: void-game.js (VoidGameクラス)
+            if (typeof VoidGame !== 'undefined') {
+                addResult('✅ VoidGame (グローバル)', 'success', 'VoidGameがグローバルに定義されています');
+                console.log('✅ VoidGame (グローバル): OK');
+            } else {
+                addResult('⚠️ VoidGame (グローバル)', 'info', 'VoidGameがグローバルに未定義（window.VoidGameを確認します）');
+                console.warn('⚠️ VoidGame (グローバル): 未定義');
+            }
+            
+            // テスト4: window.VoidGame
+            if (typeof window.VoidGame !== 'undefined') {
+                addResult('✅ window.VoidGame', 'success', 'window.VoidGameが定義されています');
+                console.log('✅ window.VoidGame: OK');
+                console.log('   Type:', typeof window.VoidGame);
+                console.log('   Name:', window.VoidGame.name);
+            } else {
+                addResult('❌ window.VoidGame', 'error', 'window.VoidGameが定義されていません');
+                console.error('❌ window.VoidGame: 未定義');
+            }
+            
+            // テスト5: インスタンス作成テスト
+            try {
+                const VoidGameClass = window.VoidGame || VoidGame;
+                const testInstance = new VoidGameClass('test123', 'lol');
+                addResult('✅ インスタンス作成', 'success', 'VoidGameのインスタンスを作成できました');
+                console.log('✅ インスタンス作成: 成功');
+                console.log('   roomId:', testInstance.roomId);
+                console.log('   gameType:', testInstance.gameType);
+            } catch (error) {
+                addResult('❌ インスタンス作成', 'error', `エラー: ${error.message}`);
+                console.error('❌ インスタンス作成失敗:', error);
+            }
+            
+            console.log('=== 診断完了 ===');
+        }
+        
+        async function testCreateRoom() {
+            console.log('=== ルーム作成テスト開始 ===');
+            
+            try {
+                const VoidGameClass = window.VoidGame || VoidGame;
+                if (!VoidGameClass) {
+                    throw new Error('VoidGameクラスが見つかりません');
+                }
+                
+                // ランダムなルームIDを生成
+                const testRoomId = String(Math.floor(Math.random() * 900000) + 100000);
+                console.log('テストルームID:', testRoomId);
+                
+                // テーマを取得
+                const theme = getRandomVoidTheme('lol');
+                console.log('テーマ:', theme);
+                
+                // ゲームインスタンス作成
+                const game = new VoidGameClass(testRoomId, 'lol');
+                console.log('VoidGameインスタンス作成: OK');
+                
+                // ルーム作成を試行
+                await game.createRoom('テストプレイヤー', 4, theme);
+                console.log('✅ ルーム作成成功！');
+                addResult('✅ ルーム作成', 'success', `ルームID ${testRoomId} の作成に成功しました`);
+                
+            } catch (error) {
+                console.error('❌ ルーム作成失敗:', error);
+                addResult('❌ ルーム作成', 'error', `エラー: ${error.message}`);
+                
+                // Firebase権限エラーの場合
+                if (error.message.includes('permission') || error.message.includes('PERMISSION_DENIED')) {
+                    addResult('💡 解決方法', 'info', 
+                        'Firebaseのセキュリティルールに void_rooms を追加する必要があります。<br>' +
+                        'FIREBASE_PERMISSION_FIX.md を参照してください。');
+                }
+            }
+            
+            console.log('=== ルーム作成テスト完了 ===');
+        }
+        
+        // ページ読み込み時に自動実行
+        window.addEventListener('load', function() {
+            setTimeout(runTests, 1000);
+        });
+    </script>
+</body>
+</html>
