@@ -72,10 +72,12 @@ function initVoidGameListeners() {
   document.getElementById('void-submit-answer-btn')?.addEventListener('click', submitVoidFinalAnswer);
 
   // 結果画面
-  document.getElementById('void-play-again-btn')?.addEventListener('click', () => showScreen('void-home-screen'));
+  document.getElementById('void-play-again-btn')?.addEventListener('click', playVoidAgain);
   document.getElementById('void-back-to-home-btn')?.addEventListener('click', () => {
-    showScreen('home-screen');
-    selectedGameMode = null;
+    if (currentVoidGame && currentVoidPlayer && currentVoidRoomId) {
+      leaveVoidRoom();
+    }
+    showScreen('void-home-screen');
   });
 }
 
@@ -414,7 +416,7 @@ function onVoidRoomUpdate(roomData) {
     // プレイ画面を表示
     showVoidPlayScreen(roomData);
     
-  } else if (gameState === 'finished') {
+  } else if (gameState === 'result' || gameState === 'finished') {
     // 結果画面を表示
     showVoidResultScreen(roomData);
   }
@@ -1132,5 +1134,32 @@ async function leaveVoidRoom() {
   } catch (error) {
     console.error('❌ ルーム退出エラー:', error);
     alert('退出に失敗しました: ' + error.message);
+  }
+}
+
+// ========================================
+// もう一度遊ぶ
+// ========================================
+async function playVoidAgain() {
+  if (!currentVoidGame) {
+    console.error('❌ currentVoidGameが存在しません');
+    return;
+  }
+
+  const isHost = currentVoidGame.roomData?.hostName === currentVoidPlayer;
+  
+  if (!isHost) {
+    alert('ホストのみがゲームをリセットできます');
+    return;
+  }
+
+  try {
+    console.log('🔄 ゲームリセット開始');
+    await currentVoidGame.resetRoom();
+    console.log('✅ ゲームリセット完了');
+    // onVoidRoomUpdate が自動的に呼ばれて待機画面に戻る
+  } catch (error) {
+    console.error('❌ ゲームリセットエラー:', error);
+    alert('リセットに失敗しました: ' + error.message);
   }
 }

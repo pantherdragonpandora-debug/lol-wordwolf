@@ -5,7 +5,7 @@
 
 const firebaseConfig = {
   // 🔑 APIキー
-  apiKey: "AIzaSyAVHCMGfXWAfIEZ7E93FKM_pQ7uz0hY3nE",
+  apiKey: "AIzaSyCICMaHGGxE4KLZLldB7DbatX5eS-jbt3Q",
   
   // 🌐 認証ドメイン
   authDomain: "lol-word-wolf.firebaseapp.com",

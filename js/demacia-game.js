@@ -466,6 +466,54 @@ class DemaciaGame {
       return false;
     }
   }
+
+  // ゲームリセット（もう一度遊ぶ）
+  async resetRoom() {
+    try {
+      const snapshot = await this.roomRef.once('value');
+      const room = snapshot.val();
+
+      if (!room) {
+        throw new Error('ルームが存在しません');
+      }
+
+      // 新しいセリフを選択
+      const phrases = this.gameType === 'lol' 
+        ? window.demaciaPhrases 
+        : window.demaciaPhrasesValorant;
+      const phrase = phrases[Math.floor(Math.random() * phrases.length)];
+
+      const updates = {};
+      
+      // ゲーム状態をリセット
+      updates['gameState'] = 'waiting';
+      updates['currentRound'] = 0;
+      updates['currentPhrase'] = {
+        id: phrase.id,
+        text: phrase.text,
+        character: phrase.character,
+        situations: phrase.situations
+      };
+      updates['currentPerformer'] = null;
+      updates['performerSituation'] = null;
+      updates['votes'] = null;
+      updates['roundResults'] = null;
+
+      // 各プレイヤーのスコアと投票をリセット
+      const players = room.players || {};
+      Object.keys(players).forEach(playerName => {
+        updates[`players/${playerName}/score`] = 0;
+        updates[`players/${playerName}/vote`] = null;
+      });
+
+      await this.roomRef.update(updates);
+      console.log('✅ デマーシアゲームリセット完了');
+      return true;
+    } catch (error) {
+      console.error('❌ ゲームリセットエラー:', error);
+      throw error;
+    }
+  }
 }
 
 // グローバルにエクスポート

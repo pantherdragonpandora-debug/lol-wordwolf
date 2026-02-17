@@ -1141,8 +1141,27 @@ function showResultScreen(roomData) {
 
 // もう一度プレイ
 async function resetGame() {
-  await currentGame.resetRoom();
-  showWaitingRoom();
+  // ワードウルフゲームの場合
+  if (currentGame) {
+    try {
+      await currentGame.resetRoom();
+      showWaitingRoom();
+    } catch (error) {
+      console.error('❌ ワードウルフゲームリセットエラー:', error);
+      alert('ゲームのリセットに失敗しました: ' + error.message);
+    }
+  }
+  
+  // デマーシアゲームの場合
+  if (currentDemaciaGame) {
+    try {
+      await currentDemaciaGame.resetRoom();
+      showWaitingRoom();
+    } catch (error) {
+      console.error('❌ デマーシアゲームリセットエラー:', error);
+      alert('ゲームのリセットに失敗しました: ' + error.message);
+    }
+  }
 }
 
 // ホームに戻る

@@ -309,12 +309,52 @@ class VoidGame {
     await this.roomRef.update(updates);
     console.log('✅ 最終回答送信完了');
   }
+
+  // ゲームをリセットして再プレイ
+  async resetRoom() {
+    console.log('🔄 resetRoom呼び出し');
+    
+    const snapshot = await this.roomRef.once('value');
+    const roomData = snapshot.val();
+    
+    if (!roomData) {
+      throw new Error('ルームが見つかりません');
+    }
+
+    // 新しいテーマを選択
+    const newTheme = getRandomVoidTheme(this.gameType);
+
+    const updates = {
+      gameState: 'waiting',
+      currentTurn: 0,
+      playOrder: [],
+      orderSelections: {},
+      turns: {},
+      finalAnswer: null,
+      isCorrect: null,
+      theme: {
+        id: newTheme.id,
+        name: newTheme.name,
+        category: newTheme.category
+      }
+    };
+
+    // 各プレイヤーの状態をリセット
+    const playerOrder = roomData.playerOrder || [];
+    playerOrder.forEach(playerName => {
+      updates[`players/${playerName}/hasSubmitted`] = false;
+    });
+
+    console.log('📤 Firebase更新を送信:', updates);
+    await this.roomRef.update(updates);
+    console.log('✅ ルームリセット完了');
+  }
 }
 
-console.log('✅ VoidGameクラス定義完了 v33');
+console.log('✅ VoidGameクラス定義完了 v34');
 console.log('✅ typeof VoidGame:', typeof VoidGame);
 
 // グローバルエクスポート
 window.VoidGame = VoidGame;
-console.log('✅ window.VoidGame エクスポート完了 v33');
+console.log('✅ window.VoidGame エクスポート完了 v34');
 console.log('✅ typeof window.VoidGame:', typeof window.VoidGame);
