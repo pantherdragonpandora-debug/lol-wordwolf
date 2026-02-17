@@ -981,7 +981,11 @@ async function submitVoidMiddleWords() {
   }
 
   try {
-    await currentVoidGame.submitWords(currentVoidPlayer, myOrder, newWords, modifiedWords);
+    const modifiedFlags = [false, false, false];
+    modifiedWords.forEach(index => {
+      modifiedFlags[index] = true;
+    });
+    await currentVoidGame.submitMiddleWords(currentVoidPlayer, newWords, modifiedFlags);
     console.log('✅ 中間ワード送信成功');
     // 送信後は待機画面を表示
     // onVoidRoomUpdateが自動的に呼ばれて画面が更新される

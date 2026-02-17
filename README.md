@@ -465,7 +465,11 @@ ja: {
 - `FIREBASE_AUTH_FIX.md` - 承認済みドメインの設定
 - `FIREBASE_RULES_FIX.md` - セキュリティルールの設定
 - `FIREBASE_PERMISSION_FIX.md` - ヴォイドゲームのFirebase権限エラー修正
-- `FIXED_HOME_BUTTON_I18N_v35.md` - 固定ホームボタン多言語対応（v35） **NEW!**
+- `DEMACIA_JOIN_FIX_v32.md` - デマーシア入室エラー修正（v32） **NEW!**
+- `VOID_SUBMIT_FIX_v33.md` - ヴォイドワード送信エラー修正（v33）
+- `DEMACIA_JOIN_DEBUG_v31.md` - デマーシア入室エラーデバッグ強化（v31）
+- `DEMACIA_JOIN_DEBUG_v30.md` - デマーシア入室エラーデバッグ強化（v30）
+- `FIXED_HOME_BUTTON_I18N_v35.md` - 固定ホームボタン多言語対応（v35）
 - `VOID_ORDER_SYSTEM_IMPROVEMENT_v31.md` - ヴォイド順番選択システム改善（v31）
 - `VOID_LEAVE_ROOM_FIX_v29.md` - ヴォイド退出バグ修正（人数カウント・ホスト移譲）v29
 - `VOID_LEAVE_DEBUG_v30.md` - ヴォイド退出デバッグ（v30）

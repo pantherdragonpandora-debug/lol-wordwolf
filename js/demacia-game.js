@@ -3,10 +3,12 @@
 // ========================================
 
 class DemaciaGame {
-  constructor(roomId) {
+  constructor(roomId, gameType = 'lol') {
     this.roomRef = firebase.database().ref(`demacia_rooms/${roomId}`);
     this.roomId = roomId;
+    this.gameType = gameType;
     this.roomData = null; // ルームデータを保持
+    console.log('🎭 DemaciaGame constructor:', { roomId, gameType });
   }
 
   // ルーム作成

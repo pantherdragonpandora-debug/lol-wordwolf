@@ -172,12 +172,149 @@ class VoidGame {
     
     return true;
   }
+
+  // 順番選択を送信
+  async submitOrder(playerName, order) {
+    const updates = {};
+    updates[`orderSelections/${playerName}`] = order;
+    await this.roomRef.update(updates);
+  }
+
+  // 順番を確定してゲーム開始
+  async confirmOrder(playOrder) {
+    const updates = {
+      playOrder: playOrder,
+      gameState: 'playing',
+      currentTurn: 0
+    };
+    await this.roomRef.update(updates);
+  }
+
+  // 最初のプレイヤーが3つのワードを送信
+  async submitFirstWords(playerName, words) {
+    console.log('📝 submitFirstWords呼び出し:', playerName, words);
+    
+    if (!words || words.length !== 3) {
+      throw new Error('3つの言葉を入力してください');
+    }
+
+    const snapshot = await this.roomRef.once('value');
+    const roomData = snapshot.val();
+    
+    if (!roomData) {
+      throw new Error('ルームが見つかりません');
+    }
+
+    console.log('🔍 現在のルームデータ:', roomData);
+    console.log('🔍 playOrder:', roomData.playOrder);
+    console.log('🔍 現在のターン:', roomData.currentTurn);
+
+    const playOrder = roomData.playOrder || [];
+    const currentTurn = roomData.currentTurn || 0;
+
+    if (playOrder[currentTurn] !== playerName) {
+      throw new Error('あなたの順番ではありません');
+    }
+
+    const updates = {};
+    updates[`turns/${currentTurn}`] = {
+      playerName: playerName,
+      words: words,
+      modified: [false, false, false],
+      submittedAt: Date.now()
+    };
+    updates[`players/${playerName}/hasSubmitted`] = true;
+    updates['currentTurn'] = currentTurn + 1;
+
+    console.log('📤 Firebase更新を送信:', updates);
+    await this.roomRef.update(updates);
+    console.log('✅ ワード送信完了');
+  }
+
+  // 中間プレイヤーが修正したワードを送信
+  async submitMiddleWords(playerName, words, modified) {
+    console.log('📝 submitMiddleWords呼び出し:', playerName, words, modified);
+    
+    if (!words || words.length !== 3) {
+      throw new Error('3つの言葉を入力してください');
+    }
+
+    const snapshot = await this.roomRef.once('value');
+    const roomData = snapshot.val();
+    
+    if (!roomData) {
+      throw new Error('ルームが見つかりません');
+    }
+
+    const playOrder = roomData.playOrder || [];
+    const currentTurn = roomData.currentTurn || 0;
+
+    if (playOrder[currentTurn] !== playerName) {
+      throw new Error('あなたの順番ではありません');
+    }
+
+    const updates = {};
+    updates[`turns/${currentTurn}`] = {
+      playerName: playerName,
+      words: words,
+      modified: modified || [false, false, false],
+      submittedAt: Date.now()
+    };
+    updates[`players/${playerName}/hasSubmitted`] = true;
+    updates['currentTurn'] = currentTurn + 1;
+
+    console.log('📤 Firebase更新を送信:', updates);
+    await this.roomRef.update(updates);
+    console.log('✅ ワード送信完了');
+  }
+
+  // 最後のプレイヤーが答えを送信
+  async submitFinalAnswer(playerName, answer) {
+    console.log('📝 submitFinalAnswer呼び出し:', playerName, answer);
+    
+    if (!answer || answer.trim().length === 0) {
+      throw new Error('回答を入力してください');
+    }
+
+    const snapshot = await this.roomRef.once('value');
+    const roomData = snapshot.val();
+    
+    if (!roomData) {
+      throw new Error('ルームが見つかりません');
+    }
+
+    const playOrder = roomData.playOrder || [];
+    const currentTurn = roomData.currentTurn || 0;
+
+    if (playOrder[currentTurn] !== playerName) {
+      throw new Error('あなたの順番ではありません');
+    }
+
+    // 正解判定
+    const themeName = roomData.theme?.name || '';
+    const isCorrect = answer.trim() === themeName.trim();
+
+    const updates = {};
+    updates[`turns/${currentTurn}`] = {
+      playerName: playerName,
+      answer: answer,
+      submittedAt: Date.now()
+    };
+    updates[`players/${playerName}/hasSubmitted`] = true;
+    updates['finalAnswer'] = answer;
+    updates['isCorrect'] = isCorrect;
+    updates['gameState'] = 'result';
+
+    console.log('📤 Firebase更新を送信:', updates);
+    await this.roomRef.update(updates);
+    console.log('✅ 最終回答送信完了');
+  }
 }
 
-console.log('✅ VoidGameクラス定義完了 v32');
+console.log('✅ VoidGameクラス定義完了 v33');
 console.log('✅ typeof VoidGame:', typeof VoidGame);
 
 // グローバルエクスポート
 window.VoidGame = VoidGame;
-console.log('✅ window.VoidGame エクスポート完了 v32');
+console.log('✅ window.VoidGame エクスポート完了 v33');
 console.log('✅ typeof window.VoidGame:', typeof window.VoidGame);

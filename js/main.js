@@ -84,7 +84,9 @@ function selectGameMode(mode) {
 // ゲーム選択関数
 function selectGame(gameType) {
   console.log('🎮 Game selected:', gameType);
+  console.log('🎮 Current mode:', selectedGameMode);
   selectedGameType = gameType;
+  console.log('✅ selectedGameType set to:', selectedGameType);
   
   // ヴォイドモードの場合
   if (selectedGameMode === 'void') {
@@ -488,7 +490,7 @@ async function createRoom() {
     
     // デマーシアゲーム作成
     try {
-      currentDemaciaGame = new DemaciaGame(currentRoomId);
+      currentDemaciaGame = new DemaciaGame(currentRoomId, selectedGameType);
       console.log('✅ DemaciaGameインスタンス作成成功');
     } catch (error) {
       console.error('❌ DemaciaGameインスタンス作成エラー:', error);
@@ -503,6 +505,10 @@ async function createRoom() {
     });
     
     console.log('デマーシアゲーム作成結果:', success);
+    console.log('📊 作成したルームの設定:');
+    console.log('  - gameType:', selectedGameType);
+    console.log('  - playerCount: 10');
+    console.log('  - roundCount: 5');
     
     if (success) {
       console.log('🎉 ルーム作成成功！');
@@ -649,15 +655,21 @@ async function joinRoom() {
       
       // ワードウルフルームに参加
       const roomGameType = wordwolfData?.settings?.gameType;
-      console.log('🔍 ルームのゲームタイプ:', roomGameType, '選択中:', selectedGameType);
+      console.log('🔍 ワードウルフ - ルームのゲームタイプ:', roomGameType, '(type:', typeof roomGameType, ')');
+      console.log('🔍 ワードウルフ - 選択中のゲームタイプ:', selectedGameType, '(type:', typeof selectedGameType, ')');
+      console.log('🔍 ワードウルフ - 完全なルームデータ:', wordwolfData);
+      console.log('🔍 ワードウルフ - 比較結果:', roomGameType === selectedGameType);
       
       // ゲームタイプが一致するかチェック
       if (roomGameType && roomGameType !== selectedGameType) {
-        throw new Error(
+        const errorMsg =
           `このルームは ${roomGameType.toUpperCase()} 用です。\n` +
           `現在 ${selectedGameType.toUpperCase()} を選択しています。\n` +
-          `ゲーム選択画面に戻ってゲームタイプを変更してください。`
-        );
+          `ゲーム選択画面に戻ってゲームタイプを変更してください。`;
+        console.error('❌ ゲームタイプ不一致エラー:', errorMsg);
+        console.error('  - roomGameType:', roomGameType, '(length:', roomGameType.length, ')');
+        console.error('  - selectedGameType:', selectedGameType, '(length:', selectedGameType.length, ')');
+        throw new Error(errorMsg);
       }
       
       console.log('✅ ワードウルフルームに参加');
@@ -692,19 +704,25 @@ async function joinRoom() {
       
       // デマーシアルームに参加
       const roomGameType = demaciaData?.settings?.gameType;
-      console.log('🔍 ルームのゲームタイプ:', roomGameType, '選択中:', selectedGameType);
+      console.log('🔍 デマーシア - ルームのゲームタイプ:', roomGameType, '(type:', typeof roomGameType, ')');
+      console.log('🔍 デマーシア - 選択中のゲームタイプ:', selectedGameType, '(type:', typeof selectedGameType, ')');
+      console.log('🔍 デマーシア - 完全なルームデータ:', demaciaData);
+      console.log('🔍 デマーシア - 比較結果:', roomGameType === selectedGameType);
       
       // ゲームタイプが一致するかチェック
       if (roomGameType && roomGameType !== selectedGameType) {
-        throw new Error(
+        const errorMsg = 
           `このルームは ${roomGameType.toUpperCase()} 用です。\n` +
           `現在 ${selectedGameType.toUpperCase()} を選択しています。\n` +
-          `ゲーム選択画面に戻ってゲームタイプを変更してください。`
-        );
+          `ゲーム選択画面に戻ってゲームタイプを変更してください。`;
+        console.error('❌ ゲームタイプ不一致エラー:', errorMsg);
+        console.error('  - roomGameType:', roomGameType, '(length:', roomGameType.length, ')');
+        console.error('  - selectedGameType:', selectedGameType, '(length:', selectedGameType.length, ')');
+        throw new Error(errorMsg);
       }
       
       console.log('✅ デマーシアルームに参加処理を開始');
-      currentDemaciaGame = new DemaciaGame(roomId);
+      currentDemaciaGame = new DemaciaGame(roomId, selectedGameType);
       const success = await currentDemaciaGame.joinRoom(playerName);
       if (success) {
         console.log('✅ デマーシアルーム参加成功');
