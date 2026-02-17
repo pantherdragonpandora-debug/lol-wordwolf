@@ -406,6 +406,10 @@ function onVoidRoomUpdate(roomData) {
 // プレイヤーリスト更新
 // ========================================
 function updateVoidPlayerList(roomData) {
+  console.log('📋 プレイヤーリスト更新開始');
+  console.log('- roomData.playerOrder:', roomData.playerOrder);
+  console.log('- roomData.players:', Object.keys(roomData.players || {}));
+  
   const playerList = document.getElementById('void-player-list');
   if (!playerList) return;
 

@@ -465,12 +465,11 @@ ja: {
 - `FIREBASE_AUTH_FIX.md` - 承認済みドメインの設定
 - `FIREBASE_RULES_FIX.md` - セキュリティルールの設定
 - `FIREBASE_PERMISSION_FIX.md` - ヴォイドゲームのFirebase権限エラー修正
-- `VOID_LEAVE_BUTTON_VERIFICATION.md` - ヴォイド退出ボタンの動作確認（v1.0.28） **NEW!**
+- `VOID_LEAVE_ROOM_FIX_v29.md` - ヴォイド退出バグ修正（人数カウント・ホスト移譲）v29 **NEW!**
+- `VOID_LEAVE_BUTTON_VERIFICATION.md` - ヴォイド退出ボタンの動作確認（v1.0.28）
 - `VOID_FIX_V28.md` - VoidGameクラス再構築記録（v1.0.28）
 - `PLAYER_COUNT_DISPLAY.md` - 残り人数表示の実装記録
 - `PLAYER_COUNT_DISPLAY_FIX.md` - デマーシア人数表示非表示対応
-- `PLAYER_COUNT_DISPLAY.md` - プレイヤー人数表示機能の実装記録
-- `PLAYER_COUNT_DISPLAY_FIX.md` - 人数表示修正（デマーシア対応、ヴォイドエラー修正）
 - `VOID_ROOM_CREATION_FIX.md` - ヴォイドルーム作成エラー修正（VoidGameクラスエクスポート）
 - `CROSS_DEVICE_JOIN_FIX.md` - クロスデバイス参加問題の修正記録
 - `MOBILE_CONNECTION_TROUBLESHOOTING.md` - モバイル接続トラブルシューティング
