@@ -3,6 +3,16 @@
 // ヴォイドに届くは光か闇か - 追加コード
 // ========================================
 
+// 翻訳関数のフォールバック
+function voidT(key, params = {}) {
+  if (typeof t === 'function') {
+    return t(key, params);
+  }
+  // フォールバック：キーをそのまま返す
+  console.warn('翻訳関数が見つかりません:', key);
+  return key;
+}
+
 // グローバル変数
 let currentVoidGame = null;
 let currentVoidRoomId = null;
@@ -166,7 +176,7 @@ async function createVoidRoom() {
   console.log('🔍 VoidGameClass:', VoidGameClass ? 'found' : 'not found');
   
   if (!VoidGameClass) {
-    alert('エラー: VoidGameクラスが読み込まれていません。\nブラウザを完全リロード（Ctrl+Shift+R）してください。');
+    alert(voidT('void.alert.classNotLoaded'));
     console.error('❌ VoidGameが未定義です。void-game.jsが読み込まれていない可能性があります。');
     console.error('- typeof VoidGame:', typeof VoidGame);
     console.error('- typeof window.VoidGame:', typeof window.VoidGame);
@@ -174,7 +184,7 @@ async function createVoidRoom() {
   }
   
   if (!rateLimiter.check('createVoidRoom', 5000)) {
-    alert('ルーム作成が早すぎます。5秒後にもう一度お試しください。');
+    alert(voidT('void.alert.tooFast'));
     return;
   }
 
@@ -188,12 +198,12 @@ async function createVoidRoom() {
   console.log('- テーマモード要素:', themeModeElement ? 'あり' : 'なし');
   
   if (!maxPlayersElement) {
-    alert('エラー: 人数選択要素が見つかりません');
+    alert(voidT('void.alert.maxPlayersNotFound'));
     return;
   }
   
   if (!themeModeElement) {
-    alert('エラー: テーマモード選択要素が見つかりません');
+    alert(voidT('void.alert.themeModeNotFound'));
     return;
   }
   
@@ -203,7 +213,7 @@ async function createVoidRoom() {
   // 入力検証
   const playerName = sanitizeInput(playerNameInput, 20);
   if (!validatePlayerName(playerName)) {
-    alert('プレイヤー名は1〜20文字で入力してください');
+    alert(voidT('void.alert.playerNameLength'));
     return;
   }
 
@@ -214,7 +224,7 @@ async function createVoidRoom() {
     selectedCategories = Array.from(categoryCheckboxes).map(cb => cb.value);
     
     if (selectedCategories.length === 0) {
-      alert('カテゴリーを1つ以上選択してください');
+      alert(voidT('void.alert.selectCategory'));
       return;
     }
   }
@@ -273,7 +283,7 @@ async function createVoidRoom() {
   } catch (error) {
     console.error('❌ ヴォイドルーム作成エラー:', error);
     console.error('エラースタック:', error.stack);
-    alert('ルーム作成に失敗しました: ' + error.message);
+    alert(voidT('void.alert.createFailed', { error: error.message }));
   }
 }
 
@@ -282,7 +292,7 @@ async function createVoidRoom() {
 // ========================================
 async function joinVoidRoom() {
   if (!rateLimiter.check('joinVoidRoom', 3000)) {
-    alert('ルーム参加の試行が早すぎます。3秒後にもう一度お試しください。');
+    alert(voidT('void.alert.joinTooFast'));
     return;
   }
 
@@ -292,13 +302,13 @@ async function joinVoidRoom() {
   // 入力検証
   const roomId = sanitizeInput(roomIdInput, 6);
   if (!validateRoomId(roomId)) {
-    alert('ルームIDは6桁の数字で入力してください');
+    alert(voidT('void.alert.roomIdFormat'));
     return;
   }
 
   const playerName = sanitizeInput(playerNameInput, 20);
   if (!validatePlayerName(playerName)) {
-    alert('プレイヤー名は1〜20文字で入力してください');
+    alert(voidT('void.alert.playerNameLength'));
     return;
   }
 
@@ -326,7 +336,7 @@ async function joinVoidRoom() {
 
   } catch (error) {
     console.error('❌ ヴォイドルーム参加エラー:', error);
-    alert('ルーム参加に失敗しました: ' + error.message);
+    alert(voidT('void.alert.joinFailed', { error: error.message }));
   }
 }
 
@@ -648,7 +658,7 @@ async function confirmVoidOrder() {
   console.log('- selectedPlayOrder:', selectedPlayOrder);
   
   if (selectedPlayOrder.length === 0) {
-    alert('プレイヤーの順番を決定してください');
+    alert(voidT('void.alert.selectPlayers'));
     return;
   }
   
@@ -660,7 +670,7 @@ async function confirmVoidOrder() {
   
   const totalPlayers = (roomDataCache.playerOrder || []).length;
   if (selectedPlayOrder.length < totalPlayers) {
-    alert(`全員の順番を決定してください（${selectedPlayOrder.length}/${totalPlayers}）`);
+        alert(voidT('void.alert.selectAllPlayers', { current: selectedPlayOrder.length, total: totalPlayers }));
     return;
   }
   
@@ -675,7 +685,7 @@ async function confirmVoidOrder() {
     console.log('✅ 順番確定成功・ゲーム開始');
   } catch (error) {
     console.error('❌ 順番確定エラー:', error);
-    alert('順番確定に失敗しました: ' + error.message);
+    alert(voidT('void.alert.orderConfirmFailed', { error: error.message }));
   }
 }
 
@@ -700,7 +710,7 @@ function showVoidPlayScreen(roomData) {
   
   // 既に回答済みの場合は入力を無効化
   if (hasSubmitted) {
-    alert(t('void.alert.alreadySubmitted'));
+    alert(voidT('void.alert.alreadySubmitted'));
     showVoidWaitingTurnScreen(roomData);
     return;
   }
@@ -903,7 +913,7 @@ async function submitVoidFirstWords() {
   const words = [word1, word2, word3].map(w => sanitizeInput(w, 30));
 
   if (words.some(w => !w || w.length === 0)) {
-    alert(t('void.alert.enterAllWords'));
+    alert(voidT('void.alert.enterAllWords'));
     return;
   }
 
@@ -912,7 +922,7 @@ async function submitVoidFirstWords() {
   if (themeName) {
     const matchingWords = words.filter(w => isMatchingTheme(w, themeName));
     if (matchingWords.length > 0) {
-      alert(t('void.alert.themeWordNotAllowed', { theme: themeName }));
+      alert(voidT('void.alert.themeWordNotAllowed', { theme: themeName }));
       return;
     }
   }
@@ -961,7 +971,7 @@ async function submitVoidMiddleWords() {
       // テーマ名との一致チェック
       const themeName = getCurrentThemeName();
       if (themeName && isMatchingTheme(modifiedWord, themeName)) {
-        alert(t('void.alert.themeWordNotAllowed', { theme: themeName }));
+        alert(voidT('void.alert.themeWordNotAllowed', { theme: themeName }));
         return;
       }
       
@@ -989,7 +999,7 @@ async function submitVoidFinalAnswer() {
   const sanitizedAnswer = sanitizeInput(answer, 30);
 
   if (!sanitizedAnswer || sanitizedAnswer.length === 0) {
-    alert(t('void.alert.enterAnswer'));
+    alert(voidT('void.alert.enterAnswer'));
     return;
   }
 

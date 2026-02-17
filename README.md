@@ -465,7 +465,8 @@ ja: {
 - `FIREBASE_AUTH_FIX.md` - 承認済みドメインの設定
 - `FIREBASE_RULES_FIX.md` - セキュリティルールの設定
 - `FIREBASE_PERMISSION_FIX.md` - ヴォイドゲームのFirebase権限エラー修正
-- `VOID_ORDER_SYSTEM_IMPROVEMENT_v31.md` - ヴォイド順番選択システム改善（v31） **NEW!**
+- `FIXED_HOME_BUTTON_I18N_v35.md` - 固定ホームボタン多言語対応（v35） **NEW!**
+- `VOID_ORDER_SYSTEM_IMPROVEMENT_v31.md` - ヴォイド順番選択システム改善（v31）
 - `VOID_LEAVE_ROOM_FIX_v29.md` - ヴォイド退出バグ修正（人数カウント・ホスト移譲）v29
 - `VOID_LEAVE_DEBUG_v30.md` - ヴォイド退出デバッグ（v30）
 - `VOID_LEAVE_BUTTON_VERIFICATION.md` - ヴォイド退出ボタンの動作確認（v1.0.28）

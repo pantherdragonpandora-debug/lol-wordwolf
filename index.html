@@ -50,7 +50,7 @@
 
     <!-- スタート画面に戻るボタン（固定） -->
     <button id="btn-home-fixed" class="btn-home-fixed" style="display: none;" onclick="goToStart()">
-        🏠 スタート画面に戻る
+        <span data-i18n="header.backToStart">🏠 スタート画面に戻る</span>
     </button>
 
     <!-- メインコンテンツ -->
@@ -786,29 +786,28 @@
     <!-- ヴォイド - ホーム画面 -->
     <div id="void-home-screen" class="screen">
         <div class="void-card">
-            <h2>🌌 ヴォイドに届くは光か闇か</h2>
-            <p style="text-align: center; margin-bottom: 2rem; color: var(--void-light);">連想ワードを伝えてテーマを当てよう</p>
+            <h2 data-i18n="void.home.title">🌌 ヴォイドに届くは光か闇か</h2>
+            <p style="text-align: center; margin-bottom: 2rem; color: var(--void-light);" data-i18n="void.home.description">連想ワードを伝えてテーマを当てよう</p>
             
-            <button id="void-create-room-btn" class="void-btn-primary btn-full-width" style="margin-bottom: 1rem;">ルームを作成</button>
-            <button id="void-join-room-btn" class="void-btn-secondary btn-full-width" style="margin-bottom: 1rem;">ルームに参加</button>
-            <button id="void-rules-btn" class="void-btn-secondary btn-full-width" style="margin-bottom: 1rem;">ルール説明</button>
-            <button id="void-back-to-game-type-btn" class="void-btn-secondary btn-full-width">ゲーム選択に戻る</button>
+            <button id="void-create-room-btn" class="void-btn-primary btn-full-width" style="margin-bottom: 1rem;" data-i18n="void.home.createRoom">ルームを作成</button>
+            <button id="void-join-room-btn" class="void-btn-secondary btn-full-width" style="margin-bottom: 1rem;" data-i18n="void.home.joinRoom">ルームに参加</button>
+            <button id="void-rules-btn" class="void-btn-secondary btn-full-width" style="margin-bottom: 1rem;" data-i18n="void.home.rules">ルール説明</button>
+            <button id="void-back-to-game-type-btn" class="void-btn-secondary btn-full-width" data-i18n="void.home.backToGameType">ゲーム選択に戻る</button>
         </div>
     </div>
 
     <!-- ヴォイド - ルーム作成画面 -->
-    <!-- ヴォイド - ルーム作成画面 -->
     <div id="void-create-screen" class="screen">
         <div class="card">
-            <h2>ルーム作成</h2>
+            <h2 data-i18n="void.create.title">ルーム作成</h2>
             
             <div class="form-group">
-                <label for="void-create-player-name">プレイヤー名</label>
-                <input type="text" id="void-create-player-name" placeholder="名前を入力" maxlength="20">
+                <label for="void-create-player-name" data-i18n="void.create.playerName">プレイヤー名</label>
+                <input type="text" id="void-create-player-name" data-i18n-placeholder="void.create.playerNamePlaceholder" placeholder="名前を入力" maxlength="20">
             </div>
             
             <div class="form-group">
-                <label for="void-max-players">参加人数</label>
+                <label for="void-max-players" data-i18n="void.create.maxPlayers">参加人数</label>
                 <select id="void-max-players">
                     <option value="2">2人</option>
                     <option value="3">3人</option>
@@ -821,22 +820,22 @@
             </div>
             
             <div class="form-group">
-                <label>テーマ選択</label>
+                <label data-i18n="void.create.themeSelection">テーマ選択</label>
                 <div class="checkbox-group">
                     <div class="checkbox-item">
                         <input type="radio" name="void-theme-mode" value="random" id="void-theme-random" checked>
-                        <label for="void-theme-random" class="void-radio-label">ランダム</label>
+                        <label for="void-theme-random" class="void-radio-label" data-i18n="void.create.random">ランダム</label>
                     </div>
                     <div class="checkbox-item">
                         <input type="radio" name="void-theme-mode" value="select" id="void-theme-select">
-                        <label for="void-theme-select" class="void-radio-label">選択</label>
+                        <label for="void-theme-select" class="void-radio-label" data-i18n="void.create.select">選択</label>
                     </div>
                 </div>
             </div>
             
             <!-- カテゴリー選択（ランダム時に使用） -->
             <div id="void-categories-section" class="form-group">
-                <label>カテゴリー選択</label>
+                <label data-i18n="void.create.categorySelection">カテゴリー選択</label>
                 <div id="void-category-checkboxes" class="checkbox-group">
                     <!-- LOL用カテゴリー（デフォルト） -->
                     <div class="checkbox-item void-lol-category">
@@ -1180,7 +1179,7 @@
     <script src="js/firebase-config.js?v=13"></script>
     <!-- セキュリティ機能 -->
     <script src="js/security.js?v=22"></script>
-    <script src="js/i18n.js?v=13"></script>
+    <script src="js/i18n.js?v=35"></script>
     <script src="js/data.js?v=13"></script>
     <script src="js/data-valorant.js?v=13"></script>
     <script src="js/data-tft.js?v=13"></script>
@@ -1193,7 +1192,7 @@
     <script src="js/void-game.js?v=32"></script>
     <script src="js/demacia-solo.js?v=18"></script>
     <script src="js/pageview-counter.js?v=22"></script>
-    <script src="js/void-main.js?v=32"></script>
+    <script src="js/void-main.js?v=34"></script>
     <script src="js/main.js?v=29"></script>
 </body>
 </html>
