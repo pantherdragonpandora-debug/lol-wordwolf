@@ -381,7 +381,15 @@ function onVoidRoomUpdate(roomData) {
     // ホストのみゲーム開始ボタンを表示
     const isHost = roomData.players[currentVoidPlayer]?.isHost;
     const currentPlayers = Object.keys(roomData.players).length;
-    const canStart = currentPlayers >= 2;
+    const maxPlayers = roomData.maxPlayers || 4;
+    const canStart = currentPlayers >= maxPlayers; // 設定人数に達したらスタート可能
+    
+    console.log('🎮 ゲーム開始可否チェック:', {
+      isHost,
+      currentPlayers,
+      maxPlayers,
+      canStart
+    });
     
     const startBtn = document.getElementById('void-start-game-btn');
     if (startBtn) {
@@ -453,8 +461,15 @@ async function startVoidGame() {
 // ========================================
 // 順番選択画面表示
 // ========================================
+let selectedPlayOrder = []; // ホストが選択した順番
+
 function showVoidOrderSelectScreen(roomData) {
   showScreen('void-order-select-screen');
+  
+  console.log('📋 順番選択画面表示');
+  console.log('- currentVoidPlayer:', currentVoidPlayer);
+  console.log('- roomData.hostName:', roomData.hostName);
+  console.log('- playOrder:', roomData.playOrder);
   
   // テーマジャンル表示
   const categoryDisplay = document.getElementById('void-theme-category-display');
@@ -462,90 +477,207 @@ function showVoidOrderSelectScreen(roomData) {
     categoryDisplay.textContent = getThemeCategoryName(roomData.theme.category);
   }
   
-  // 選択状況リスト更新
-  updateVoidOrderStatusList(roomData);
+  const isHost = roomData.hostName === currentVoidPlayer;
   
-  // 順番選択ドロップダウン更新
-  updateVoidOrderSelectOptions(roomData);
+  if (isHost) {
+    // ホスト用：プレイヤーをクリックして順番を決める
+    showHostOrderSelection(roomData);
+  } else {
+    // 非ホスト用：ホストの決定を待つ
+    showNonHostOrderWaiting(roomData);
+  }
 }
 
-// 選択状況リストの更新
-function updateVoidOrderStatusList(roomData) {
-  const statusList = document.getElementById('void-order-status-list');
-  if (!statusList) return;
+// ホスト用：順番選択UI
+function showHostOrderSelection(roomData) {
+  selectedPlayOrder = roomData.playOrder || []; // 既に決定済みの順番があれば復元
   
-  statusList.innerHTML = '';
+  const instructionLabel = document.getElementById('void-order-instruction');
+  const playerListDiv = document.getElementById('void-order-player-list');
+  const confirmedListDiv = document.getElementById('void-order-confirmed-list');
+  const confirmBtn = document.getElementById('void-confirm-order-btn');
+  const waitingMessage = document.getElementById('void-order-waiting-message');
   
-  const playerOrder = roomData.playerOrder || [];
-  const selections = roomData.orderSelections || {};
+  if (!playerListDiv || !confirmedListDiv || !confirmBtn) return;
   
-  playerOrder.forEach((playerName) => {
+  instructionLabel.textContent = 'プレイヤーをクリックして順番を決定';
+  playerListDiv.style.display = 'block';
+  confirmedListDiv.style.display = 'block';
+  waitingMessage.style.display = 'none';
+  
+  updateHostOrderUI(roomData);
+  
+  // 全員選択したら確定ボタンを表示
+  const totalPlayers = (roomData.playerOrder || []).length;
+  if (selectedPlayOrder.length === totalPlayers) {
+    confirmBtn.style.display = 'block';
+  } else {
+    confirmBtn.style.display = 'none';
+  }
+}
+
+// ホスト用：UI更新
+function updateHostOrderUI(roomData) {
+  const playerListDiv = document.getElementById('void-order-player-list');
+  const confirmedListDiv = document.getElementById('void-order-confirmed-list');
+  
+  if (!playerListDiv || !confirmedListDiv) return;
+  
+  const allPlayers = roomData.playerOrder || [];
+  const remainingPlayers = allPlayers.filter(name => !selectedPlayOrder.includes(name));
+  
+  // 未選択プレイヤーリスト
+  playerListDiv.innerHTML = '';
+  remainingPlayers.forEach(playerName => {
     const playerDiv = document.createElement('div');
     playerDiv.className = 'player-item';
-    
-    const selectedOrder = selections[playerName];
-    const statusText = selectedOrder ? `${selectedOrder}${t('void.orderSelect.orderSuffix')}` : t('void.orderSelect.selecting');
-    const statusColor = selectedOrder ? 'var(--void-glow)' : '#94a3b8';
+    playerDiv.style.cursor = 'pointer';
+    playerDiv.style.transition = 'all 0.2s';
     
     playerDiv.innerHTML = `
       <span class="player-name">${playerName}</span>
-      <span style="color: ${statusColor}; font-weight: 600;">${statusText}</span>
+      <span style="color: #94a3b8;">クリックして選択</span>
     `;
     
-    statusList.appendChild(playerDiv);
+    // ホバー効果
+    playerDiv.onmouseenter = () => {
+      playerDiv.style.background = 'rgba(139, 92, 246, 0.1)';
+      playerDiv.style.transform = 'translateX(5px)';
+    };
+    playerDiv.onmouseleave = () => {
+      playerDiv.style.background = '';
+      playerDiv.style.transform = '';
+    };
+    
+    // クリックで順番に追加
+    playerDiv.onclick = () => {
+      selectedPlayOrder.push(playerName);
+      updateHostOrderUI(roomData);
+      
+      // 全員選択したら確定ボタンを表示
+      const totalPlayers = allPlayers.length;
+      const confirmBtn = document.getElementById('void-confirm-order-btn');
+      if (selectedPlayOrder.length === totalPlayers && confirmBtn) {
+        confirmBtn.style.display = 'block';
+      }
+    };
+    
+    playerListDiv.appendChild(playerDiv);
   });
+  
+  // 決定済み順番リスト
+  confirmedListDiv.innerHTML = '';
+  selectedPlayOrder.forEach((playerName, index) => {
+    const playerDiv = document.createElement('div');
+    playerDiv.className = 'player-item';
+    playerDiv.style.background = 'rgba(139, 92, 246, 0.15)';
+    
+    playerDiv.innerHTML = `
+      <span class="player-number" style="background: var(--void-glow); color: white; min-width: 32px;">${index + 1}</span>
+      <span class="player-name" style="color: var(--void-glow); font-weight: 600;">${playerName}</span>
+      <button onclick="removeFromPlayOrder(${index})" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 0.25rem 0.5rem; font-size: 1.2rem;">✕</button>
+    `;
+    
+    confirmedListDiv.appendChild(playerDiv);
+  });
+  
+  // 空の場合のメッセージ
+  if (selectedPlayOrder.length === 0) {
+    confirmedListDiv.innerHTML = '<p style="text-align: center; color: #94a3b8; padding: 1rem;">まだ順番が決まっていません</p>';
+  }
 }
 
-// 順番選択ドロップダウンの更新
-function updateVoidOrderSelectOptions(roomData) {
-  const selectElement = document.getElementById('void-select-order');
-  if (!selectElement) return;
+// グローバル関数：順番から削除
+window.removeFromPlayOrder = function(index) {
+  selectedPlayOrder.splice(index, 1);
+  const roomDataCache = currentVoidGame?.roomData;
+  if (roomDataCache) {
+    updateHostOrderUI(roomDataCache);
+    
+    // 確定ボタンを非表示に
+    const confirmBtn = document.getElementById('void-confirm-order-btn');
+    if (confirmBtn) {
+      confirmBtn.style.display = 'none';
+    }
+  }
+};
+
+// 非ホスト用：待機画面
+function showNonHostOrderWaiting(roomData) {
+  const instructionLabel = document.getElementById('void-order-instruction');
+  const playerListDiv = document.getElementById('void-order-player-list');
+  const confirmedListDiv = document.getElementById('void-order-confirmed-list');
+  const confirmBtn = document.getElementById('void-confirm-order-btn');
+  const waitingMessage = document.getElementById('void-order-waiting-message');
   
-  const playerOrder = roomData.playerOrder || [];
-  const selections = roomData.orderSelections || {};
-  const selectedOrders = Object.values(selections);
-  const mySelection = selections[currentVoidPlayer];
+  if (!playerListDiv || !confirmedListDiv) return;
   
-  // ドロップダウンをクリア
-  selectElement.innerHTML = `<option value="">${t('void.orderSelect.selectPlaceholder')}</option>`;
+  instructionLabel.textContent = 'ホストが順番を決定中...';
+  playerListDiv.style.display = 'none';
+  confirmBtn.style.display = 'none';
+  waitingMessage.style.display = 'block';
   
-  // 既に自分が選択済みの場合
-  if (mySelection) {
-    selectElement.innerHTML = `<option value="${mySelection}" selected>${mySelection}${t('void.orderSelect.orderSuffix')}（${t('void.orderSelect.selected')}）</option>`;
-    selectElement.disabled = true;
-    document.getElementById('void-confirm-order-btn').disabled = true;
-    document.getElementById('void-confirm-order-btn').textContent = t('void.orderSelect.selected');
+  // 決定済みの順番を表示
+  const playOrder = roomData.playOrder || [];
+  confirmedListDiv.style.display = 'block';
+  confirmedListDiv.innerHTML = '';
+  
+  if (playOrder.length > 0) {
+    playOrder.forEach((playerName, index) => {
+      const playerDiv = document.createElement('div');
+      playerDiv.className = 'player-item';
+      playerDiv.style.background = 'rgba(139, 92, 246, 0.15)';
+      
+      playerDiv.innerHTML = `
+        <span class="player-number" style="background: var(--void-glow); color: white; min-width: 32px;">${index + 1}</span>
+        <span class="player-name" style="color: var(--void-glow); font-weight: 600;">${playerName}</span>
+      `;
+      
+      confirmedListDiv.appendChild(playerDiv);
+    });
+  } else {
+    confirmedListDiv.innerHTML = '<p style="text-align: center; color: #94a3b8; padding: 1rem;">ホストが順番を決めています...</p>';
+  }
+}
+
+// ========================================
+// 順番確定（ホストのみ）
+// ========================================
+async function confirmVoidOrder() {
+  console.log('📤 順番確定処理開始');
+  console.log('- selectedPlayOrder:', selectedPlayOrder);
+  
+  if (selectedPlayOrder.length === 0) {
+    alert('プレイヤーの順番を決定してください');
     return;
   }
   
-  // 利用可能な順番をドロップダウンに追加
-  for (let i = 1; i <= playerOrder.length; i++) {
-    if (!selectedOrders.includes(i)) {
-      const option = document.createElement('option');
-      option.value = i;
-      option.textContent = `${i}${t('void.orderSelect.orderSuffix')}`;
-      selectElement.appendChild(option);
-    }
+  const roomDataCache = currentVoidGame?.roomData;
+  if (!roomDataCache) {
+    alert('ルームデータが取得できません');
+    return;
   }
-}
-
-// 順番確定
-async function confirmVoidOrder() {
-  const selectElement = document.getElementById('void-select-order');
-  const selectedOrder = parseInt(selectElement.value);
   
-  if (!selectedOrder) {
-    alert(t('void.alert.selectOrder'));
+  const totalPlayers = (roomDataCache.playerOrder || []).length;
+  if (selectedPlayOrder.length < totalPlayers) {
+    alert(`全員の順番を決定してください（${selectedPlayOrder.length}/${totalPlayers}）`);
     return;
   }
   
   try {
-    await currentVoidGame.selectOrder(currentVoidPlayer, selectedOrder);
-    console.log('✅ 順番選択成功:', selectedOrder);
+    // Firebaseに順番を保存してゲーム開始
+    await firebase.database().ref(`void_rooms/${currentVoidRoomId}`).update({
+      playOrder: selectedPlayOrder,
+      gameState: 'playing',
+      currentTurn: 0
+    });
+    
+    console.log('✅ 順番確定成功・ゲーム開始');
   } catch (error) {
-    console.error('❌ 順番選択エラー:', error);
-    alert('順番選択に失敗しました: ' + error.message);
+    console.error('❌ 順番確定エラー:', error);
+    alert('順番確定に失敗しました: ' + error.message);
   }
+}
 }
 
 // ========================================

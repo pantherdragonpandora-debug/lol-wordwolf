@@ -2,7 +2,7 @@
 // ヴォイドに届くは光か闇か - ゲームクラス
 // ========================================
 
-console.log('🔥🔥🔥 void-game.js 読み込み開始 v30 🔥🔥🔥');
+console.log('🔥🔥🔥 void-game.js 読み込み開始 v31 🔥🔥🔥');
 
 class VoidGame {
   constructor(roomId, gameType) {
@@ -174,10 +174,10 @@ class VoidGame {
   }
 }
 
-console.log('✅ VoidGameクラス定義完了 v30');
+console.log('✅ VoidGameクラス定義完了 v31');
 console.log('✅ typeof VoidGame:', typeof VoidGame);
 
 // グローバルエクスポート
 window.VoidGame = VoidGame;
-console.log('✅ window.VoidGame エクスポート完了 v30');
+console.log('✅ window.VoidGame エクスポート完了 v31');
 console.log('✅ typeof window.VoidGame:', typeof window.VoidGame);

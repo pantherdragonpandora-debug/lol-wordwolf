@@ -948,42 +948,41 @@
     <!-- ヴォイド - 順番選択画面 -->
     <div id="void-order-select-screen" class="screen">
         <div class="card">
-            <h2 data-i18n="void.orderSelect.title">回答順番を選択</h2>
+            <h2>回答順番を決定してください</h2>
             
             <!-- テーマジャンル表示 -->
             <div class="form-group" style="background: rgba(139, 92, 246, 0.1); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; text-align: center;">
-                <div style="font-size: 0.9rem; color: #a78bfa; margin-bottom: 0.5rem;" data-i18n="void.orderSelect.themeGenre">テーマジャンル</div>
+                <div style="font-size: 0.9rem; color: #a78bfa; margin-bottom: 0.5rem;">テーマジャンル</div>
                 <div id="void-theme-category-display" style="font-size: 1.3rem; font-weight: 600; color: var(--void-glow);">
                     ---
                 </div>
             </div>
             
             <p style="text-align: center; margin-bottom: 1.5rem; color: #94a3b8;">
-                <span data-i18n="void.orderSelect.description">全員が順番を選んでください。</span><br>
-                <strong style="color: var(--void-glow);" data-i18n="void.orderSelect.firstInfo">1番目：テーマを見て3つのワードを入力</strong><br>
-                <strong style="color: var(--void-glow);" data-i18n="void.orderSelect.lastInfo">最後：ワードを見てテーマを回答</strong>
+                <span style="color: var(--void-glow); font-weight: 600;">👑 ホストが順番を決めます</span><br>
+                プレイヤー名をクリックした順番が回答順になります<br>
+                <strong style="color: var(--void-glow);">1番目：テーマを見て3つのワードを入力</strong><br>
+                <strong style="color: var(--void-glow);">最後：ワードを見てテーマを回答</strong>
             </p>
             
-            <!-- 選択状況 -->
+            <!-- プレイヤーリスト（クリックして順番決定） -->
             <div class="form-group">
-                <label data-i18n="void.orderSelect.selectionStatus">選択状況</label>
-                <div id="void-order-status-list" class="players-list"></div>
+                <label id="void-order-instruction">プレイヤーをクリックして順番を決定</label>
+                <div id="void-order-player-list" class="players-list" style="cursor: pointer;"></div>
             </div>
             
-            <!-- 順番選択 -->
+            <!-- 決定した順番を表示 -->
             <div class="form-group">
-                <label data-i18n="void.orderSelect.yourOrder">あなたの順番</label>
-                <select id="void-select-order" class="form-control">
-                    <option value="" data-i18n="void.orderSelect.selectPlaceholder">選択してください</option>
-                </select>
+                <label>決定した順番</label>
+                <div id="void-order-confirmed-list" class="players-list"></div>
             </div>
             
             <div class="button-group">
-                <button id="void-confirm-order-btn" class="btn-primary" data-i18n="void.orderSelect.confirm">決定</button>
+                <button id="void-confirm-order-btn" class="btn-primary" style="display: none;">この順番で開始</button>
             </div>
             
-            <p style="text-align: center; margin-top: 1rem; font-size: 0.9rem; color: #64748b;" data-i18n="void.orderSelect.autoStart">
-                全員が選択するとゲームが自動的に開始されます
+            <p id="void-order-waiting-message" style="text-align: center; margin-top: 1rem; font-size: 0.9rem; color: #64748b; display: none;">
+                ホストが順番を決定しています...
             </p>
         </div>
     </div>
@@ -1191,10 +1190,10 @@
     <script src="js/void-data.js?v=29"></script>
     <script src="js/game.js?v=18"></script>
     <script src="js/demacia-game.js?v=18"></script>
-    <script src="js/void-game.js?v=30"></script>
+    <script src="js/void-game.js?v=31"></script>
     <script src="js/demacia-solo.js?v=18"></script>
     <script src="js/pageview-counter.js?v=22"></script>
-    <script src="js/void-main.js?v=30"></script>
+    <script src="js/void-main.js?v=31"></script>
     <script src="js/main.js?v=29"></script>
 </body>
 </html>
