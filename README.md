@@ -465,7 +465,8 @@ ja: {
 - `FIREBASE_AUTH_FIX.md` - 承認済みドメインの設定
 - `FIREBASE_RULES_FIX.md` - セキュリティルールの設定
 - `FIREBASE_PERMISSION_FIX.md` - ヴォイドゲームのFirebase権限エラー修正
-- `PLAY_AGAIN_SCREEN_FIX_v37.md` - もう一度遊ぶボタン - 待機画面遷移修正（v37） **NEW!**
+- `AUTO_LEAVE_ON_CLOSE_v35.md` - ブラウザ/タブ閉じ時の自動退出機能（v35） **NEW!**
+- `PLAY_AGAIN_SCREEN_FIX_v37.md` - もう一度遊ぶボタン - 待機画面遷移修正（v37）
 - `VOID_PLAY_AGAIN_FIX_v34.md` - ヴォイド最終回答＆もう一度遊ぶボタン修正（v34）
 - `DEMACIA_JOIN_FIX_v32.md` - デマーシア入室エラー修正（v32）
 - `VOID_SUBMIT_FIX_v33.md` - ヴォイドワード送信エラー修正（v33）

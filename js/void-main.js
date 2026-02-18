@@ -281,6 +281,9 @@ async function createVoidRoom() {
     console.log('👀 ルームデータ監視開始...');
     currentVoidGame.watchRoom(onVoidRoomUpdate);
     console.log('✅ すべての処理完了');
+    
+    // 自動退出設定
+    setupVoidFirebaseDisconnect();
 
   } catch (error) {
     console.error('❌ ヴォイドルーム作成エラー:', error);
@@ -335,6 +338,9 @@ async function joinVoidRoom() {
     
     // ルームデータ監視開始
     currentVoidGame.watchRoom(onVoidRoomUpdate);
+    
+    // 自動退出設定
+    setupVoidFirebaseDisconnect();
 
   } catch (error) {
     console.error('❌ ヴォイドルーム参加エラー:', error);
@@ -1165,4 +1171,44 @@ async function playVoidAgain() {
     console.error('❌ ゲームリセットエラー:', error);
     alert('リセットに失敗しました: ' + error.message);
   }
+}
+
+// ========================================
+// ブラウザ/タブを閉じる時の自動退出（ヴォイド）
+// ========================================
+window.addEventListener('beforeunload', async (event) => {
+  if (currentVoidGame && currentVoidPlayer && currentVoidRoomId) {
+    try {
+      await currentVoidGame.leaveRoom(currentVoidPlayer);
+      console.log('✅ ヴォイドルーム自動退出');
+    } catch (error) {
+      console.error('❌ ヴォイド自動退出エラー:', error);
+    }
+  }
+});
+
+// Firebase onDisconnect 設定（ヴォイド）
+function setupVoidFirebaseDisconnect() {
+  const connectedRef = firebase.database().ref('.info/connected');
+  
+  connectedRef.on('value', (snapshot) => {
+    if (snapshot.val() === true && currentVoidGame && currentVoidPlayer && currentVoidRoomId) {
+      console.log('🔗 ヴォイド Firebase接続確立');
+      
+      const playerRef = firebase.database().ref(`void_rooms/${currentVoidRoomId}/players/${currentVoidPlayer}`);
+      const playerOrderRef = firebase.database().ref(`void_rooms/${currentVoidRoomId}/playerOrder`);
+      
+      // 切断時にプレイヤーを削除
+      playerRef.onDisconnect().remove().then(() => {
+        console.log('🔒 ヴォイド onDisconnect 設定完了');
+      });
+      
+      // playerOrder からも削除
+      playerOrderRef.once('value').then((orderSnapshot) => {
+        const playerOrder = orderSnapshot.val() || [];
+        const newOrder = playerOrder.filter(name => name !== currentVoidPlayer);
+        playerOrderRef.onDisconnect().set(newOrder);
+      });
+    }
+  });
 }

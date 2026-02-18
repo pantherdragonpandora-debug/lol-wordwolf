@@ -39,6 +39,9 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Firebase接続状態表示
   updateConnectionStatus();
+  
+  // ブラウザ/タブを閉じる時の処理
+  setupAutoLeaveOnClose();
 });
 
 // ゲームモード選択関数
@@ -517,6 +520,7 @@ async function createRoom() {
       console.log('👤 ホスト:', playerName);
       showWaitingRoom();
       currentDemaciaGame.watch(updateWaitingRoom);
+      setupFirebaseDisconnect();  // 自動退出設定
     } else {
       alert(t('alert.createFailed'));
     }
@@ -537,6 +541,7 @@ async function createRoom() {
       console.log('👤 ホスト:', playerName);
       showWaitingRoom();
       currentGame.watch(updateWaitingRoom);
+      setupFirebaseDisconnect();  // 自動退出設定
     } else {
       alert(t('alert.createFailed'));
     }
@@ -677,6 +682,7 @@ async function joinRoom() {
       await currentGame.joinRoom(playerName);
       showWaitingRoom();
       currentGame.watch(updateWaitingRoom);
+      setupFirebaseDisconnect();  // 自動退出設定
       
     } else if (selectedGameMode === 'demacia') {
       // デマーシアモード選択中
@@ -728,6 +734,7 @@ async function joinRoom() {
         console.log('✅ デマーシアルーム参加成功');
         showWaitingRoom();
         currentDemaciaGame.watch(updateWaitingRoom);
+        setupFirebaseDisconnect();  // 自動退出設定
       } else {
         throw new Error('ルームへの参加に失敗しました');
       }
@@ -1818,4 +1825,75 @@ function showDemaciaFinalResults() {
   });
   
   showScreen('demacia-final-result-screen');
+}
+
+// ========================================
+// ブラウザ/タブを閉じる時の自動退出
+// ========================================
+function setupAutoLeaveOnClose() {
+  // beforeunload イベント（ブラウザ/タブを閉じる直前）
+  window.addEventListener('beforeunload', async (event) => {
+    // ワードウルフゲームから退出
+    if (currentGame && currentPlayer && currentRoomId) {
+      try {
+        await currentGame.leaveRoom(currentPlayer);
+        console.log('✅ ワードウルフルーム自動退出');
+      } catch (error) {
+        console.error('❌ 自動退出エラー:', error);
+      }
+    }
+    
+    // デマーシアゲームから退出
+    if (currentDemaciaGame && currentPlayer && currentRoomId) {
+      try {
+        await currentDemaciaGame.leaveRoom(currentPlayer);
+        console.log('✅ デマーシアルーム自動退出');
+      } catch (error) {
+        console.error('❌ 自動退出エラー:', error);
+      }
+    }
+  });
+  
+  // Firebase の onDisconnect を設定（ネットワーク切断時の自動削除）
+  setupFirebaseDisconnect();
+}
+
+// Firebase onDisconnect 設定
+function setupFirebaseDisconnect() {
+  // 接続状態を監視
+  const connectedRef = firebase.database().ref('.info/connected');
+  
+  connectedRef.on('value', (snapshot) => {
+    if (snapshot.val() === true) {
+      console.log('🔗 Firebase接続確立');
+      
+      // ワードウルフルームの onDisconnect 設定
+      if (currentGame && currentPlayer && currentRoomId) {
+        const playerRef = firebase.database().ref(`rooms/${currentRoomId}/players/${currentPlayer}`);
+        const playerOrderRef = firebase.database().ref(`rooms/${currentRoomId}/playerOrder`);
+        
+        // 切断時にプレイヤーを削除
+        playerRef.onDisconnect().remove().then(() => {
+          console.log('🔒 ワードウルフ onDisconnect 設定完了');
+        });
+        
+        // playerOrder からも削除
+        playerOrderRef.once('value').then((orderSnapshot) => {
+          const playerOrder = orderSnapshot.val() || [];
+          const newOrder = playerOrder.filter(name => name !== currentPlayer);
+          playerOrderRef.onDisconnect().set(newOrder);
+        });
+      }
+      
+      // デマーシアルームの onDisconnect 設定
+      if (currentDemaciaGame && currentPlayer && currentRoomId) {
+        const playerRef = firebase.database().ref(`demacia_rooms/${currentRoomId}/players/${currentPlayer}`);
+        
+        // 切断時にプレイヤーを削除
+        playerRef.onDisconnect().remove().then(() => {
+          console.log('🔒 デマーシア onDisconnect 設定完了');
+        });
+      }
+    }
+  });
 }
