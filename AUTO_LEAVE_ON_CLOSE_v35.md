@@ -1,298 +1,364 @@
-# ブラウザ/タブ閉じ時の自動退出機能 (v35/v38)
+# 📢 Google AdSense 広告実装ガイド
 
-## 📋 報告された問題
-「ルームの参加時が退出ボタンを押さずに、ブラウザを閉じたり、タブを閉じたりした場合、ルームに残ったままになってるんだけど、退出にできる？」
+このドキュメントでは、LOL ワードウルフに Google AdSense 広告を実装する手順を説明します。
 
-## 🔍 問題
-プレイヤーが以下の操作をした場合、Firebaseのルームにプレイヤーデータが残り続けていました：
+## 📋 目次
 
-- ブラウザウィンドウを閉じる
-- タブを閉じる
-- ネットワーク接続が切れる
-- ブラウザがクラッシュする
-
-これにより、以下の問題が発生していました：
-
-1. **ルームが満員にならない**: 退出していないプレイヤーが枠を占有
-2. **ゴーストプレイヤー**: 実際には参加していないプレイヤーがリストに表示
-3. **ゲーム開始不能**: 退出済みプレイヤーの応答待ちで進行不可
-
-## ✅ 実装内容
-
-### 1. beforeunload イベント（ブラウザ/タブを閉じる時）
-
-#### main.js - ワードウルフ・デマーシア
-```javascript
-window.addEventListener('beforeunload', async (event) => {
-  // ワードウルフゲームから退出
-  if (currentGame && currentPlayer && currentRoomId) {
-    try {
-      await currentGame.leaveRoom(currentPlayer);
-      console.log('✅ ワードウルフルーム自動退出');
-    } catch (error) {
-      console.error('❌ 自動退出エラー:', error);
-    }
-  }
-  
-  // デマーシアゲームから退出
-  if (currentDemaciaGame && currentPlayer && currentRoomId) {
-    try {
-      await currentDemaciaGame.leaveRoom(currentPlayer);
-      console.log('✅ デマーシアルーム自動退出');
-    } catch (error) {
-      console.error('❌ 自動退出エラー:', error);
-    }
-  }
-});
-```
-
-#### void-main.js - ヴォイド
-```javascript
-window.addEventListener('beforeunload', async (event) => {
-  if (currentVoidGame && currentVoidPlayer && currentVoidRoomId) {
-    try {
-      await currentVoidGame.leaveRoom(currentVoidPlayer);
-      console.log('✅ ヴォイドルーム自動退出');
-    } catch (error) {
-      console.error('❌ ヴォイド自動退出エラー:', error);
-    }
-  }
-});
-```
-
-### 2. Firebase onDisconnect（ネットワーク切断時）
-
-Firebase の `onDisconnect()` 機能を使用して、ネットワーク接続が切れた時に自動的にプレイヤーデータを削除します。
-
-#### main.js
-```javascript
-function setupFirebaseDisconnect() {
-  const connectedRef = firebase.database().ref('.info/connected');
-  
-  connectedRef.on('value', (snapshot) => {
-    if (snapshot.val() === true) {
-      // ワードウルフ
-      if (currentGame && currentPlayer && currentRoomId) {
-        const playerRef = firebase.database().ref(`rooms/${currentRoomId}/players/${currentPlayer}`);
-        const playerOrderRef = firebase.database().ref(`rooms/${currentRoomId}/playerOrder`);
-        
-        playerRef.onDisconnect().remove();
-        
-        playerOrderRef.once('value').then((orderSnapshot) => {
-          const playerOrder = orderSnapshot.val() || [];
-          const newOrder = playerOrder.filter(name => name !== currentPlayer);
-          playerOrderRef.onDisconnect().set(newOrder);
-        });
-      }
-      
-      // デマーシア
-      if (currentDemaciaGame && currentPlayer && currentRoomId) {
-        const playerRef = firebase.database().ref(`demacia_rooms/${currentRoomId}/players/${currentPlayer}`);
-        playerRef.onDisconnect().remove();
-      }
-    }
-  });
-}
-```
-
-#### void-main.js
-```javascript
-function setupVoidFirebaseDisconnect() {
-  const connectedRef = firebase.database().ref('.info/connected');
-  
-  connectedRef.on('value', (snapshot) => {
-    if (snapshot.val() === true && currentVoidGame && currentVoidPlayer && currentVoidRoomId) {
-      const playerRef = firebase.database().ref(`void_rooms/${currentVoidRoomId}/players/${currentVoidPlayer}`);
-      const playerOrderRef = firebase.database().ref(`void_rooms/${currentVoidRoomId}/playerOrder`);
-      
-      playerRef.onDisconnect().remove();
-      
-      playerOrderRef.once('value').then((orderSnapshot) => {
-        const playerOrder = orderSnapshot.val() || [];
-        const newOrder = playerOrder.filter(name => name !== currentVoidPlayer);
-        playerOrderRef.onDisconnect().set(newOrder);
-      });
-    }
-  });
-}
-```
-
-### 3. ルーム作成・参加時に自動退出設定を有効化
-
-#### ワードウルフ・デマーシア（main.js）
-```javascript
-// ルーム作成時
-if (success) {
-  showWaitingRoom();
-  currentGame.watch(updateWaitingRoom);
-  setupFirebaseDisconnect();  // ✅ 追加
-}
-
-// ルーム参加時
-await currentGame.joinRoom(playerName);
-showWaitingRoom();
-currentGame.watch(updateWaitingRoom);
-setupFirebaseDisconnect();  // ✅ 追加
-```
-
-#### ヴォイド（void-main.js）
-```javascript
-// ルーム作成時
-currentVoidGame.watchRoom(onVoidRoomUpdate);
-setupVoidFirebaseDisconnect();  // ✅ 追加
-
-// ルーム参加時
-currentVoidGame.watchRoom(onVoidRoomUpdate);
-setupVoidFirebaseDisconnect();  // ✅ 追加
-```
-
-## 📊 動作シナリオ
-
-### シナリオ1: ブラウザ/タブを閉じる
-```
-1. プレイヤーがルームに参加
-2. ブラウザ/タブを閉じる
-3. beforeunload イベント発火
-4. leaveRoom() が自動実行
-5. Firebaseからプレイヤーデータ削除 ✅
-6. 他のプレイヤーの画面からリアルタイムで消える ✅
-```
-
-### シナリオ2: ネットワーク接続が切れる
-```
-1. プレイヤーがルームに参加
-2. setupFirebaseDisconnect() でonDisconnect設定
-3. WiFiがオフ / 機内モードなど
-4. Firebaseが切断を検知
-5. onDisconnect() が自動実行
-6. プレイヤーデータが自動削除 ✅
-7. 他のプレイヤーの画面からリアルタイムで消える ✅
-```
-
-### シナリオ3: ブラウザクラッシュ
-```
-1. プレイヤーがルームに参加
-2. setupFirebaseDisconnect() でonDisconnect設定
-3. ブラウザがクラッシュ
-4. Firebaseが接続切断を検知（約30秒後）
-5. onDisconnect() が自動実行
-6. プレイヤーデータが自動削除 ✅
-```
-
-## 🔧 変更ファイル
-- `js/main.js` (+75行、自動退出機能追加、v34→v35)
-- `js/void-main.js` (+44行、自動退出機能追加、v37→v38)
-- `index.html` (バージョン更新)
-- `AUTO_LEAVE_ON_CLOSE_v35.md` (このドキュメント)
-
-## 🧪 テスト手順
-
-### テスト1: タブを閉じる
-1. ルームを作成・参加（2人推奨）
-2. プレイヤーAのコンソールを開く（F12）
-3. プレイヤーBのタブを閉じる
-4. **期待される動作**:
-   - プレイヤーBのコンソール: `✅ ワードウルフルーム自動退出`（一瞬表示）
-   - プレイヤーAの画面: プレイヤーBがリストから消える
-   - 人数表示: 2人 → 1人に減少
-
-### テスト2: ブラウザを閉じる
-1. ルームを作成・参加（2人推奨）
-2. プレイヤーBのブラウザウィンドウ全体を閉じる
-3. **期待される動作**:
-   - プレイヤーAの画面: プレイヤーBがリストから消える
-   - 人数表示: 2人 → 1人に減少
-
-### テスト3: ネットワーク切断（Chrome DevTools）
-1. ルームを作成・参加（2人推奨）
-2. プレイヤーBのブラウザでF12 → Network タブ
-3. 「Offline」を選択
-4. 約30秒待つ
-5. **期待される動作**:
-   - プレイヤーAの画面: プレイヤーBがリストから消える（約30秒後）
-   - コンソール: `🔒 ワードウルフ onDisconnect 設定完了`
-
-### テスト4: 機内モード（モバイル）
-1. スマホでルームに参加
-2. 機内モードをON
-3. 約30秒待つ
-4. PCの画面を確認
-5. **期待される動作**:
-   - スマホプレイヤーがリストから消える（約30秒後）
-
-### テスト5: リロード（退出しない確認）
-1. ルームを作成・参加
-2. F5キーでリロード
-3. **期待される動作**:
-   - ❌ 退出してはいけない（beforeunloadは発火するが、すぐに再接続）
-   - リロード後も同じルームに残っている
-
-## 📝 技術詳細
-
-### beforeunload の制限
-- **非同期処理の制限**: `beforeunload` では `await` が正しく動作しない場合があります
-- **ブラウザによる違い**: Chrome/Firefox/Safariで動作が異なる可能性
-- **タイムアウト**: 約1秒以内に処理を完了する必要
-
-### onDisconnect の仕組み
-Firebase Realtime Database の `onDisconnect()` は、サーバー側で管理されます：
-
-1. クライアントが接続時に `onDisconnect().remove()` を設定
-2. Firebaseサーバーがこの命令を記憶
-3. クライアントが切断（ハートビート途絶）
-4. サーバーが自動的に `remove()` を実行
-
-**メリット**:
-- クライアント側の処理不要
-- 確実に実行される（サーバー側）
-- ネットワーク切断にも対応
-
-**検出時間**:
-- 通常: 約30秒
-- ハートビート間隔: 30秒
-- タイムアウト: 60秒
-
-### playerOrder の更新
-`onDisconnect()` では配列の要素削除ができないため、以下の方法を使用：
-
-```javascript
-playerOrderRef.once('value').then((orderSnapshot) => {
-  const playerOrder = orderSnapshot.val() || [];
-  const newOrder = playerOrder.filter(name => name !== currentPlayer);
-  playerOrderRef.onDisconnect().set(newOrder);  // 新しい配列をセット
-});
-```
-
-## 🎯 修正効果
-
-### Before
-- ❌ ブラウザ/タブを閉じてもルームに残る
-- ❌ ゴーストプレイヤーが表示され続ける
-- ❌ ルームが満員になって新規参加不可
-- ❌ 手動で退出ボタンを押す必要
-
-### After
-- ✅ ブラウザ/タブを閉じると自動退出
-- ✅ ネットワーク切断でも自動退出（約30秒後）
-- ✅ プレイヤーリストがリアルタイム更新
-- ✅ ルーム枠が自動的に空く
-- ✅ 手間なく退出できる
-
-## ⚠️ 注意事項
-
-### リロード時の動作
-- F5やCtrl+Rでリロードすると `beforeunload` が発火しますが、すぐに再接続するため問題ありません
-- `onDisconnect()` も新しい接続で再設定されます
-
-### 同時接続の制限
-- 同じプレイヤー名で複数のタブ/デバイスから参加すると、最後の接続のみが有効になります
-
-### タイムラグ
-- `onDisconnect()` による削除は約30秒のタイムラグがあります
-- `beforeunload` は即座に実行されますが、ブラウザやネットワーク状況により失敗する可能性があります
+1. [前提条件](#前提条件)
+2. [AdSense アカウントの準備](#adsense-アカウントの準備)
+3. [広告コードの設置手順](#広告コードの設置手順)
+4. [Legal Jibber Jabber ポリシーへの準拠](#legal-jibber-jabber-ポリシーへの準拠)
+5. [トラブルシューティング](#トラブルシューティング)
 
 ---
-**修正日**: 2026-02-17  
-**バージョン**: main.js v35, void-main.js v38  
-**関連ファイル**: `js/main.js`, `js/void-main.js`, `index.html`  
-**ステータス**: ✅ 修正完了
+
+## ✅ 前提条件
+
+- ✅ Google アカウントを持っている
+- ✅ 本サイトがデプロイされ、公開URLがある（例: `https://pantherdragonpandora-debug.github.io/lol-wordwolf/`）
+- ✅ プライバシーポリシーと利用規約が設置されている（既に完了）
+- ✅ サイトが Riot Games の Legal Jibber Jabber ポリシーに準拠している
+
+---
+
+## 🚀 AdSense アカウントの準備
+
+### ステップ 1: AdSense アカウントの作成
+
+1. **Google AdSense にアクセス**
+   - [https://www.google.com/adsense/](https://www.google.com/adsense/)
+
+2. **アカウントを作成**
+   - Google アカウントでログイン
+   - サイトURLを入力: `https://pantherdragonpandora-debug.github.io`
+   - 国・地域を選択（日本）
+   - 利用規約に同意
+
+3. **支払い情報を入力**
+   - 住所
+   - 電話番号
+   - 支払い方法（銀行口座）
+
+### ステップ 2: サイトの承認申請
+
+1. **AdSense コードを取得**
+   - AdSense 管理画面 → サイト → コードを取得
+   - 以下のような形式のコードが表示されます：
+
+```html
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXX"
+     crossorigin="anonymous"></script>
+```
+
+2. **コードを `index.html` に設置**（後述の手順を参照）
+
+3. **審査を待つ**
+   - 通常 1〜2週間で審査結果が通知されます
+   - 審査基準：
+     - コンテンツが有益であること
+     - オリジナルコンテンツであること
+     - ナビゲーションが明確であること
+     - プライバシーポリシーが設置されていること
+
+---
+
+## 🔧 広告コードの設置手順
+
+### ステップ 1: AdSense スクリプトを設置
+
+`index.html` の `<head>` セクションに、取得した AdSense コードを設置します。
+
+#### 現在の状態（コメントアウト済み）:
+
+```html
+<!-- Google AdSense -->
+<!-- ⚠️ 重要: 以下の「ca-pub-XXXXXXXXXX」をあなたのAdSense IDに置き換えてください -->
+<!-- AdSense承認後、コメントアウトを外してください -->
+<!-- 
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXX"
+     crossorigin="anonymous"></script>
+-->
+```
+
+#### 実装手順:
+
+1. AdSense 管理画面から **あなたの Publisher ID**（`ca-pub-XXXXXXXXXX` の形式）を取得
+2. `ca-pub-XXXXXXXXXX` を実際の ID に置き換える
+3. コメントアウト（`<!-- -->` の部分）を削除
+
+#### 実装後のコード例:
+
+```html
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1234567890123456"
+     crossorigin="anonymous"></script>
+```
+
+### ステップ 2: 広告ユニットを作成
+
+1. **AdSense 管理画面 → 広告 → 広告ユニット → 新しい広告ユニット**
+
+2. **ディスプレイ広告を選択**
+   - 名前: 例）`LOL Wordwolf Footer Banner`
+   - 広告タイプ: レスポンシブ
+   - サイズ: 自動
+
+3. **広告コードを取得**
+   - 以下のような形式のコードが表示されます：
+
+```html
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-XXXXXXXXXX"
+     data-ad-slot="YYYYYYYYYY"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+```
+
+### ステップ 3: 広告ユニットを `index.html` に設置
+
+`index.html` のフッター上部にある広告コンテナを編集します。
+
+#### 現在の状態（コメントアウト済み）:
+
+```html
+<!-- 広告エリア（フッター上部） -->
+<div class="ad-container">
+    <!-- Google AdSense バナー広告 -->
+    <!-- ⚠️ 重要: 以下の手順で設定してください -->
+    <!-- 1. 「ca-pub-XXXXXXXXXX」をあなたのAdSense IDに置き換え -->
+    <!-- 2. 「YYYYYYYYYY」をAdSense管理画面で取得した広告スロットIDに置き換え -->
+    <!-- 3. AdSense承認後、コメントアウトを外す -->
+    <!--
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-XXXXXXXXXX"
+         data-ad-slot="YYYYYYYYYY"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+    -->
+</div>
+```
+
+#### 実装手順:
+
+1. `ca-pub-XXXXXXXXXX` を実際の Publisher ID に置き換え
+2. `YYYYYYYYYY` を AdSense で作成した広告スロット ID に置き換え
+3. コメントアウトを削除
+
+#### 実装後のコード例:
+
+```html
+<!-- 広告エリア（フッター上部） -->
+<div class="ad-container">
+    <!-- Google AdSense バナー広告 -->
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-1234567890123456"
+         data-ad-slot="9876543210"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+</div>
+```
+
+---
+
+## ⚖️ Legal Jibber Jabber ポリシーへの準拠
+
+### ✅ 許可されていること
+
+Riot Games の [Legal Jibber Jabber ポリシー](https://www.riotgames.com/en/legal) では、以下の条件下で広告掲載が許可されています：
+
+- ✅ **無料でアクセス可能**: すべてのコンテンツが無料で提供される
+- ✅ **非公式である旨を明記**: Riot Games とは関係がないことを明確にする
+- ✅ **適度な広告収入**: サイト運営費用をカバーする程度の広告
+- ✅ **Riot の知的財産を尊重**: 公式との混同を避ける
+
+### ❌ 禁止されていること
+
+- ❌ **有料コンテンツ化**: ゲームプレイに課金を要求する
+- ❌ **公式を装う**: Riot Games の承認を受けたかのように主張する
+- ❌ **過度な商業化**: サイト全体が広告で埋め尽くされる
+
+### 本サイトの対応状況
+
+| 要件 | 対応状況 |
+|------|---------|
+| 無料で提供 | ✅ 完全無料 |
+| 非公式の明記 | ✅ フッター・利用規約・著作権ポリシーに明記 |
+| プライバシーポリシー | ✅ 設置済み（広告・Cookie対応） |
+| 利用規約 | ✅ 設置済み（広告条項追加済み） |
+| 著作権ポリシー | ✅ 設置済み |
+| 適度な広告 | ✅ フッター上部に1箇所のみ |
+
+---
+
+## 🧪 広告が正しく表示されるか確認
+
+### ローカルでのテスト
+
+**注意**: AdSense 広告は `localhost` では表示されません。公開URLで確認してください。
+
+### 公開URLでの確認
+
+1. **サイトをデプロイ**
+   - GitHub Pages: `https://pantherdragonpandora-debug.github.io/lol-wordwolf/`
+   
+2. **ブラウザで確認**
+   - デプロイされたURLにアクセス
+   - フッター上部に広告スペースが表示されるか確認
+
+3. **ブラウザの開発者ツールで確認**
+   - F12 を押してコンソールを開く
+   - エラーがないか確認
+   - 広告関連のスクリプトが読み込まれているか確認
+
+### AdSense 承認前の表示
+
+- **承認前**: 広告スペースは空白のまま
+- **承認後**: 数時間〜1日で広告が表示開始
+
+---
+
+## 🔧 トラブルシューティング
+
+### 問題 1: 広告が表示されない
+
+**原因**:
+- AdSense がまだ承認されていない
+- 広告ブロッカーが有効になっている
+- Publisher ID が間違っている
+
+**解決策**:
+1. AdSense 管理画面で承認状況を確認
+2. 広告ブロッカーを無効化して再確認
+3. `ca-pub-XXXXXXXXXX` が正しいか確認
+
+### 問題 2: 「AdSense コードの重複」エラー
+
+**原因**:
+- 同じ AdSense スクリプトが複数回読み込まれている
+
+**解決策**:
+- `<head>` セクションに AdSense スクリプトが1回だけ含まれているか確認
+
+### 問題 3: コンソールに「adsbygoogle.push() error」
+
+**原因**:
+- 広告スロット ID が間違っている
+- AdSense がまだ承認されていない
+
+**解決策**:
+1. `data-ad-slot` の値が正しいか確認
+2. AdSense 管理画面で広告ユニットのスロット ID を再確認
+
+### 問題 4: ポリシー違反の警告
+
+**原因**:
+- コンテンツが AdSense ポリシーまたは Legal Jibber Jabber ポリシーに違反している
+
+**解決策**:
+1. プライバシーポリシーと利用規約が正しく設置されているか確認
+2. 非公式である旨が明記されているか確認
+3. 過度な広告がないか確認（本サイトは1箇所のみなので問題なし）
+
+---
+
+## 📊 収益の確認
+
+### AdSense レポート
+
+1. **AdSense 管理画面 → レポート**
+2. 以下の指標を確認：
+   - **表示回数**: 広告が表示された回数
+   - **クリック数**: 広告がクリックされた回数
+   - **CPC（クリック単価）**: 1クリックあたりの収益
+   - **見積もり収益額**: 現在の収益
+
+### 支払いスケジュール
+
+- **支払い基準額**: 8,000円（日本）
+- **支払い時期**: 毎月21日頃（前月分）
+- **支払い方法**: 銀行振込
+
+---
+
+## 💡 広告最適化のヒント
+
+### 1. 広告配置
+
+- ✅ **フッター上部**: ユーザーエクスペリエンスを損なわない位置
+- ❌ **ゲーム画面内**: プレイの妨げになる
+- ❌ **ポップアップ**: ユーザーに不快感を与える
+
+### 2. 広告密度
+
+- **推奨**: ページ全体の 30% 以下
+- **本サイト**: フッター上部の1箇所のみ（約 5%）= ✅ 適切
+
+### 3. コンテンツの質
+
+- オリジナルで有益なコンテンツを提供
+- 定期的に更新やメンテナンスを行う
+- ユーザーフィードバックに対応する
+
+---
+
+## 📄 関連ドキュメント
+
+- [Google AdSense ヘルプセンター](https://support.google.com/adsense)
+- [Riot Games Legal Jibber Jabber](https://www.riotgames.com/en/legal)
+- [プライバシーポリシー](./privacy.html)
+- [利用規約](./terms.html)
+- [著作権ポリシー](./copyright.html)
+
+---
+
+## ✅ チェックリスト
+
+実装前に以下を確認してください：
+
+- [ ] AdSense アカウントを作成した
+- [ ] Publisher ID（`ca-pub-XXXXXXXXXX`）を取得した
+- [ ] `index.html` の `<head>` に AdSense スクリプトを設置した
+- [ ] AdSense 管理画面で広告ユニットを作成した
+- [ ] 広告スロット ID（`YYYYYYYYYY`）を取得した
+- [ ] `index.html` のフッター上部に広告ユニットコードを設置した
+- [ ] プライバシーポリシーに広告に関する記載がある（✅ 完了済み）
+- [ ] 利用規約に広告に関する条項がある（✅ 完了済み）
+- [ ] サイトをデプロイした
+- [ ] 公開URLで広告が正しく表示されるか確認した
+- [ ] AdSense の審査結果を待つ
+
+---
+
+## 🎉 完了！
+
+これで Google AdSense 広告の実装準備が完了しました！
+
+### 次のステップ
+
+1. **AdSense の審査を待つ**（1〜2週間）
+2. **承認されたら広告が自動的に表示開始**
+3. **定期的に AdSense レポートを確認**
+4. **ユーザーフィードバックに基づいて最適化**
+
+### サポート
+
+問題が発生した場合：
+1. 本ドキュメントのトラブルシューティングセクションを確認
+2. [Google AdSense ヘルプセンター](https://support.google.com/adsense)を参照
+3. GitHub リポジトリで Issue を作成
+
+---
+
+**🎮 League of Legends の世界でワードウルフを楽しみながら、サイト運営費用もカバーしましょう！** ⚔️🛡️✨

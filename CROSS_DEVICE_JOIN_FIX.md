@@ -1,286 +1,182 @@
-# クロスデバイス入室問題の修正
-
-## 🔧 修正日: 2026年2月16日
-
-## 🐛 問題の詳細
-
-### 症状
-- **スマホで作成した部屋にPCから入室できない**
-- エラーメッセージが表示される
-- すべてのゲームモード（ワードウルフ、デマーシア、ヴォイド）で発生
-
-### 原因
-各ゲームモードの`joinRoom()`関数で、**ルームのゲームタイプと参加者が選択したゲームタイプの一致チェックが不足**していた。
-
-例:
-- スマホでLOL用のルームを作成
-- PCでVALORANTを選択してルームIDを入力
-- ゲームタイプの不一致がチェックされず、エラーが発生
-
----
-
-## ✅ 修正内容
-
-### 1. ワードウルフモード (`js/game.js`)
-
-**変更箇所**: `GameState.joinRoom()`
-
-**追加された処理**:
-```javascript
-// ゲームタイプが一致するかチェック
-const roomGameType = roomData.settings?.gameType;
-if (roomGameType) {
-  const currentGameType = typeof selectedGameType !== 'undefined' ? selectedGameType : null;
-  if (currentGameType && roomGameType !== currentGameType) {
-    const roomGameTypeName = roomGameType.toUpperCase();
-    const currentGameTypeName = currentGameType.toUpperCase();
-    throw new Error(
-      `このルームは ${roomGameTypeName} 用です。\n` +
-      `現在 ${currentGameTypeName} を選択しています。\n` +
-      `ゲーム選択画面に戻って正しいゲームタイプを選択してください。`
-    );
-  }
-}
-```
-
-**効果**:
-- ルームのゲームタイプ（LOL/VALORANT/TFT）をチェック
-- 不一致の場合は明確なエラーメッセージを表示
-- ユーザーに正しいゲームタイプの選択を促す
-
----
-
-### 2. デマーシアモード (`js/demacia-game.js`)
-
-**変更箇所**: `DemaciaGame.joinRoom()`
-
-**追加された処理**:
-```javascript
-// ゲームタイプが一致するかチェック
-const roomGameType = room.settings?.gameType;
-if (roomGameType && roomGameType !== this.gameType) {
-  const roomGameTypeName = roomGameType === 'lol' ? 'League of Legends' : 'VALORANT';
-  const currentGameTypeName = this.gameType === 'lol' ? 'League of Legends' : 'VALORANT';
-  alert(
-    `このルームは ${roomGameTypeName} 用です。\n` +
-    `現在 ${currentGameTypeName} を選択しています。\n` +
-    `ゲーム選択画面に戻って正しいゲームタイプを選択してください。`
-  );
-  return false;
-}
-```
-
-**効果**:
-- ルームのゲームタイプ（LOL/VALORANT）をチェック
-- 不一致の場合は分かりやすいアラートを表示
-- ユーザーに正しいゲームタイプの選択を促す
-
----
-
-### 3. ヴォイドモード (`js/void-game.js`)
-
-**変更箇所**: `VoidGame.joinRoom()`
-
-**追加された処理**:
-```javascript
-// ゲームタイプが一致するかチェック
-if (roomData.gameType && roomData.gameType !== this.gameType) {
-  const roomGameTypeName = roomData.gameType === 'lol' ? 'League of Legends' : 'VALORANT';
-  const currentGameTypeName = this.gameType === 'lol' ? 'League of Legends' : 'VALORANT';
-  throw new Error(
-    `このルームは ${roomGameTypeName} 用です。\n` +
-    `現在 ${currentGameTypeName} を選択しています。\n` +
-    `ゲーム選択画面に戻って正しいゲームタイプを選択してください。`
-  );
-}
-```
-
-**効果**:
-- ルームのゲームタイプ（LOL/VALORANT）をチェック
-- 不一致の場合は明確なエラーメッセージを表示
-- ユーザーに正しいゲームタイプの選択を促す
-
----
-
-## 🎯 修正後の動作フロー
-
-### ✅ 正常なケース
-
-1. **スマホでLOL用のルームを作成**
-   - ルームID: `ABC123`
-   - ゲームタイプ: `lol`
-
-2. **PCでLOLを選択してルームIDを入力**
-   - ゲームタイプ: `lol`
-   - ルームID: `ABC123`
-
-3. **ゲームタイプが一致**
-   - ✅ 入室成功！
-
----
-
-### ❌ エラーケース（修正後）
-
-1. **スマホでLOL用のルームを作成**
-   - ルームID: `ABC123`
-   - ゲームタイプ: `lol`
-
-2. **PCでVALORANTを選択してルームIDを入力**
-   - ゲームタイプ: `valorant`
-   - ルームID: `ABC123`
-
-3. **ゲームタイプが不一致**
-   - ❌ エラーメッセージ表示:
-   ```
-   このルームは LOL 用です。
-   現在 VALORANT を選択しています。
-   ゲーム選択画面に戻って正しいゲームタイプを選択してください。
-   ```
-
-4. **ユーザーアクション**
-   - ゲーム選択画面に戻る
-   - LOLを選択
-   - 再度ルームIDを入力
-   - ✅ 入室成功！
-
----
-
-## 📁 変更ファイル一覧
-
-1. **js/game.js** (ワードウルフ)
-   - `GameState.joinRoom()` にゲームタイプチェックを追加
-   - 約15行追加
-
-2. **js/demacia-game.js** (デマーシア)
-   - `DemaciaGame.joinRoom()` にゲームタイプチェックを追加
-   - 約10行追加
-
-3. **js/void-game.js** (ヴォイド)
-   - `VoidGame.joinRoom()` にゲームタイプチェックを追加
-   - 約10行追加
-
----
-
-## 🧪 テストケース
-
-### ワードウルフモード
-
-| デバイス | 作成タイプ | 参加タイプ | 結果 |
-|---------|-----------|-----------|------|
-| スマホ → PC | LOL | LOL | ✅ 成功 |
-| スマホ → PC | LOL | VALORANT | ❌ エラー（適切なメッセージ） |
-| スマホ → PC | LOL | TFT | ❌ エラー（適切なメッセージ） |
-| PC → スマホ | VALORANT | VALORANT | ✅ 成功 |
-| PC → スマホ | VALORANT | LOL | ❌ エラー（適切なメッセージ） |
-| PC → タブレット | TFT | TFT | ✅ 成功 |
-
-### デマーシアモード
-
-| デバイス | 作成タイプ | 参加タイプ | 結果 |
-|---------|-----------|-----------|------|
-| スマホ → PC | LOL | LOL | ✅ 成功 |
-| スマホ → PC | LOL | VALORANT | ❌ エラー（適切なメッセージ） |
-| PC → スマホ | VALORANT | VALORANT | ✅ 成功 |
-| PC → スマホ | VALORANT | LOL | ❌ エラー（適切なメッセージ） |
-
-### ヴォイドモード
-
-| デバイス | 作成タイプ | 参加タイプ | 結果 |
-|---------|-----------|-----------|------|
-| スマホ → PC | LOL | LOL | ✅ 成功 |
-| スマホ → PC | LOL | VALORANT | ❌ エラー（適切なメッセージ） |
-| PC → スマホ | VALORANT | VALORANT | ✅ 成功 |
-| PC → スマホ | VALORANT | LOL | ❌ エラー（適切なメッセージ） |
-
----
-
-## 💡 ユーザーへの影響
-
-### メリット
-1. **明確なエラーメッセージ**
-   - なぜ入室できないのかが一目で分かる
-   - 解決方法が明示される
-
-2. **データ整合性の向上**
-   - ゲームタイプの不一致によるバグを防止
-   - 予期しないエラーを防止
-
-3. **ユーザー体験の向上**
-   - 正しいゲームタイプを選択するよう誘導
-   - 混乱を防止
-
-### デメリット
-- なし（既存の正常動作には影響なし）
-
----
-
-## 🔍 動作確認方法
-
-### 手順1: 正常ケースのテスト
-1. **デバイスA（スマホ）でルームを作成**
-   - ゲームモード: 任意（ワードウルフ/デマーシア/ヴォイド）
-   - ゲームタイプ: LOL
-   - ルームIDをメモ
-
-2. **デバイスB（PC）で同じゲームタイプを選択**
-   - ゲームモード: デバイスAと同じ
-   - ゲームタイプ: LOL
-   - ルームIDを入力
-
-3. **✅ 確認**: 正常に入室できる
-
----
-
-### 手順2: エラーケースのテスト
-1. **デバイスA（スマホ）でルームを作成**
-   - ゲームモード: 任意（ワードウルフ/デマーシア/ヴォイド）
-   - ゲームタイプ: LOL
-   - ルームIDをメモ
-
-2. **デバイスB（PC）で異なるゲームタイプを選択**
-   - ゲームモード: デバイスAと同じ
-   - ゲームタイプ: VALORANT
-   - ルームIDを入力
-
-3. **✅ 確認**: 以下のエラーメッセージが表示される
-   ```
-   このルームは LOL 用です。
-   現在 VALORANT を選択しています。
-   ゲーム選択画面に戻って正しいゲームタイプを選択してください。
-   ```
-
-4. **ゲーム選択画面に戻ってLOLを選択**
-
-5. **✅ 確認**: 正常に入室できる
-
----
-
-## 📚 関連ドキュメント
-
-- `README.md` - プロジェクト全体の説明
-- `MOBILE_CONNECTION_TROUBLESHOOTING.md` - モバイル接続問題の診断
-- `diagnosis.html` - 接続診断ツール
-
----
-
-## 🎉 まとめ
-
-この修正により、**すべてのゲームモードでクロスデバイス入室が正常に機能**するようになりました。
-
-**主な改善点**:
-- ✅ スマホで作成したルームにPCから入室可能
-- ✅ PCで作成したルームにスマホから入室可能
-- ✅ ゲームタイプの不一致を検出して明確なエラーメッセージを表示
-- ✅ ユーザーに正しいゲームタイプの選択を促す
-- ✅ すべてのゲームモード（ワードウルフ、デマーシア、ヴォイド）で統一的な動作
-
-**今後の推奨事項**:
-- 定期的にクロスデバイステストを実施
-- 新しいゲームモード追加時は必ずゲームタイプチェックを実装
-- ユーザーからのフィードバックを収集
-
----
-
-**修正日**: 2026年2月16日  
-**対象モード**: ワードウルフ、デマーシア、ヴォイド  
-**影響範囲**: すべてのデバイス（PC、スマホ、タブレット）
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>お問い合わせ - Esports ワードウルフ</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .contact-container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: var(--spacing-lg);
+        }
+        .contact-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: var(--spacing-lg);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            margin-bottom: var(--spacing-md);
+        }
+        .contact-card h2 {
+            color: var(--primary-color);
+            margin-bottom: var(--spacing-md);
+        }
+        .contact-info {
+            line-height: 1.8;
+            color: var(--text-light);
+            margin-bottom: var(--spacing-lg);
+        }
+        .contact-methods {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+        .contact-method {
+            background: rgba(255, 255, 255, 0.05);
+            padding: var(--spacing-md);
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+        }
+        .contact-method h3 {
+            color: var(--primary-color);
+            margin-bottom: var(--spacing-sm);
+            font-size: 1.2rem;
+        }
+        .contact-method p {
+            margin: 0;
+            color: var(--text-light);
+        }
+        .contact-link {
+            color: var(--secondary-color);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .contact-link:hover {
+            color: var(--primary-color);
+        }
+        .response-time {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            border-radius: 8px;
+            padding: var(--spacing-md);
+            margin-top: var(--spacing-md);
+        }
+        .response-time h4 {
+            color: #ffc107;
+            margin-top: 0;
+            margin-bottom: var(--spacing-sm);
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: var(--spacing-md);
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .back-link:hover {
+            color: var(--secondary-color);
+        }
+        .topics-list {
+            list-style: none;
+            padding-left: var(--spacing-md);
+        }
+        .topics-list li:before {
+            content: "✓ ";
+            color: var(--primary-color);
+            font-weight: bold;
+            margin-right: var(--spacing-xs);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>📧 お問い合わせ</h1>
+        </div>
+    </header>
+
+    <main>
+        <div class="contact-container">
+            <div class="contact-card">
+                <h2>お問い合わせについて</h2>
+                <div class="contact-info">
+                    <p>Esports ワードウルフをご利用いただきありがとうございます。</p>
+                    <p>バグ報告、機能要望、その他ご質問がございましたら、以下の方法でお気軽にお問い合わせください。</p>
+                </div>
+
+                <div class="contact-methods">
+                    <div class="contact-method">
+                        <h3>📧 メール</h3>
+                        <p>
+                            <a href="mailto:support@example.com" class="contact-link">support@example.com</a>
+                        </p>
+                        <p style="margin-top: 8px; font-size: 0.9rem; opacity: 0.8;">
+                            ※ 件名に「ワードウルフ」と記載していただけるとスムーズです
+                        </p>
+                    </div>
+
+                    <div class="contact-method">
+                        <h3>🐦 Twitter（X）</h3>
+                        <p>
+                            <a href="https://twitter.com/example" class="contact-link" target="_blank">@esports_wordwolf</a>
+                        </p>
+                        <p style="margin-top: 8px; font-size: 0.9rem; opacity: 0.8;">
+                            ※ DMまたはメンションでお気軽にどうぞ
+                        </p>
+                    </div>
+
+                    <div class="contact-method">
+                        <h3>💬 Discord</h3>
+                        <p>
+                            準備中です。近日公開予定！
+                        </p>
+                    </div>
+                </div>
+
+                <div class="response-time">
+                    <h4>⏱️ 返信までの目安</h4>
+                    <p>通常、1〜3営業日以内にご返信いたします。</p>
+                    <p>週末や祝日の場合、返信が遅れる場合がございますのでご了承ください。</p>
+                </div>
+            </div>
+
+            <div class="contact-card">
+                <h2>お問い合わせ内容の例</h2>
+                <ul class="topics-list">
+                    <li>バグや不具合の報告</li>
+                    <li>新機能のリクエスト</li>
+                    <li>新しいゲームタイトルの追加要望</li>
+                    <li>お題の追加・修正提案</li>
+                    <li>操作方法やゲームルールの質問</li>
+                    <li>プライバシーや利用規約に関する質問</li>
+                    <li>その他のご意見・ご感想</li>
+                </ul>
+            </div>
+
+            <div class="contact-card">
+                <h2>よくある質問（FAQ）</h2>
+                <p>お問い合わせの前に、<a href="faq.html" class="contact-link">FAQページ</a>もご確認ください。多くの質問への回答がすでに掲載されています。</p>
+            </div>
+
+            <div class="contact-card">
+                <h2>バグ報告の際のお願い</h2>
+                <p>バグ報告をいただく際は、以下の情報を含めていただけると助かります：</p>
+                <ul class="topics-list">
+                    <li>使用しているブラウザとバージョン</li>
+                    <li>使用デバイス（PC、スマートフォンなど）</li>
+                    <li>発生した問題の詳細</li>
+                    <li>問題が発生する手順（再現方法）</li>
+                    <li>スクリーンショット（あれば）</li>
+                </ul>
+            </div>
+
+            <a href="index.html" class="back-link">← ゲームに戻る</a>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2025 Esports ワードウルフ | <a href="privacy.html">プライバシーポリシー</a> | <a href="terms.html">利用規約</a> | <a href="faq.html">FAQ</a> | <a href="contact.html">お問い合わせ</a></p>
+    </footer>
+</body>
+</html>

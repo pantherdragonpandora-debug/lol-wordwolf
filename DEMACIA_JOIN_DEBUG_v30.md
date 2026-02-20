@@ -1,166 +1,341 @@
-# デマーシア入室エラーデバッグ強化 (v30)
+# 🌐 カスタムドメイン設定ガイド
 
-## 📋 報告された問題
-「デマーシアに心を込めて、で部屋を立ててルームIDを立てたのに、そのIDで友達が入室しようとしたら『ヴァロラントの部屋です』と出ては入れない。修正してください。」
+お名前.comで購入したドメインをGitHub Pagesに接続して、Google AdSenseの審査を通すためのガイドです。
 
-## 🔍 現状分析
+## 📋 目次
 
-### 考えられる原因
-1. **ルーム作成時の `gameType` が不正**
-   - ルーム作成時に `settings.gameType` が正しく保存されていない可能性
-   
-2. **入室時の `selectedGameType` が不一致**
-   - プレイヤーが選択した `selectedGameType` とルームの `gameType` が一致していない
-   
-3. **文字列比較の問題**
-   - 空白文字や大文字小文字の違いによる比較エラー
-
-### 既存のコード
-`js/main.js` の698-703行目でゲームタイプをチェック：
-
-```javascript
-if (roomGameType && roomGameType !== selectedGameType) {
-  throw new Error(
-    `このルームは ${roomGameType.toUpperCase()} 用です。\n` +
-    `現在 ${selectedGameType.toUpperCase()} を選択しています。\n` +
-    `ゲーム選択画面に戻ってゲームタイプを変更してください。`
-  );
-}
-```
-
-## ✅ 実装内容
-
-### 1. デバッグログの強化
-
-#### デマーシアルーム参加時（693-712行）
-```javascript
-// デマーシアルームに参加
-const roomGameType = demaciaData?.settings?.gameType;
-console.log('🔍 デマーシア - ルームのゲームタイプ:', roomGameType, '(type:', typeof roomGameType, ')');
-console.log('🔍 デマーシア - 選択中のゲームタイプ:', selectedGameType, '(type:', typeof selectedGameType, ')');
-console.log('🔍 デマーシア - 完全なルームデータ:', demaciaData);
-console.log('🔍 デマーシア - 比較結果:', roomGameType === selectedGameType);
-
-// ゲームタイプが一致するかチェック
-if (roomGameType && roomGameType !== selectedGameType) {
-  const errorMsg = 
-    `このルームは ${roomGameType.toUpperCase()} 用です。\n` +
-    `現在 ${selectedGameType.toUpperCase()} を選択しています。\n` +
-    `ゲーム選択画面に戻ってゲームタイプを変更してください。`;
-  console.error('❌ ゲームタイプ不一致エラー:', errorMsg);
-  console.error('  - roomGameType:', roomGameType, '(length:', roomGameType.length, ')');
-  console.error('  - selectedGameType:', selectedGameType, '(length:', selectedGameType.length, ')');
-  throw new Error(errorMsg);
-}
-```
-
-#### ワードウルフルーム参加時（650-667行）
-同様のデバッグログを追加
-
-### 2. ログ出力内容
-- ルームの `gameType` の値と型
-- 選択中の `selectedGameType` の値と型
-- 完全なルームデータ（`demaciaData` / `wordwolfData`）
-- 文字列比較の結果（`===`）
-- 文字列の長さ（空白文字検出用）
-
-## 🧪 テスト手順
-
-### A. ルーム作成側（ホスト）
-1. **完全リロード**: Ctrl+Shift+R (Mac: Cmd+Shift+R)
-2. **デマーシアモード選択**: 「デマーシアに心を込めて」をクリック
-3. **ゲームタイプ選択**: LOL または VALORANT を選択
-4. **ルーム作成**: プレイヤー名を入力して「作成」
-5. **コンソール確認**: 
-   ```
-   ✅ デマーシアルーム作成成功: XXXXXX
-   🔍 作成確認: 成功
-   🔍 確認データ: { settings: { gameType: "lol" }, ... }
-   ```
-6. **ルームIDをコピー**: 6桁の数字をメモ
-
-### B. ルーム参加側（ゲスト）
-1. **完全リロード**: Ctrl+Shift+R (Mac: Cmd+Shift+R)
-2. **デマーシアモード選択**: 「デマーシアに心を込めて」をクリック
-3. **ゲームタイプ選択**: **ホストと同じ**ゲームタイプを選択
-   - ホストがLOLなら、ゲストもLOL
-   - ホストがVALORANTなら、ゲストもVALORANT
-4. **ルーム参加**: ルームIDとプレイヤー名を入力して「参加」
-5. **コンソール確認**: 
-   ```
-   🔍 デマーシア - ルームのゲームタイプ: lol (type: string)
-   🔍 デマーシア - 選択中のゲームタイプ: lol (type: string)
-   🔍 デマーシア - 比較結果: true
-   ✅ デマーシアルーム参加成功
-   ```
-
-### C. エラーが出た場合
-コンソールに以下の情報が表示されます：
-```
-❌ ゲームタイプ不一致エラー: このルームは VALORANT 用です。...
-  - roomGameType: valorant (length: 8)
-  - selectedGameType: lol (length: 3)
-```
-
-この情報をコピーして報告してください。
-
-## 📊 期待される結果
-
-### 正常ケース
-| ホスト | ゲスト | 結果 |
-|--------|--------|------|
-| LOL | LOL | ✅ 参加成功 |
-| VALORANT | VALORANT | ✅ 参加成功 |
-
-### エラーケース
-| ホスト | ゲスト | 結果 |
-|--------|--------|------|
-| LOL | VALORANT | ❌ エラー表示（正常） |
-| VALORANT | LOL | ❌ エラー表示（正常） |
-
-## 🔧 変更ファイル
-- `js/main.js` (+24行、デバッグログ追加、v29→v30)
-- `index.html` (バージョン更新)
-- `DEMACIA_JOIN_DEBUG_v30.md` (このドキュメント)
-
-## 🎯 次のステップ
-1. プレビューで完全リロード (Ctrl+Shift+R)
-2. 上記のテスト手順 A→B を実施
-3. エラーが出た場合、コンソールログ全体をコピーして報告
-4. 特に以下の情報が重要：
-   - `🔍 デマーシア - ルームのゲームタイプ:`
-   - `🔍 デマーシア - 選択中のゲームタイプ:`
-   - `🔍 デマーシア - 比較結果:`
-   - エラーメッセージ全文
-
-## 📝 技術詳細
-
-### ルーム作成時のデータ構造
-```javascript
-{
-  host: "プレイヤー名",
-  gameMode: "demacia",
-  settings: {
-    playerCount: 10,
-    roundCount: 5,
-    performerSelection: "random",
-    gameType: "lol" // または "valorant"
-  },
-  players: {...},
-  gameState: "waiting",
-  currentRound: 0,
-  createdAt: 1234567890
-}
-```
-
-### ゲームタイプの値
-- `"lol"` - League of Legends
-- `"valorant"` - VALORANT
-
-（すべて小文字で保存されます）
+1. [お名前.com でのDNS設定](#お名前com-でのdns設定)
+2. [GitHub Pages でのカスタムドメイン設定](#github-pages-でのカスタムドメイン設定)
+3. [動作確認](#動作確認)
+4. [Google AdSense に再申請](#google-adsense-に再申請)
+5. [トラブルシューティング](#トラブルシューティング)
 
 ---
-**修正日**: 2026-02-17  
-**バージョン**: v30  
-**関連ファイル**: `js/main.js`, `index.html`  
-**ステータス**: デバッグ強化完了、実際のエラーログ待ち
+
+## 🔧 お名前.com でのDNS設定
+
+### ステップ 1: お名前.com にログイン
+
+1. **お名前.com Navi にアクセス**
+   - https://www.onamae.com/navi/
+   
+2. **ログイン**
+   - お名前ID（会員ID）とパスワードでログイン
+
+### ステップ 2: DNS設定画面に移動
+
+1. **ドメイン機能一覧** をクリック
+2. **DNS関連機能の設定** をクリック
+3. 購入したドメインを選択して「次へ」
+
+### ステップ 3: DNSレコードを設定
+
+以下の4つのレコードを追加します：
+
+#### 📝 追加するDNSレコード
+
+| タイプ | ホスト名 | VALUE（値） | TTL |
+|--------|----------|-------------|-----|
+| A | @ | 185.199.108.153 | 3600 |
+| A | @ | 185.199.109.153 | 3600 |
+| A | @ | 185.199.110.153 | 3600 |
+| A | @ | 185.199.111.153 | 3600 |
+| CNAME | www | pantherdragonpandora-debug.github.io. | 3600 |
+
+**重要**: CNAMEの値の最後に `.` （ドット）を忘れずに！
+
+### ステップ 4: 設定手順（お名前.com）
+
+1. **「DNSレコード設定を利用する」を選択**
+2. **「設定する」ボタンをクリック**
+3. **各レコードを追加**:
+
+   **Aレコード（4つ追加）**:
+   ```
+   タイプ: A
+   ホスト名: （空欄または@）
+   VALUE: 185.199.108.153
+   TTL: 3600
+   ```
+   これを4回繰り返し、VALUEを以下に変更：
+   - `185.199.108.153`
+   - `185.199.109.153`
+   - `185.199.110.153`
+   - `185.199.111.153`
+
+   **CNAMEレコード（1つ追加）**:
+   ```
+   タイプ: CNAME
+   ホスト名: www
+   VALUE: pantherdragonpandora-debug.github.io.
+   TTL: 3600
+   ```
+
+4. **「追加」ボタンをクリック**
+5. **「確認画面へ進む」をクリック**
+6. **内容を確認して「設定する」をクリック**
+
+### ✅ DNS設定完了
+
+設定が反映されるまで、通常 **数分〜24時間** かかります（通常は30分程度）。
+
+---
+
+## 🐙 GitHub Pages でのカスタムドメイン設定
+
+### ステップ 1: GitHubリポジトリの設定ページに移動
+
+1. **GitHubにログイン**
+2. **リポジトリに移動**: `https://github.com/pantherdragonpandora-debug/lol-wordwolf`
+3. **Settings（設定）タブ**をクリック
+4. 左サイドバーの **Pages** をクリック
+
+### ステップ 2: カスタムドメインを設定
+
+1. **Custom domain（カスタムドメイン）** のセクションを探す
+2. **購入したドメイン名を入力**:
+   ```
+   例: lol-wordwolf.com
+   ```
+   または
+   ```
+   例: lolwordwolf.net
+   ```
+
+3. **Save（保存）ボタン**をクリック
+
+### ステップ 3: HTTPS を有効化
+
+1. DNS設定が反映されるまで待つ（数分〜数時間）
+2. **Enforce HTTPS（HTTPS を強制する）** のチェックボックスが表示されたら、✅ チェックを入れる
+
+**注意**: DNS設定が反映されるまでは、このチェックボックスは表示されません。
+
+### ✅ GitHub Pages 設定完了
+
+カスタムドメインが設定されると、自動的に `CNAME` ファイルがリポジトリのルートに作成されます。
+
+---
+
+## 🧪 動作確認
+
+### ステップ 1: DNS設定の確認
+
+**Windowsの場合**:
+```bash
+nslookup lol-wordwolf.com
+```
+
+**Mac/Linuxの場合**:
+```bash
+dig lol-wordwolf.com
+```
+
+**期待される結果**:
+```
+185.199.108.153
+185.199.109.153
+185.199.110.153
+185.199.111.153
+```
+
+### ステップ 2: ブラウザで確認
+
+1. **カスタムドメインにアクセス**:
+   ```
+   https://lol-wordwolf.com
+   ```
+   （あなたのドメイン名に置き換えてください）
+
+2. **サイトが正しく表示されるか確認**
+
+3. **HTTPSが有効か確認**（URLバーに🔒が表示される）
+
+### ✅ 動作確認完了
+
+サイトが正しく表示されたら、設定成功です！🎉
+
+---
+
+## 📢 Google AdSense に再申請
+
+### ステップ 1: AdSense 管理画面に移動
+
+1. **Google AdSense にログイン**
+   - https://www.google.com/adsense/
+
+2. **サイト → サイトを追加**（または既存のサイトを編集）
+
+### ステップ 2: カスタムドメインで申請
+
+1. **サイトURL を入力**:
+   ```
+   https://lol-wordwolf.com
+   ```
+   （あなたのドメイン名に置き換えてください）
+
+2. **再審査を申請**
+
+### ステップ 3: AdSense コードが設置されているか確認
+
+`index.html` の広告コードのコメントアウトを外してください（まだの場合）:
+
+#### 編集箇所 1: `<head>` セクション
+
+```html
+<!-- 変更前（コメントアウトされている） -->
+<!-- 
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXX"
+     crossorigin="anonymous"></script>
+-->
+
+<!-- 変更後（コメントアウトを削除） -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXX"
+     crossorigin="anonymous"></script>
+```
+
+**重要**: `ca-pub-XXXXXXXXXX` を実際の Publisher ID に置き換えてください。
+
+#### 編集箇所 2: フッター上部の広告ユニット
+
+```html
+<!-- 変更前（コメントアウトされている） -->
+<!--
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-XXXXXXXXXX"
+     data-ad-slot="YYYYYYYYYY"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+-->
+
+<!-- 変更後（コメントアウトを削除） -->
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-XXXXXXXXXX"
+     data-ad-slot="YYYYYYYYYY"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+```
+
+**重要**: 
+- `ca-pub-XXXXXXXXXX` を実際の Publisher ID に置き換え
+- `YYYYYYYYYY` を AdSense で作成した広告スロット ID に置き換え
+
+### ステップ 4: 変更をデプロイ
+
+```bash
+git add .
+git commit -m "Enable AdSense ads with custom domain"
+git push origin main
+```
+
+### ✅ AdSense 再申請完了
+
+審査結果を待ちましょう（通常 1〜2週間）。
+
+---
+
+## 🔧 トラブルシューティング
+
+### 問題 1: DNS設定が反映されない
+
+**症状**: カスタムドメインにアクセスしても、サイトが表示されない
+
+**原因**:
+- DNS設定の反映に時間がかかっている
+- DNSレコードの設定が間違っている
+
+**解決策**:
+1. **24時間待つ**（通常は30分〜1時間で反映）
+2. **お名前.comのDNS設定を再確認**:
+   - Aレコード: 4つ全て追加されているか
+   - CNAMEレコード: `pantherdragonpandora-debug.github.io.` の最後にドット（`.`）があるか
+
+3. **キャッシュをクリア**:
+   - ブラウザのキャッシュをクリア
+   - Ctrl + Shift + R でスーパーリロード
+
+### 問題 2: GitHub Pages で「DNS check unsuccessful」エラー
+
+**症状**: GitHub Pages の設定画面で DNS エラーが表示される
+
+**原因**:
+- DNS設定が正しくない
+- DNS設定がまだ反映されていない
+
+**解決策**:
+1. **お名前.comのDNS設定を再確認**
+2. **数時間待つ**
+3. **GitHub Pages でカスタムドメインを一度削除して、再度追加**
+
+### 問題 3: HTTPS が有効にならない
+
+**症状**: 「Enforce HTTPS」のチェックボックスがグレーアウトしている
+
+**原因**:
+- DNS設定がまだ反映されていない
+- GitHub が SSL 証明書を発行中
+
+**解決策**:
+1. **24時間待つ**（GitHubが自動的にSSL証明書を発行）
+2. **カスタムドメインを一度削除して、再度追加**
+
+### 問題 4: AdSense で「サイトにアクセスできません」エラー
+
+**原因**:
+- DNS設定が反映されていない
+- サイトが正しく表示されていない
+
+**解決策**:
+1. **ブラウザでカスタムドメインにアクセスして、サイトが表示されるか確認**
+2. **HTTPS が有効になっているか確認**
+3. **robots.txt でクロールがブロックされていないか確認**
+
+---
+
+## 📊 設定完了チェックリスト
+
+すべて完了したら、以下をチェックしてください：
+
+- [ ] お名前.comでドメインを購入した
+- [ ] お名前.comでDNSレコード（A × 4、CNAME × 1）を設定した
+- [ ] GitHub Pagesでカスタムドメインを設定した
+- [ ] DNS設定が反映された（`nslookup` または `dig` で確認）
+- [ ] カスタムドメインでサイトにアクセスできる
+- [ ] HTTPSが有効になっている（🔒マークが表示される）
+- [ ] `index.html` の AdSense コードのコメントアウトを外した
+- [ ] Publisher ID と広告スロット ID を設定した
+- [ ] 変更をGitHubにプッシュした
+- [ ] Google AdSense にカスタムドメインで再申請した
+- [ ] AdSense の審査結果を待つ
+
+---
+
+## 🎉 完了！
+
+これでカスタムドメインの設定が完了し、Google AdSense の審査に再申請できます！
+
+審査結果を待つ間に、以下を確認しておきましょう：
+- ✅ サイトが正しく動作しているか
+- ✅ プライバシーポリシーと利用規約が表示されているか
+- ✅ ゲーム機能が正常に動作しているか
+
+---
+
+## 📄 関連ドキュメント
+
+- [ADS.md](./ADS.md) - Google AdSense 広告実装ガイド
+- [README.md](./README.md) - プロジェクト全体の説明
+- [privacy.html](./privacy.html) - プライバシーポリシー
+- [terms.html](./terms.html) - 利用規約
+
+---
+
+**🌐 カスタムドメインでの運営、頑張ってください！** 🎮⚔️✨

@@ -1,237 +1,238 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Firebaseセキュリティルール設定ガイド</title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #0a1428 0%, #1a2942 100%);
-            color: #e8e8e8;
-            padding: 2rem;
-            line-height: 1.6;
-        }
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: rgba(26, 41, 66, 0.8);
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-        h1 {
-            color: #0bc6e3;
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-        h2 {
-            color: #c89b3c;
-            margin-top: 2rem;
-            border-bottom: 2px solid #c89b3c;
-            padding-bottom: 0.5rem;
-        }
-        .step {
-            background: rgba(11, 198, 227, 0.1);
-            border-left: 4px solid #0bc6e3;
-            padding: 1rem;
-            margin: 1rem 0;
-            border-radius: 4px;
-        }
-        .code-block {
-            background: #0a1428;
-            border: 1px solid #0bc6e3;
-            border-radius: 8px;
-            padding: 1rem;
-            margin: 1rem 0;
-            overflow-x: auto;
-        }
-        pre {
-            margin: 0;
-            color: #0bc6e3;
-        }
-        .warning {
-            background: rgba(255, 193, 7, 0.1);
-            border-left: 4px solid #ffc107;
-            padding: 1rem;
-            margin: 1rem 0;
-            border-radius: 4px;
-        }
-        .success {
-            background: rgba(76, 175, 80, 0.1);
-            border-left: 4px solid #4caf50;
-            padding: 1rem;
-            margin: 1rem 0;
-            border-radius: 4px;
-        }
-        .btn {
-            display: inline-block;
-            background: linear-gradient(135deg, #c89b3c 0%, #a67c2b 100%);
-            color: #0a1428;
-            padding: 0.8rem 1.5rem;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 600;
-            margin: 1rem 0.5rem 1rem 0;
-            transition: transform 0.3s;
-        }
-        .btn:hover {
-            transform: translateY(-2px);
-        }
-        img {
-            max-width: 100%;
-            border-radius: 8px;
-            margin: 1rem 0;
-            border: 2px solid #0bc6e3;
-        }
-        .center {
-            text-align: center;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>🔒 Firebaseセキュリティルール設定ガイド</h1>
-        
-        <div class="warning">
-            <strong>⚠️ 重要</strong><br>
-            ルームに参加できない場合、Firebaseのセキュリティルールが正しく設定されていない可能性があります。
-            以下の手順に従って設定してください。
-        </div>
+# 🔧 Firebase 承認済みドメイン設定ガイド
 
-        <h2>📋 設定手順</h2>
+## 問題: 「ルームの作成に失敗しました」
 
-        <div class="step">
-            <strong>ステップ1: Firebase Consoleにアクセス</strong><br>
-            <a href="https://console.firebase.google.com/" target="_blank" class="btn">Firebase Consoleを開く</a>
-        </div>
+GitHub PagesでLOLワードウルフを開くと、ルームが作成できない場合、
+**Firebase側でGitHub Pagesのドメインが承認されていない**のが原因です。
 
-        <div class="step">
-            <strong>ステップ2: プロジェクトを選択</strong><br>
-            「lol-word-wolf」プロジェクトをクリックして開きます。
-        </div>
+---
 
-        <div class="step">
-            <strong>ステップ3: Realtime Databaseを開く</strong><br>
-            左側のメニューから「Realtime Database」を選択します。
-        </div>
+## ✅ 解決方法：承認済みドメインを追加
 
-        <div class="step">
-            <strong>ステップ4: ルールタブを開く</strong><br>
-            上部の「ルール」タブをクリックします。
-        </div>
+### ステップ1: Firebase Consoleを開く
 
-        <div class="step">
-            <strong>ステップ5: 以下のルールをコピーして貼り付け</strong><br>
-            <div class="code-block">
-                <pre>{
+1. [Firebase Console](https://console.firebase.google.com/) にアクセス
+2. **「lol-word-wolf」**プロジェクトをクリック
+
+### ステップ2: Authenticationを開く
+
+1. 左メニューの**「構築」**セクション
+2. **「Authentication」**をクリック
+3. まだ有効化していない場合：
+   - **「始める」**をクリック
+   - 何も設定せずOK（後でスキップできます）
+
+### ステップ3: 承認済みドメインを追加
+
+1. 上部タブの**「Settings」**（⚙️歯車アイコンの隣）をクリック
+2. 下にスクロールして**「承認済みドメイン」**セクションを探す
+3. 現在リストされているドメイン（デフォルト）:
+   ```
+   ✅ localhost
+   ✅ lol-word-wolf.firebaseapp.com
+   ```
+
+4. **「ドメインを追加」**ボタンをクリック
+5. あなたのGitHub Pagesのドメインを入力：
+   ```
+   あなたのユーザー名.github.io
+   ```
+   例：`taro123.github.io`
+
+6. **「追加」**をクリック
+
+### ステップ4: 完了確認
+
+承認済みドメインリストに以下が表示されればOK：
+```
+✅ localhost
+✅ lol-word-wolf.firebaseapp.com
+✅ あなたのユーザー名.github.io  ← 新しく追加
+```
+
+### ステップ5: サイトをリロード
+
+1. GitHub Pagesのタブに戻る
+2. **Ctrl + Shift + R**（スーパーリロード）
+3. ルームを作成してみる
+
+---
+
+## 🎯 正確なドメイン名の確認方法
+
+GitHub Pagesのドメインがわからない場合：
+
+### 方法1: GitHub Settingsで確認
+
+1. GitHubリポジトリを開く
+2. **「Settings」** → **「Pages」**
+3. 上部に表示されているURL:
+   ```
+   Your site is live at https://username.github.io/lol-wordwolf/
+   ```
+4. この場合、追加するドメインは：
+   ```
+   username.github.io
+   ```
+   **注意**: `/lol-wordwolf/` は含めない
+
+### 方法2: ブラウザのアドレスバーで確認
+
+1. GitHub Pagesのサイトを開く
+2. アドレスバーのURLを見る:
+   ```
+   https://taro123.github.io/lol-wordwolf/
+   ```
+3. 追加するドメイン:
+   ```
+   taro123.github.io
+   ```
+
+---
+
+## 🔍 追加確認事項
+
+### Firebase Realtime Database のルール
+
+念のため、セキュリティルールも確認します。
+
+1. Firebase Console → **「Realtime Database」**
+2. **「ルール」**タブをクリック
+3. 以下のルールになっているか確認:
+
+```json
+{
+  "rules": {
+    ".read": true,
+    ".write": true
+  }
+}
+```
+
+または
+
+```json
+{
   "rules": {
     "rooms": {
       ".read": true,
       ".write": true
-    },
-    "demacia_rooms": {
-      ".read": true,
-      ".write": true
     }
   }
-}</pre>
-            </div>
-            <button class="btn" onclick="copyRules()">📋 ルールをコピー</button>
-        </div>
+}
+```
 
-        <div class="step">
-            <strong>ステップ6: 公開</strong><br>
-            右上の「公開」ボタンをクリックします。
-        </div>
+4. 違っている場合は上記に変更して**「公開」**
 
-        <div class="step">
-            <strong>ステップ7: 警告を確認</strong><br>
-            「セキュリティルールが公開モードになっています」という警告が表示される場合がありますが、
-            これはテスト目的のため問題ありません。もう一度「公開」をクリックします。
-        </div>
+**⚠️ 注意**: これはテスト用のルールです。本番環境では後で厳格化してください。
 
-        <div class="success">
-            <strong>✅ 設定完了！</strong><br>
-            ゲームページに戻って、もう一度ルームに参加してみてください。
-        </div>
+---
 
-        <h2>🔍 動作確認</h2>
+## 🧪 テスト手順
 
-        <div class="step">
-            <strong>診断ツールを使用</strong><br>
-            ゲームページのブラウザコンソール（F12）を開き、以下のコマンドを実行：
-            <div class="code-block">
-                <pre>diagnosisFirebase()</pre>
-            </div>
-            これでFirebase接続と権限が正しく設定されているか確認できます。
-        </div>
+### テスト1: Firebase接続確認
 
-        <h2>📝 セキュリティについて</h2>
+1. サイトを開く
+2. 右上の接続状態を確認:
+   - ✅ **緑色「接続中」** → Firebase接続OK
+   - ❌ **赤色「切断」** → Firebase接続エラー
 
-        <div class="warning">
-            <strong>⚠️ 注意事項</strong><br>
-            現在の設定は<strong>開発・テスト用</strong>です。本番環境では、より厳密なセキュリティルールの設定を推奨します。
-            <br><br>
-            <strong>本番環境用の推奨ルール（将来的に実装）:</strong>
-            <ul>
-                <li>認証されたユーザーのみがルームを作成可能</li>
-                <li>参加者は自分のデータのみ変更可能</li>
-                <li>ホストのみがゲーム開始可能</li>
-            </ul>
-        </div>
+### テスト2: コンソールでエラー確認
 
-        <h2>❓ よくある質問</h2>
+1. **F12**を押す
+2. **Console**タブ
+3. 以下のメッセージを確認:
+   ```
+   ✅ Firebase接続成功  → OK
+   ❌ Firebase接続失敗  → エラー
+   ```
 
-        <div class="step">
-            <strong>Q: ルールを公開しても参加できません</strong><br>
-            A: 以下を確認してください：
-            <ul>
-                <li>ブラウザをハードリロード（Ctrl+Shift+R）</li>
-                <li>診断ツール <code>diagnosisFirebase()</code> を実行</li>
-                <li>ルームIDが正しいか確認</li>
-                <li>ルーム作成者と参加者のインターネット接続を確認</li>
-            </ul>
-        </div>
+### テスト3: ルーム作成
 
-        <div class="step">
-            <strong>Q: 「PERMISSION_DENIED」エラーが出ます</strong><br>
-            A: Firebaseルールが正しく公開されていない可能性があります。
-            ルールタブで「公開」ボタンをもう一度クリックしてください。
-        </div>
+1. プレイヤー名を入力
+2. 設定を選択
+3. **「作成」**をクリック
+4. 成功すれば待機室に遷移
 
-        <div class="step">
-            <strong>Q: 他のプロジェクトのルールに影響はありますか？</strong><br>
-            A: いいえ、各Firebaseプロジェクトのルールは独立しています。
-            このプロジェクト（lol-word-wolf）のみに適用されます。
-        </div>
+---
 
-        <div class="center">
-            <a href="index.html" class="btn">🎮 ゲームに戻る</a>
-            <a href="ROOM_JOIN_FIX.md" class="btn">📚 詳細なガイド</a>
-        </div>
-    </div>
+## 💡 それでもダメな場合
 
-    <script>
-        function copyRules() {
-            const rules = `{
-  "rules": {
-    "rooms": {
-      ".read": true,
-      ".write": true
-    },
-    "demacia_rooms": {
-      ".read": true,
-      ".write": true
-    }
-  }
-}`;
-            navigator.clipboard.writeText(rules).then(() => {
-                alert('✅ ルールをコピーしました！\nFirebase Consoleのルールエディタに貼り付けてください。');
-            }).catch(() => {
-                alert('コピーに失敗しました。手動でコピーしてください。');
-            });
-        }
-    </script>
-</body>
-</html>
+### 追加のドメインパターンを試す
+
+GitHub Pagesのサブパスを使っている場合、以下も追加してみてください：
+
+1. Firebase Console → Authentication → Settings → 承認済みドメイン
+2. 以下のドメインを**すべて追加**:
+   ```
+   username.github.io
+   username.github.io/lol-wordwolf
+   ```
+
+### ワイルドカードを試す（非推奨だが動作確認用）
+
+```
+*.github.io
+```
+
+**注意**: ワイルドカードは一時的な確認用です。動作確認後、正確なドメインに変更してください。
+
+---
+
+## 📊 エラー別対処法
+
+### エラー1: "Permission denied"
+
+**原因**: Firebase Realtime Databaseのセキュリティルール
+
+**解決策**:
+1. Firebase Console → Realtime Database → ルール
+2. 以下に変更:
+   ```json
+   {
+     "rules": {
+       ".read": true,
+       ".write": true
+     }
+   }
+   ```
+
+### エラー2: "CORS error" / "Access-Control-Allow-Origin"
+
+**原因**: 承認済みドメインが未設定
+
+**解決策**: 上記の「承認済みドメインを追加」を実行
+
+### エラー3: "Failed to get document because the client is offline"
+
+**原因**: Firebase接続失敗
+
+**解決策**:
+1. ブラウザがオフラインでないか確認
+2. Firebaseプロジェクトが有効か確認
+3. APIキーが正しいか確認（`js/firebase-config.js`）
+
+---
+
+## 🎯 完全な確認チェックリスト
+
+- [ ] Firebase Console → Authentication → Settings → 承認済みドメイン
+- [ ] `username.github.io` を追加済み
+- [ ] Firebase Realtime Database → ルール → `.read: true, .write: true`
+- [ ] サイトをスーパーリロード（Ctrl + Shift + R）
+- [ ] 接続状態が「✅ 接続中」
+- [ ] Consoleタブにエラーなし
+- [ ] ルーム作成成功
+
+---
+
+## 🆘 まだ解決しない場合
+
+以下の情報を教えてください：
+
+1. **ブラウザのConsoleタブのエラーメッセージ**（赤文字）
+2. **GitHub PagesのURL**（例: `https://taro123.github.io/lol-wordwolf/`）
+3. **接続状態の表示**（✅ 接続中 / ❌ 切断）
+4. **承認済みドメインに何を追加しましたか？**
+
+これらの情報があれば、具体的な解決策を提案できます！🚀

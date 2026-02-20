@@ -1,67 +1,195 @@
-// VALORANT デマーシアデータを LOL 形式に変換するスクリプト
-// Node.js で実行: node convert-valorant-data.js
+# 🚨 緊急：ブラウザキャッシュ問題の解決
 
-const fs = require('fs');
+## 問題
 
-// 元のデータを読み込む
-const valorantDemaciaData = require('./js/demacia-data-valorant.js');
+```
+❌ VoidGameが未定義です。void-game.jsが読み込まれていない可能性があります。
+- typeof VoidGame: undefined
+- typeof window.VoidGame: undefined
+```
 
-// 変換関数
-function convertToLOLFormat(data) {
-  return data.map((item, index) => {
-    // situations を文字列配列からオブジェクト配列に変換
-    const situations = item.situations.map((sitText, sitIndex) => ({
-      id: sitIndex + 1,
-      text: sitText,
-      difficulty: item.difficulty
-    }));
+## 原因
 
-    return {
-      id: index + 1,
-      text: item.phrase,
-      character: item.character,
-      situations: situations
-    };
-  });
-}
+**ブラウザのキャッシュ**により、古いバージョンのJavaScriptファイルが読み込まれ続けている。
 
-// 変換実行
-const converted = convertToLOLFormat(valorantDemaciaData);
+---
 
-// 新しいファイル内容を生成
-const fileContent = `// ========================================
-// デマーシアに心を込めて - VALORANTバージョン（LOL形式統一版）
-// VALORANTの有名なセリフとシチュエーション
-// ========================================
+## ✅ 解決方法
 
-const valorantDemaciaData = {
-  // セリフとシチュエーションのセット（60個）
-  phrases: ${JSON.stringify(converted, null, 2)}
-};
+### 方法1: 完全リロード（最も重要）
 
-// ランダムに1つのセリフを取得する関数
-function getRandomValorantPhrase() {
-  const phrases = valorantDemaciaData.phrases;
-  const randomIndex = Math.floor(Math.random() * phrases.length);
-  return phrases[randomIndex];
-}
+以下のショートカットキーで**必ず**リロードしてください：
 
-// グローバルに公開（ブラウザ環境）
-if (typeof window !== 'undefined') {
-  window.valorantDemaciaData = valorantDemaciaData;
-  window.getRandomValorantPhrase = getRandomValorantPhrase;
-}
+```
+Windows/Linux: Ctrl + Shift + R
+Mac: Cmd + Shift + R
+```
 
-// モジュールとしてエクスポート（Node.js環境）
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { valorantDemaciaData, getRandomValorantPhrase };
-}
-`;
+**重要**: 通常のF5やCtrl+Rでは不十分です！
 
-// ファイルに書き込み
-fs.writeFileSync('./js/demacia-data-valorant-new.js', fileContent);
+---
 
-console.log('✅ 変換完了！新しいファイル: js/demacia-data-valorant-new.js');
-console.log(`📊 変換されたデータ数: ${converted.length}`);
-console.log(`📝 最初のエントリ例:`);
-console.log(JSON.stringify(converted[0], null, 2));
+### 方法2: ブラウザキャッシュを完全削除
+
+#### Chrome
+1. `Ctrl + Shift + Delete`（Mac: `Cmd + Shift + Delete`）
+2. 「キャッシュされた画像とファイル」をチェック
+3. 「データを削除」をクリック
+4. ページを再読み込み
+
+#### Firefox
+1. `Ctrl + Shift + Delete`
+2. 「キャッシュ」をチェック
+3. 「今すぐ消去」をクリック
+4. ページを再読み込み
+
+#### Edge
+1. `Ctrl + Shift + Delete`
+2. 「キャッシュされた画像とファイル」をチェック
+3. 「今すぐクリア」をクリック
+4. ページを再読み込み
+
+---
+
+### 方法3: シークレット/プライベートモードで試す
+
+#### Chrome
+```
+Ctrl + Shift + N  (Mac: Cmd + Shift + N)
+```
+
+#### Firefox
+```
+Ctrl + Shift + P  (Mac: Cmd + Shift + P)
+```
+
+#### Safari
+```
+Cmd + Shift + N
+```
+
+シークレットモードで開いて、サイトにアクセスしてテスト。
+
+---
+
+### 方法4: 開発者ツールでキャッシュ無効化
+
+1. **F12**を押して開発者ツールを開く
+2. **ネットワーク**タブをクリック
+3. **「キャッシュを無効化」**にチェックを入れる（"Disable cache"）
+4. 開発者ツールを開いたままページをリロード
+
+---
+
+## 🔍 確認方法
+
+### ステップ1: コンソールを開く
+
+**F12** → **コンソール**タブ
+
+### ステップ2: 以下のログが表示されることを確認
+
+```
+📦 void-game.js 読み込み開始 (v26)
+📦 現在時刻: 2026-02-17T...
+📦 firebase: object
+📦 window: object
+
+📦 VoidGameクラス定義完了 (v26)
+📦 VoidGame type: function
+📦 VoidGame.name: VoidGame
+
+✅ VoidGameクラスをグローバルにエクスポートしました (v26)
+✅ window.VoidGame type: function
+✅ window.VoidGame.name: VoidGame
+✅ テストインスタンス作成成功
+```
+
+**重要**: 必ず `(v26)` が表示されていることを確認してください！
+
+### ステップ3: ネットワークタブで確認
+
+**F12** → **ネットワーク**タブ
+
+以下のファイルが**200 OK**で読み込まれているか確認：
+- `void-game.js?v=26&t=20260217`
+- `void-main.js?v=26&t=20260217`
+
+**v=25やv=23が読み込まれている場合はキャッシュが残っています**
+
+---
+
+## 🚨 まだエラーが出る場合
+
+### 方法5: 別のブラウザで試す
+
+- Chrome → Firefox
+- Firefox → Edge
+- Edge → Chrome
+
+### 方法6: インコグニートモード + キャッシュクリア
+
+1. シークレットモードで開く
+2. F12 → ネットワークタブ
+3. 「キャッシュを無効化」にチェック
+4. ページをリロード
+
+### 方法7: DNSキャッシュをクリア（上級者向け）
+
+#### Windows
+```
+ipconfig /flushdns
+```
+
+#### Mac
+```
+sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder
+```
+
+#### Linux
+```
+sudo systemd-resolve --flush-caches
+```
+
+---
+
+## 📊 変更内容（v26）
+
+| ファイル | 変更内容 |
+|---------|---------|
+| `index.html` | バージョンをv26に更新、タイムスタンプ追加 |
+| `js/void-game.js` | 即座実行関数でログ強化、テストインスタンス作成 |
+| `css/*.css` | バージョンをv26に更新 |
+
+---
+
+## ✅ 成功の確認
+
+以下がすべて✅になれば成功：
+
+- [ ] `Ctrl+Shift+R`で完全リロードした
+- [ ] コンソールに「v26」が表示される
+- [ ] コンソールに「✅ テストインスタンス作成成功」が表示される
+- [ ] ネットワークタブで`void-game.js?v=26&t=20260217`が200 OKで読み込まれる
+- [ ] ヴォイドモードでルーム作成が成功する
+
+---
+
+## 💡 なぜこれほど厳しくキャッシュされるのか？
+
+ブラウザは**パフォーマンス向上のため**、JavaScriptファイルを積極的にキャッシュします。
+
+### キャッシュ戦略
+- 通常のリロード（F5）: キャッシュを優先
+- 完全リロード（Ctrl+Shift+R）: キャッシュを無視
+- クエリパラメータ（`?v=26`）: 異なるファイルとして扱う
+
+**今回の対策**: `v=26&t=20260217`で確実に新しいファイルを読み込ませる
+
+---
+
+## 完了日
+2026-02-17
+
+## バージョン
+v26 - キャッシュバスター強化版
