@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="css/demacia-style.css?v=28">
     <link rel="stylesheet" href="css/void-style.css?v=28">
     <link rel="stylesheet" href="css/screenshot-style.css?v=1">
+    <link rel="stylesheet" href="css/mood-quiz-style.css?v=5">
     
     <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6628280908520822"
@@ -82,6 +83,13 @@
                         <h3 class="mode-title" data-i18n="modeSelect.void">ヴォイドに届くは光か闇か</h3>
                         <p class="mode-description" data-i18n="modeSelect.voidDesc">連想ワードを伝えてテーマを当てるゲーム</p>
                         <p class="mode-players" data-i18n="modeSelect.voidPlayers">👥 2〜8人</p>
+                    </button>
+                    
+                    <button id="select-mood-quiz-btn" class="mode-card mood-quiz-mode-card">
+                        <div class="mode-icon-placeholder">🎭</div>
+                        <h3 class="mode-title" data-i18n="modeSelect.moodQuiz">気分診断チャンピオン選択</h3>
+                        <p class="mode-description" data-i18n="modeSelect.moodQuizDesc">今の気分にピッタリのチャンピオンを診断</p>
+                        <p class="mode-players" data-i18n="modeSelect.moodQuizPlayers">👤 1人</p>
                     </button>
                 </div>
             </div>
@@ -1145,6 +1153,94 @@
         </div>
     </div>
 
+    <!-- 気分診断チャンピオン選択 -->
+    <!-- ホーム画面 -->
+    <div id="mood-quiz-home-screen" class="screen">
+        <div class="card mood-quiz-home">
+            <h2 class="mood-quiz-title">🎭 気分診断チャンピオン選択</h2>
+            <p class="mood-quiz-subtitle">今の気分にピッタリのチャンピオンを診断！</p>
+            
+            <div class="mood-quiz-description">
+                <p>5つの質問に答えるだけで、今のあなたの気分に最適なチャンピオンをおすすめします。</p>
+                <p>アグレッシブ、サポーティブ、タクティカル...あなたは今どんな気分？</p>
+            </div>
+            
+            <div class="mood-quiz-features">
+                <div class="mood-quiz-feature">
+                    <div class="mood-quiz-feature-icon">⚔️</div>
+                    <div class="mood-quiz-feature-text">攻撃的</div>
+                </div>
+                <div class="mood-quiz-feature">
+                    <div class="mood-quiz-feature-icon">💖</div>
+                    <div class="mood-quiz-feature-text">支援的</div>
+                </div>
+                <div class="mood-quiz-feature">
+                    <div class="mood-quiz-feature-icon">🧠</div>
+                    <div class="mood-quiz-feature-text">戦術的</div>
+                </div>
+                <div class="mood-quiz-feature">
+                    <div class="mood-quiz-feature-icon">⚖️</div>
+                    <div class="mood-quiz-feature-text">バランス型</div>
+                </div>
+            </div>
+            
+            <button class="btn-primary btn-full-width" onclick="startMoodQuiz()">診断を始める</button>
+            <button class="btn-secondary btn-full-width" style="margin-top: 1rem;" onclick="showScreen('mode-select-screen')">モード選択に戻る</button>
+        </div>
+    </div>
+    
+    <!-- 質問画面 -->
+    <div id="mood-quiz-question-screen" class="screen">
+        <div class="card mood-question-container">
+            <div class="mood-progress-container">
+                <div class="mood-question-number" id="mood-question-number">質問 1 / 5</div>
+                <div class="mood-progress-bar-wrapper">
+                    <div class="mood-progress-bar" id="mood-progress-bar" style="width: 20%"></div>
+                </div>
+            </div>
+            
+            <div class="mood-question-card">
+                <h2 class="mood-question-text" id="mood-question-text">質問テキスト</h2>
+                <div class="mood-question-options" id="mood-question-options">
+                    <!-- 選択肢が動的に生成されます -->
+                </div>
+                <button id="mood-back-question-btn" class="mood-back-question-btn" onclick="goBackQuestion()" style="display: none;">
+                    ⏪ 前の質問に戻る
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 結果画面 -->
+    <div id="mood-quiz-result-screen" class="screen">
+        <div class="card mood-result-container">
+            <div class="mood-result-header">
+                <h2 class="mood-result-title" id="mood-result-title">診断結果</h2>
+                <p class="mood-result-description" id="mood-result-description">結果の説明</p>
+            </div>
+            
+            <div class="mood-score-section">
+                <h3>📊 あなたのスコア</h3>
+                <div class="mood-score-chart" id="mood-score-chart">
+                    <!-- スコアチャートが動的に生成されます -->
+                </div>
+            </div>
+            
+            <div class="mood-champion-section">
+                <h3>🎮 おすすめチャンピオン</h3>
+                <div class="mood-champion-list" id="mood-champion-list">
+                    <!-- チャンピオンカードが動的に生成されます -->
+                </div>
+            </div>
+            
+            <div class="mood-result-actions">
+                <button class="btn-primary" onclick="retryMoodQuiz()">もう一度診断</button>
+                <button class="btn-secondary" onclick="backToMoodQuizHome()">ホームに戻る</button>
+                <button class="btn-secondary" onclick="exitMoodQuiz()">モード選択へ</button>
+            </div>
+        </div>
+    </div>
+
     <!-- フッター -->
     <footer>
         <div class="footer-content">
@@ -1180,7 +1276,7 @@
     <script src="js/firebase-config.js?v=13"></script>
     <!-- セキュリティ機能 -->
     <script src="js/security.js?v=22"></script>
-    <script src="js/i18n.js?v=37"></script>
+    <script src="js/i18n.js?v=38"></script>
     <script src="js/data.js?v=13"></script>
     <script src="js/data-valorant.js?v=13"></script>
     <script src="js/data-tft.js?v=13"></script>
@@ -1193,6 +1289,8 @@
     <script src="js/void-game.js?v=34"></script>
     <script src="js/demacia-solo.js?v=18"></script>
     <script src="js/pageview-counter.js?v=22"></script>
+    <script src="js/mood-quiz-data.js?v=3"></script>
+    <script src="js/mood-quiz.js?v=5"></script>
     <script src="js/void-main.js?v=38"></script>
     <script src="js/main.js?v=35"></script>
     <!-- シェア機能（main.jsの後に読み込む） -->

@@ -205,6 +205,11 @@ function setupEventListeners() {
   document.getElementById('select-wordwolf-mode-btn').addEventListener('click', () => selectGameMode('wordwolf'));
   document.getElementById('select-demacia-mode-btn').addEventListener('click', () => selectGameMode('demacia'));
   document.getElementById('select-void-mode-btn').addEventListener('click', () => selectGameMode('void'));
+  document.getElementById('select-mood-quiz-btn').addEventListener('click', () => {
+    selectedGameMode = 'mood-quiz';
+    showScreen('mood-quiz-home-screen');
+    console.log('🎭 気分診断モードを選択しました');
+  });
   
   // ゲームタイプ選択画面
   document.getElementById('select-lol-btn').addEventListener('click', () => selectGame('lol'));

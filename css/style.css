@@ -1157,6 +1157,37 @@ footer {
   width: 160px;
   height: 160px;
   max-width: 160px;
+  height: auto;
+  object-fit: cover;
+  border-radius: 50%;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  border: 3px solid var(--primary-color);
+}
+
+/* 気分診断モード用のアイコンプレースホルダー */
+.mode-icon-placeholder {
+  width: 160px;
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 6rem;
+  background: linear-gradient(135deg, rgba(155, 89, 182, 0.3), rgba(52, 152, 219, 0.3));
+  border-radius: 50%;
+  border: 3px solid var(--primary-color);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* 気分診断モードカード */
+.mood-quiz-mode-card {
+  border-color: rgba(155, 89, 182, 0.5);
+}
+
+.mood-quiz-mode-card:hover {
+  background: rgba(155, 89, 182, 0.15);
+  border-color: #9b59b6;
+  box-shadow: 0 10px 30px rgba(155, 89, 182, 0.6);
+}
   max-height: 160px;
   border-radius: 50%;
   object-fit: cover;

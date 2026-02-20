@@ -25,6 +25,9 @@ const translations = {
     'modeSelect.void': 'ヴォイドに届くは光か闇か',
     'modeSelect.voidDesc': '連想ワードで繋ぐ協力ゲーム',
     'modeSelect.voidPlayers': '👥 2〜8人',
+    'modeSelect.moodQuiz': '気分診断チャンピオン選択',
+    'modeSelect.moodQuizDesc': '今の気分にピッタリのチャンピオンを診断',
+    'modeSelect.moodQuizPlayers': '👤 1人',
     
     'gameSelect.title': 'ゲームタイプ選択',
     'gameSelect.subtitle': 'どのゲームで遊びますか？',
@@ -308,6 +311,9 @@ const translations = {
     'modeSelect.void': 'Light or Dark to the Void',
     'modeSelect.voidDesc': 'Cooperative word association chain',
     'modeSelect.voidPlayers': '👥 2-8 Players',
+    'modeSelect.moodQuiz': 'Mood Quiz Champion Selector',
+    'modeSelect.moodQuizDesc': 'Find the perfect champion for your mood',
+    'modeSelect.moodQuizPlayers': '👤 1 Player',
     
     'gameSelect.title': 'Game Type Selection',
     'gameSelect.subtitle': 'Which game do you want to play?',
@@ -540,6 +546,9 @@ const translations = {
     'modeSelect.void': '보이드에 닿는 것은 빛인가 어둠인가',
     'modeSelect.voidDesc': '연상 단어로 이어가는 협력 게임',
     'modeSelect.voidPlayers': '👥 2~8명',
+    'modeSelect.moodQuiz': '기분 진단 챔피언 선택',
+    'modeSelect.moodQuizDesc': '지금 기분에 맞는 챔피언을 진단',
+    'modeSelect.moodQuizPlayers': '👤 1명',
     
     'gameSelect.title': '게임 타입 선택',
     'gameSelect.subtitle': '어떤 게임으로 플레이하시겠습니까?',
@@ -772,6 +781,9 @@ const translations = {
     'modeSelect.void': '光明或黑暗通往虚空',
     'modeSelect.voidDesc': '合作联想词链游戏',
     'modeSelect.voidPlayers': '👥 2-8名玩家',
+    'modeSelect.moodQuiz': '心情诊断英雄选择',
+    'modeSelect.moodQuizDesc': '根据您的心情推荐最适合的英雄',
+    'modeSelect.moodQuizPlayers': '👤 1名玩家',
     
     'gameSelect.title': '游戏类型选择',
     'gameSelect.subtitle': '您想玩哪个游戏？',
