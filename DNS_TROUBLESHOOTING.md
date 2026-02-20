@@ -1,472 +1,232 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>接続診断 - Esports パーティーゲーム</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: #fff;
-            padding: 20px;
-            min-height: 100vh;
-        }
-        
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        
-        h1 {
-            text-align: center;
-            margin-bottom: 2rem;
-            color: #0bc6e3;
-        }
-        
-        .card {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .status {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 8px;
-            background: rgba(0, 0, 0, 0.3);
-        }
-        
-        .status-icon {
-            font-size: 24px;
-        }
-        
-        .status-text {
-            flex: 1;
-        }
-        
-        .status.success {
-            border-left: 4px solid #10b981;
-        }
-        
-        .status.error {
-            border-left: 4px solid #ef4444;
-        }
-        
-        .status.warning {
-            border-left: 4px solid #f59e0b;
-        }
-        
-        .status.info {
-            border-left: 4px solid #3b82f6;
-        }
-        
-        .test-button {
-            background: #0bc6e3;
-            color: #fff;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            margin: 10px 5px;
-            transition: all 0.3s;
-        }
-        
-        .test-button:hover {
-            background: #0aa5c5;
-            transform: translateY(-2px);
-        }
-        
-        .test-button:disabled {
-            background: #666;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        .log {
-            background: #000;
-            color: #0f0;
-            padding: 15px;
-            border-radius: 8px;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            max-height: 400px;
-            overflow-y: auto;
-            margin-top: 10px;
-        }
-        
-        .log-entry {
-            margin: 5px 0;
-            word-break: break-all;
-        }
-        
-        .back-button {
-            display: inline-block;
-            background: #6366f1;
-            color: #fff;
-            text-decoration: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            transition: all 0.3s;
-        }
-        
-        .back-button:hover {
-            background: #4f46e5;
-            transform: translateY(-2px);
-        }
-        
-        .info-box {
-            background: rgba(59, 130, 246, 0.2);
-            border: 1px solid #3b82f6;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 15px 0;
-        }
-        
-        .info-box h3 {
-            color: #60a5fa;
-            margin-bottom: 10px;
-        }
-        
-        code {
-            background: rgba(0, 0, 0, 0.5);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-family: 'Courier New', monospace;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <a href="index.html" class="back-button">← ホームに戻る</a>
-        
-        <h1>🔍 接続診断ツール</h1>
-        
-        <div class="card">
-            <h2>📱 デバイス情報</h2>
-            <div class="status info">
-                <span class="status-icon">📱</span>
-                <div class="status-text">
-                    <strong>デバイスタイプ:</strong> <span id="device-type">-</span>
-                </div>
-            </div>
-            <div class="status info">
-                <span class="status-icon">🌐</span>
-                <div class="status-text">
-                    <strong>ブラウザ:</strong> <span id="browser">-</span>
-                </div>
-            </div>
-            <div class="status info">
-                <span class="status-icon">📏</span>
-                <div class="status-text">
-                    <strong>画面サイズ:</strong> <span id="screen-size">-</span>
-                </div>
-            </div>
-            <div class="status info">
-                <span class="status-icon">🔌</span>
-                <div class="status-text">
-                    <strong>オンライン状態:</strong> <span id="online-status">-</span>
-                </div>
-            </div>
-        </div>
-        
-        <div class="card">
-            <h2>🔥 Firebase接続テスト</h2>
-            <div id="firebase-status" class="status info">
-                <span class="status-icon">⏳</span>
-                <div class="status-text">
-                    <strong>接続状態:</strong> <span id="firebase-connection">テスト中...</span>
-                </div>
-            </div>
-            <button class="test-button" onclick="testFirebaseConnection()">再テスト</button>
-        </div>
-        
-        <div class="card">
-            <h2>📝 ルーム作成テスト</h2>
-            <div id="room-create-status" class="status info">
-                <span class="status-icon">⏳</span>
-                <div class="status-text">
-                    <strong>テスト状態:</strong> <span id="room-create-text">未実施</span>
-                </div>
-            </div>
-            <button class="test-button" onclick="testRoomCreate()">ルーム作成テスト</button>
-            <button class="test-button" onclick="testRoomJoin()">ルーム参加テスト</button>
-        </div>
-        
-        <div class="card">
-            <h2>📊 詳細ログ</h2>
-            <button class="test-button" onclick="clearLog()">ログをクリア</button>
-            <div class="log" id="log">
-                <div class="log-entry">診断開始...</div>
-            </div>
-        </div>
-        
-        <div class="info-box">
-            <h3>💡 問題が見つかった場合</h3>
-            <p><strong>Firebase接続エラーの場合:</strong></p>
-            <ul>
-                <li>Wi-Fiまたはモバイルデータ接続を確認</li>
-                <li>ブラウザのキャッシュをクリア</li>
-                <li>別のブラウザで試す（Chrome、Safari、Firefoxなど）</li>
-                <li>VPNを使用している場合は無効化</li>
-            </ul>
-            <br>
-            <p><strong>ルーム作成/参加エラーの場合:</strong></p>
-            <ul>
-                <li>ブラウザのCookieとローカルストレージが有効か確認</li>
-                <li>プライベートモード/シークレットモードを無効化</li>
-                <li>ページを完全に再読み込み（Ctrl+Shift+R / Cmd+Shift+R）</li>
-            </ul>
-        </div>
-    </div>
+# 🔧 DNS設定トラブルシューティング
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    
-    <!-- Firebase Config -->
-    <script src="js/firebase-config.js"></script>
-    
-    <script>
-        // ログ出力関数
-        function log(message, type = 'info') {
-            const logDiv = document.getElementById('log');
-            const timestamp = new Date().toLocaleTimeString();
-            const entry = document.createElement('div');
-            entry.className = 'log-entry';
-            
-            let icon = 'ℹ️';
-            if (type === 'success') icon = '✅';
-            if (type === 'error') icon = '❌';
-            if (type === 'warning') icon = '⚠️';
-            
-            entry.textContent = `[${timestamp}] ${icon} ${message}`;
-            logDiv.appendChild(entry);
-            logDiv.scrollTop = logDiv.scrollHeight;
-            
-            console.log(`[診断] ${message}`);
-        }
-        
-        function clearLog() {
-            document.getElementById('log').innerHTML = '<div class="log-entry">ログをクリアしました</div>';
-        }
-        
-        // デバイス情報を取得
-        function getDeviceInfo() {
-            const userAgent = navigator.userAgent;
-            let deviceType = 'デスクトップ';
-            
-            if (/Android/i.test(userAgent)) {
-                deviceType = 'Android';
-            } else if (/iPhone|iPad|iPod/i.test(userAgent)) {
-                deviceType = 'iOS';
-            } else if (/Mobile|Tablet/i.test(userAgent)) {
-                deviceType = 'モバイル';
-            }
-            
-            let browser = 'Unknown';
-            if (/Chrome/i.test(userAgent)) browser = 'Chrome';
-            else if (/Safari/i.test(userAgent)) browser = 'Safari';
-            else if (/Firefox/i.test(userAgent)) browser = 'Firefox';
-            else if (/Edge/i.test(userAgent)) browser = 'Edge';
-            else if (/Opera/i.test(userAgent)) browser = 'Opera';
-            
-            document.getElementById('device-type').textContent = deviceType;
-            document.getElementById('browser').textContent = browser;
-            document.getElementById('screen-size').textContent = `${window.innerWidth} x ${window.innerHeight}`;
-            document.getElementById('online-status').textContent = navigator.onLine ? '✅ オンライン' : '❌ オフライン';
-            
-            log(`デバイス: ${deviceType}, ブラウザ: ${browser}, 画面: ${window.innerWidth}x${window.innerHeight}`);
-        }
-        
-        // Firebase接続テスト
-        async function testFirebaseConnection() {
-            log('Firebase接続テスト開始...');
-            const statusDiv = document.getElementById('firebase-status');
-            const statusText = document.getElementById('firebase-connection');
-            
-            statusDiv.className = 'status info';
-            statusText.textContent = 'テスト中...';
-            
-            try {
-                // 接続状態を確認
-                const connectedRef = firebase.database().ref('.info/connected');
-                const connectedSnap = await connectedRef.once('value');
-                const isConnected = connectedSnap.val();
-                
-                if (isConnected) {
-                    statusDiv.className = 'status success';
-                    statusText.textContent = '✅ 接続成功';
-                    log('Firebase接続成功', 'success');
-                    
-                    // 書き込みテスト
-                    const testRef = firebase.database().ref('_connection_test/' + Date.now());
-                    await testRef.set({
-                        timestamp: Date.now(),
-                        userAgent: navigator.userAgent
-                    });
-                    log('書き込みテスト成功', 'success');
-                    
-                    // 削除
-                    await testRef.remove();
-                    log('クリーンアップ完了', 'success');
-                    
-                } else {
-                    throw new Error('Firebase未接続');
-                }
-                
-            } catch (error) {
-                statusDiv.className = 'status error';
-                statusText.textContent = '❌ 接続失敗';
-                log(`Firebase接続エラー: ${error.message}`, 'error');
-                log(`エラー詳細: ${JSON.stringify(error)}`, 'error');
-            }
-        }
-        
-        // ルーム作成テスト
-        async function testRoomCreate() {
-            log('ルーム作成テスト開始...');
-            const statusDiv = document.getElementById('room-create-status');
-            const statusText = document.getElementById('room-create-text');
-            
-            statusDiv.className = 'status info';
-            statusText.textContent = 'テスト中...';
-            
-            try {
-                const roomId = Math.random().toString(36).substring(2, 8).toUpperCase();
-                log(`テストルームID: ${roomId}`);
-                
-                const roomRef = firebase.database().ref('rooms/' + roomId);
-                const testData = {
-                    roomId: roomId,
-                    hostName: 'テストユーザー',
-                    gameType: 'lol',
-                    gameMode: 'wordwolf',
-                    maxPlayers: 4,
-                    createdAt: Date.now(),
-                    state: 'test'
-                };
-                
-                await roomRef.set(testData);
-                log('ルーム作成成功', 'success');
-                
-                // 読み取りテスト
-                const snapshot = await roomRef.once('value');
-                const data = snapshot.val();
-                
-                if (data && data.roomId === roomId) {
-                    log('ルーム読み取り成功', 'success');
-                    statusDiv.className = 'status success';
-                    statusText.textContent = `✅ テスト成功 (ルームID: ${roomId})`;
-                } else {
-                    throw new Error('ルームデータが一致しません');
-                }
-                
-                // クリーンアップ
-                await roomRef.remove();
-                log('テストルーム削除完了', 'success');
-                
-            } catch (error) {
-                statusDiv.className = 'status error';
-                statusText.textContent = '❌ テスト失敗';
-                log(`ルーム作成エラー: ${error.message}`, 'error');
-                log(`エラー詳細: ${JSON.stringify(error)}`, 'error');
-            }
-        }
-        
-        // ルーム参加テスト
-        async function testRoomJoin() {
-            log('ルーム参加テスト開始...');
-            const statusDiv = document.getElementById('room-create-status');
-            const statusText = document.getElementById('room-create-text');
-            
-            statusDiv.className = 'status info';
-            statusText.textContent = 'テスト中...';
-            
-            try {
-                // まずテストルームを作成
-                const roomId = Math.random().toString(36).substring(2, 8).toUpperCase();
-                log(`テストルームID: ${roomId}`);
-                
-                const roomRef = firebase.database().ref('rooms/' + roomId);
-                await roomRef.set({
-                    roomId: roomId,
-                    hostName: 'ホスト',
-                    players: {
-                        'ホスト': { ready: true }
-                    },
-                    maxPlayers: 4,
-                    createdAt: Date.now(),
-                    state: 'waiting'
-                });
-                log('テストルーム作成完了', 'success');
-                
-                // 参加テスト
-                const playerName = 'テスト参加者';
-                await roomRef.child('players').child(playerName).set({
-                    ready: true,
-                    joinedAt: Date.now()
-                });
-                log('プレイヤー追加成功', 'success');
-                
-                // 確認
-                const snapshot = await roomRef.child('players').once('value');
-                const players = snapshot.val();
-                
-                if (players && players[playerName]) {
-                    log('参加確認成功', 'success');
-                    statusDiv.className = 'status success';
-                    statusText.textContent = `✅ 参加テスト成功 (ルームID: ${roomId})`;
-                } else {
-                    throw new Error('プレイヤーデータが見つかりません');
-                }
-                
-                // クリーンアップ
-                await roomRef.remove();
-                log('テストルーム削除完了', 'success');
-                
-            } catch (error) {
-                statusDiv.className = 'status error';
-                statusText.textContent = '❌ テスト失敗';
-                log(`ルーム参加エラー: ${error.message}`, 'error');
-                log(`エラー詳細: ${JSON.stringify(error)}`, 'error');
-            }
-        }
-        
-        // オンライン状態の監視
-        window.addEventListener('online', () => {
-            log('ネットワーク接続復旧', 'success');
-            document.getElementById('online-status').textContent = '✅ オンライン';
-        });
-        
-        window.addEventListener('offline', () => {
-            log('ネットワーク接続喪失', 'error');
-            document.getElementById('online-status').textContent = '❌ オフライン';
-        });
-        
-        // 初期化
-        window.addEventListener('DOMContentLoaded', () => {
-            log('診断ツール初期化完了', 'success');
-            getDeviceInfo();
-            
-            // 自動的にFirebase接続テストを実行
-            setTimeout(() => {
-                testFirebaseConnection();
-            }, 1000);
-        });
-    </script>
-</body>
-</html>
+## エラー内容
+```
+Both moba-wordwolf.com and its alternate name are improperly configured
+Domain's DNS record could not be retrieved. (InvalidDNSError)
+```
+
+---
+
+## ✅ 解決手順
+
+### ステップ1: お名前.comのDNS設定を確認
+
+#### 確認すべきポイント
+
+**お名前.com Navi → DNS設定 → DNSレコード設定** で以下が設定されているか確認：
+
+| タイプ | ホスト名 | VALUE | TTL |
+|--------|----------|-------|-----|
+| A | **空欄**または**@** | 185.199.108.153 | 3600 |
+| A | **空欄**または**@** | 185.199.109.153 | 3600 |
+| A | **空欄**または**@** | 185.199.110.153 | 3600 |
+| A | **空欄**または**@** | 185.199.111.153 | 3600 |
+| CNAME | **www** | **pantherdragonpandora-debug.github.io.** | 3600 |
+
+#### ⚠️ よくある間違い
+
+1. **Aレコードのホスト名に「moba-wordwolf.com」と入力している**
+   - ❌ 間違い: `moba-wordwolf.com`
+   - ✅ 正しい: **空欄** または `@`
+
+2. **CNAMEレコードのVALUEの最後のドット（.）が抜けている**
+   - ❌ 間違い: `pantherdragonpandora-debug.github.io`
+   - ✅ 正しい: `pantherdragonpandora-debug.github.io.` （最後にドット）
+
+3. **ネームサーバーがお名前.comのものになっていない**
+   - お名前.comでDNSを使う場合、ネームサーバーは以下であるべき：
+     - `dns1.onamae.com`
+     - `dns2.onamae.com`
+
+---
+
+### ステップ2: ネームサーバーの確認と変更
+
+#### お名前.comのネームサーバーを使っているか確認
+
+1. **お名前.com Navi にログイン**
+2. **ドメイン一覧** で `moba-wordwolf.com` を探す
+3. **「ネームサーバー」** の列を確認
+
+#### もし別のネームサーバーが設定されている場合
+
+1. **ドメイン一覧** → **ネームサーバー** → **「変更する」**
+2. **「お名前.comのネームサーバーを使う」** を選択
+3. 確認して **「設定する」** をクリック
+
+設定後、反映まで **数時間〜24時間** かかります。
+
+---
+
+### ステップ3: DNS設定の反映を確認
+
+#### Windowsの場合
+
+コマンドプロンプト（cmd）を開いて：
+
+```cmd
+nslookup moba-wordwolf.com
+```
+
+#### Mac/Linuxの場合
+
+ターミナルを開いて：
+
+```bash
+dig moba-wordwolf.com
+```
+
+#### 期待される結果
+
+```
+Name:    moba-wordwolf.com
+Address: 185.199.108.153
+Address: 185.199.109.153
+Address: 185.199.110.153
+Address: 185.199.111.153
+```
+
+このように4つのIPアドレスが返ってくればOK！
+
+---
+
+### ステップ4: GitHub Pagesの設定を一旦削除して再設定
+
+DNS設定が反映されたら、GitHubで以下を実行：
+
+1. **GitHub → リポジトリ → Settings → Pages**
+2. **Custom domain の入力欄を空にして Save**（一旦削除）
+3. **30秒待つ**
+4. **再度 `moba-wordwolf.com` と入力して Save**
+5. **数分待つ**
+6. **DNS Check が成功すると、「Enforce HTTPS」のチェックボックスが表示される**
+
+---
+
+## 🕐 DNS設定の反映時間
+
+| 設定項目 | 反映時間 |
+|---------|---------|
+| お名前.comでのDNSレコード追加 | 数分〜1時間 |
+| ネームサーバー変更 | 数時間〜24時間 |
+| GitHub PagesでのDNS確認 | DNSレコード反映後、数分 |
+| HTTPS証明書の発行 | DNS確認後、数分〜24時間 |
+
+**現在の状況**: ドメイン購入からまだ時間が経っていない場合、**単純に反映待ち**の可能性が高いです。
+
+---
+
+## 📋 確認チェックリスト
+
+以下を順番に確認してください：
+
+### □ ステップ1: お名前.comのDNS設定を確認
+
+- [ ] Aレコードが4つある
+- [ ] Aレコードのホスト名が **空欄** または **@**
+- [ ] Aレコードの値が GitHub のIPアドレス4つ
+- [ ] CNAMEレコードが1つある
+- [ ] CNAMEのホスト名が **www**
+- [ ] CNAMEの値が `pantherdragonpandora-debug.github.io.` （**最後にドット**）
+
+### □ ステップ2: ネームサーバーを確認
+
+- [ ] ネームサーバーが `dns1.onamae.com` と `dns2.onamae.com`
+- [ ] もし違う場合は、お名前.comのネームサーバーに変更
+
+### □ ステップ3: DNS反映を確認
+
+- [ ] `nslookup moba-wordwolf.com` で GitHub のIPアドレスが返ってくる
+- [ ] 反映されていない場合は、**数時間〜24時間待つ**
+
+### □ ステップ4: GitHub Pagesを再設定
+
+- [ ] GitHub Pages でカスタムドメインを一旦削除
+- [ ] 再度 `moba-wordwolf.com` を入力
+- [ ] DNS Check が成功する
+
+---
+
+## 🎯 今すぐやるべきこと
+
+### 1. お名前.comのDNS設定を確認
+
+**お名前.com Navi → ドメイン一覧 → moba-wordwolf.com → DNS設定**
+
+上記のチェックリストと照らし合わせて、正しく設定されているか確認。
+
+### 2. ネームサーバーを確認
+
+**お名前.com Navi → ドメイン一覧 → ネームサーバー列**
+
+`dns1.onamae.com` / `dns2.onamae.com` になっているか確認。
+
+### 3. 反映を待つ
+
+設定が正しければ、**数時間待つ**だけでOKです。
+
+### 4. コマンドで確認
+
+定期的に以下を実行して、DNS設定が反映されたか確認：
+
+```bash
+nslookup moba-wordwolf.com
+```
+
+---
+
+## 💡 それでも解決しない場合
+
+以下の情報を教えてください：
+
+1. **お名前.comのDNS設定画面のスクリーンショット**（設定内容を確認）
+2. **ネームサーバーは何になっていますか？**
+3. **ドメインを購入してから何時間経ちましたか？**
+4. **`nslookup moba-wordwolf.com` の結果**（コマンド実行結果をコピペ）
+
+これらの情報があれば、より具体的にサポートできます！
+
+---
+
+## ✅ 正しい設定例（コピペ用）
+
+お名前.comのDNS設定画面で、以下のように設定してください：
+
+```
+【Aレコード 1つ目】
+タイプ: A
+ホスト名: （空欄）
+VALUE: 185.199.108.153
+TTL: 3600
+
+【Aレコード 2つ目】
+タイプ: A
+ホスト名: （空欄）
+VALUE: 185.199.109.153
+TTL: 3600
+
+【Aレコード 3つ目】
+タイプ: A
+ホスト名: （空欄）
+VALUE: 185.199.110.153
+TTL: 3600
+
+【Aレコード 4つ目】
+タイプ: A
+ホスト名: （空欄）
+VALUE: 185.199.111.153
+TTL: 3600
+
+【CNAMEレコード】
+タイプ: CNAME
+ホスト名: www
+VALUE: pantherdragonpandora-debug.github.io.
+TTL: 3600
+```
+
+**重要**: CNAMEの値の最後に `.` （ドット）を忘れずに！
+
+---
+
+**焦らず、設定を確認して、反映を待ちましょう！** 🕐✨

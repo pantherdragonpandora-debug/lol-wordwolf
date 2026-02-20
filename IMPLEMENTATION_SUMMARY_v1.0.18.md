@@ -1,303 +1,156 @@
-# 🎨 アイコン更新 & UI改善
+# 実装サマリー v1.0.18
 
-**実装日**: 2026-02-16  
-**バージョン**: 1.0.23 (UI更新 Patch 2)  
+## 📋 実装内容
 
----
+**タイトル**: デマーシア シチュエーション `[Object Object]` 表示修正
 
-## 📋 変更内容
+**実装日**: 2026-02-15
 
-### 1. デマーシアアイコンの変更 ⚔️
+**バージョン**: v1.0.18
 
-モード選択画面のデマーシアアイコンを絵文字から美しい画像に変更しました。
+## 🎯 解決した問題
 
-#### Before (絵文字)
-```html
-<div class="mode-icon-large">💖</div>
-```
+演技者のシチュエーション表示が `[Object Object]` という文字列で表示されていた問題を修正しました。
 
-#### After (画像)
-```html
-<img src="images/demacia-icon.jpg" alt="デマーシアに心を込めて" class="mode-icon-image">
-```
+### 影響範囲
+- ✅ 演技画面での演技者のシチュエーション表示
+- ✅ 投票画面でのシチュエーション選択肢
+- ✅ 結果画面での投票者の回答表示
 
-**画像の特徴**:
-- 黄金に輝く翼と剣のエンブレム
-- デマーシアの栄光と正義を象徴
-- 城と光線の壮大な背景
-- 円形にトリミング、シルバーのボーダー
+## 🔧 実施した修正
 
----
+### 1. 演技画面の修正 (`js/main.js`)
+```javascript
+// 修正前
+document.getElementById('demacia-situation').textContent = performerSituation.text;
 
-### 2. ヴォイドアイコンの変更 🌌
-
-モード選択画面のヴォイドアイコンを絵文字から神秘的な画像に変更しました。
-
-#### Before (絵文字)
-```html
-<div class="mode-icon-large">🌌</div>
-```
-
-#### After (画像)
-```html
-<img src="images/void-icon.jpg" alt="ヴォイドに届くは光か闇か" class="mode-icon-image">
-```
-
-**画像の特徴**:
-- ゴールドとパープルの光の衝突
-- 光（ゴールド）と闇（パープル）の対比
-- 宇宙的なエネルギーの渦
-- 円形にトリミング、パープルのボーダー
-
----
-
-### 3. ヴォイド人数選択の可読性改善 📝
-
-ヴォイドゲームのルーム作成画面で、背景と文字が両方白色で読みにくかった問題を修正しました。
-
-#### 問題点
-- **ラベル**: 白背景 + 白文字 → 見えない
-- **セレクトボックス**: 白背景 + 白文字 → 見えない
-- **ラジオボタンラベル**: 白文字 → 背景によっては見えにくい
-
-#### 修正内容
-
-**1. ラベルのスタイル**
-```css
-.void-card label {
-  display: block;
-  color: var(--void-glow);  /* パープルグロー色 */
-  font-size: 1rem;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-  text-shadow: 0 0 10px rgba(139, 92, 246, 0.5);  /* 発光エフェクト */
+// 修正後 - 防御的プログラミング
+let situationText, situationDifficulty;
+if (typeof performerSituation === 'string') {
+  situationText = performerSituation;
+  situationDifficulty = 'unknown';
+} else if (performerSituation && typeof performerSituation === 'object') {
+  situationText = performerSituation.text || JSON.stringify(performerSituation);
+  situationDifficulty = performerSituation.difficulty || 'unknown';
+} else {
+  situationText = 'エラー: シチュエーションが見つかりません';
+  situationDifficulty = 'unknown';
 }
 ```
 
-**2. セレクトボックスのスタイル**
-```css
-.void-card select {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  background: rgba(15, 10, 30, 0.8);  /* ダークパープル背景 */
-  border: 2px solid var(--void-primary);
-  border-radius: 8px;
-  color: white;
-  font-size: 1rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  cursor: pointer;
-}
+### 2. 投票画面の修正 (`js/main.js`)
+```javascript
+// 修正前
+btn.textContent = `${index + 1}. ${situation.text}`;
 
-.void-card select:focus {
-  outline: none;
-  border-color: var(--void-glow);
-  background: rgba(15, 10, 30, 0.95);
-  box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);  /* 発光エフェクト */
+// 修正後 - 型チェック
+let situationText;
+if (typeof situation === 'string') {
+  situationText = situation;
+} else if (situation && typeof situation === 'object') {
+  situationText = situation.text || JSON.stringify(situation);
+} else {
+  situationText = 'シチュエーション情報なし';
 }
-
-.void-card select option {
-  background: #1a1333;  /* ダークパープル */
-  color: white;
-  padding: 0.5rem;
-}
+btn.textContent = `${index + 1}. ${situationText}`;
 ```
 
-**3. ラジオボタンラベルのスタイル**
-```css
-.void-radio-label {
-  display: flex !important;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--void-glow) !important;  /* パープルグロー色 */
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin-bottom: 0 !important;
+### 3. 投票処理の修正 (`js/demacia-game.js`)
+```javascript
+// 修正前
+await this.roomRef.child(`currentVotes/${voterName}`).set({
+  guessedSituationText: selectedSituation.text,
+  // ...
+});
+
+// 修正後 - 確実にテキストを取得
+let situationText;
+if (typeof selectedSituation === 'string') {
+  situationText = selectedSituation;
+} else if (selectedSituation && typeof selectedSituation === 'object') {
+  situationText = selectedSituation.text || JSON.stringify(selectedSituation);
+} else {
+  situationText = 'エラー: シチュエーションが見つかりません';
 }
 
-.void-radio-label:hover {
-  color: white !important;
-  text-shadow: 0 0 15px rgba(139, 92, 246, 0.8);  /* 強い発光 */
-}
+await this.roomRef.child(`currentVotes/${voterName}`).set({
+  guessedSituationText: situationText,
+  // ...
+});
 ```
 
----
+### 4. デバッグログの追加
+すべての修正箇所に詳細なログを追加：
+```javascript
+console.log('🔍 デバッグ - performerSituation:', performerSituation);
+console.log('🔍 デバッグ - typeof performerSituation:', typeof performerSituation);
+```
 
 ## 📦 変更ファイル
 
-| ファイル | 変更内容 | 行数変更 | ファイルサイズ |
-|---------|---------|---------|--------------|
-| `images/demacia-icon.jpg` | デマーシアアイコン画像（新規） | 新規 | 1.6MB |
-| `images/void-icon.jpg` | ヴォイドアイコン画像（新規） | 新規 | 2.2MB |
-| `index.html` | アイコン画像化、ラジオボタンクラス追加 | +6, -6 | - |
-| `css/void-style.css` | フォーム要素スタイル追加 | +60行 | - |
+| ファイル | 変更内容 | 行数 |
+|---------|---------|------|
+| `js/main.js` | 演技画面・投票画面の表示ロジック修正 | +40, -10 |
+| `js/demacia-game.js` | 投票処理のテキスト取得ロジック修正 | +20, -5 |
+| `js/version.js` | バージョン更新 (1.0.17 → 1.0.18) | +1, -1 |
+
+## 🧪 テスト結果
+
+### Before (v1.0.17)
+```
+演技画面: [Object Object]
+投票画面: 1. [Object Object]
+結果画面: プレイヤー1: [Object Object] ✅
+```
+
+### After (v1.0.18)
+```
+演技画面: ペンタキルを決めた時 (難易度: medium)
+投票画面: 1. ペンタキルを決めた時
+         2. 初めてレジェンダリースキンを引いた時
+結果画面: プレイヤー1: ペンタキルを決めた時 ✅ 正解
+```
+
+## 🔍 技術的改善
+
+### 型安全性の向上
+- 3段階の型チェック（string → object → fallback）
+- フォールバックでJSON文字列化
+- エラー時のメッセージ表示
+
+### デバッグの容易性
+- 変数の型と内容を出力
+- エラー発生時の詳細情報
+- 問題の早期発見が可能
+
+## 🚀 デプロイ確認
+
+- ✅ キャッシュ自動クリア機能有効
+- ✅ バージョン: 1.0.18
+- ✅ デバッグログ実装
+- ✅ 全画面で正常表示
+
+## 📊 影響
+
+- **ユーザー体験**: 大幅に改善
+- **バグ発生率**: 低下
+- **デバッグ時間**: 短縮
+- **コードの堅牢性**: 向上
+
+## 📝 備考
+
+- すべての修正は下位互換性を保持
+- 古いデータ構造でも動作
+- エラーが発生してもゲームは続行可能
+
+## 🎯 今後の予定
+
+- [ ] デマーシアのルール説明を修正（LOL/VALORANT）
+- [ ] 配信者向けソロプレイモード実装
+- [ ] パフォーマンス最適化
 
 ---
 
-## 🎨 視覚的変更
-
-### モード選択画面
-
-#### Before
-```
-🐺 ワードウルフ（画像）
-💖 デマーシア（絵文字）
-🌌 ヴォイド（絵文字）
-```
-
-#### After
-```
-🖼️ ワードウルフ（狼の画像、ゴールドテーマ）
-🖼️ デマーシア（黄金の翼と剣、シルバーテーマ）
-🖼️ ヴォイド（光と闇の衝突、パープルテーマ）
-```
-
-### ヴォイド人数選択画面
-
-#### Before
-```
-┌─────────────────────┐
-│ 参加人数            │ ← 白文字（見えにくい）
-│ [2人 ▼]            │ ← 白背景+白文字（見えない）
-└─────────────────────┘
-```
-
-#### After
-```
-┌─────────────────────┐
-│ 参加人数 (パープル発光) │ ← 明確に見える
-│ [2人 ▼] (ダーク背景)  │ ← 白文字で読みやすい
-└─────────────────────┘
-```
-
----
-
-## 🧪 テスト手順
-
-### 1. モード選択画面の確認
-1. サイトにアクセス
-2. モード選択画面を開く
-3. ✅ ワードウルフに狼の画像
-4. ✅ デマーシアに黄金の翼と剣の画像
-5. ✅ ヴォイドに光と闇の衝突の画像
-6. ✅ 各アイコンが円形、モードカラーのボーダー
-
-### 2. ホバーエフェクトの確認
-1. 各モードカードにマウスオーバー
-2. ✅ アイコン画像が拡大
-3. ✅ カードが浮き上がる
-4. ✅ モードカラーのグローエフェクト
-
-### 3. ヴォイド人数選択の確認
-1. ヴォイドモード選択 → ゲームタイプ選択（LoL/VALORANT）
-2. ホーム画面 → 「ルームを作成」ボタンをクリック
-3. ルーム作成画面を確認
-4. ✅ 「プレイヤー名」ラベルがパープルで発光
-5. ✅ 「参加人数」ラベルがパープルで発光
-6. ✅ セレクトボックスがダーク背景、白文字で読みやすい
-7. ✅ セレクトボックスフォーカス時にパープルの発光エフェクト
-8. ✅ 「ランダム」「選択」ラジオボタンのラベルがパープルで見やすい
-9. ✅ ラジオボタンラベルにマウスオーバーで白く発光
-
-### 4. ドロップダウンの確認
-1. 「参加人数」セレクトボックスをクリック
-2. ✅ ドロップダウンがダークパープル背景
-3. ✅ オプションが白文字で読みやすい
-4. ✅ 選択時にパープルのハイライト
-
----
-
-## 🎯 ユーザーへの影響
-
-| 項目 | Before | After | 改善 |
-|-----|--------|-------|------|
-| デマーシアアイコン | 💖 絵文字 | 🖼️ 黄金の翼と剣 | +300% |
-| ヴォイドアイコン | 🌌 絵文字 | 🖼️ 光と闇の衝突 | +300% |
-| ヴォイドラベル | ❌ 白文字（見えない） | ✅ パープル発光 | +∞ |
-| ヴォイドセレクト | ❌ 白背景+白文字 | ✅ ダーク背景+白文字 | +∞ |
-| 全体的な視覚品質 | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | +66% |
-
-**改善点**:
-- ✅ 全モードのアイコンが画像化され、視覚的に統一
-- ✅ ヴォイドゲームのUIがテーマカラーに完全対応
-- ✅ フォーム要素の可読性が大幅に向上
-- ✅ ホバー/フォーカスエフェクトでUX向上
-
----
-
-## 🎨 デザイン仕様
-
-### アイコン画像仕様
-
-| モード | 画像サイズ | 主な色 | テーマ | ボーダーカラー |
-|--------|----------|--------|--------|--------------|
-| ワードウルフ | 2.4MB | 青/白 | 月に吠える狼 | ゴールド `#c89b3c` |
-| デマーシア | 1.6MB | ゴールド/白 | 翼と剣のエンブレム | シルバー `#c0c0c0` |
-| ヴォイド | 2.2MB | ゴールド/パープル | 光と闇の衝突 | パープル `#8b5cf6` |
-
-### カラーコード
-
-#### ヴォイドテーマ
-- **Primary**: `#8b5cf6` (パープル)
-- **Secondary**: `#3b82f6` (ブルー)
-- **Glow**: `#d4b5ff` (ライトパープル)
-- **Dark Background**: `rgba(15, 10, 30, 0.8)`
-
----
-
-## 🚀 デプロイ手順
-
-### 1. ファイルを GitHub にアップロード
-
-```bash
-git add images/demacia-icon.jpg images/void-icon.jpg index.html css/void-style.css
-git commit -m "UI: デマーシア&ヴォイドアイコン画像化、ヴォイドフォーム可読性改善"
-git push origin main
-```
-
-### 2. GitHub Actions で自動デプロイ
-
-- GitHub Actions が自動的にビルド＆デプロイ
-- 1〜2分で完了
-
-### 3. キャッシュクリア
-
-ユーザーはブラウザでハードリロード（Ctrl+Shift+R / Cmd+Shift+R）
-
----
-
-## 🔗 関連ドキュメント
-
-- `images/wordwolf-icon.jpg` - ワードウルフアイコン画像
-- `images/demacia-icon.jpg` - デマーシアアイコン画像
-- `images/void-icon.jpg` - ヴォイドアイコン画像
-- `css/void-style.css` - ヴォイドテーマスタイル
-- `THEME_COLOR_UPDATE.md` - テーマカラー統一ドキュメント
-- `README.md` - プロジェクト全体のドキュメント
-
----
-
-## 📊 Before/After 比較
-
-### モード選択画面
-| 項目 | Before | After |
-|-----|--------|-------|
-| ワードウルフ | 🐺 | 🖼️ (狼の画像) |
-| デマーシア | 💖 | 🖼️ (翼と剣) |
-| ヴォイド | 🌌 | 🖼️ (光と闇) |
-
-### ヴォイド人数選択
-| 要素 | Before | After |
-|-----|--------|-------|
-| ラベル | 白文字（見えない） | パープル発光 |
-| セレクト | 白背景+白文字 | ダーク背景+白文字 |
-| ドロップダウン | デフォルト | ダークパープル背景 |
-| ラジオラベル | 白文字 | パープル発光 |
-| ホバー | なし | 白く強く発光 |
-
----
-
-**ドキュメント作成日**: 2026-02-16  
-**作成者**: AI Assistant  
-**バージョン**: 1.0.23 (UI更新 Patch 2)
+**実装者**: AI Assistant  
+**レビュー**: 完了  
+**ステータス**: デプロイ完了 ✅

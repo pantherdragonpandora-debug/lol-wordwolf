@@ -1,244 +1,238 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>よくある質問（FAQ） - Esports ワードウルフ</title>
-    <link rel="stylesheet" href="css/style.css">
-    <style>
-        .faq-container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: var(--spacing-lg);
-        }
-        .faq-section {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: var(--spacing-lg);
-            margin-bottom: var(--spacing-md);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        }
-        .faq-section h2 {
-            color: var(--primary-color);
-            border-bottom: 2px solid var(--primary-color);
-            padding-bottom: var(--spacing-sm);
-            margin-bottom: var(--spacing-md);
-        }
-        .faq-item {
-            margin-bottom: var(--spacing-md);
-            padding-bottom: var(--spacing-md);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .faq-item:last-child {
-            border-bottom: none;
-        }
-        .faq-question {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--primary-color);
-            margin-bottom: var(--spacing-sm);
-        }
-        .faq-answer {
-            color: var(--text-light);
-            line-height: 1.6;
-        }
-        .back-link {
-            display: inline-block;
-            margin-top: var(--spacing-md);
-            color: var(--primary-color);
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-        .back-link:hover {
-            color: var(--secondary-color);
-        }
-    </style>
-</head>
-<body>
-    <header>
-        <div class="header-content">
-            <h1>🎮 よくある質問（FAQ）</h1>
-        </div>
-    </header>
+# 🔧 Firebase 承認済みドメイン設定ガイド
 
-    <main>
-        <div class="faq-container">
-            <div class="faq-section">
-                <h2>🎯 基本的な質問</h2>
-                
-                <div class="faq-item">
-                    <div class="faq-question">Q1: ワードウルフとは何ですか？</div>
-                    <div class="faq-answer">
-                        ワードウルフは、参加者の中に隠れた「ウルフ（少数派）」を見つけ出すコミュニケーションゲームです。多数派は同じお題を、ウルフは少し違うお題を受け取り、会話を通じて誰がウルフか推理します。
-                    </div>
-                </div>
+## 問題: 「ルームの作成に失敗しました」
 
-                <div class="faq-item">
-                    <div class="faq-question">Q2: 何人でプレイできますか？</div>
-                    <div class="faq-answer">
-                        3〜6人でプレイ可能です。4〜5人が最も楽しめる人数です。
-                    </div>
-                </div>
+GitHub PagesでLOLワードウルフを開くと、ルームが作成できない場合、
+**Firebase側でGitHub Pagesのドメインが承認されていない**のが原因です。
 
-                <div class="faq-item">
-                    <div class="faq-question">Q3: どのゲームに対応していますか？</div>
-                    <div class="faq-answer">
-                        現在、League of Legends（LoL）とVALORANTの2つのゲームに対応しています。それぞれ専用のお題セット（LoL: 73ペア、VALORANT: 77ペア）を用意しています。
-                    </div>
-                </div>
+---
 
-                <div class="faq-item">
-                    <div class="faq-question">Q4: 無料で遊べますか？</div>
-                    <div class="faq-answer">
-                        はい、完全無料でプレイできます。アカウント登録も不要です。
-                    </div>
-                </div>
-            </div>
+## ✅ 解決方法：承認済みドメインを追加
 
-            <div class="faq-section">
-                <h2>🎮 遊び方</h2>
-                
-                <div class="faq-item">
-                    <div class="faq-question">Q5: ゲームの始め方は？</div>
-                    <div class="faq-answer">
-                        ①ゲーム選択画面でLoLかVALORANTを選択<br>
-                        ②「ルームを作成」をクリック<br>
-                        ③プレイヤー名、人数、時間、カテゴリーを設定<br>
-                        ④ルームIDを友達に共有<br>
-                        ⑤全員が揃ったら「ゲーム開始」
-                    </div>
-                </div>
+### ステップ1: Firebase Consoleを開く
 
-                <div class="faq-item">
-                    <div class="faq-question">Q6: 友達を招待するには？</div>
-                    <div class="faq-answer">
-                        ルーム作成後、待機画面に表示される「URLをコピー」ボタンをクリックして、友達にURLを共有してください。友達がそのURLにアクセスすると自動的にルームに参加できます。
-                    </div>
-                </div>
+1. [Firebase Console](https://console.firebase.google.com/) にアクセス
+2. **「lol-word-wolf」**プロジェクトをクリック
 
-                <div class="faq-item">
-                    <div class="faq-question">Q7: 討論時間の目安は？</div>
-                    <div class="faq-answer">
-                        3〜10分がおすすめです。短いと推理が難しく、長すぎると飽きる可能性があります。慣れてきたら5〜7分が最適です。
-                    </div>
-                </div>
+### ステップ2: Authenticationを開く
 
-                <div class="faq-item">
-                    <div class="faq-question">Q8: カテゴリーは複数選べますか？</div>
-                    <div class="faq-answer">
-                        はい、複数選択可能です。選択したカテゴリーの中からランダムにお題が選ばれます。全カテゴリーを選ぶと、より多様なお題で楽しめます。
-                    </div>
-                </div>
-            </div>
+1. 左メニューの**「構築」**セクション
+2. **「Authentication」**をクリック
+3. まだ有効化していない場合：
+   - **「始める」**をクリック
+   - 何も設定せずOK（後でスキップできます）
 
-            <div class="faq-section">
-                <h2>💡 戦略とコツ</h2>
-                
-                <div class="faq-item">
-                    <div class="faq-question">Q9: 市民として上手く推理するコツは？</div>
-                    <div class="faq-answer">
-                        ・具体的な質問をして反応を見る<br>
-                        ・抽象的な話題で相手の知識を探る<br>
-                        ・全員の発言内容を記憶し、矛盾点を探す<br>
-                        ・ゲームの知識を活かして、細かい違いを見抜く
-                    </div>
-                </div>
+### ステップ3: 承認済みドメインを追加
 
-                <div class="faq-item">
-                    <div class="faq-question">Q10: ウルフとして生き残るコツは？</div>
-                    <div class="faq-answer">
-                        ・最初は聞き役に徹して多数派の話題を把握<br>
-                        ・話を合わせつつ、ボロが出ないように注意<br>
-                        ・自分のお題に誘導しすぎない<br>
-                        ・疑われたら堂々と振る舞い、逆に疑いをかける
-                    </div>
-                </div>
+1. 上部タブの**「Settings」**（⚙️歯車アイコンの隣）をクリック
+2. 下にスクロールして**「承認済みドメイン」**セクションを探す
+3. 現在リストされているドメイン（デフォルト）:
+   ```
+   ✅ localhost
+   ✅ lol-word-wolf.firebaseapp.com
+   ```
 
-                <div class="faq-item">
-                    <div class="faq-question">Q11: 初心者におすすめのカテゴリーは？</div>
-                    <div class="faq-answer">
-                        LoLなら「チャンピオン」「アイテム」、VALORANTなら「エージェント」「武器」がおすすめです。これらは知名度が高く、話題にしやすいです。
-                    </div>
-                </div>
-            </div>
+4. **「ドメインを追加」**ボタンをクリック
+5. あなたのGitHub Pagesのドメインを入力：
+   ```
+   あなたのユーザー名.github.io
+   ```
+   例：`taro123.github.io`
 
-            <div class="faq-section">
-                <h2>🔧 技術的な質問</h2>
-                
-                <div class="faq-item">
-                    <div class="faq-question">Q12: 対応ブラウザは？</div>
-                    <div class="faq-answer">
-                        Chrome、Firefox、Safari、Edgeの最新版に対応しています。スマートフォンのブラウザでもプレイ可能です。
-                    </div>
-                </div>
+6. **「追加」**をクリック
 
-                <div class="faq-item">
-                    <div class="faq-question">Q13: ルームが作成できません</div>
-                    <div class="faq-answer">
-                        プレイヤー名とカテゴリーが正しく入力されているか確認してください。ブラウザのキャッシュをクリアするか、別のブラウザで試してみてください。
-                    </div>
-                </div>
+### ステップ4: 完了確認
 
-                <div class="faq-item">
-                    <div class="faq-question">Q14: チャットが表示されません</div>
-                    <div class="faq-answer">
-                        ページを再読み込みしてください。それでも解決しない場合は、ブラウザの開発者コンソールでエラーメッセージを確認するか、別のブラウザで試してください。
-                    </div>
-                </div>
+承認済みドメインリストに以下が表示されればOK：
+```
+✅ localhost
+✅ lol-word-wolf.firebaseapp.com
+✅ あなたのユーザー名.github.io  ← 新しく追加
+```
 
-                <div class="faq-item">
-                    <div class="faq-question">Q15: データは保存されますか？</div>
-                    <div class="faq-answer">
-                        ゲームデータはFirebaseリアルタイムデータベースに一時的に保存されます。個人情報は収集していません。詳細は<a href="privacy.html" style="color: var(--primary-color);">プライバシーポリシー</a>をご確認ください。
-                    </div>
-                </div>
-            </div>
+### ステップ5: サイトをリロード
 
-            <div class="faq-section">
-                <h2>📜 その他</h2>
-                
-                <div class="faq-item">
-                    <div class="faq-question">Q16: このサイトは公式ですか？</div>
-                    <div class="faq-answer">
-                        いいえ、これはファンが作成した非公式サイトです。Riot Gamesの「Legal Jibber Jabber」ポリシーに準拠しています。
-                    </div>
-                </div>
+1. GitHub Pagesのタブに戻る
+2. **Ctrl + Shift + R**（スーパーリロード）
+3. ルームを作成してみる
 
-                <div class="faq-item">
-                    <div class="faq-question">Q17: 画像の使用許可は？</div>
-                    <div class="faq-answer">
-                        ゲーム内の画像はRiot Games公式のData Dragon CDNから提供されており、Riotのポリシーに従って使用しています。
-                    </div>
-                </div>
+---
 
-                <div class="faq-item">
-                    <div class="faq-question">Q18: 新しいゲームを追加する予定は？</div>
-                    <div class="faq-answer">
-                        現在、Apex LegendsやOverwatch 2などの追加を検討しています。要望があればぜひ<a href="contact.html" style="color: var(--primary-color);">お問い合わせ</a>ください。
-                    </div>
-                </div>
+## 🎯 正確なドメイン名の確認方法
 
-                <div class="faq-item">
-                    <div class="faq-question">Q19: 広告が表示されるのはなぜ？</div>
-                    <div class="faq-answer">
-                        サイトの運営コスト（サーバー費用など）をカバーするため、Google AdSenseを使用しています。非営利目的で、Riotのポリシーに準拠しています。
-                    </div>
-                </div>
+GitHub Pagesのドメインがわからない場合：
 
-                <div class="faq-item">
-                    <div class="faq-question">Q20: バグや要望の報告は？</div>
-                    <div class="faq-answer">
-                        <a href="contact.html" style="color: var(--primary-color);">お問い合わせページ</a>からご連絡ください。改善提案や新機能の要望もお待ちしています！
-                    </div>
-                </div>
-            </div>
+### 方法1: GitHub Settingsで確認
 
-            <a href="index.html" class="back-link">← ゲームに戻る</a>
-        </div>
-    </main>
+1. GitHubリポジトリを開く
+2. **「Settings」** → **「Pages」**
+3. 上部に表示されているURL:
+   ```
+   Your site is live at https://username.github.io/lol-wordwolf/
+   ```
+4. この場合、追加するドメインは：
+   ```
+   username.github.io
+   ```
+   **注意**: `/lol-wordwolf/` は含めない
 
-    <footer>
-        <p>© 2025 Esports ワードウルフ | <a href="privacy.html">プライバシーポリシー</a> | <a href="terms.html">利用規約</a> | <a href="faq.html">FAQ</a> | <a href="contact.html">お問い合わせ</a></p>
-    </footer>
-</body>
-</html>
+### 方法2: ブラウザのアドレスバーで確認
+
+1. GitHub Pagesのサイトを開く
+2. アドレスバーのURLを見る:
+   ```
+   https://taro123.github.io/lol-wordwolf/
+   ```
+3. 追加するドメイン:
+   ```
+   taro123.github.io
+   ```
+
+---
+
+## 🔍 追加確認事項
+
+### Firebase Realtime Database のルール
+
+念のため、セキュリティルールも確認します。
+
+1. Firebase Console → **「Realtime Database」**
+2. **「ルール」**タブをクリック
+3. 以下のルールになっているか確認:
+
+```json
+{
+  "rules": {
+    ".read": true,
+    ".write": true
+  }
+}
+```
+
+または
+
+```json
+{
+  "rules": {
+    "rooms": {
+      ".read": true,
+      ".write": true
+    }
+  }
+}
+```
+
+4. 違っている場合は上記に変更して**「公開」**
+
+**⚠️ 注意**: これはテスト用のルールです。本番環境では後で厳格化してください。
+
+---
+
+## 🧪 テスト手順
+
+### テスト1: Firebase接続確認
+
+1. サイトを開く
+2. 右上の接続状態を確認:
+   - ✅ **緑色「接続中」** → Firebase接続OK
+   - ❌ **赤色「切断」** → Firebase接続エラー
+
+### テスト2: コンソールでエラー確認
+
+1. **F12**を押す
+2. **Console**タブ
+3. 以下のメッセージを確認:
+   ```
+   ✅ Firebase接続成功  → OK
+   ❌ Firebase接続失敗  → エラー
+   ```
+
+### テスト3: ルーム作成
+
+1. プレイヤー名を入力
+2. 設定を選択
+3. **「作成」**をクリック
+4. 成功すれば待機室に遷移
+
+---
+
+## 💡 それでもダメな場合
+
+### 追加のドメインパターンを試す
+
+GitHub Pagesのサブパスを使っている場合、以下も追加してみてください：
+
+1. Firebase Console → Authentication → Settings → 承認済みドメイン
+2. 以下のドメインを**すべて追加**:
+   ```
+   username.github.io
+   username.github.io/lol-wordwolf
+   ```
+
+### ワイルドカードを試す（非推奨だが動作確認用）
+
+```
+*.github.io
+```
+
+**注意**: ワイルドカードは一時的な確認用です。動作確認後、正確なドメインに変更してください。
+
+---
+
+## 📊 エラー別対処法
+
+### エラー1: "Permission denied"
+
+**原因**: Firebase Realtime Databaseのセキュリティルール
+
+**解決策**:
+1. Firebase Console → Realtime Database → ルール
+2. 以下に変更:
+   ```json
+   {
+     "rules": {
+       ".read": true,
+       ".write": true
+     }
+   }
+   ```
+
+### エラー2: "CORS error" / "Access-Control-Allow-Origin"
+
+**原因**: 承認済みドメインが未設定
+
+**解決策**: 上記の「承認済みドメインを追加」を実行
+
+### エラー3: "Failed to get document because the client is offline"
+
+**原因**: Firebase接続失敗
+
+**解決策**:
+1. ブラウザがオフラインでないか確認
+2. Firebaseプロジェクトが有効か確認
+3. APIキーが正しいか確認（`js/firebase-config.js`）
+
+---
+
+## 🎯 完全な確認チェックリスト
+
+- [ ] Firebase Console → Authentication → Settings → 承認済みドメイン
+- [ ] `username.github.io` を追加済み
+- [ ] Firebase Realtime Database → ルール → `.read: true, .write: true`
+- [ ] サイトをスーパーリロード（Ctrl + Shift + R）
+- [ ] 接続状態が「✅ 接続中」
+- [ ] Consoleタブにエラーなし
+- [ ] ルーム作成成功
+
+---
+
+## 🆘 まだ解決しない場合
+
+以下の情報を教えてください：
+
+1. **ブラウザのConsoleタブのエラーメッセージ**（赤文字）
+2. **GitHub PagesのURL**（例: `https://taro123.github.io/lol-wordwolf/`）
+3. **接続状態の表示**（✅ 接続中 / ❌ 切断）
+4. **承認済みドメインに何を追加しましたか？**
+
+これらの情報があれば、具体的な解決策を提案できます！🚀

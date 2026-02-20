@@ -351,6 +351,12 @@ function showScreen(screenId) {
     console.error('❌ Screen not found:', screenId);
   }
   
+  // 画面を一番上にスクロール
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+  
   // スタート画面に戻るボタンの表示制御
   updateHomeButton(screenId);
 }

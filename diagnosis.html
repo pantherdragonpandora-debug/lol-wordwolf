@@ -1,397 +1,472 @@
-# 🐛 デマーシア投票画面修正 (v1.0.15)
-
-## 📋 概要
-デマーシアモードの投票画面が誤ってワードウルフの画面（「誰がウルフですか？」）を表示していた問題を修正しました。
-
-## 🐛 修正前の問題
-
-### 主な問題点
-1. **デマーシア投票画面がワードウルフになっていた**
-   - デマーシアモードなのに「誰がウルフですか？」と表示
-   - プレイヤー選択画面が表示される
-   - シチュエーション選択ができない
-
-2. **ゲームモード判定の問題**
-   - `voting` 状態が両ゲームモードで共通
-   - ゲームモード判定ロジックが不完全
-   - FirebaseにゲームモードIDが保存されていない
-
-3. **投票状況が分からない**
-   - 何人が投票完了したか表示されない
-   - 待機状態が不明瞭
-
-## ✅ 修正内容
-
-### 1. ゲームモード判定の改善 ✨
-
-**Firebaseデータ構造に `gameMode` フィールドを追加：**
-
-#### デマーシアゲーム (js/demacia-game.js)
-```javascript
-const roomData = {
-  host: hostName,
-  gameMode: 'demacia', // ゲームモードを明示的に保存
-  settings: { ... },
-  players: { ... },
-  gameState: 'waiting',
-  currentRound: 0,
-  createdAt: Date.now()
-};
-```
-
-#### ワードウルフゲーム (js/game.js)
-```javascript
-await this.roomRef.set({
-  host: hostName,
-  gameMode: 'wordwolf', // ゲームモードを明示的に保存
-  settings: settings,
-  players: { ... },
-  gameState: 'waiting',
-  createdAt: Date.now(),
-  timer: null,
-  chat: []
-});
-```
-
-### 2. 画面遷移ロジックの修正 🔧
-
-**Before（v1.0.14）：**
-```javascript
-// 問題: voting状態で両方のゲームモードが混在
-if (roomData.gameState === 'voting') {
-  showVotingScreen(roomData);        // ワードウルフ
-  checkWordWolfVotingComplete(roomData);
-}
-else if (roomData.gameState === 'voting') {
-  showDemaciaVotingScreen();         // デマーシア
-  checkDemaciaVotingComplete();
-}
-```
-
-**After（v1.0.15）：**
-```javascript
-// ゲームモードを判定
-const isDemaciaMode = roomData.gameMode === 'demacia' || 
-                      roomData.gameState === 'performer_selection' || 
-                      roomData.gameState === 'performing' || 
-                      roomData.gameState === 'round_result';
-
-if (isDemaciaMode) {
-  // デマーシアモードの画面遷移
-  if (roomData.gameState === 'voting') {
-    showDemaciaVotingScreen();
-    checkDemaciaVotingComplete();
-  }
-} else {
-  // ワードウルフモードの画面遷移
-  if (roomData.gameState === 'voting') {
-    showVotingScreen(roomData);
-    checkWordWolfVotingComplete(roomData);
-  }
-}
-```
-
-### 3. 投票状況のリアルタイム表示 📊
-
-**HTMLに投票状況表示を追加：**
-```html
-<!-- 投票状況表示 -->
-<div id="demacia-vote-status" style="text-align: center; margin-bottom: 1rem; padding: 0.5rem; background: rgba(200,155,60,0.1); border-radius: 8px; font-size: 0.9rem;">
-    <span id="demacia-vote-count">0</span> / <span id="demacia-total-voters">0</span> 人が投票完了
-</div>
-```
-
-**JavaScript更新：**
-```javascript
-// 投票状況を更新
-const players = Object.values(roomData.players || {});
-const totalPlayers = players.length;
-const performerCount = 1; // 演技者は投票しない
-const expectedVoters = totalPlayers - performerCount;
-const voteCount = Object.keys(roomData.currentVotes || {}).length;
-
-document.getElementById('demacia-vote-count').textContent = voteCount;
-document.getElementById('demacia-total-voters').textContent = expectedVoters;
-```
-
-### 4. 投票済みユーザーのUI制御 🔒
-
-```javascript
-// 自分が既に投票済みか確認
-const hasVoted = roomData.currentVotes && roomData.currentVotes[currentPlayer];
-
-if (voteBtn) {
-  if (hasVoted) {
-    voteBtn.disabled = true;
-    voteBtn.textContent = '投票完了';
-  } else if (isPerformer) {
-    voteBtn.disabled = true;
-    voteBtn.style.display = 'none';
-  } else {
-    voteBtn.disabled = false;
-    voteBtn.textContent = '投票する';
-    voteBtn.style.display = 'block';
-  }
-}
-
-if (hasVoted) {
-  optionsContainer.innerHTML = '<p style="text-align: center; padding: 2rem; color: #c89b3c;">✅ 投票完了！<br>他のプレイヤーの投票を待っています...</p>';
-}
-```
-
-### 5. 投票完了チェック機能の有効化 ✅
-
-```javascript
-// デマーシア投票完了チェック
-async function checkDemaciaVotingComplete() {
-  if (!currentDemaciaGame || !currentDemaciaGame.roomData) {
-    return;
-  }
-  
-  const roomData = currentDemaciaGame.roomData;
-  const playerCount = Object.keys(roomData.players || {}).length;
-  const voteCount = Object.keys(roomData.currentVotes || {}).length;
-  const expectedVotes = playerCount - 1; // 演技者を除く
-  
-  console.log(`🗳️ デマーシア投票状況: ${voteCount}/${expectedVotes}`);
-  
-  // 全員が投票完了したら結果画面へ遷移
-  if (voteCount >= expectedVotes && expectedVotes > 0) {
-    console.log('🎉 デマーシア全員の投票が完了！');
-    // calculateResults は demacia-game.js 内で自動実行される
-  }
-}
-```
-
-## 📊 実装フロー
-
-### デマーシアの投票から結果表示まで
-
-```
-1. 演技フェーズ
-   - 演技者がシチュエーションを見て演技
-   - 他のプレイヤーは演技を見る
-   ↓
-2. 投票開始
-   - 演技者が「投票を開始」ボタンを押す
-   - gameState が 'voting' に変更
-   ↓
-3. 投票画面表示（修正点！）
-   - ✅ ゲームモード判定により正しい画面へ
-   - ✅ デマーシア投票画面（シチュエーション選択）が表示
-   - ✅ 投票状況表示「0 / 4 人が投票完了」
-   ↓
-4. 各プレイヤーが投票
-   - プレイヤーA: シチュエーション選択 → 投票
-   - 投票状況更新「1 / 4 人が投票完了」
-   - プレイヤーB: 投票
-   - 投票状況更新「2 / 4 人が投票完了」
-   - ...
-   ↓
-5. 全員投票完了
-   - 投票状況「4 / 4 人が投票完了」
-   - checkDemaciaVotingComplete() が検知
-   - demacia-game.js の calculateResults() が自動実行
-   - gameState が 'round_result' に変更
-   ↓
-6. 結果画面表示
-   - ✅ 正解のシチュエーションが表示
-   - ✅ 各プレイヤーの投票結果（正解/不正解）
-   - ✅ 演技者の獲得ポイント
-   - ✅ 正解者数 / 総投票者数
-```
-
-## 📁 修正ファイル一覧
-
-| ファイル | 変更内容 | 行数 |
-|---------|---------|------|
-| `js/main.js` | ゲームモード判定ロジック修正 | +40, -30 |
-| `js/main.js` | 投票画面表示機能強化 | +50, -30 |
-| `js/main.js` | 投票完了チェック有効化 | +15 |
-| `js/demacia-game.js` | gameMode追加 | +1 |
-| `js/game.js` | gameMode追加 | +1 |
-| `index.html` | 投票状況UI追加 | +5 |
-| `js/version.js` | v1.0.15に更新 | +1, -1 |
-| **合計** | **7ファイル** | **+113, -61** |
-
-## 🧪 テスト方法
-
-### 基本的な動作確認（3人以上推奨）
-
-#### 1. ゲーム開始
-```
-- プレイヤー1: デマーシア → League of Legends → 部屋作成
-- プレイヤー2, 3, 4: ルームコード入力 → 参加
-- プレイヤー1: ゲーム開始
-```
-
-#### 2. 演技フェーズ
-```
-- ランダムで演技者が選択される（例: Player2）
-- Player2: セリフとシチュエーションを確認
-  例: 「デマーシアァァァァ！」- ペンタキルを決めた時（難易度: easy）
-- Player2: 演技を行う
-- Player2: 「投票を開始」ボタンを押す
-```
-
-#### 3. 投票画面（ここが修正点！）
-```
-✅ デマーシア投票画面が表示される
-✅ 「演技者はどのシチュエーションを演じていましたか？」と表示
-✅ 6つのシチュエーション選択肢が表示される:
-   1. ペンタキルを決めた時
-   2. 味方が全滅した時
-   3. バロンを奪われた時
-   4. 試合に勝った時
-   5. 試合に負けた時
-   6. ゲームが始まる前
-✅ 投票状況が表示される「0 / 3 人が投票完了」
-✅ 演技者（Player2）は「他のプレイヤーの投票を待っています...」と表示
-
-❌ 「誰がウルフですか？」は表示されない
-❌ プレイヤー選択画面は表示されない
-```
-
-#### 4. 投票実行
-```
-- Player1がシチュエーション選択 → 投票
-  ✅ ボタンが「投票完了」に変わる
-  ✅ 投票状況「1 / 3 人が投票完了」
-
-- Player3が投票
-  ✅ 投票状況「2 / 3 人が投票完了」
-
-- Player4が投票
-  ✅ 投票状況「3 / 3 人が投票完了」
-  ✅ 自動的に結果画面に遷移
-```
-
-#### 5. 結果画面
-```
-✅ セリフが表示される: 「デマーシアァァァァ！」
-✅ 正解のシチュエーションが表示される: 「正解: ペンタキルを決めた時（難易度: easy）」
-✅ 正解者数が表示される: 「✅ 正解者: 2 / 3人」
-✅ 演技者の獲得ポイント: 「🎭 Player2さんの獲得ポイント: +2」
-✅ 各プレイヤーの投票結果:
-   Player1 → ペンタキルを決めた時 ✅ 正解
-   Player3 → バロンを奪われた時 ❌ 不正解
-   Player4 → ペンタキルを決めた時 ✅ 正解
-```
-
-### コンソールログの確認
-
-投票フロー中のコンソールログ：
-```
-🗳️ デマーシア投票状況: 0/3
-📤 投票送信中: Player1 → 0
-✅ 投票完了: Player1 → ペンタキルを決めた時 (正解)
-📊 投票状況: 1/3
-🗳️ デマーシア投票状況: 1/3
-
-📤 投票送信中: Player3 → 2
-✅ 投票完了: Player3 → バロンを奪われた時 (不正解)
-📊 投票状況: 2/3
-🗳️ デマーシア投票状況: 2/3
-
-📤 投票送信中: Player4 → 0
-✅ 投票完了: Player4 → ペンタキルを決めた時 (正解)
-📊 投票状況: 3/3
-🎉 全員の投票が完了！結果を集計します
-🗳️ デマーシア投票状況: 3/3
-🎉 デマーシア全員の投票が完了！
-✅ 結果集計完了
-```
-
-## 🔍 トラブルシューティング
-
-### 問題1: デマーシアなのにワードウルフの投票画面が表示される
-
-**原因：**
-- `gameMode` が保存されていない古いルーム
-- ブラウザキャッシュが古いバージョン
-
-**対処法：**
-1. ブラウザをスーパーリロード（Ctrl/Cmd + Shift + R）
-2. バージョンを確認（`getAppVersion()` で "1.0.15" 確認）
-3. 新しいルームを作成（古いルームは `gameMode` なし）
-
-### 問題2: 投票状況が更新されない
-
-**原因：**
-- Firebaseのリアルタイム監視が動作していない
-- `currentVotes` データが保存されていない
-
-**対処法：**
-1. コンソールで `🗳️ デマーシア投票状況: X/Y` が表示されるか確認
-2. Firebase Consoleで `demacia_rooms/{roomId}/currentVotes` を確認
-3. ページをリロード
-
-### 問題3: 投票しても結果画面に進まない
-
-**原因：**
-- `checkVotingComplete()` が実行されていない
-- 演技者が投票している（演技者は投票不要）
-
-**対処法：**
-1. コンソールで `🎉 全員の投票が完了！` が表示されるか確認
-2. 演技者を除いた人数分の投票があるか確認
-3. `demacia-game.js` の `calculateResults()` が実行されているか確認
-
-## 📊 動作確認項目チェックリスト
-
-### ゲームモード判定
-- [ ] デマーシアモードでデマーシア投票画面が表示される
-- [ ] ワードウルフモードでワードウルフ投票画面が表示される
-- [ ] `gameMode` がFirebaseに保存されている
-
-### デマーシア投票画面
-- [ ] 「演技者はどのシチュエーションを演じていましたか？」と表示
-- [ ] 6つのシチュエーション選択肢が表示される
-- [ ] 投票状況「X / Y 人が投票完了」が表示される
-- [ ] 演技者は「他のプレイヤーの投票を待っています...」と表示
-
-### 投票実行
-- [ ] シチュエーション選択後に「投票する」ボタンを押せる
-- [ ] 投票後にボタンが「投票完了」に変わる
-- [ ] 投票後にシチュエーション選択が無効化される
-- [ ] 投票状況がリアルタイム更新される
-
-### 全員投票完了
-- [ ] 投票状況が「Y / Y 人が投票完了」になる
-- [ ] 自動的に結果画面に遷移する
-- [ ] コンソールに `🎉 デマーシア全員の投票が完了！` 表示
-
-### 結果画面
-- [ ] 正解のシチュエーションが表示される
-- [ ] 各プレイヤーの投票結果が表示される（正解/不正解）
-- [ ] 演技者の獲得ポイントが表示される
-- [ ] 正解者数が表示される
-
-## 🎯 改善効果
-
-### Before (v1.0.14以前)
-- ❌ デマーシアなのにワードウルフの投票画面
-- ❌ 「誰がウルフですか？」と表示
-- ❌ プレイヤー選択画面が表示
-- ❌ シチュエーション選択ができない
-- ❌ 投票状況が分からない
-
-### After (v1.0.15)
-- ✅ デマーシアで正しい投票画面が表示
-- ✅ 「演技者はどのシチュエーションを演じていましたか？」と表示
-- ✅ シチュエーション選択画面が表示
-- ✅ 投票状況がリアルタイム表示
-- ✅ 全員投票完了で自動的に結果表示
-- ✅ 結果画面で詳細な投票結果を表示
-
-## 📚 関連ドキュメント
-
-- `DEMACIA_VOTING_SYSTEM.md` - デマーシア投票システムの完全ガイド
-- `WORDWOLF_VOTING_FIX_v1.0.14.md` - ワードウルフ投票システム修正
-- `README.md` - プロジェクト全体のドキュメント
-
----
-
-**バージョン:** v1.0.15  
-**更新日:** 2026-02-14  
-**作成者:** AI Assistant
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>接続診断 - Esports パーティーゲーム</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #0bc6e3;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+        }
+        
+        .status-icon {
+            font-size: 24px;
+        }
+        
+        .status-text {
+            flex: 1;
+        }
+        
+        .status.success {
+            border-left: 4px solid #10b981;
+        }
+        
+        .status.error {
+            border-left: 4px solid #ef4444;
+        }
+        
+        .status.warning {
+            border-left: 4px solid #f59e0b;
+        }
+        
+        .status.info {
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .test-button {
+            background: #0bc6e3;
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.3s;
+        }
+        
+        .test-button:hover {
+            background: #0aa5c5;
+            transform: translateY(-2px);
+        }
+        
+        .test-button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .log {
+            background: #000;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        
+        .log-entry {
+            margin: 5px 0;
+            word-break: break-all;
+        }
+        
+        .back-button {
+            display: inline-block;
+            background: #6366f1;
+            color: #fff;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+        
+        .back-button:hover {
+            background: #4f46e5;
+            transform: translateY(-2px);
+        }
+        
+        .info-box {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid #3b82f6;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .info-box h3 {
+            color: #60a5fa;
+            margin-bottom: 10px;
+        }
+        
+        code {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-button">← ホームに戻る</a>
+        
+        <h1>🔍 接続診断ツール</h1>
+        
+        <div class="card">
+            <h2>📱 デバイス情報</h2>
+            <div class="status info">
+                <span class="status-icon">📱</span>
+                <div class="status-text">
+                    <strong>デバイスタイプ:</strong> <span id="device-type">-</span>
+                </div>
+            </div>
+            <div class="status info">
+                <span class="status-icon">🌐</span>
+                <div class="status-text">
+                    <strong>ブラウザ:</strong> <span id="browser">-</span>
+                </div>
+            </div>
+            <div class="status info">
+                <span class="status-icon">📏</span>
+                <div class="status-text">
+                    <strong>画面サイズ:</strong> <span id="screen-size">-</span>
+                </div>
+            </div>
+            <div class="status info">
+                <span class="status-icon">🔌</span>
+                <div class="status-text">
+                    <strong>オンライン状態:</strong> <span id="online-status">-</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>🔥 Firebase接続テスト</h2>
+            <div id="firebase-status" class="status info">
+                <span class="status-icon">⏳</span>
+                <div class="status-text">
+                    <strong>接続状態:</strong> <span id="firebase-connection">テスト中...</span>
+                </div>
+            </div>
+            <button class="test-button" onclick="testFirebaseConnection()">再テスト</button>
+        </div>
+        
+        <div class="card">
+            <h2>📝 ルーム作成テスト</h2>
+            <div id="room-create-status" class="status info">
+                <span class="status-icon">⏳</span>
+                <div class="status-text">
+                    <strong>テスト状態:</strong> <span id="room-create-text">未実施</span>
+                </div>
+            </div>
+            <button class="test-button" onclick="testRoomCreate()">ルーム作成テスト</button>
+            <button class="test-button" onclick="testRoomJoin()">ルーム参加テスト</button>
+        </div>
+        
+        <div class="card">
+            <h2>📊 詳細ログ</h2>
+            <button class="test-button" onclick="clearLog()">ログをクリア</button>
+            <div class="log" id="log">
+                <div class="log-entry">診断開始...</div>
+            </div>
+        </div>
+        
+        <div class="info-box">
+            <h3>💡 問題が見つかった場合</h3>
+            <p><strong>Firebase接続エラーの場合:</strong></p>
+            <ul>
+                <li>Wi-Fiまたはモバイルデータ接続を確認</li>
+                <li>ブラウザのキャッシュをクリア</li>
+                <li>別のブラウザで試す（Chrome、Safari、Firefoxなど）</li>
+                <li>VPNを使用している場合は無効化</li>
+            </ul>
+            <br>
+            <p><strong>ルーム作成/参加エラーの場合:</strong></p>
+            <ul>
+                <li>ブラウザのCookieとローカルストレージが有効か確認</li>
+                <li>プライベートモード/シークレットモードを無効化</li>
+                <li>ページを完全に再読み込み（Ctrl+Shift+R / Cmd+Shift+R）</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <!-- Firebase Config -->
+    <script src="js/firebase-config.js"></script>
+    
+    <script>
+        // ログ出力関数
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            
+            let icon = 'ℹ️';
+            if (type === 'success') icon = '✅';
+            if (type === 'error') icon = '❌';
+            if (type === 'warning') icon = '⚠️';
+            
+            entry.textContent = `[${timestamp}] ${icon} ${message}`;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+            
+            console.log(`[診断] ${message}`);
+        }
+        
+        function clearLog() {
+            document.getElementById('log').innerHTML = '<div class="log-entry">ログをクリアしました</div>';
+        }
+        
+        // デバイス情報を取得
+        function getDeviceInfo() {
+            const userAgent = navigator.userAgent;
+            let deviceType = 'デスクトップ';
+            
+            if (/Android/i.test(userAgent)) {
+                deviceType = 'Android';
+            } else if (/iPhone|iPad|iPod/i.test(userAgent)) {
+                deviceType = 'iOS';
+            } else if (/Mobile|Tablet/i.test(userAgent)) {
+                deviceType = 'モバイル';
+            }
+            
+            let browser = 'Unknown';
+            if (/Chrome/i.test(userAgent)) browser = 'Chrome';
+            else if (/Safari/i.test(userAgent)) browser = 'Safari';
+            else if (/Firefox/i.test(userAgent)) browser = 'Firefox';
+            else if (/Edge/i.test(userAgent)) browser = 'Edge';
+            else if (/Opera/i.test(userAgent)) browser = 'Opera';
+            
+            document.getElementById('device-type').textContent = deviceType;
+            document.getElementById('browser').textContent = browser;
+            document.getElementById('screen-size').textContent = `${window.innerWidth} x ${window.innerHeight}`;
+            document.getElementById('online-status').textContent = navigator.onLine ? '✅ オンライン' : '❌ オフライン';
+            
+            log(`デバイス: ${deviceType}, ブラウザ: ${browser}, 画面: ${window.innerWidth}x${window.innerHeight}`);
+        }
+        
+        // Firebase接続テスト
+        async function testFirebaseConnection() {
+            log('Firebase接続テスト開始...');
+            const statusDiv = document.getElementById('firebase-status');
+            const statusText = document.getElementById('firebase-connection');
+            
+            statusDiv.className = 'status info';
+            statusText.textContent = 'テスト中...';
+            
+            try {
+                // 接続状態を確認
+                const connectedRef = firebase.database().ref('.info/connected');
+                const connectedSnap = await connectedRef.once('value');
+                const isConnected = connectedSnap.val();
+                
+                if (isConnected) {
+                    statusDiv.className = 'status success';
+                    statusText.textContent = '✅ 接続成功';
+                    log('Firebase接続成功', 'success');
+                    
+                    // 書き込みテスト
+                    const testRef = firebase.database().ref('_connection_test/' + Date.now());
+                    await testRef.set({
+                        timestamp: Date.now(),
+                        userAgent: navigator.userAgent
+                    });
+                    log('書き込みテスト成功', 'success');
+                    
+                    // 削除
+                    await testRef.remove();
+                    log('クリーンアップ完了', 'success');
+                    
+                } else {
+                    throw new Error('Firebase未接続');
+                }
+                
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusText.textContent = '❌ 接続失敗';
+                log(`Firebase接続エラー: ${error.message}`, 'error');
+                log(`エラー詳細: ${JSON.stringify(error)}`, 'error');
+            }
+        }
+        
+        // ルーム作成テスト
+        async function testRoomCreate() {
+            log('ルーム作成テスト開始...');
+            const statusDiv = document.getElementById('room-create-status');
+            const statusText = document.getElementById('room-create-text');
+            
+            statusDiv.className = 'status info';
+            statusText.textContent = 'テスト中...';
+            
+            try {
+                const roomId = Math.random().toString(36).substring(2, 8).toUpperCase();
+                log(`テストルームID: ${roomId}`);
+                
+                const roomRef = firebase.database().ref('rooms/' + roomId);
+                const testData = {
+                    roomId: roomId,
+                    hostName: 'テストユーザー',
+                    gameType: 'lol',
+                    gameMode: 'wordwolf',
+                    maxPlayers: 4,
+                    createdAt: Date.now(),
+                    state: 'test'
+                };
+                
+                await roomRef.set(testData);
+                log('ルーム作成成功', 'success');
+                
+                // 読み取りテスト
+                const snapshot = await roomRef.once('value');
+                const data = snapshot.val();
+                
+                if (data && data.roomId === roomId) {
+                    log('ルーム読み取り成功', 'success');
+                    statusDiv.className = 'status success';
+                    statusText.textContent = `✅ テスト成功 (ルームID: ${roomId})`;
+                } else {
+                    throw new Error('ルームデータが一致しません');
+                }
+                
+                // クリーンアップ
+                await roomRef.remove();
+                log('テストルーム削除完了', 'success');
+                
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusText.textContent = '❌ テスト失敗';
+                log(`ルーム作成エラー: ${error.message}`, 'error');
+                log(`エラー詳細: ${JSON.stringify(error)}`, 'error');
+            }
+        }
+        
+        // ルーム参加テスト
+        async function testRoomJoin() {
+            log('ルーム参加テスト開始...');
+            const statusDiv = document.getElementById('room-create-status');
+            const statusText = document.getElementById('room-create-text');
+            
+            statusDiv.className = 'status info';
+            statusText.textContent = 'テスト中...';
+            
+            try {
+                // まずテストルームを作成
+                const roomId = Math.random().toString(36).substring(2, 8).toUpperCase();
+                log(`テストルームID: ${roomId}`);
+                
+                const roomRef = firebase.database().ref('rooms/' + roomId);
+                await roomRef.set({
+                    roomId: roomId,
+                    hostName: 'ホスト',
+                    players: {
+                        'ホスト': { ready: true }
+                    },
+                    maxPlayers: 4,
+                    createdAt: Date.now(),
+                    state: 'waiting'
+                });
+                log('テストルーム作成完了', 'success');
+                
+                // 参加テスト
+                const playerName = 'テスト参加者';
+                await roomRef.child('players').child(playerName).set({
+                    ready: true,
+                    joinedAt: Date.now()
+                });
+                log('プレイヤー追加成功', 'success');
+                
+                // 確認
+                const snapshot = await roomRef.child('players').once('value');
+                const players = snapshot.val();
+                
+                if (players && players[playerName]) {
+                    log('参加確認成功', 'success');
+                    statusDiv.className = 'status success';
+                    statusText.textContent = `✅ 参加テスト成功 (ルームID: ${roomId})`;
+                } else {
+                    throw new Error('プレイヤーデータが見つかりません');
+                }
+                
+                // クリーンアップ
+                await roomRef.remove();
+                log('テストルーム削除完了', 'success');
+                
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusText.textContent = '❌ テスト失敗';
+                log(`ルーム参加エラー: ${error.message}`, 'error');
+                log(`エラー詳細: ${JSON.stringify(error)}`, 'error');
+            }
+        }
+        
+        // オンライン状態の監視
+        window.addEventListener('online', () => {
+            log('ネットワーク接続復旧', 'success');
+            document.getElementById('online-status').textContent = '✅ オンライン';
+        });
+        
+        window.addEventListener('offline', () => {
+            log('ネットワーク接続喪失', 'error');
+            document.getElementById('online-status').textContent = '❌ オフライン';
+        });
+        
+        // 初期化
+        window.addEventListener('DOMContentLoaded', () => {
+            log('診断ツール初期化完了', 'success');
+            getDeviceInfo();
+            
+            // 自動的にFirebase接続テストを実行
+            setTimeout(() => {
+                testFirebaseConnection();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

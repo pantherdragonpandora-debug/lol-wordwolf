@@ -84,8 +84,8 @@ function shareOnLine() {
 
 // URLをクリップボードにコピー
 function copyShareUrl() {
-  const text = `${generateShareText()}\n\n${SHARE_CONFIG.url}`;
-  copyToClipboard(text, 'シェア用テキストをコピーしました！');
+  // URLのみをコピー
+  copyToClipboard(SHARE_CONFIG.url, 'URLをコピーしました！');
   
   // ボタンの表示を変更
   const button = event.target.closest('.share-button');

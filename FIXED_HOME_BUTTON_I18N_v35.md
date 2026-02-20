@@ -1,308 +1,83 @@
-# 🚨 ヴォイドルーム作成エラー - Firebase権限エラー修正
+# 固定ホームボタン多言語対応修正 (v35)
 
-## エラー内容
+## 📋 報告された問題
+「どこからでもスタートに戻れるようにスタート画面に戻るボタンを作ってもらったけど、そのボタンの表示内容が多言語対応できていないよ。」
 
-```
-@firebase/database: FIREBASE WARNING: set at /_connection_test/1771289061961 failed: permission_denied
+## 🔍 原因
+固定位置表示されるホームボタン（`btn-home-fixed`）に `data-i18n` 属性が付いていなかったため、言語を切り替えても日本語のまま「🏠 スタート画面に戻る」と表示されていました。
+
+## ✅ 修正内容
+
+### 1. 翻訳キーの追加（全言語）
+`js/i18n.js`に以下のキーを追加（日本語版は既に存在していたため、英語・韓国語・中国語を追加）：
+
+```javascript
+// 英語 (en)
+'header.backToStart': 'Back to Start',
+
+// 韓国語 (ko)
+'header.backToStart': '시작 화면으로 돌아가기',
+
+// 中国語 (zh)
+'header.backToStart': '返回开始画面',
+
+// 日本語 (ja) - 既存
+'header.backToStart': 'スタート画面に戻る',
 ```
 
-または
+### 2. HTMLボタンへの属性追加
+`index.html` の固定ホームボタンに `data-i18n` 属性を追加：
 
+**変更前:**
+```html
+<button id="btn-home-fixed" class="btn-home-fixed" style="display: none;" onclick="goToStart()">
+    🏠 スタート画面に戻る
+</button>
 ```
-Error: permission denied
+
+**変更後:**
+```html
+<button id="btn-home-fixed" class="btn-home-fixed" style="display: none;" onclick="goToStart()">
+    <span data-i18n="header.backToStart">🏠 スタート画面に戻る</span>
+</button>
 ```
+
+## 📊 対応言語
+| 言語 | 表示テキスト |
+|------|-------------|
+| 日本語 (ja) | 🏠 スタート画面に戻る |
+| 英語 (en) | 🏠 Back to Start |
+| 韓国語 (ko) | 🏠 시작 화면으로 돌아가기 |
+| 中国語 (zh) | 🏠 返回开始画面 |
+
+## 🔧 変更ファイル
+- `js/i18n.js` (+3行、英語・韓国語・中国語の翻訳追加)
+- `index.html` (固定ボタンに `data-i18n` 属性追加、v34→v35)
+
+## 🧪 テスト手順
+1. **完全リロード**: Ctrl+Shift+R (Mac: Cmd+Shift+R)
+2. **ボタン表示確認**: 画面下部の固定ボタンが表示されているか確認
+3. **言語切替テスト**:
+   - 右上の「EN」をクリック → ボタンが「🏠 Back to Start」に変化
+   - 「KO」をクリック → ボタンが「🏠 시작 화면으로 돌아가기」に変化
+   - 「ZH」をクリック → ボタンが「🏠 返回开始画面」に変化
+   - 「JA」をクリック → ボタンが「🏠 スタート画面に戻る」に変化
+4. **機能確認**: 各言語でボタンをクリックして、正しくスタート画面に戻るか確認
+
+## ✨ 結果
+固定ホームボタンが4言語すべてに対応し、言語切替時にリアルタイムで表示が変更されるようになりました。
+
+## 📝 技術詳細
+- `updatePageLanguage()` 関数が `data-i18n` 属性を持つすべての要素を検索し、`textContent` を翻訳テキストに置き換えます
+- `<span>` で囲むことで、絵文字（🏠）と翻訳テキストを分離し、翻訳テキストのみが置換されます
+- これにより、絵文字はそのままで、テキスト部分のみが言語に応じて変わります
+
+## 🎯 次のステップ
+1. プレビューで完全リロード (Ctrl+Shift+R)
+2. 上記のテスト手順を実施
+3. 問題があればコンソールログを報告
 
 ---
-
-## 🎯 原因
-
-Firebase Realtime Databaseのセキュリティルールに**`void_rooms`パスが追加されていない**ため、ヴォイドゲームのデータを書き込めません。
-
----
-
-## ✅ 解決方法：Firebaseセキュリティルールの更新
-
-### ステップ1: Firebase Consoleにアクセス
-
-以下のURLを開いてください：
-
-```
-https://console.firebase.google.com/project/lol-word-wolf/database/lol-word-wolf-default-rtdb/rules
-```
-
-または、手動で：
-1. https://console.firebase.google.com/
-2. **「lol-word-wolf」** プロジェクトをクリック
-3. 左メニュー **「構築」** → **「Realtime Database」**
-4. 上部タブの **「ルール」** をクリック
-
----
-
-### ステップ2: 現在のルールを確認
-
-現在のルールは以下のようになっているはずです：
-
-```json
-{
-  "rules": {
-    "rooms": {
-      "$roomId": {
-        ".read": true,
-        ".write": true
-      }
-    },
-    "demacia_rooms": {
-      "$roomId": {
-        ".read": true,
-        ".write": true
-      }
-    },
-    "site_stats": {
-      "pageviews": {
-        ".read": true,
-        ".write": true
-      }
-    }
-  }
-}
-```
-
-**問題**: `void_rooms` が含まれていません！
-
----
-
-### ステップ3: ルールを更新
-
-以下の**完全なルール**をコピーして、エディタに貼り付けてください：
-
-```json
-{
-  "rules": {
-    "rooms": {
-      "$roomId": {
-        ".read": true,
-        ".write": true,
-        ".indexOn": ["createdAt", "gameState"]
-      }
-    },
-    "demacia_rooms": {
-      "$roomId": {
-        ".read": true,
-        ".write": true,
-        ".indexOn": ["createdAt", "gameState"]
-      }
-    },
-    "void_rooms": {
-      "$roomId": {
-        ".read": true,
-        ".write": true,
-        ".indexOn": ["createdAt", "gameState"]
-      }
-    },
-    "site_stats": {
-      "pageviews": {
-        ".read": true,
-        ".write": true
-      }
-    },
-    "_connection_test": {
-      ".read": true,
-      ".write": true
-    }
-  }
-}
-```
-
-**追加された内容**:
-- ✅ `void_rooms` パス（ヴォイドゲーム用）
-- ✅ `_connection_test` パス（Firebase接続テスト用）
-- ✅ `.indexOn` でパフォーマンス向上
-
----
-
-### ステップ4: 公開
-
-1. 右上の **「公開」** または **「Publish」** ボタンをクリック
-2. 確認ダイアログが表示されたら **「公開」** をクリック
-
-**成功メッセージ**:
-```
-✅ ルールが正常に公開されました
-```
-
----
-
-### ステップ5: サイトをテスト
-
-1. ブラウザで完全リロード（`Ctrl+Shift+R` / `Cmd+Shift+R`）
-2. ヴォイドモードを選択
-3. ルーム作成を試す
-
-**期待される結果**:
-- エラーメッセージが表示されない
-- 待機画面に遷移する
-- コンソールに成功ログが表示される
-
-```
-✅ Firebase書き込み完了
-✅ ヴォイドルーム作成成功: 123456
-```
-
----
-
-## 🔍 トラブルシューティング
-
-### ケース1: まだ "permission_denied" エラーが出る
-
-**対処法**:
-1. Firebase Consoleで「公開」ボタンを押したか確認
-2. ブラウザを完全リロード（`Ctrl+Shift+R`）
-3. ルールが正しく保存されているか再確認
-4. 数分待ってから再試行（ルール反映に時間がかかる場合がある）
-
-### ケース2: "_connection_test" のエラーが続く
-
-**原因**: Firebase SDKの接続テストが拒否されている
-
-**対処法**:
-ルールに以下を追加したか確認：
-```json
-"_connection_test": {
-  ".read": true,
-  ".write": true
-}
-```
-
-### ケース3: ルールが公開できない
-
-**エラーメッセージ**: "Invalid JSON" など
-
-**原因**: JSON構文エラー
-
-**対処法**:
-1. カンマ（`,`）の位置を確認
-2. 括弧（`{}`）が正しく閉じられているか確認
-3. 上記の完全なルールをコピー&ペーストで再試行
-
----
-
-## 📊 各パスの説明
-
-| パス | 用途 | 必須 |
-|------|------|------|
-| `rooms/` | ワードウルフのルームデータ | ✅ はい |
-| `demacia_rooms/` | デマーシアのルームデータ | ✅ はい |
-| `void_rooms/` | **ヴォイドのルームデータ** | ✅ **はい（新規）** |
-| `site_stats/` | サイト統計（ページビュー） | ⚠️ オプション |
-| `_connection_test/` | Firebase接続テスト | ✅ はい |
-
----
-
-## 🎮 ヴォイドゲームのデータ構造
-
-Firebase上で以下のような構造でデータが保存されます：
-
-```
-void_rooms/
-  └── 123456/  (ルームID)
-      ├── roomId: "123456"
-      ├── gameType: "lol" | "valorant"
-      ├── hostName: "Player1"
-      ├── maxPlayers: 4
-      ├── theme: {
-      │     id: "yasuo",
-      │     name: "ヤスオ",
-      │     category: "champions"
-      │   }
-      ├── gameState: "waiting" | "selecting_order" | "playing" | "finished"
-      ├── currentTurn: 0
-      ├── players: {
-      │     "Player1": {
-      │       joinOrder: 0,
-      │       isHost: true,
-      │       ready: false,
-      │       submitted: false
-      │     }
-      │   }
-      ├── playerOrder: ["Player1", "Player2", ...]
-      ├── playOrder: [1, 2, 3, ...]
-      ├── orderSelections: {
-      │     "Player1": 1,
-      │     "Player2": 2
-      │   }
-      ├── turns: {
-      │     "0": {
-      │       playerName: "Player1",
-      │       words: ["風", "剣", "疾走"],
-      │       modified: [],
-      │       timestamp: 1771289061961
-      │     }
-      │   }
-      ├── finalAnswer: "ヤスオ"
-      ├── isCorrect: true
-      └── createdAt: 1771289061961
-```
-
----
-
-## 🔒 セキュリティに関する注意
-
-### 現在のルール
-```json
-".read": true,
-".write": true
-```
-
-**これは開発/テスト用です**。
-
-### 本番環境での推奨ルール
-
-将来的には、以下のようなより厳格なルールを設定することを推奨します：
-
-```json
-"void_rooms": {
-  "$roomId": {
-    ".read": true,
-    ".write": "!data.exists() || data.child('players').hasChild(auth.uid)",
-    ".validate": "newData.hasChildren(['roomId', 'gameType', 'hostName'])",
-    ".indexOn": ["createdAt", "gameState"]
-  }
-}
-```
-
-ただし、このアプリは**匿名認証なし**で動作するため、当面は `".write": true` のままで問題ありません。
-
----
-
-## ✅ 完了確認チェックリスト
-
-- [ ] Firebase Consoleにアクセスした
-- [ ] Realtime Database → ルール タブを開いた
-- [ ] `void_rooms` を含む完全なルールをコピー&ペーストした
-- [ ] 「公開」ボタンをクリックした
-- [ ] 公開成功のメッセージを確認した
-- [ ] ブラウザを完全リロード（Ctrl+Shift+R）した
-- [ ] ヴォイドモードでルーム作成を試した
-- [ ] エラーが出ずに成功した
-
-すべてチェックが付けば、完了です！🎉
-
----
-
-## 📞 サポート
-
-まだエラーが出る場合は、以下の情報を確認してください：
-
-1. **Firebase Consoleのルールタブのスクリーンショット**
-2. **ブラウザコンソールのエラーメッセージ（F12）**
-3. **Firebaseプロジェクト名**: `lol-word-wolf`
-
----
-
-## 完了日
-2026-02-17
-
-## 関連ドキュメント
-- `VOID_FIREBASE_RULES.md` - ヴォイドゲームのFirebaseルール設定
-- `FIREBASE_RULES_FIX.md` - 一般的なFirebaseルール設定ガイド
-- `VOID_ROOM_CREATION_FIX.md` - ヴォイドルーム作成の技術的修正
+**修正日**: 2026-02-17  
+**バージョン**: v35  
+**関連ファイル**: `js/i18n.js`, `index.html`
