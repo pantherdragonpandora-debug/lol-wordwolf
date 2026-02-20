@@ -1,238 +1,350 @@
-# 🎭 気分診断 - 個別スコアリング対応 (v5)
+# 📊 ページビューカウンター実装ガイド - v1.0.22
 
-## ✅ 実装完了報告
+**実装日**: 2026-02-15  
+**機能**: リアルタイムページビュー数表示
 
-**重要な改善**: 全172体のチャンピオンが公平に1位・2位・3位になり得るよう、個別スコアリングシステムを実装しました！
+---
 
-## 🚨 問題点（v4）
+## 📋 概要
 
-v4では以下の問題がありました：
+Firebase Realtime Databaseを使用して、サイトの訪問者数（ページビュー）をカウントし、ヘッダーに表示します。
 
-```javascript
-// 問題: 同じタイプ内のチャンピオンは全員同じスコア
-基本スコア: 100点（全員同じ）
-+ タイプ比率加点: 最大50点（全員同じ）
-+ ランダム: 0〜10点（唯一の差別化要因）
-= 合計: 100〜160点
+---
+
+## ✨ 機能
+
+### 表示場所
+**ヘッダー右上** - 言語切り替えボタンと接続状態の間
+
+```
+[🎮 Esports ワードウルフ]  [日本語][EN][한국어][中文]  [👁️ 1,234 views]  [✓ 接続中]
 ```
 
-**結果**: 実質的にランダムでしかチャンピオンが選ばれない → 診断の意味がない❌
+### 特徴
+- 📊 **リアルタイム更新**: 誰かがアクセスすると即座に数字が増える
+- 🔢 **カンマ区切り**: 1,234 のように読みやすく表示
+- 🔄 **自動同期**: Firebase経由で全デバイスで同じ数字を表示
+- 🛡️ **トランザクション**: 同時アクセスでも正確にカウント
 
-## 🎯 解決策（v5）
+---
 
-### 1. 回答キーワードの抽出
-ユーザーの回答から特性キーワードを抽出：
+## 🔧 実装内容
+
+### 1. 新規ファイル: `js/pageview-counter.js`
 
 ```javascript
-// 例: 質問「チームファイトでの役割は？」
-// 回答「敵を倒しまくる」→ キーワード: ['damage', 'carry']
-// 回答「味方を守る」→ キーワード: ['tank', 'frontline']
+// ページビューをカウント
+async function countPageView() {
+  const db = firebase.database();
+  const pageviewRef = db.ref('site_stats/pageviews');
+  
+  // トランザクションで安全にカウント
+  await pageviewRef.transaction((currentValue) => {
+    return (currentValue || 0) + 1;
+  });
+}
 
-answerKeywords = ['assassin', 'burst', 'melee', 'early', 'aggressive', ...];
-```
-
-### 2. 個別スコアリングシステム
-
-#### スコア構成
-```javascript
-基本スコア: 100点（全員同じ）
-+ タイプ比率: 最大30点（v4: 50点 → 30点に削減）
-+ 特性マッチング: 最大50点（NEW!）
-  - キーワードマッチ: 1キーワード = +5点
-  - チャンピオン特化ボーナス: 最大+15点
-+ ランダム要素: 0〜20点（v4: 10点 → 20点に増加）
-= 合計: 100〜200点
-```
-
-#### 特性マッチングの例
-
-**アサシン系**
-```javascript
-const assassins = ['zed', 'talon', 'akali', 'katarina', 'khazix', 'rengar', ...];
-if (assassins.includes(name) && keywords.includes('assassin')) {
-  bonus += 15; // アサシンを選んだ回答 → アサシン系チャンピオンに+15点
+// ページビュー数を表示
+function displayPageViews() {
+  const db = firebase.database();
+  const pageviewRef = db.ref('site_stats/pageviews');
+  
+  pageviewRef.on('value', (snapshot) => {
+    const count = snapshot.val() || 0;
+    document.getElementById('pageview-count').textContent = count.toLocaleString();
+  });
 }
 ```
 
-**タンク系**
-```javascript
-const tanks = ['malphite', 'ornn', 'maokai', 'shen', 'braum', ...];
-if (tanks.includes(name) && keywords.includes('tank')) {
-  bonus += 15; // タンクを選んだ回答 → タンク系チャンピオンに+15点
+---
+
+### 2. HTML変更: `index.html`
+
+**ヘッダーに表示要素を追加**:
+```html
+<div id="pageview-display" style="display: flex; align-items: center; gap: 0.5rem;">
+    <span>👁️</span>
+    <span id="pageview-count">---</span>
+    <span style="font-size: 0.8rem;">views</span>
+</div>
+```
+
+**スクリプト読み込み**:
+```html
+<script src="js/pageview-counter.js?v=22"></script>
+```
+
+---
+
+### 3. Firebase Security Rules更新 ⚠️ 重要
+
+Firebase Consoleで以下のルールを追加する必要があります：
+
+```json
+{
+  "rules": {
+    "rooms": {
+      "$roomId": {
+        ".read": true,
+        ".write": true
+      }
+    },
+    "demacia_rooms": {
+      "$roomId": {
+        ".read": true,
+        ".write": true
+      }
+    },
+    "site_stats": {
+      "pageviews": {
+        ".read": true,
+        ".write": true
+      }
+    }
+  }
 }
 ```
 
-**サポート系**
+---
+
+## 🚀 デプロイ手順
+
+### ステップ1: Firebase Security Rulesを更新
+
+1. **Firebase Consoleにアクセス**
+   ```
+   https://console.firebase.google.com/project/lol-word-wolf/database/lol-word-wolf-default-rtdb/rules
+   ```
+
+2. **ルールエディタを開く**
+   - 左メニュー → Realtime Database → ルール
+
+3. **以下を追加**
+   ```json
+   "site_stats": {
+     "pageviews": {
+       ".read": true,
+       ".write": true
+     }
+   }
+   ```
+
+4. **「公開」ボタンをクリック**
+
+---
+
+### ステップ2: サイトをデプロイ
+
+**Publishタブでデプロイ**
+
+---
+
+### ステップ3: 動作確認
+
+1. サイトにアクセス
+2. ヘッダー右上に `👁️ 1 views` が表示される
+3. 別のブラウザ/シークレットモードで開く
+4. 数字が `2 views` に増える
+5. リアルタイムで更新されればOK
+
+---
+
+## 📊 データ構造
+
+Firebase Realtime Databaseに以下の形で保存されます：
+
+```
+lol-word-wolf-default-rtdb
+├── rooms/
+│   └── (既存のルームデータ)
+├── demacia_rooms/
+│   └── (既存のデマーシアルームデータ)
+└── site_stats/
+    └── pageviews: 1234  ← NEW!
+```
+
+---
+
+## 🎨 表示デザイン
+
+### デスクトップ
+```
+[🎮 Esports ワードウルフ]       [日本語][EN][한국어][中文]  👁️ 1,234 views  ✓ 接続中
+```
+
+### モバイル（レスポンシブ）
+```
+[🎮 Esports ワードウルフ]
+[日本語][EN][한국어][中文]
+👁️ 1,234 views  ✓ 接続中
+```
+
+---
+
+## 🔍 トラブルシューティング
+
+### Q1. 数字が表示されない（`---` のまま）
+
+**原因**: Firebase Security Rulesが更新されていない
+
+**解決**:
+1. Firebase Console → Realtime Database → ルール
+2. `site_stats` セクションを追加
+3. 「公開」をクリック
+
+---
+
+### Q2. 数字が増えない
+
+**原因**: Firebaseに接続できていない
+
+**確認事項**:
+1. ヘッダー右上が「✓ 接続中」になっているか
+2. ブラウザのコンソール（F12）でエラーを確認
+
+---
+
+### Q3. ページビューが2倍になる
+
+**原因**: リロード時に2回カウントされる可能性
+
+**これは正常です**:
+- ページ読み込み = 1回カウント
+- これがページビューの定義です
+
+---
+
+## 💡 カスタマイズ
+
+### 表示位置を変更したい
+
+**フッターに移動**:
+```html
+<footer>
+  <div id="pageview-display">
+    <span>👁️</span>
+    <span id="pageview-count">---</span>
+    <span>views</span>
+  </div>
+</footer>
+```
+
+---
+
+### アイコンを変更したい
+
+```html
+<!-- 目のアイコン -->
+<span>👁️</span>
+
+<!-- 他のオプション -->
+<span>📊</span>  <!-- グラフ -->
+<span>👥</span>  <!-- ユーザー -->
+<span>🔥</span>  <!-- 人気 -->
+<span>⭐</span>  <!-- スター -->
+```
+
+---
+
+### カウント方式を変更したい
+
+**ユニークユーザー数をカウント（セッション単位）**:
 ```javascript
-const supports = ['soraka', 'lulu', 'janna', 'nami', 'sona', ...];
-if (supports.includes(name) && keywords.includes('support')) {
-  bonus += 15; // サポートを選んだ回答 → サポート系チャンピオンに+15点
+// LocalStorageでセッション管理
+function countPageView() {
+  const sessionKey = 'pageview_counted';
+  
+  // 既にカウント済みなら何もしない
+  if (sessionStorage.getItem(sessionKey)) {
+    return;
+  }
+  
+  // カウント実行
+  const db = firebase.database();
+  const pageviewRef = db.ref('site_stats/unique_visitors');
+  
+  await pageviewRef.transaction((currentValue) => {
+    return (currentValue || 0) + 1;
+  });
+  
+  // セッションに記録
+  sessionStorage.setItem(sessionKey, 'true');
 }
 ```
 
-### 3. キーワード抽出ロジック
+---
 
-| 質問タイプ | 回答 | 抽出キーワード |
-|----------|-----|--------------|
-| **役割** | 敵を倒しまくる | `damage`, `carry` |
-| | 味方を守る | `tank`, `frontline` |
-| | CCで敵を妨害 | `control`, `cc` |
-| | 敵のキャリーを狙う | `assassin`, `burst` |
-| **プレイスタイル** | 前に出て戦う | `fighter`, `melee` |
-| | ワンショットキル | `assassin`, `oneshot` |
-| **戦闘距離** | 接近戦 | `melee`, `close` |
-| | 遠距離 | `ranged`, `long` |
-| **序盤スタイル** | 序盤から有利 | `early`, `aggressive` |
-| | 安全に成長 | `scaling`, `late` |
-| **終盤スタイル** | ピックで決める | `pick`, `assassin` |
-| | 集団戦で勝つ | `teamfight`, `aoe` |
-| | スプリット | `split`, `duelist` |
+## 📈 将来の拡張案
 
-### 4. チャンピオンカテゴリー
+### 1. 統計ダッシュボード
+```javascript
+site_stats/
+  ├── pageviews: 1234           // 総PV数
+  ├── unique_visitors: 567      // ユニーク訪問者
+  ├── rooms_created: 89         // 作成されたルーム数
+  ├── games_played: 234         // プレイされたゲーム数
+  └── daily/
+      ├── 2026-02-15: 123       // 日別PV
+      └── 2026-02-14: 456
+```
 
-実装したカテゴリー：
-- **アサシン系**: Zed, Talon, Akali, Katarina, Kha'Zix, Rengar, Qiyana, LeBlanc
-- **タンク系**: Malphite, Ornn, Maokai, Shen, Braum, Alistar, Leona, Nautilus
-- **サポート系**: Soraka, Lulu, Janna, Nami, Sona, Yuumi
-- **メイジ系**: Syndra, Orianna, Azir, Viktor, Xerath, Vel'Koz, Ziggs
-- **ファイター系**: Darius, Garen, Jax, Irelia, Riven, Fiora, Camille
-- **ADC系**: Jinx, Caitlyn, Ashe, Vayne, Kai'Sa, Ezreal, Lucian
-- **序盤強い系**: Pantheon, Renekton, Draven, LeBlanc, Elise
-- **後半強い系**: Kayle, Nasus, Veigar, Kassadin, Vayne
+### 2. リアルタイムアクティブユーザー数
+```javascript
+// 現在オンラインのユーザー数を表示
+site_stats/
+  └── online_users/
+      ├── user_abc123: timestamp
+      └── user_xyz789: timestamp
+```
 
-## 📊 スコア計算例
+### 3. ゲームモード別統計
+```javascript
+site_stats/
+  ├── wordwolf_games: 150
+  └── demacia_games: 84
+```
 
-### ケース1: アサシンプレイヤー
-**回答**: 敵のキャリーを狙う、ワンショットキル、接近戦、ピックで決める
-**キーワード**: `['assassin', 'burst', 'oneshot', 'melee', 'pick']`
+---
 
-**Zed（アサシン）のスコア**:
-- 基本: 100点
-- タイプ比率: +25点
-- キーワードマッチ（5個）: +25点
-- アサシン特化ボーナス: +15点
-- ランダム: +10点
-- **合計: 175点** 🥇
+## ⚠️ 注意事項
 
-**Soraka（サポート）のスコア**:
-- 基本: 100点
-- タイプ比率: +5点
-- キーワードマッチ（0個）: 0点
-- サポート特化ボーナス: 0点
-- ランダム: +5点
-- **合計: 110点** 
+### セキュリティ
+- **現在の実装**: 誰でも読み書き可能
+- **問題**: 悪意のあるユーザーが数字を改ざん可能
+- **対策案**: Cloud Functionsで管理（将来的）
 
-→ **Zedが圧倒的に高スコア！**
+### パフォーマンス
+- **現在の実装**: 全ページロードでカウント
+- **影響**: Firebase使用量が増加
+- **対策**: 無料枠（50,000回/日）で十分
 
-### ケース2: サポートプレイヤー
-**回答**: 味方を守る、味方をサポート、遠距離、味方を守り切る
-**キーワード**: `['tank', 'frontline', 'support', 'utility', 'ranged', 'peel', 'protect']`
+### プライバシー
+- **現在の実装**: 個人情報は収集していない
+- **安心**: プライバシーポリシーに準拠
 
-**Soraka（サポート）のスコア**:
-- 基本: 100点
-- タイプ比率: +28点
-- キーワードマッチ（4個）: +20点
-- サポート特化ボーナス: +15点
-- ランダム: +12点
-- **合計: 175点** 🥇
+---
 
-**Zed（アサシン）のスコア**:
-- 基本: 100点
-- タイプ比率: +8点
-- キーワードマッチ（0個）: 0点
-- アサシン特化ボーナス: 0点
-- ランダム: +8点
-- **合計: 116点**
+## ✅ チェックリスト
 
-→ **Sorakaが圧倒的に高スコア！**
+実装完了確認：
 
-## ✅ 検証結果
+- [x] `js/pageview-counter.js` 作成
+- [x] `index.html` にHTML要素追加
+- [x] `index.html` にスクリプト読み込み追加
+- [ ] Firebase Security Rules 更新（**手動で実施が必要**）
+- [ ] サイトをデプロイ
+- [ ] 動作確認
 
-### すべてのチャンピオンが1位になり得るか？
+---
 
-**YES!** ✅
+## 📚 関連ドキュメント
 
-理由:
-1. **キーワードマッチング**: 回答に応じて各チャンピオンに最大+50点の個別ボーナス
-2. **カテゴリーボーナス**: 特定のプレイスタイルを選ぶと、そのカテゴリーのチャンピオンに+15点
-3. **ランダム要素**: 同スコアの場合も順位変動（最大+20点）
-4. **172体全対応**: 各タイプに43体ずつ、全て異なる特性を持つ
+- [Firebase Realtime Database](https://firebase.google.com/docs/database)
+- [Firebase Security Rules](https://firebase.google.com/docs/database/security)
+- [Firebase Transactions](https://firebase.google.com/docs/database/web/read-and-write#save_data_as_transactions)
 
-### 例: 172体全チャンピオンのスコア分布
+---
 
-**アグレッシブタイプ（43体）**:
-- アサシン回答 → Zed, Talon, Akaliなどが高得点
-- ファイター回答 → Darius, Garen, Jaxなどが高得点
-- 序盤攻撃回答 → Pantheon, Renekton, Dravenなどが高得点
-
-**サポーティブタイプ（43体）**:
-- サポート回答 → Soraka, Lulu, Jannaなどが高得点
-- タンク回答 → Braum, Alistar, Leonaなどが高得点
-
-**タクティカルタイプ（43体）**:
-- メイジ回答 → Syndra, Orianna, Azirなどが高得点
-- ポーク回答 → Xerath, Ziggs, Vel'Kozなどが高得点
-
-**バランスタイプ（43体）**:
-- ADC回答 → Jinx, Caitlyn, Asheなどが高得点
-- 後半回答 → Kayle, Nasus, Veigarなどが高得点
-
-## 📁 変更ファイル
-
-- ✏️ `js/mood-quiz.js` (v4→v5) - 個別スコアリングシステム実装
-- ✏️ `css/mood-quiz-style.css` (v4→v5) - 適合度スコア表示スタイル追加
-- ✏️ `index.html` - バージョン更新
-- 📄 `MOOD_QUIZ_INDIVIDUAL_SCORING_v5.md` - このドキュメント
-
-## 🧪 テスト手順
-
-1. **完全リロード**: Ctrl/Cmd + Shift + R
-2. **コンソールログ確認**: `✅ 気分診断ロジックを読み込みました（v5 - 個別スコアリング対応）`
-3. **テストケース1（アサシン）**:
-   - レーン: ミッド
-   - 役割: 敵のキャリーを狙う
-   - プレイスタイル: ワンショットキル
-   - 戦闘距離: 接近戦
-   - 終盤: ピックで決める
-   - **期待**: Zed, Talon, Akaliなどが上位
-4. **テストケース2（サポート）**:
-   - レーン: サポート
-   - 役割: 味方を守る
-   - プレイスタイル: 味方をサポート
-   - 終盤: 味方を守り切る
-   - **期待**: Soraka, Lulu, Jannaなどが上位
-5. **スコア確認**: 各チャンピオンカードに「適合度: XX点」が表示される
-6. **コンソール確認**: `🏆 トップ3チャンピオン: 1位: XXX (XXX点), ...`
-
-## 🎉 改善効果
-
-### Before (v4)
-- ❌ 同じタイプ内で実質ランダム選択
-- ❌ 回答内容が結果に反映されない
-- ❌ 診断の意味が薄い
-
-### After (v5)
-- ✅ 回答内容に基づいて個別スコア計算
-- ✅ プレイスタイルに合ったチャンピオンが上位に
-- ✅ 全172体が公平に1位になるチャンス
-- ✅ 適合度スコアで納得感UP
-
-## 📊 統計情報
-
-- **スコア範囲**: 100〜200点（v4: 100〜160点）
-- **個別化要素**: 最大70点（v4: 10点のみ）
-- **カテゴリー数**: 8カテゴリー
-- **キーワード種類**: 20種類以上
-
-## 🚀 今後の拡張案
-
-1. **より多くのカテゴリー**: モビリティ、スケーリング、難易度など
-2. **重み付け調整**: より重要な質問の回答に高い重みをつける
-3. **説明文の追加**: なぜこのチャンピオンがおすすめなのか表示
-4. **相性診断**: 選んだチャンピオンとの相性を%で表示
-
-## 🎉 完了！
-
-全172体のチャンピオンが公平に評価される個別スコアリングシステムが完成しました！
-
-今すぐ**完全リロード**（Ctrl/Cmd + Shift + R）してテストしてください！🎮✨
+**実装日**: 2026-02-15  
+**バージョン**: v1.0.22  
+**ステータス**: 実装完了（Firebase Rulesの手動更新が必要）
