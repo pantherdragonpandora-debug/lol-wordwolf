@@ -83,6 +83,10 @@ League of Legends、VALORANTをテーマにしたオンライン対戦型パー�
 - **👥 リアルタイム人数表示** - 待機画面で現在の参加者数と最大人数をリアルタイム表示（例: 👥 3 / 6）
 - **🏠 スタート画面に戻るボタン** - すべての画面から右上の「🏠」ボタンでモード選択画面に戻れる
 - **👑 ホスト移譲機能** - ホストが退出しても、次に入室したプレイヤーが自動的にホストになり、ゲームを継続できる
+- **📤 フローティングSNSシェアボタン** - すべての画面から X (Twitter)、Discord、LINE に簡単シェア（画面右下の📤ボタン）**NEW!**
+- **📸 スクリーンショット最適化** - SNS投稿に最適な視覚効果を追加（グラデーション、アニメーション、キラキラエフェクト）
+- **🚪 自動退出機能** - ブラウザ/タブを閉じた際に自動でルームから退出（ゴースト化防止）
+- **♻️ もう一度遊ぶ機能** - ゲーム終了後、同じメンバーで即座に次のラウンド開始
 - **⚖️ 法的情報完備** - プライバシーポリシー、利用規約、著作権ポリシー、FAQ、お問い合わせページ
 
 ## ⚠️ 重要な注意事項
@@ -465,7 +469,12 @@ ja: {
 - `FIREBASE_AUTH_FIX.md` - 承認済みドメインの設定
 - `FIREBASE_RULES_FIX.md` - セキュリティルールの設定
 - `FIREBASE_PERMISSION_FIX.md` - ヴォイドゲームのFirebase権限エラー修正
-- `AUTO_LEAVE_ON_CLOSE_v35.md` - ブラウザ/タブ閉じ時の自動退出機能（v35） **NEW!**
+- `SHARE_BUTTON_UI_IMPROVEMENT_v4.md` - シェアボタンUI改善（v4） **NEW!**
+- `FLOATING_SHARE_BUTTON_v3.md` - フローティングSNSシェアボタン（v3）
+- `I18N_SYNTAX_ERROR_FIX_v37.md` - i18n.jsシンタックスエラー修正（v37）
+- `SCREENSHOT_SHARE_FEATURE_v36.md` - スクリーンショット＆SNSシェア機能（v36）
+- `SHARE_JS_LOAD_ORDER_FIX_v2.md` - share.js読み込み順序修正（v2）
+- `AUTO_LEAVE_ON_CLOSE_v35.md` - ブラウザ/タブ閉じ時の自動退出機能（v35）
 - `PLAY_AGAIN_SCREEN_FIX_v37.md` - もう一度遊ぶボタン - 待機画面遷移修正（v37）
 - `VOID_PLAY_AGAIN_FIX_v34.md` - ヴォイド最終回答＆もう一度遊ぶボタン修正（v34）
 - `DEMACIA_JOIN_FIX_v32.md` - デマーシア入室エラー修正（v32）
