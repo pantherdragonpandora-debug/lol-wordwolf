@@ -1,8 +1,8 @@
 // ========================================
-// 気分診断チャンピオン選択ロジック（v8 - バグ修正版）
+// 気分診断チャンピオン選択ロジック（v9 - 全172体対応版）
 // ========================================
 
-console.log('🎭 mood-quiz.js ロード開始 (v8)...');
+console.log('🎭 mood-quiz.js ロード開始 (v9 - 全172体対応)...');
 
 // データファイルが正しくロードされているか確認
 if (typeof moodQuizQuestions === 'undefined') {
@@ -296,8 +296,8 @@ function calculateChampionScore(champion, moodType) {
   
   score += matchScore;
   
-  // ランダム要素（同点の場合の順位変動、最大+10点）
-  score += Math.random() * 10;
+  // ランダム要素（同点の場合の順位変動、最大+5点に縮小）
+  score += Math.random() * 5;
   
   return score;
 }
@@ -358,22 +358,40 @@ function getChampionBonusScore(champion, keywords) {
   return bonus;
 }
 
-// 結果画面を表示
+// 結果画面を表示（v9 - 全172体対応）
 function displayResult(moodType) {
   const resultMessage = moodResultMessages[moodType];
-  let champions = championsByMood[moodType];
   
-  // レーンで絞り込み（roleフィールドから判定）
+  // 全172体のチャンピオンを候補にする
+  let allChampions = [
+    ...championsByMood.aggressive,
+    ...championsByMood.supportive,
+    ...championsByMood.tactical,
+    ...championsByMood.balanced
+  ];
+  
+  console.log(`🎯 全${allChampions.length}体のチャンピオンから選択します`);
+  
+  // レーンで絞り込み（オプション）
   if (selectedLane) {
-    champions = filterChampionsByLane(champions, selectedLane);
-    console.log(`🎯 ${selectedLane}レーンで絞り込み: ${champions.length}体`);
+    allChampions = filterChampionsByLane(allChampions, selectedLane);
+    console.log(`🎯 ${selectedLane}レーンで絞り込み: ${allChampions.length}体`);
   }
   
-  // 各チャンピオンにスコアを計算
-  const championScores = champions.map(champion => ({
-    ...champion,
-    score: calculateChampionScore(champion, moodType)
-  }));
+  // 各チャンピオンのタイプを取得してスコアを計算
+  const championScores = allChampions.map(champion => {
+    // チャンピオンがどのタイプに属しているか判定
+    const championType = getChampionType(champion);
+    
+    // タイプ一致ボーナス（診断結果と同じタイプなら +50点）
+    const typeMatchBonus = (championType === moodType) ? 50 : 0;
+    
+    return {
+      ...champion,
+      championType: championType,  // デバッグ用
+      score: calculateChampionScore(champion, moodType) + typeMatchBonus
+    };
+  });
   
   // スコアでソート（降順）
   championScores.sort((a, b) => b.score - a.score);
@@ -387,6 +405,8 @@ function displayResult(moodType) {
   document.getElementById('mood-result-title').innerHTML = `${resultMessage.emoji} ${resultMessage.title}`;
   
   let description = resultMessage.description;
+  description += `<br><span style="color: #888; font-size: 0.9em;">✨ 全172体のチャンピオンから選出</span>`;
+  
   if (selectedLane) {
     const laneNames = {
       'top': 'トップレーン',
@@ -416,11 +436,29 @@ function displayResult(moodType) {
   // 「すべて見る」ボタンを追加
   const showAllButton = document.createElement('button');
   showAllButton.className = 'mood-show-all-btn';
-  showAllButton.innerHTML = `📋 すべて見る（全${champions.length}体）`;
+  showAllButton.innerHTML = `📋 すべて見る（全${allChampions.length}体）`;
   showAllButton.onclick = () => showAllChampions(moodType, championScores);
   championList.appendChild(showAllButton);
   
   console.log('✅ 結果画面を表示しました');
+}
+
+// チャンピオンのタイプを取得（v9 - 全172体対応）
+function getChampionType(champion) {
+  // 各タイプのリストをチェックして、チャンピオンがどのタイプに属しているか判定
+  if (championsByMood.aggressive.some(c => c.name === champion.name)) {
+    return 'aggressive';
+  }
+  if (championsByMood.supportive.some(c => c.name === champion.name)) {
+    return 'supportive';
+  }
+  if (championsByMood.tactical.some(c => c.name === champion.name)) {
+    return 'tactical';
+  }
+  if (championsByMood.balanced.some(c => c.name === champion.name)) {
+    return 'balanced';
+  }
+  return 'balanced'; // デフォルト
 }
 
 // レーンでチャンピオンを絞り込む（v5 - lanes配列対応）
@@ -624,7 +662,7 @@ window.backToMoodQuizHome = backToMoodQuizHome;
 window.exitMoodQuiz = exitMoodQuiz;
 window.goBackQuestion = goBackQuestion;
 
-console.log('✅ 気分診断ロジックを読み込みました（v8 - バグ修正版 - マルチレーン対応 & 順位表示）');
+console.log('✅ 気分診断ロジックを読み込みました（v9 - 全172体対応版 - マルチレーン対応 & 順位表示）');
 console.log('✅ startMoodQuiz 関数が定義されました:', typeof startMoodQuiz);
 console.log('✅ グローバルスコープに登録されました:', typeof window.startMoodQuiz);
 console.log('📦 登録された関数:', {
@@ -634,3 +672,4 @@ console.log('📦 登録された関数:', {
   exitMoodQuiz: typeof window.exitMoodQuiz,
   goBackQuestion: typeof window.goBackQuestion
 });
+console.log('🌟 新機能: 全172体のチャンピオンから最適なマッチを選択します！');
