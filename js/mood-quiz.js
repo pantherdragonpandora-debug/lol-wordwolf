@@ -1,5 +1,5 @@
 // ========================================
-// 気分診断チャンピオン選択ロジック（v5 - 個別スコアリング対応）
+// 気分診断チャンピオン選択ロジック（v5 - マルチレーン対応 & 順位表示）
 // ========================================
 
 let currentQuestionIndex = 0;
@@ -29,7 +29,7 @@ function startMoodQuiz() {
   updateProgressBar();
   updateBackButton();
   
-  console.log('🎭 気分診断を開始しました（12問）');
+  console.log('🎭 気分診断を開始しました（12問 - マルチレーン対応）');
 }
 
 // 質問を表示
@@ -220,7 +220,7 @@ function showResult() {
   showScreen('mood-quiz-result-screen');
 }
 
-// チャンピオンの適合度スコアを計算（改善版）
+// チャンピオンの適合度スコアを計算（v5 - レーン適性ボーナス対応）
 function calculateChampionScore(champion, moodType) {
   // 基本スコア: タイプマッチで100点
   let score = 100;
@@ -242,11 +242,21 @@ function calculateChampionScore(champion, moodType) {
     }
   }
   
+  // レーン適性ボーナス（最大+30点）- NEW!
+  if (selectedLane && champion.lanes) {
+    const laneMatch = champion.lanes.find(l => l.lane === selectedLane);
+    if (laneMatch && laneBonusPoints) {
+      const bonus = laneBonusPoints[laneMatch.priority];
+      score += bonus;
+      console.log(`  ${champion.nameJa}: レーンボーナス +${bonus}点 (${laneMatch.priority})`);
+    }
+  }
+  
   // チャンピオンの特性マッチング（最大+50点）
   let matchScore = 0;
   
   // チャンピオン名と説明文からキーワードマッチング
-  const championText = `${champion.name} ${champion.nameJa} ${champion.role} ${champion.description}`.toLowerCase();
+  const championText = `${champion.name} ${champion.nameJa} ${champion.description}`.toLowerCase();
   
   answerKeywords.forEach(keyword => {
     if (championText.includes(keyword.toLowerCase())) {
@@ -262,8 +272,8 @@ function calculateChampionScore(champion, moodType) {
   
   score += matchScore;
   
-  // ランダム要素（同点の場合の順位変動、最大+20点）
-  score += Math.random() * 20;
+  // ランダム要素（同点の場合の順位変動、最大+10点）
+  score += Math.random() * 10;
   
   return score;
 }
@@ -389,29 +399,24 @@ function displayResult(moodType) {
   console.log('✅ 結果画面を表示しました');
 }
 
-// レーンでチャンピオンを絞り込む
+// レーンでチャンピオンを絞り込む（v5 - lanes配列対応）
 function filterChampionsByLane(champions, lane) {
-  const laneKeywords = {
-    'top': ['トップ', 'Top'],
-    'jungle': ['ジャングル', 'Jungle'],
-    'mid': ['ミッド', 'Mid'],
-    'adc': ['ADC', 'Bot'],
-    'support': ['サポート', 'Support']
-  };
-  
-  const keywords = laneKeywords[lane];
-  if (!keywords) return champions;
-  
+  // lanes配列を持つチャンピオンをフィルタリング
   const filtered = champions.filter(champion => {
-    const role = champion.role || '';
-    return keywords.some(keyword => role.includes(keyword));
+    if (!champion.lanes || !Array.isArray(champion.lanes)) {
+      return false;
+    }
+    // 選択されたレーンがlanes配列に含まれているかチェック
+    return champion.lanes.some(l => l.lane === lane);
   });
   
-  // 絞り込み結果が少ない場合は全体を返す
+  console.log(`  絞り込み結果: ${filtered.length}体 (元: ${champions.length}体)`);
+  
+  // 絞り込み結果が少なすぎる場合は全体を返す（最低3体確保）
   return filtered.length >= 3 ? filtered : champions;
 }
 
-// 順位付きチャンピオンカードを作成
+// 順位付きチャンピオンカードを作成（v5 - レーン情報表示対応）
 function createRankedChampionCard(champion, rank) {
   const card = document.createElement('div');
   card.className = `mood-champion-card mood-rank-${rank}`;
@@ -421,6 +426,9 @@ function createRankedChampionCard(champion, rank) {
   const medals = { 1: '🥇', 2: '🥈', 3: '🥉' };
   const rankText = { 1: '1位', 2: '2位', 3: '3位' };
   
+  // レーン情報を生成
+  const roleText = getLaneDisplayText(champion, selectedLane);
+  
   card.innerHTML = `
     <div class="mood-rank-badge">${medals[rank]} ${rankText[rank]}</div>
     <div class="mood-champion-image">
@@ -429,7 +437,7 @@ function createRankedChampionCard(champion, rank) {
     <div class="mood-champion-info">
       <h3 class="mood-champion-name">${champion.nameJa}</h3>
       <p class="mood-champion-name-en">${champion.name}</p>
-      <p class="mood-champion-role">${champion.role}</p>
+      <p class="mood-champion-role">${roleText}</p>
       <p class="mood-champion-description">${champion.description}</p>
       <p class="mood-champion-score">適合度: ${champion.score.toFixed(1)}点</p>
     </div>
@@ -438,12 +446,15 @@ function createRankedChampionCard(champion, rank) {
   return card;
 }
 
-// 通常のチャンピオンカードを作成
+// 通常のチャンピオンカードを作成（v5 - レーン情報表示対応）
 function createChampionCard(champion) {
   const card = document.createElement('div');
   card.className = 'mood-champion-card';
   
   const imageUrl = `https://ddragon.leagueoflegends.com/cdn/13.24.1/img/champion/${champion.image}.png`;
+  
+  // レーン情報を生成
+  const roleText = getLaneDisplayText(champion, selectedLane);
   
   card.innerHTML = `
     <div class="mood-champion-image">
@@ -452,10 +463,54 @@ function createChampionCard(champion) {
     <div class="mood-champion-info">
       <h3 class="mood-champion-name">${champion.nameJa}</h3>
       <p class="mood-champion-name-en">${champion.name}</p>
-      <p class="mood-champion-role">${champion.role}</p>
+      <p class="mood-champion-role">${roleText}</p>
       <p class="mood-champion-description">${champion.description}</p>
       <p class="mood-champion-score">適合度: ${champion.score.toFixed(1)}点</p>
     </div>
+  `;
+  
+  return card;
+}
+
+// レーン情報の表示テキストを生成
+function getLaneDisplayText(champion, selectedLane) {
+  if (!champion.lanes || !Array.isArray(champion.lanes)) {
+    return champion.role || '—';
+  }
+  
+  const laneNames = {
+    'top': 'トップ',
+    'jungle': 'ジャングル',
+    'mid': 'ミッド',
+    'adc': 'ADC',
+    'support': 'サポート'
+  };
+  
+  const priorityLabels = {
+    'main': '',
+    'viable': ' (サブ)',
+    'niche': ' (ニッチ)',
+    'off-meta': ' (オフメタ)'
+  };
+  
+  // 選択されたレーンがある場合、そのレーンを強調表示
+  if (selectedLane) {
+    const matchedLane = champion.lanes.find(l => l.lane === selectedLane);
+    if (matchedLane) {
+      const laneName = laneNames[matchedLane.lane];
+      const label = priorityLabels[matchedLane.priority];
+      return `${laneName}${label}`;
+    }
+  }
+  
+  // メインレーンのみ表示
+  const mainLanes = champion.lanes
+    .filter(l => l.priority === 'main')
+    .map(l => laneNames[l.lane])
+    .join('/');
+  
+  return mainLanes || '—';
+}
   `;
   
   return card;
