@@ -73,6 +73,14 @@ League of Legends、VALORANTをテーマにしたオンライン対戦型パー�
 - **チャンピオン画像付き** - 公式CDNから画像取得
 - **多言語対応** - 日本語、英語、韓国語、中国語
 
+**最新の修正 (v8 - 2026-02-21) ✅ 完全修正！**
+- ✅ **気分診断のロード問題を完全修正** - `startMoodQuiz is not defined` エラーを解決
+- ✅ **構文エラーを修正** - mood-quiz.js 内の不要なコード片を削除（537-541行目）
+- ✅ **グローバルスコープへの関数露出** - `window.startMoodQuiz` を明示的に登録
+- ✅ **デバッグログ強化** - ロード状況を詳細に追跡可能に
+- ✅ **すべての関数が正常動作** - 診断開始、戻る、もう一度診断、すべて動作確認済み
+- 📄 詳細: `MOOD_QUIZ_LOADING_FIX_v8.md`
+
 ## ✨ 特徴
 
 ### ワードウルフモード 🐺
@@ -489,7 +497,9 @@ ja: {
 - `FIREBASE_AUTH_FIX.md` - 承認済みドメインの設定
 - `FIREBASE_RULES_FIX.md` - セキュリティルールの設定
 - `FIREBASE_PERMISSION_FIX.md` - ヴォイドゲームのFirebase権限エラー修正
-- `MOOD_QUIZ_CHAMPION_SELECTOR_v1.md` - 気分診断チャンピオン選択（v1） **NEW!**
+- `MOOD_QUIZ_LOADING_FIX_v8.md` - 気分診断ロード問題修正（v8） **NEW!**
+- `MOOD_QUIZ_MULTI_LANE_DESIGN_v5.md` - 気分診断マルチレーン設計（v5）
+- `MOOD_QUIZ_CHAMPION_SELECTOR_v1.md` - 気分診断チャンピオン選択（v1）
 - `SHARE_BUTTON_UI_IMPROVEMENT_v4.md` - シェアボタンUI改善（v4）
 - `FLOATING_SHARE_BUTTON_v3.md` - フローティングSNSシェアボタン（v3）
 - `I18N_SYNTAX_ERROR_FIX_v37.md` - i18n.jsシンタックスエラー修正（v37）
