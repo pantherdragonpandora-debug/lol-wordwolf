@@ -1,6 +1,8 @@
 // ========================================
-// 気分診断チャンピオン選択データ（全172体対応 - マルチレーン対応 v5）
+// 気分診断チャンピオン選択データ（全172体対応 - マルチレーン対応 v6）
 // ========================================
+
+console.log('🎯🎯🎯 mood-quiz-data.js: ファイル読み込み開始');
 
 // 診断の質問データ（12問 - 選択肢拡張版）
 const moodQuizQuestions = [
@@ -367,4 +369,11 @@ const laneBonusPoints = {
   'off-meta': 5    // オフメタ
 };
 
-console.log('✅ 気分診断データを読み込みました（全172体対応 - マルチレーン対応 v5）');
+console.log('✅✅✅ 気分診断データを読み込みました（全172体対応 - マルチレーン対応 v6）');
+console.log('📊 データサマリー:', {
+  questions: moodQuizQuestions.length,
+  aggressiveChampions: championsByMood.aggressive.length,
+  supportiveChampions: championsByMood.supportive.length,
+  tacticalChampions: championsByMood.tactical.length,
+  balancedChampions: championsByMood.balanced.length
+});

@@ -1,8 +1,8 @@
 // ========================================
-// 気分診断チャンピオン選択ロジック（v8 - バグ修正版）
+// 気分診断チャンピオン選択ロジック（v7 - 緊急修正版）
 // ========================================
 
-console.log('🎭 mood-quiz.js ロード開始 (v8)...');
+console.log('🎭 mood-quiz.js ロード開始...');
 
 // データファイルが正しくロードされているか確認
 if (typeof moodQuizQuestions === 'undefined') {
@@ -535,6 +535,10 @@ function getLaneDisplayText(champion, selectedLane) {
   
   return mainLanes || '—';
 }
+  `;
+  
+  return card;
+}
 
 // スコアチャートを表示
 function displayScoreChart() {
@@ -622,15 +626,13 @@ function exitMoodQuiz() {
 window.retryMoodQuiz = retryMoodQuiz;
 window.backToMoodQuizHome = backToMoodQuizHome;
 window.exitMoodQuiz = exitMoodQuiz;
-window.goBackQuestion = goBackQuestion;
 
-console.log('✅ 気分診断ロジックを読み込みました（v8 - バグ修正版 - マルチレーン対応 & 順位表示）');
+console.log('✅ 気分診断ロジックを読み込みました（v7 - 緊急修正版 - マルチレーン対応 & 順位表示）');
 console.log('✅ startMoodQuiz 関数が定義されました:', typeof startMoodQuiz);
 console.log('✅ グローバルスコープに登録されました:', typeof window.startMoodQuiz);
 console.log('📦 登録された関数:', {
   startMoodQuiz: typeof window.startMoodQuiz,
   retryMoodQuiz: typeof window.retryMoodQuiz,
   backToMoodQuizHome: typeof window.backToMoodQuizHome,
-  exitMoodQuiz: typeof window.exitMoodQuiz,
-  goBackQuestion: typeof window.goBackQuestion
+  exitMoodQuiz: typeof window.exitMoodQuiz
 });

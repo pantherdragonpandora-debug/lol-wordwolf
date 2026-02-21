@@ -1262,8 +1262,34 @@
     <script src="js/void-game.js?v=34"></script>
     <script src="js/demacia-solo.js?v=18"></script>
     <script src="js/pageview-counter.js?v=22"></script>
-    <script src="js/mood-quiz-data.js?v=5"></script>
-    <script src="js/mood-quiz.js?v=6"></script>
+    
+    <!-- 気分診断（main.jsより前にロード） -->
+    <script src="js/mood-quiz-data.js?v=6&t=202602210"></script>
+    <script src="js/mood-quiz.js?v=9&t=202602210"></script>
+    
+    <!-- デバッグ用：mood-quiz.jsがロードされているか確認 -->
+    <script>
+      console.log('🔍 mood-quiz.js ロード確認 (v8):');
+      console.log('  - typeof startMoodQuiz:', typeof startMoodQuiz);
+      console.log('  - typeof window.startMoodQuiz:', typeof window.startMoodQuiz);
+      console.log('  - typeof moodQuizQuestions:', typeof moodQuizQuestions);
+      console.log('  - typeof championsByMood:', typeof championsByMood);
+      
+      if (typeof startMoodQuiz === 'undefined') {
+        console.error('❌❌❌ startMoodQuiz が未定義です！');
+        console.error('❌ mood-quiz.js のロードに失敗しています。');
+        
+        // 緊急対応：ダミー関数を定義
+        window.startMoodQuiz = function() {
+          alert('気分診断の初期化に失敗しました。ページを再読み込みしてください。\n\nエラー: mood-quiz.js のロードに失敗');
+          console.error('mood-quiz.js がロードされていません');
+        };
+      } else {
+        console.log('✅✅✅ startMoodQuiz 関数は正常に定義されています');
+        console.log('✅ window.startMoodQuiz:', window.startMoodQuiz);
+      }
+    </script>
+    
     <script src="js/void-main.js?v=38"></script>
     <script src="js/main.js?v=36"></script>
     <!-- シェア機能（main.jsの後に読み込む） -->
