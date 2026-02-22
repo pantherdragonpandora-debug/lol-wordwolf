@@ -13,6 +13,12 @@ let selectedVoteSituation = null; // デマーシア投票用
 
 // ページ読み込み時
 document.addEventListener('DOMContentLoaded', () => {
+  // サイト説明セクションを表示（SEO・AdSense対策）
+  const siteDescription = document.getElementById('site-description');
+  if (siteDescription) {
+    siteDescription.style.display = 'block';
+  }
+  
   // 多言語初期化
   initLanguage();
   
@@ -244,6 +250,20 @@ function setupEventListeners() {
     startDemaciaSoloPlay();
   });
   
+  // デマーシア：次のラウンドボタン
+  document.getElementById('demacia-next-round-btn')?.addEventListener('click', async () => {
+    console.log('🎭 次のラウンドボタンがクリックされました');
+    if (currentDemaciaGame) {
+      const roomData = currentDemaciaGame.roomData;
+      if (roomData && roomData.host === currentPlayer) {
+        await currentDemaciaGame.nextRound();
+        console.log('✅ 次のラウンドに進みました');
+      } else {
+        alert('ホストのみが次のラウンドに進めます');
+      }
+    }
+  });
+  
   // ホーム画面
   document.getElementById('create-room-btn').addEventListener('click', () => showScreen('create-screen'));
   document.getElementById('join-room-btn').addEventListener('click', () => {
@@ -440,11 +460,25 @@ async function createRoom() {
     return;
   }
   
-  const playerNameInput = document.getElementById('create-player-name').value.trim();
+  const playerNameInputEl = document.getElementById('create-player-name');
+  
+  // input要素が存在しない場合のエラー処理
+  if (!playerNameInputEl) {
+    console.error('❌ プレイヤー名入力要素が見つかりません');
+    alert('エラー: 入力フォームが見つかりません。ページをリロードしてください。');
+    return;
+  }
+  
+  const playerNameInput = (playerNameInputEl.value || '').trim();
+  
+  console.log('🔍 プレイヤー名入力値:', {
+    raw: playerNameInputEl.value,
+    trimmed: playerNameInput
+  });
   
   // 入力検証
   if (!playerNameInput) {
-    alert(t('alert.enterPlayerName'));
+    alert(t('alert.enterPlayerName') || 'プレイヤー名を入力してください');
     return;
   }
   
@@ -567,23 +601,40 @@ async function joinRoom() {
     return;
   }
   
-  const roomIdInput = document.getElementById('join-room-id').value.trim();
-  const playerNameInput = document.getElementById('join-player-name').value.trim();
+  const roomIdInput = document.getElementById('join-room-id');
+  const playerNameInput = document.getElementById('join-player-name');
   
+  // input要素が存在しない場合のエラー処理
   if (!roomIdInput || !playerNameInput) {
-    alert(t('alert.enterRoomIdAndName'));
+    console.error('❌ 入力要素が見つかりません');
+    alert('エラー: 入力フォームが見つかりません。ページをリロードしてください。');
+    return;
+  }
+  
+  const roomIdValue = (roomIdInput.value || '').trim();
+  const playerNameValue = (playerNameInput.value || '').trim();
+  
+  console.log('🔍 入力値チェック:', {
+    roomIdRaw: roomIdInput.value,
+    roomIdTrimmed: roomIdValue,
+    playerNameRaw: playerNameInput.value,
+    playerNameTrimmed: playerNameValue
+  });
+  
+  if (!roomIdValue || !playerNameValue) {
+    alert(t('alert.enterRoomIdAndName') || 'ルームIDと名前を入力してください');
     return;
   }
   
   // ルームIDの検証
-  const roomId = sanitizeInput(roomIdInput, 6);
+  const roomId = sanitizeInput(roomIdValue, 6);
   if (!validateRoomId(roomId)) {
     alert(t('alert.invalidRoomId') || 'ルームIDは6桁の数字で入力してください');
     return;
   }
   
   // プレイヤー名のサニタイズと検証
-  const playerName = sanitizeInput(playerNameInput, 20);
+  const playerName = sanitizeInput(playerNameValue, 20);
   if (!validatePlayerName(playerName)) {
     alert(t('alert.invalidPlayerName') || 'プレイヤー名は1〜20文字で入力してください');
     return;
@@ -1604,26 +1655,61 @@ function showDemaciaVotingScreen() {
   }
   
   if (isPerformer) {
-    console.log('🎭 演技者用の画面を表示します');
-    // 演技者は投票しない
+    console.log('🎭 演技者用の画面を表示します（選択肢表示、投票権なし）');
+    // 演技者は投票しない（ただし選択肢は見える）
     // セリフを表示
     document.getElementById('demacia-voting-phrase').textContent = roomData.currentPhrase.text;
     
     const optionsContainer = document.getElementById('demacia-situation-options');
     if (optionsContainer) {
-      optionsContainer.innerHTML = `
-        <div style="text-align: center; padding: 3rem 1rem; background: linear-gradient(135deg, rgba(200,155,60,0.1) 0%, rgba(200,155,60,0.05) 100%); border-radius: 12px; margin: 2rem 0;">
-          <div style="font-size: 3rem; margin-bottom: 1rem;">👀</div>
-          <h3 style="color: #c89b3c; margin-bottom: 1rem; font-size: 1.2rem;">投票をお待ちください</h3>
-          <p style="color: rgba(255,255,255,0.7); line-height: 1.6;">
-            あなたは演技者です。<br>
-            他のプレイヤーが投票を完了するまでお待ちください。
-          </p>
-          <div style="margin-top: 1.5rem; font-size: 0.9rem; color: #c89b3c;">
-            投票状況: <span id="performer-vote-count">${voteCount}</span> / <span id="performer-total-voters">${expectedVoters}</span> 人が投票完了
-          </div>
+      optionsContainer.innerHTML = '';
+      
+      // 演技者にも選択肢を表示（但し選択不可）
+      roomData.currentPhrase.situations.forEach((situation, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'situation-option-btn';
+        
+        // situationからテキストを確実に取得
+        let situationText;
+        if (typeof situation === 'string') {
+          situationText = situation;
+        } else if (situation && typeof situation === 'object') {
+          situationText = situation.text || JSON.stringify(situation);
+        } else {
+          situationText = 'シチュエーション情報なし';
+        }
+        
+        btn.textContent = `${index + 1}. ${situationText}`;
+        btn.disabled = true; // 演技者は選択できない
+        btn.style.opacity = '0.6';
+        btn.style.cursor = 'not-allowed';
+        
+        // 正解のシチュエーションをハイライト
+        if (index === roomData.correctSituation) {
+          btn.style.border = '3px solid #c89b3c';
+          btn.style.background = 'rgba(200, 155, 60, 0.2)';
+          btn.innerHTML = `${index + 1}. ${situationText}<br><small style="color: #c89b3c; font-weight: bold;">（あなたの演技）</small>`;
+        }
+        
+        optionsContainer.appendChild(btn);
+      });
+      
+      // 説明メッセージを追加
+      const messageDiv = document.createElement('div');
+      messageDiv.style.cssText = 'text-align: center; padding: 1.5rem 1rem; margin-top: 1.5rem; background: linear-gradient(135deg, rgba(200,155,60,0.1) 0%, rgba(200,155,60,0.05) 100%); border-radius: 12px;';
+      messageDiv.innerHTML = `
+        <div style="font-size: 2rem; margin-bottom: 0.5rem;">👀</div>
+        <p style="color: rgba(255,255,255,0.9); line-height: 1.6; margin-bottom: 0.5rem;">
+          <strong style="color: #c89b3c;">あなたは演技者です</strong>
+        </p>
+        <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem;">
+          他のプレイヤーが投票を完了するまでお待ちください。
+        </p>
+        <div style="margin-top: 1rem; font-size: 0.95rem; color: #c89b3c;">
+          投票状況: <span id="performer-vote-count">${voteCount}</span> / <span id="performer-total-voters">${expectedVoters}</span> 人が投票完了
         </div>
       `;
+      optionsContainer.appendChild(messageDiv);
     }
   } else {
     console.log('🗳️ 投票者用の画面を表示します');
