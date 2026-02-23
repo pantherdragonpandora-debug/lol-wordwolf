@@ -13,12 +13,6 @@ let selectedVoteSituation = null; // デマーシア投票用
 
 // ページ読み込み時
 document.addEventListener('DOMContentLoaded', () => {
-  // サイト説明セクションを表示（SEO・AdSense対策）
-  const siteDescription = document.getElementById('site-description');
-  if (siteDescription) {
-    siteDescription.style.display = 'block';
-  }
-  
   // 多言語初期化
   initLanguage();
   
@@ -379,6 +373,18 @@ function showScreen(screenId) {
   
   // スタート画面に戻るボタンの表示制御
   updateHomeButton(screenId);
+  
+  // サイト説明セクションの表示制御（モード選択画面のみ表示）
+  const siteDescription = document.getElementById('site-description');
+  if (siteDescription) {
+    if (screenId === 'mode-select-screen') {
+      siteDescription.style.display = 'block';
+      console.log('📝 サイト説明セクションを表示');
+    } else {
+      siteDescription.style.display = 'none';
+      console.log('🔒 サイト説明セクションを非表示');
+    }
+  }
 }
 
 // スタート画面に戻るボタンの表示制御
