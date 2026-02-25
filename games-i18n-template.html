@@ -1,0 +1,33 @@
+<!-- games.htmlに必要なdata-i18n属性の追加リスト -->
+
+<!-- ナビゲーション -->
+<nav class="main-nav">
+    <a href="index.html" data-i18n="nav.game">🎮 ゲーム</a>
+    <a href="games.html" data-i18n="nav.gamesIntro">📖 ゲーム紹介</a>
+    <a href="how-to-play.html" data-i18n="nav.howToPlay">❓ 遊び方</a>
+    <a href="blog.html" data-i18n="nav.blog">✍️ ブログ</a>
+    <a href="faq.html" data-i18n="nav.faq">💬 FAQ</a>
+    <a href="contact.html" data-i18n="nav.contact">📧 お問い合わせ</a>
+</nav>
+
+<!-- メインタイトル -->
+<h1 data-i18n="gamesPage.title">🎮 Esports パーティーゲームコレクション</h1>
+
+<!-- イントロ -->
+<p data-i18n="gamesPage.intro">League of LegendsとVALORANTをテーマにした4つのオンラインパーティーゲームで、友達や家族と楽しい時間を過ごしましょう！</p>
+
+<!-- 「今すぐプレイ」ボタン -->
+<a href="index.html" data-i18n="gamesPage.playNow">今すぐプレイ</a>
+
+<!-- 「ホームへ戻る」ボタン -->
+<a href="index.html" data-i18n="gamesPage.backToHome">ホームへ戻る</a>
+
+<!-- スクリプト読み込み -->
+<script src="js/i18n.js"></script>
+<script src="js/main.js"></script>
+<script>
+    // 多言語初期化
+    document.addEventListener('DOMContentLoaded', () => {
+        initLanguage();
+    });
+</script>

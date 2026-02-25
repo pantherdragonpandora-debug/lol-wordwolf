@@ -1,152 +1,325 @@
 // ========================================
-// 気分診断チャンピオン選択データ（全172体対応 - マルチレーン対応 v6）
+// 気分診断チャンピオン選択データ（全172体対応 - マルチレーン対応 v7 - 多言語対応版）
 // ========================================
 
-console.log('🎯🎯🎯 mood-quiz-data.js: ファイル読み込み開始');
+console.log('🎯🎯🎯 mood-quiz-data.js: ファイル読み込み開始 (v7 - 多言語対応)');
 
-// 診断の質問データ（12問 - 選択肢拡張版）
+// 多言語対応：質問の翻訳データ
+const moodQuizQuestionsI18n = {
+  ja: {
+    questions: [
+      '好きなレーンは？',
+      'チームファイトでの役割は？',
+      '今日の気分は？',
+      'どんなプレイスタイルが好き？',
+      '今の気持ちに一番近いのは？',
+      'レーニングフェーズでのプレイは？',
+      '決定的な瞬間では？',
+      'ゲームで重視することは？',
+      '好きな戦闘距離は？',
+      'ゲーム序盤のスタイルは？',
+      'ゲーム終盤の立ち回りは？',
+      'あなたのプレイで最も大切なことは？'
+    ],
+    options: [
+      // Q1
+      ['トップレーン', 'ジャングル', 'ミッドレーン', 'ADC', 'サポート'],
+      // Q2
+      ['敵を倒しまくる', '味方を守る', 'CCで敵を妨害', '敵のキャリーを狙う', 'ポークで削る', 'ゾーニングで牽制'],
+      // Q3
+      ['元気いっぱい！', '落ち着いている', 'ちょっと疲れてる', 'ストレス発散したい', '頭を使いたい'],
+      // Q4
+      ['前に出て戦う！', '味方をサポート', '計算して立ち回る', 'ワンショットキル！', 'じわじわ削る', '機動力で翻弄'],
+      // Q5
+      ['ワクワクしてる！', '冷静に考えたい', '優しくしたい', 'スカッとしたい！'],
+      // Q6
+      ['積極的に交易する', '安全にファーム', 'ロームで味方を助ける', 'プッシュで圧力をかける', 'フリーズで有利を作る', 'オールイン狙う'],
+      // Q7
+      ['積極的にイニシアチブ', 'カウンターを狙う', '味方をフォロー', '状況を見て判断'],
+      // Q8
+      ['キルを取る', '味方を勝たせる', 'オブジェクトを取る', '戦略的に勝つ'],
+      // Q9
+      ['接近戦が好き', '近～中距離（ブルーザー）', '中距離で立ち回る', '中～遠距離（ポーク）', '遠距離から攻撃', '状況に応じて変える'],
+      // Q10
+      ['序盤から有利を作る', '安全に成長する', '味方のガンクを待つ', '敵の動きを見る'],
+      // Q11
+      ['ピックで試合を決める', '集団戦で勝つ', '味方を守り切る', 'スプリットで圧力', 'バロン/ドラゴンで決める'],
+      // Q12
+      ['キャリーして勝つ', 'チームを支える', '頭脳で勝つ', '楽しくプレイする']
+    ]
+  },
+  en: {
+    questions: [
+      'Favorite Lane?',
+      'Your Role in Teamfights?',
+      'How are you feeling today?',
+      'Preferred Playstyle?',
+      'Which feeling is closest to you now?',
+      'Your Laning Phase Play?',
+      'In Decisive Moments?',
+      'What do you prioritize in game?',
+      'Preferred Combat Range?',
+      'Early Game Style?',
+      'Late Game Strategy?',
+      'What matters most in your play?'
+    ],
+    options: [
+      // Q1
+      ['Top Lane', 'Jungle', 'Mid Lane', 'ADC', 'Support'],
+      // Q2
+      ['Kill enemies', 'Protect allies', 'CC and disrupt', 'Target enemy carries', 'Poke and chip', 'Zone and pressure'],
+      // Q3
+      ['Full of energy!', 'Calm and collected', 'A bit tired', 'Want to blow off steam', 'Want to think strategically'],
+      // Q4
+      ['Fight in the front!', 'Support allies', 'Calculate and position', 'One-shot kills!', 'Chip away gradually', 'Outplay with mobility'],
+      // Q5
+      ['Excited!', 'Want to think calmly', 'Want to be kind', 'Want a thrill!'],
+      // Q6
+      ['Trade aggressively', 'Farm safely', 'Roam to help team', 'Push for pressure', 'Freeze for advantage', 'Go all-in'],
+      // Q7
+      ['Take initiative', 'Wait for counter', 'Follow teammates', 'Judge the situation'],
+      // Q8
+      ['Get kills', 'Help team win', 'Take objectives', 'Win strategically'],
+      // Q9
+      ['Melee combat', 'Close-mid range (Bruiser)', 'Mid range', 'Mid-long range (Poke)', 'Long range attacks', 'Adapt to situation'],
+      // Q10
+      ['Build early advantage', 'Scale safely', 'Wait for ganks', 'Watch enemy moves'],
+      // Q11
+      ['Pick to win', 'Win teamfights', 'Protect team', 'Split push pressure', 'Secure Baron/Dragon'],
+      // Q12
+      ['Carry to victory', 'Support the team', 'Win with brain', 'Play for fun']
+    ]
+  },
+  ko: {
+    questions: [
+      '좋아하는 라인은?',
+      '팀파이트에서의 역할은?',
+      '오늘 기분은?',
+      '선호하는 플레이 스타일은?',
+      '지금 기분과 가장 가까운 것은?',
+      '라인전 플레이는?',
+      '결정적인 순간에는?',
+      '게임에서 중요하게 생각하는 것은?',
+      '좋아하는 전투 거리는?',
+      '게임 초반 스타일은?',
+      '게임 후반 전략은?',
+      '플레이에서 가장 중요한 것은?'
+    ],
+    options: [
+      // Q1
+      ['탑 라인', '정글', '미드 라인', 'ADC', '서포트'],
+      // Q2
+      ['적을 처치', '아군 보호', 'CC로 방해', '적 캐리 노림', '포크로 견제', '존 압박'],
+      // Q3
+      ['힘이 넘쳐!', '침착함', '좀 피곤해', '스트레스 풀고 싶어', '머리 쓰고 싶어'],
+      // Q4
+      ['앞으로 나가 싸운다!', '아군 서포트', '계산하며 플레이', '원샷 킬!', '천천히 깎아내기', '기동력으로 압도'],
+      // Q5
+      ['설렌다!', '침착하게 생각하고 싶어', '친절하게 대하고 싶어', '통쾌하고 싶어!'],
+      // Q6
+      ['적극적으로 교전', '안전하게 파밍', '로밍으로 지원', '푸시로 압박', '프리즈로 우위', '올인 노림'],
+      // Q7
+      ['적극적으로 주도', '카운터 노림', '아군 따라가기', '상황 보고 판단'],
+      // Q8
+      ['킬 획득', '팀 승리 돕기', '오브젝트 확보', '전략적 승리'],
+      // Q9
+      ['근접전 선호', '근~중거리 (브루저)', '중거리 플레이', '중~원거리 (포크)', '원거리 공격', '상황에 맞게'],
+      // Q10
+      ['초반 우위 확보', '안전하게 성장', '아군 갱킹 대기', '적 움직임 관찰'],
+      // Q11
+      ['픽으로 승부', '한타로 승리', '아군 보호', '스플릿 압박', '바론/드래곤 확보'],
+      // Q12
+      ['캐리해서 승리', '팀 서포트', '머리로 승리', '즐겁게 플레이']
+    ]
+  },
+  zh: {
+    questions: [
+      '喜欢的路线？',
+      '团战中的角色？',
+      '今天的心情？',
+      '喜欢的游戏风格？',
+      '现在最接近的感觉是？',
+      '对线期的打法？',
+      '决定性时刻？',
+      '游戏中重视什么？',
+      '喜欢的战斗距离？',
+      '游戏前期风格？',
+      '游戏后期策略？',
+      '你的游戏中最重要的是？'
+    ],
+    options: [
+      // Q1
+      ['上路', '打野', '中路', 'ADC', '辅助'],
+      // Q2
+      ['击杀敌人', '保护队友', 'CC控制', '针对敌方C位', '消耗', '牵制压力'],
+      // Q3
+      ['精力充沛！', '冷静', '有点累', '想发泄压力', '想动脑'],
+      // Q4
+      ['冲锋战斗！', '支援队友', '计算走位', '秒杀！', '慢慢消耗', '机动性压制'],
+      // Q5
+      ['兴奋！', '想冷静思考', '想友善待人', '想爽快！'],
+      // Q6
+      ['积极换血', '安全补刀', '游走支援', '推线施压', '控线优势', '全力拼杀'],
+      // Q7
+      ['积极主动', '等待反击', '跟随队友', '观察局势'],
+      // Q8
+      ['获得击杀', '帮助团队', '拿下目标', '战略取胜'],
+      // Q9
+      ['近战', '近中距离（战士）', '中距离', '中远距离（消耗）', '远距离攻击', '根据情况'],
+      // Q10
+      ['前期建立优势', '安全发育', '等待队友gank', '观察敌人动向'],
+      // Q11
+      ['单抓决胜', '团战取胜', '保护队友', '分推压力', '大龙/小龙决胜'],
+      // Q12
+      ['Carry取胜', '支援团队', '智取胜利', '开心游戏']
+    ]
+  }
+};
+
+// 診断の質問データ（12問 - 多言語対応版）
+// 実際のテキストは moodQuizQuestionsI18n から取得
 const moodQuizQuestions = [
   {
     id: 1,
-    question: '好きなレーンは？',
-    type: 'lane', // レーンで絞り込み
+    questionKey: 0, // moodQuizQuestionsI18n.questions[0]
+    type: 'lane',
     options: [
-      { text: 'トップレーン', lane: 'top', points: { aggressive: 2, supportive: 1, tactical: 2 } },
-      { text: 'ジャングル', lane: 'jungle', points: { aggressive: 2, supportive: 1, tactical: 3 } },
-      { text: 'ミッドレーン', lane: 'mid', points: { aggressive: 2, supportive: 1, tactical: 2 } },
-      { text: 'ADC', lane: 'adc', points: { aggressive: 2, supportive: 0, tactical: 3 } },
-      { text: 'サポート', lane: 'support', points: { aggressive: 0, supportive: 3, tactical: 2 } }
+      { textKey: 0, lane: 'top', points: { aggressive: 2, supportive: 1, tactical: 2 } },
+      { textKey: 1, lane: 'jungle', points: { aggressive: 2, supportive: 1, tactical: 3 } },
+      { textKey: 2, lane: 'mid', points: { aggressive: 2, supportive: 1, tactical: 2 } },
+      { textKey: 3, lane: 'adc', points: { aggressive: 2, supportive: 0, tactical: 3 } },
+      { textKey: 4, lane: 'support', points: { aggressive: 0, supportive: 3, tactical: 2 } }
     ]
   },
   {
     id: 2,
-    question: 'チームファイトでの役割は？',
+    questionKey: 1,
     type: 'role',
     options: [
-      { text: '敵を倒しまくる', points: { aggressive: 3, supportive: 0, tactical: 1 } },
-      { text: '味方を守る', points: { aggressive: 1, supportive: 3, tactical: 1 } },
-      { text: 'CCで敵を妨害', points: { aggressive: 1, supportive: 2, tactical: 3 } },
-      { text: '敵のキャリーを狙う', points: { aggressive: 3, supportive: 0, tactical: 2 } },
-      { text: 'ポークで削る', points: { aggressive: 1, supportive: 1, tactical: 3 } },
-      { text: 'ゾーニングで牽制', points: { aggressive: 1, supportive: 2, tactical: 3 } }
+      { textKey: 0, points: { aggressive: 3, supportive: 0, tactical: 1 } },
+      { textKey: 1, points: { aggressive: 1, supportive: 3, tactical: 1 } },
+      { textKey: 2, points: { aggressive: 1, supportive: 2, tactical: 3 } },
+      { textKey: 3, points: { aggressive: 3, supportive: 0, tactical: 2 } },
+      { textKey: 4, points: { aggressive: 1, supportive: 1, tactical: 3 } },
+      { textKey: 5, points: { aggressive: 1, supportive: 2, tactical: 3 } }
     ]
   },
   {
     id: 3,
-    question: '今日の気分は？',
+    questionKey: 2,
     type: 'mood',
     options: [
-      { text: '元気いっぱい！', points: { aggressive: 3, supportive: 0, tactical: 1 } },
-      { text: '落ち着いている', points: { aggressive: 0, supportive: 2, tactical: 3 } },
-      { text: 'ちょっと疲れてる', points: { aggressive: 0, supportive: 3, tactical: 1 } },
-      { text: 'ストレス発散したい', points: { aggressive: 3, supportive: 0, tactical: 0 } },
-      { text: '頭を使いたい', points: { aggressive: 0, supportive: 1, tactical: 3 } }
+      { textKey: 0, points: { aggressive: 3, supportive: 0, tactical: 1 } },
+      { textKey: 1, points: { aggressive: 0, supportive: 2, tactical: 3 } },
+      { textKey: 2, points: { aggressive: 0, supportive: 3, tactical: 1 } },
+      { textKey: 3, points: { aggressive: 3, supportive: 0, tactical: 0 } },
+      { textKey: 4, points: { aggressive: 0, supportive: 1, tactical: 3 } }
     ]
   },
   {
     id: 4,
-    question: 'どんなプレイスタイルが好き？',
+    questionKey: 3,
     type: 'playstyle',
     options: [
-      { text: '前に出て戦う！', points: { aggressive: 3, supportive: 0, tactical: 1 } },
-      { text: '味方をサポート', points: { aggressive: 0, supportive: 3, tactical: 2 } },
-      { text: '計算して立ち回る', points: { aggressive: 1, supportive: 1, tactical: 3 } },
-      { text: 'ワンショットキル！', points: { aggressive: 3, supportive: 0, tactical: 2 } },
-      { text: 'じわじわ削る', points: { aggressive: 1, supportive: 1, tactical: 3 } },
-      { text: '機動力で翻弄', points: { aggressive: 2, supportive: 1, tactical: 3 } }
+      { textKey: 0, points: { aggressive: 3, supportive: 0, tactical: 1 } },
+      { textKey: 1, points: { aggressive: 0, supportive: 3, tactical: 2 } },
+      { textKey: 2, points: { aggressive: 1, supportive: 1, tactical: 3 } },
+      { textKey: 3, points: { aggressive: 3, supportive: 0, tactical: 2 } },
+      { textKey: 4, points: { aggressive: 1, supportive: 1, tactical: 3 } },
+      { textKey: 5, points: { aggressive: 2, supportive: 1, tactical: 3 } }
     ]
   },
   {
     id: 5,
-    question: '今の気持ちに一番近いのは？',
+    questionKey: 4,
     type: 'emotion',
     options: [
-      { text: 'ワクワクしてる！', points: { aggressive: 2, supportive: 1, tactical: 1 } },
-      { text: '冷静に考えたい', points: { aggressive: 0, supportive: 1, tactical: 3 } },
-      { text: '優しくしたい', points: { aggressive: 0, supportive: 3, tactical: 1 } },
-      { text: 'スカッとしたい！', points: { aggressive: 3, supportive: 0, tactical: 0 } }
+      { textKey: 0, points: { aggressive: 2, supportive: 1, tactical: 1 } },
+      { textKey: 1, points: { aggressive: 0, supportive: 1, tactical: 3 } },
+      { textKey: 2, points: { aggressive: 0, supportive: 3, tactical: 1 } },
+      { textKey: 3, points: { aggressive: 3, supportive: 0, tactical: 0 } }
     ]
   },
   {
     id: 6,
-    question: 'レーニングフェーズでのプレイは？',
+    questionKey: 5,
     type: 'laning',
     options: [
-      { text: '積極的に交易する', points: { aggressive: 3, supportive: 0, tactical: 1 } },
-      { text: '安全にファーム', points: { aggressive: 0, supportive: 1, tactical: 3 } },
-      { text: 'ロームで味方を助ける', points: { aggressive: 1, supportive: 3, tactical: 2 } },
-      { text: 'プッシュで圧力をかける', points: { aggressive: 2, supportive: 1, tactical: 2 } },
-      { text: 'フリーズで有利を作る', points: { aggressive: 1, supportive: 1, tactical: 3 } },
-      { text: 'オールイン狙う', points: { aggressive: 3, supportive: 0, tactical: 1 } }
+      { textKey: 0, points: { aggressive: 3, supportive: 0, tactical: 1 } },
+      { textKey: 1, points: { aggressive: 0, supportive: 1, tactical: 3 } },
+      { textKey: 2, points: { aggressive: 1, supportive: 3, tactical: 2 } },
+      { textKey: 3, points: { aggressive: 2, supportive: 1, tactical: 2 } },
+      { textKey: 4, points: { aggressive: 1, supportive: 1, tactical: 3 } },
+      { textKey: 5, points: { aggressive: 3, supportive: 0, tactical: 1 } }
     ]
   },
   {
     id: 7,
-    question: '決定的な瞬間では？',
+    questionKey: 6,
     type: 'decisive',
     options: [
-      { text: '積極的にイニシアチブ', points: { aggressive: 3, supportive: 0, tactical: 1 } },
-      { text: 'カウンターを狙う', points: { aggressive: 1, supportive: 1, tactical: 3 } },
-      { text: '味方をフォロー', points: { aggressive: 1, supportive: 3, tactical: 1 } },
-      { text: '状況を見て判断', points: { aggressive: 0, supportive: 2, tactical: 3 } }
+      { textKey: 0, points: { aggressive: 3, supportive: 0, tactical: 1 } },
+      { textKey: 1, points: { aggressive: 1, supportive: 1, tactical: 3 } },
+      { textKey: 2, points: { aggressive: 1, supportive: 3, tactical: 1 } },
+      { textKey: 3, points: { aggressive: 0, supportive: 2, tactical: 3 } }
     ]
   },
   {
     id: 8,
-    question: 'ゲームで重視することは？',
+    questionKey: 7,
     type: 'priority',
     options: [
-      { text: 'キルを取る', points: { aggressive: 3, supportive: 0, tactical: 1 } },
-      { text: '味方を勝たせる', points: { aggressive: 0, supportive: 3, tactical: 1 } },
-      { text: 'オブジェクトを取る', points: { aggressive: 1, supportive: 1, tactical: 3 } },
-      { text: '戦略的に勝つ', points: { aggressive: 1, supportive: 2, tactical: 3 } }
+      { textKey: 0, points: { aggressive: 3, supportive: 0, tactical: 1 } },
+      { textKey: 1, points: { aggressive: 0, supportive: 3, tactical: 1 } },
+      { textKey: 2, points: { aggressive: 1, supportive: 1, tactical: 3 } },
+      { textKey: 3, points: { aggressive: 1, supportive: 2, tactical: 3 } }
     ]
   },
   {
     id: 9,
-    question: '好きな戦闘距離は？',
+    questionKey: 8,
     type: 'range',
     options: [
-      { text: '接近戦が好き', points: { aggressive: 3, supportive: 1, tactical: 0 } },
-      { text: '近～中距離（ブルーザー）', points: { aggressive: 2, supportive: 1, tactical: 1 } },
-      { text: '中距離で立ち回る', points: { aggressive: 2, supportive: 1, tactical: 2 } },
-      { text: '中～遠距離（ポーク）', points: { aggressive: 1, supportive: 1, tactical: 3 } },
-      { text: '遠距離から攻撃', points: { aggressive: 1, supportive: 1, tactical: 3 } },
-      { text: '状況に応じて変える', points: { aggressive: 1, supportive: 2, tactical: 2 } }
+      { textKey: 0, points: { aggressive: 3, supportive: 1, tactical: 0 } },
+      { textKey: 1, points: { aggressive: 2, supportive: 1, tactical: 1 } },
+      { textKey: 2, points: { aggressive: 2, supportive: 1, tactical: 2 } },
+      { textKey: 3, points: { aggressive: 1, supportive: 1, tactical: 3 } },
+      { textKey: 4, points: { aggressive: 1, supportive: 1, tactical: 3 } },
+      { textKey: 5, points: { aggressive: 1, supportive: 2, tactical: 2 } }
     ]
   },
   {
     id: 10,
-    question: 'ゲーム序盤のスタイルは？',
+    questionKey: 9,
     type: 'early',
     options: [
-      { text: '序盤から有利を作る', points: { aggressive: 3, supportive: 1, tactical: 1 } },
-      { text: '安全に成長する', points: { aggressive: 0, supportive: 2, tactical: 3 } },
-      { text: '味方のガンクを待つ', points: { aggressive: 1, supportive: 3, tactical: 2 } },
-      { text: '敵の動きを見る', points: { aggressive: 1, supportive: 1, tactical: 3 } }
+      { textKey: 0, points: { aggressive: 3, supportive: 1, tactical: 1 } },
+      { textKey: 1, points: { aggressive: 0, supportive: 2, tactical: 3 } },
+      { textKey: 2, points: { aggressive: 1, supportive: 3, tactical: 2 } },
+      { textKey: 3, points: { aggressive: 1, supportive: 1, tactical: 3 } }
     ]
   },
   {
     id: 11,
-    question: 'ゲーム終盤の立ち回りは？',
+    questionKey: 10,
     type: 'late',
     options: [
-      { text: 'ピックで試合を決める', points: { aggressive: 3, supportive: 0, tactical: 2 } },
-      { text: '集団戦で勝つ', points: { aggressive: 2, supportive: 2, tactical: 2 } },
-      { text: '味方を守り切る', points: { aggressive: 0, supportive: 3, tactical: 2 } },
-      { text: 'スプリットで圧力', points: { aggressive: 2, supportive: 0, tactical: 3 } },
-      { text: 'バロン/ドラゴンで決める', points: { aggressive: 1, supportive: 2, tactical: 3 } }
+      { textKey: 0, points: { aggressive: 3, supportive: 0, tactical: 2 } },
+      { textKey: 1, points: { aggressive: 2, supportive: 2, tactical: 2 } },
+      { textKey: 2, points: { aggressive: 0, supportive: 3, tactical: 2 } },
+      { textKey: 3, points: { aggressive: 2, supportive: 0, tactical: 3 } },
+      { textKey: 4, points: { aggressive: 1, supportive: 2, tactical: 3 } }
     ]
   },
   {
     id: 12,
-    question: 'あなたのプレイで最も大切なことは？',
+    questionKey: 11,
     type: 'philosophy',
     options: [
-      { text: 'キャリーして勝つ', points: { aggressive: 3, supportive: 0, tactical: 1 } },
-      { text: 'チームを支える', points: { aggressive: 0, supportive: 3, tactical: 1 } },
-      { text: '頭脳で勝つ', points: { aggressive: 0, supportive: 1, tactical: 3 } },
-      { text: '楽しくプレイする', points: { aggressive: 1, supportive: 2, tactical: 1 } }
+      { textKey: 0, points: { aggressive: 3, supportive: 0, tactical: 1 } },
+      { textKey: 1, points: { aggressive: 0, supportive: 3, tactical: 1 } },
+      { textKey: 2, points: { aggressive: 0, supportive: 1, tactical: 3 } },
+      { textKey: 3, points: { aggressive: 1, supportive: 2, tactical: 1 } }
     ]
   }
 ];

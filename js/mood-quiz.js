@@ -30,6 +30,36 @@ let moodScores = {
 let answerHistory = []; // 回答履歴を保存
 let selectedLane = null; // 選択されたレーンを保存
 let answerKeywords = []; // 回答キーワードを保存
+let currentMoodType = null; // 現在の診断結果タイプを保存（言語切替用）
+
+// 現在のスコアから気分タイプを取得
+function getMoodTypeFromScores() {
+  if (currentMoodType) {
+    return currentMoodType;
+  }
+  
+  // スコアから判定
+  let moodType = 'balanced';
+  let maxScore = 0;
+  
+  Object.keys(moodScores).forEach(type => {
+    if (moodScores[type] > maxScore) {
+      maxScore = moodScores[type];
+      moodType = type;
+    }
+  });
+  
+  const scores = Object.values(moodScores);
+  const allSame = scores.every(score => score === scores[0]);
+  if (allSame) {
+    moodType = 'balanced';
+  }
+  
+  return moodType;
+}
+
+// グローバルスコープに露出
+window.getMoodTypeFromScores = getMoodTypeFromScores;
 
 // 診断を開始
 function startMoodQuiz() {
@@ -43,6 +73,7 @@ function startMoodQuiz() {
   answerHistory = [];
   selectedLane = null;
   answerKeywords = [];
+  currentMoodType = null; // 診断結果タイプをリセット
   
   showScreen('mood-quiz-question-screen');
   displayQuestion();
@@ -60,20 +91,31 @@ console.log('✅ startMoodQuiz 関数をグローバルスコープに登録し�
 function displayQuestion() {
   const question = moodQuizQuestions[currentQuestionIndex];
   
-  // 質問テキスト
-  document.getElementById('mood-question-text').textContent = question.question;
+  // 現在の言語を取得
+  const lang = currentLanguage || 'ja';
+  const i18nData = moodQuizQuestionsI18n[lang] || moodQuizQuestionsI18n['ja'];
   
-  // 質問番号
-  document.getElementById('mood-question-number').textContent = `質問 ${currentQuestionIndex + 1} / ${moodQuizQuestions.length}`;
+  // 質問テキスト（多言語対応）
+  const questionText = i18nData.questions[question.questionKey];
+  document.getElementById('mood-question-text').textContent = questionText;
   
-  // 選択肢を生成
+  // 質問番号（多言語対応）
+  const questionNumberText = t('moodQuiz.questionNumber', {
+    current: currentQuestionIndex + 1,
+    total: moodQuizQuestions.length
+  });
+  document.getElementById('mood-question-number').textContent = questionNumberText;
+  
+  // 選択肢を生成（多言語対応）
   const optionsContainer = document.getElementById('mood-question-options');
   optionsContainer.innerHTML = '';
   
   question.options.forEach((option, index) => {
     const button = document.createElement('button');
     button.className = 'mood-option-btn';
-    button.textContent = option.text;
+    // 多言語対応：翻訳データから選択肢テキストを取得
+    const optionText = i18nData.options[question.questionKey][option.textKey];
+    button.textContent = optionText;
     button.onclick = () => selectAnswer(index);
     optionsContainer.appendChild(button);
   });
@@ -81,7 +123,7 @@ function displayQuestion() {
   // 「前の質問に戻る」ボタンの表示/非表示
   updateBackButton();
   
-  console.log(`📝 質問 ${currentQuestionIndex + 1} を表示しました`);
+  console.log(`📝 質問 ${currentQuestionIndex + 1} を表示しました (言語: ${lang})`);
 }
 
 // 回答を選択
@@ -236,6 +278,9 @@ function showResult() {
   if (allSame) {
     moodType = 'balanced';
   }
+  
+  // 診断結果タイプを保存（言語切替用）
+  currentMoodType = moodType;
   
   console.log(`🎭 診断結果: ${moodType}`);
   
@@ -408,14 +453,9 @@ function displayResult(moodType) {
   description += `<br><span style="color: #888; font-size: 0.9em;">✨ 全172体のチャンピオンから選出</span>`;
   
   if (selectedLane) {
-    const laneNames = {
-      'top': 'トップレーン',
-      'jungle': 'ジャングル',
-      'mid': 'ミッドレーン',
-      'adc': 'ADC',
-      'support': 'サポート'
-    };
-    description += `<br><span style="color: var(--primary-color);">🎯 ${laneNames[selectedLane]}のチャンピオンから選びました</span>`;
+    const laneKey = `moodQuiz.${selectedLane}`;
+    const laneName = t(laneKey) || selectedLane;
+    description += `<br><span style="color: var(--primary-color);">🎯 ${laneName}${t('moodQuiz.fromLane') || 'のチャンピオンから選びました'}</span>`;
   }
   document.getElementById('mood-result-description').innerHTML = description;
   
@@ -436,7 +476,8 @@ function displayResult(moodType) {
   // 「すべて見る」ボタンを追加
   const showAllButton = document.createElement('button');
   showAllButton.className = 'mood-show-all-btn';
-  showAllButton.innerHTML = `📋 すべて見る（全${allChampions.length}体）`;
+  const showAllText = t('moodQuiz.showAll') || 'すべて見る';
+  showAllButton.innerHTML = `📋 ${showAllText}（${t('moodQuiz.total') || '全'}${allChampions.length}${t('moodQuiz.champions') || '体'}）`;
   showAllButton.onclick = () => showAllChampions(moodType, championScores);
   championList.appendChild(showAllButton);
   
@@ -486,7 +527,11 @@ function createRankedChampionCard(champion, rank) {
   const imageUrl = `https://ddragon.leagueoflegends.com/cdn/13.24.1/img/champion/${champion.image}.png`;
   
   const medals = { 1: '🥇', 2: '🥈', 3: '🥉' };
-  const rankText = { 1: '1位', 2: '2位', 3: '3位' };
+  const rankText = {
+    1: t('moodQuiz.rank1') || '1位',
+    2: t('moodQuiz.rank2') || '2位',
+    3: t('moodQuiz.rank3') || '3位'
+  };
   
   // レーン情報を生成
   const roleText = getLaneDisplayText(champion, selectedLane);
@@ -501,7 +546,7 @@ function createRankedChampionCard(champion, rank) {
       <p class="mood-champion-name-en">${champion.name}</p>
       <p class="mood-champion-role">${roleText}</p>
       <p class="mood-champion-description">${champion.description}</p>
-      <p class="mood-champion-score">適合度: ${champion.score.toFixed(1)}点</p>
+      <p class="mood-champion-score">${t('moodQuiz.compatibility') || '適合度'}: ${champion.score.toFixed(1)}${t('moodQuiz.points') || '点'}</p>
     </div>
   `;
   
@@ -527,7 +572,7 @@ function createChampionCard(champion) {
       <p class="mood-champion-name-en">${champion.name}</p>
       <p class="mood-champion-role">${roleText}</p>
       <p class="mood-champion-description">${champion.description}</p>
-      <p class="mood-champion-score">適合度: ${champion.score.toFixed(1)}点</p>
+      <p class="mood-champion-score">${t('moodQuiz.compatibility') || '適合度'}: ${champion.score.toFixed(1)}${t('moodQuiz.points') || '点'}</p>
     </div>
   `;
   

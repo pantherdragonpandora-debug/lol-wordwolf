@@ -169,19 +169,19 @@
     <!-- ナビゲーションメニュー -->
     <nav class="main-nav" style="margin-bottom: var(--spacing-lg);">
         <div class="nav-content">
-            <a href="index.html" class="nav-link">🎮 ゲーム</a>
-            <a href="games.html" class="nav-link">📖 ゲーム紹介</a>
-            <a href="how-to-play.html" class="nav-link">❓ 遊び方</a>
-            <a href="blog.html" class="nav-link">✍️ ブログ</a>
-            <a href="faq.html" class="nav-link">💬 FAQ</a>
-            <a href="contact.html" class="nav-link">📧 お問い合わせ</a>
+            <a href="index.html" class="nav-link" data-i18n="nav.game">🎮 ゲーム</a>
+            <a href="games.html" class="nav-link" data-i18n="nav.gamesIntro">📖 ゲーム紹介</a>
+            <a href="how-to-play.html" class="nav-link" data-i18n="nav.howToPlay">❓ 遊び方</a>
+            <a href="blog.html" class="nav-link" data-i18n="nav.blog">✍️ ブログ</a>
+            <a href="faq.html" class="nav-link" data-i18n="nav.faq">💬 FAQ</a>
+            <a href="contact.html" class="nav-link" data-i18n="nav.contact">📧 お問い合わせ</a>
         </div>
     </nav>
 
     <div class="games-container">
         <div class="intro-section">
-            <h1>🎮 Esports パーティーゲームコレクション</h1>
-            <p>
+            <h1 data-i18n="gamesPage.title">🎮 Esports パーティーゲームコレクション</h1>
+            <p data-i18n="gamesPage.intro">
                 League of LegendsとVALORANTをテーマにした、オンラインで友達と楽しめる4つのパーティーゲーム！<br>
                 リアルタイムマルチプレイヤー対応で、どこにいても一緒に遊べます。<br>
                 アカウント不要、ブラウザだけですぐに始められます。
@@ -448,10 +448,34 @@
                 アカウント不要、ブラウザだけで今すぐ始められます。<br>
                 友達にルームIDを共有して、一緒に楽しみましょう！
             </p>
-            <a href="index.html" class="cta-button">🎮 ゲームを始める</a>
+            <a href="index.html" class="cta-button" data-i18n="gamesPage.playNow">🎮 ゲームを始める</a>
         </div>
 
-        <a href="index.html" class="back-link">← トップページに戻る</a>
+        <a href="index.html" class="back-link" data-i18n="gamesPage.backToHome">← トップページに戻る</a>
     </div>
+    
+    <!-- 多言語対応スクリプト -->
+    <script src="js/i18n.js"></script>
+    <script>
+        // 多言語初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof initLanguage === 'function') {
+                initLanguage();
+            }
+        });
+        
+        // 言語切り替え関数
+        function changeLanguage(lang) {
+            if (typeof window.changeLanguage === 'function') {
+                window.changeLanguage(lang);
+            } else {
+                currentLanguage = lang;
+                localStorage.setItem('language', lang);
+                if (typeof updatePageLanguage === 'function') {
+                    updatePageLanguage();
+                }
+            }
+        }
+    </script>
 </body>
 </html>
