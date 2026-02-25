@@ -89,47 +89,75 @@ console.log('✅ startMoodQuiz 関数をグローバルスコープに登録し�
 
 // 質問を表示
 function displayQuestion() {
-  const question = moodQuizQuestions[currentQuestionIndex];
-  
-  // 現在の言語を取得
-  const lang = currentLanguage || 'ja';
-  const i18nData = moodQuizQuestionsI18n[lang] || moodQuizQuestionsI18n['ja'];
-  
-  // 質問テキスト（多言語対応）
-  const questionText = i18nData.questions[question.questionKey];
-  document.getElementById('mood-question-text').textContent = questionText;
-  
-  // 質問番号（多言語対応）
-  const questionNumberText = t('moodQuiz.questionNumber', {
-    current: currentQuestionIndex + 1,
-    total: moodQuizQuestions.length
-  });
-  document.getElementById('mood-question-number').textContent = questionNumberText;
-  
-  // 選択肢を生成（多言語対応）
-  const optionsContainer = document.getElementById('mood-question-options');
-  optionsContainer.innerHTML = '';
-  
-  question.options.forEach((option, index) => {
-    const button = document.createElement('button');
-    button.className = 'mood-option-btn';
-    // 多言語対応：翻訳データから選択肢テキストを取得
-    const optionText = i18nData.options[question.questionKey][option.textKey];
-    button.textContent = optionText;
-    button.onclick = () => selectAnswer(index);
-    optionsContainer.appendChild(button);
-  });
-  
-  // 「前の質問に戻る」ボタンの表示/非表示
-  updateBackButton();
-  
-  console.log(`📝 質問 ${currentQuestionIndex + 1} を表示しました (言語: ${lang})`);
+  try {
+    const question = moodQuizQuestions[currentQuestionIndex];
+    
+    console.log(`🔍 displayQuestion: questionIndex=${currentQuestionIndex}, question:`, question);
+    
+    // 現在の言語を取得
+    const lang = currentLanguage || 'ja';
+    const i18nData = moodQuizQuestionsI18n[lang] || moodQuizQuestionsI18n['ja'];
+    
+    console.log(`🔍 使用言語: ${lang}, i18nData存在: ${!!i18nData}`);
+    
+    // 質問テキスト（多言語対応）
+    const questionText = i18nData.questions[question.questionKey];
+    console.log(`🔍 質問テキスト: ${questionText}`);
+    
+    document.getElementById('mood-question-text').textContent = questionText;
+    
+    // 質問番号（多言語対応）
+    const questionNumberText = t('moodQuiz.questionNumber', {
+      current: currentQuestionIndex + 1,
+      total: moodQuizQuestions.length
+    });
+    document.getElementById('mood-question-number').textContent = questionNumberText;
+    
+    // 選択肢を生成（多言語対応）
+    const optionsContainer = document.getElementById('mood-question-options');
+    optionsContainer.innerHTML = '';
+    
+    console.log(`🔍 選択肢数: ${question.options.length}`);
+    
+    question.options.forEach((option, index) => {
+      try {
+        const button = document.createElement('button');
+        button.className = 'mood-option-btn';
+        // 多言語対応：翻訳データから選択肢テキストを取得
+        const optionText = i18nData.options[question.questionKey][option.textKey];
+        console.log(`🔍 選択肢${index}: textKey=${option.textKey}, text=${optionText}`);
+        
+        if (!optionText) {
+          console.error(`❌ 選択肢テキストが見つかりません: questionKey=${question.questionKey}, textKey=${option.textKey}`);
+          button.textContent = `[エラー: 選択肢${index}]`;
+        } else {
+          button.textContent = optionText;
+        }
+        
+        button.onclick = () => selectAnswer(index);
+        optionsContainer.appendChild(button);
+      } catch (error) {
+        console.error(`❌ 選択肢${index}の生成エラー:`, error);
+      }
+    });
+    
+    // 「前の質問に戻る」ボタンの表示/非表示
+    updateBackButton();
+    
+    console.log(`✅ 質問 ${currentQuestionIndex + 1} を表示しました (言語: ${lang})`);
+  } catch (error) {
+    console.error('❌ displayQuestion エラー:', error);
+    console.error('スタックトレース:', error.stack);
+  }
 }
 
 // 回答を選択
 function selectAnswer(optionIndex) {
   const question = moodQuizQuestions[currentQuestionIndex];
   const selectedOption = question.options[optionIndex];
+  
+  console.log(`🔍 selectAnswer called: questionIndex=${currentQuestionIndex}, optionIndex=${optionIndex}`);
+  console.log('🔍 selectedOption:', selectedOption);
   
   // 回答を履歴に保存
   answerHistory.push({
@@ -146,14 +174,23 @@ function selectAnswer(optionIndex) {
   }
   
   // キーワードを保存（回答内容から特性を抽出）
-  extractKeywords(question, selectedOption);
+  try {
+    extractKeywords(question, selectedOption);
+  } catch (error) {
+    console.error('⚠️ extractKeywords エラー:', error);
+  }
   
   // スコアを加算
   moodScores.aggressive += selectedOption.points.aggressive;
   moodScores.supportive += selectedOption.points.supportive;
   moodScores.tactical += selectedOption.points.tactical;
   
-  console.log(`✅ 回答: ${selectedOption.text}`);
+  // 多言語対応：選択肢テキストを取得
+  const lang = currentLanguage || 'ja';
+  const i18nData = moodQuizQuestionsI18n[lang] || moodQuizQuestionsI18n['ja'];
+  const optionText = i18nData.options[question.questionKey][selectedOption.textKey];
+  
+  console.log(`✅ 回答: ${optionText}`);
   console.log('現在のスコア:', moodScores);
   
   // 次の質問へ
@@ -169,39 +206,60 @@ function selectAnswer(optionIndex) {
   }
 }
 
-// 回答からキーワードを抽出
+// 回答からキーワードを抽出（多言語対応版）
 function extractKeywords(question, option) {
   const type = question.type;
+  const textKey = option.textKey;
   
-  // 質問タイプごとにキーワードを抽出
+  // 質問タイプとtextKeyの組み合わせでキーワードを判定
   if (type === 'role') {
-    if (option.role === 'damage') answerKeywords.push('damage', 'carry');
-    if (option.role === 'tank') answerKeywords.push('tank', 'frontline');
-    if (option.role === 'control') answerKeywords.push('control', 'cc');
-    if (option.role === 'assassinate') answerKeywords.push('assassin', 'burst');
+    // Q2: チームファイトでの役割
+    if (textKey === 0) answerKeywords.push('damage', 'carry'); // 敵を倒しまくる
+    if (textKey === 1) answerKeywords.push('tank', 'frontline', 'protect'); // 味方を守る
+    if (textKey === 2) answerKeywords.push('control', 'cc'); // CCで敵を妨害
+    if (textKey === 3) answerKeywords.push('assassin', 'burst'); // 敵のキャリーを狙う
+    if (textKey === 4) answerKeywords.push('poke', 'strategic'); // ポークで削る
+    if (textKey === 5) answerKeywords.push('control', 'zone'); // ゾーニングで牽制
   } else if (type === 'playstyle') {
-    if (option.playstyle === 'fighter') answerKeywords.push('fighter', 'melee');
-    if (option.playstyle === 'support') answerKeywords.push('support', 'utility');
-    if (option.playstyle === 'strategic') answerKeywords.push('strategic', 'poke');
-    if (option.playstyle === 'assassin') answerKeywords.push('assassin', 'oneshot');
+    // Q4: プレイスタイル
+    if (textKey === 0) answerKeywords.push('fighter', 'melee', 'aggressive'); // 前に出て戦う
+    if (textKey === 1) answerKeywords.push('support', 'utility'); // 味方をサポート
+    if (textKey === 2) answerKeywords.push('strategic', 'tactical'); // 計算して立ち回る
+    if (textKey === 3) answerKeywords.push('assassin', 'oneshot', 'burst'); // ワンショットキル
+    if (textKey === 4) answerKeywords.push('poke', 'chip'); // じわじわ削る
+    if (textKey === 5) answerKeywords.push('mobile', 'skirmish'); // 機動力で翻弄
   } else if (type === 'range') {
-    if (option.text.includes('接近戦')) answerKeywords.push('melee', 'close');
-    if (option.text.includes('中距離')) answerKeywords.push('medium', 'skirmish');
-    if (option.text.includes('遠距離')) answerKeywords.push('ranged', 'long');
+    // Q9: 戦闘距離
+    if (textKey === 0) answerKeywords.push('melee', 'close'); // 接近戦
+    if (textKey === 1) answerKeywords.push('bruiser', 'melee'); // 近～中距離
+    if (textKey === 2) answerKeywords.push('medium', 'skirmish'); // 中距離
+    if (textKey === 3) answerKeywords.push('poke', 'long'); // 中～遠距離
+    if (textKey === 4) answerKeywords.push('ranged', 'long'); // 遠距離
+    if (textKey === 5) answerKeywords.push('versatile'); // 状況に応じて
   } else if (type === 'early') {
-    if (option.text.includes('序盤から有利')) answerKeywords.push('early', 'aggressive');
-    if (option.text.includes('安全に成長')) answerKeywords.push('scaling', 'late');
+    // Q10: ゲーム序盤
+    if (textKey === 0) answerKeywords.push('early', 'aggressive'); // 序盤から有利
+    if (textKey === 1) answerKeywords.push('scaling', 'late', 'safe'); // 安全に成長
+    if (textKey === 2) answerKeywords.push('gank', 'teamplay'); // 味方のガンクを待つ
+    if (textKey === 3) answerKeywords.push('strategic', 'safe'); // 敵の動きを見る
   } else if (type === 'late') {
-    if (option.text.includes('ピック')) answerKeywords.push('pick', 'assassin');
-    if (option.text.includes('集団戦')) answerKeywords.push('teamfight', 'aoe');
-    if (option.text.includes('味方を守る')) answerKeywords.push('peel', 'protect');
-    if (option.text.includes('スプリット')) answerKeywords.push('split', 'duelist');
+    // Q11: ゲーム終盤
+    if (textKey === 0) answerKeywords.push('pick', 'assassin'); // ピックで試合を決める
+    if (textKey === 1) answerKeywords.push('teamfight', 'aoe'); // 集団戦で勝つ
+    if (textKey === 2) answerKeywords.push('peel', 'protect'); // 味方を守り切る
+    if (textKey === 3) answerKeywords.push('split', 'duelist'); // スプリットで圧力
+    if (textKey === 4) answerKeywords.push('objective', 'strategic'); // バロン/ドラゴン
   } else if (type === 'laning') {
-    if (option.text.includes('積極的')) answerKeywords.push('aggressive', 'trade');
-    if (option.text.includes('安全')) answerKeywords.push('safe', 'farm');
-    if (option.text.includes('ロー')) answerKeywords.push('roam', 'mobile');
-    if (option.text.includes('プッシュ')) answerKeywords.push('push', 'waveclear');
+    // Q6: レーニング
+    if (textKey === 0) answerKeywords.push('aggressive', 'trade'); // 積極的に交易
+    if (textKey === 1) answerKeywords.push('safe', 'farm'); // 安全にファーム
+    if (textKey === 2) answerKeywords.push('roam', 'mobile', 'support'); // ロームで味方を助ける
+    if (textKey === 3) answerKeywords.push('push', 'waveclear'); // プッシュで圧力
+    if (textKey === 4) answerKeywords.push('strategic', 'freeze'); // フリーズで有利
+    if (textKey === 5) answerKeywords.push('aggressive', 'allin'); // オールイン狙う
   }
+  
+  console.log(`🔑 抽出されたキーワード (type: ${type}, textKey: ${textKey}):`, answerKeywords);
 }
 
 // 「前の質問に戻る」ボタンの表示/非表示
