@@ -1,638 +1,364 @@
-// ========================================
-// 気分診断チャンピオン選択ロジック（v7 - 緊急修正版）
-// ========================================
+# 📢 Google AdSense 広告実装ガイド
 
-console.log('🎭 mood-quiz.js ロード開始...');
+このドキュメントでは、LOL ワードウルフに Google AdSense 広告を実装する手順を説明します。
 
-// データファイルが正しくロードされているか確認
-if (typeof moodQuizQuestions === 'undefined') {
-  console.error('❌ moodQuizQuestions が定義されていません！mood-quiz-data.js が先にロードされていることを確認してください。');
-}
-if (typeof championsByMood === 'undefined') {
-  console.error('❌ championsByMood が定義されていません！');
-}
-if (typeof laneBonusPoints === 'undefined') {
-  console.error('❌ laneBonusPoints が定義されていません！');
-}
+## 📋 目次
 
-console.log('📋 データチェック完了:', {
-  moodQuizQuestions: typeof moodQuizQuestions,
-  championsByMood: typeof championsByMood,
-  laneBonusPoints: typeof laneBonusPoints
-});
+1. [前提条件](#前提条件)
+2. [AdSense アカウントの準備](#adsense-アカウントの準備)
+3. [広告コードの設置手順](#広告コードの設置手順)
+4. [Legal Jibber Jabber ポリシーへの準拠](#legal-jibber-jabber-ポリシーへの準拠)
+5. [トラブルシューティング](#トラブルシューティング)
 
-let currentQuestionIndex = 0;
-let moodScores = {
-  aggressive: 0,
-  supportive: 0,
-  tactical: 0
-};
-let answerHistory = []; // 回答履歴を保存
-let selectedLane = null; // 選択されたレーンを保存
-let answerKeywords = []; // 回答キーワードを保存
+---
 
-// 診断を開始
-function startMoodQuiz() {
-  console.log('🎯 startMoodQuiz() が呼ばれました');
-  currentQuestionIndex = 0;
-  moodScores = {
-    aggressive: 0,
-    supportive: 0,
-    tactical: 0
-  };
-  answerHistory = [];
-  selectedLane = null;
-  answerKeywords = [];
-  
-  showScreen('mood-quiz-question-screen');
-  displayQuestion();
-  updateProgressBar();
-  updateBackButton();
-  
-  console.log('🎭 気分診断を開始しました（12問 - マルチレーン対応）');
-}
+## ✅ 前提条件
 
-// グローバルスコープに明示的に露出
-window.startMoodQuiz = startMoodQuiz;
-console.log('✅ startMoodQuiz 関数をグローバルスコープに登録しました');
+- ✅ Google アカウントを持っている
+- ✅ 本サイトがデプロイされ、公開URLがある（例: `https://pantherdragonpandora-debug.github.io/lol-wordwolf/`）
+- ✅ プライバシーポリシーと利用規約が設置されている（既に完了）
+- ✅ サイトが Riot Games の Legal Jibber Jabber ポリシーに準拠している
 
-// 質問を表示
-function displayQuestion() {
-  const question = moodQuizQuestions[currentQuestionIndex];
-  
-  // 質問テキスト
-  document.getElementById('mood-question-text').textContent = question.question;
-  
-  // 質問番号
-  document.getElementById('mood-question-number').textContent = `質問 ${currentQuestionIndex + 1} / ${moodQuizQuestions.length}`;
-  
-  // 選択肢を生成
-  const optionsContainer = document.getElementById('mood-question-options');
-  optionsContainer.innerHTML = '';
-  
-  question.options.forEach((option, index) => {
-    const button = document.createElement('button');
-    button.className = 'mood-option-btn';
-    button.textContent = option.text;
-    button.onclick = () => selectAnswer(index);
-    optionsContainer.appendChild(button);
-  });
-  
-  // 「前の質問に戻る」ボタンの表示/非表示
-  updateBackButton();
-  
-  console.log(`📝 質問 ${currentQuestionIndex + 1} を表示しました`);
-}
+---
 
-// 回答を選択
-function selectAnswer(optionIndex) {
-  const question = moodQuizQuestions[currentQuestionIndex];
-  const selectedOption = question.options[optionIndex];
-  
-  // 回答を履歴に保存
-  answerHistory.push({
-    questionIndex: currentQuestionIndex,
-    optionIndex: optionIndex,
-    scores: { ...moodScores },
-    keywords: [...answerKeywords]
-  });
-  
-  // レーン情報を保存（最初の質問）
-  if (question.type === 'lane' && selectedOption.lane) {
-    selectedLane = selectedOption.lane;
-    console.log(`🎯 選択されたレーン: ${selectedLane}`);
-  }
-  
-  // キーワードを保存（回答内容から特性を抽出）
-  extractKeywords(question, selectedOption);
-  
-  // スコアを加算
-  moodScores.aggressive += selectedOption.points.aggressive;
-  moodScores.supportive += selectedOption.points.supportive;
-  moodScores.tactical += selectedOption.points.tactical;
-  
-  console.log(`✅ 回答: ${selectedOption.text}`);
-  console.log('現在のスコア:', moodScores);
-  
-  // 次の質問へ
-  currentQuestionIndex++;
-  
-  if (currentQuestionIndex < moodQuizQuestions.length) {
-    displayQuestion();
-    updateProgressBar();
-  } else {
-    // 診断完了
-    console.log('📋 回答キーワード:', answerKeywords);
-    showResult();
-  }
-}
+## 🚀 AdSense アカウントの準備
 
-// 回答からキーワードを抽出
-function extractKeywords(question, option) {
-  const type = question.type;
-  
-  // 質問タイプごとにキーワードを抽出
-  if (type === 'role') {
-    if (option.role === 'damage') answerKeywords.push('damage', 'carry');
-    if (option.role === 'tank') answerKeywords.push('tank', 'frontline');
-    if (option.role === 'control') answerKeywords.push('control', 'cc');
-    if (option.role === 'assassinate') answerKeywords.push('assassin', 'burst');
-  } else if (type === 'playstyle') {
-    if (option.playstyle === 'fighter') answerKeywords.push('fighter', 'melee');
-    if (option.playstyle === 'support') answerKeywords.push('support', 'utility');
-    if (option.playstyle === 'strategic') answerKeywords.push('strategic', 'poke');
-    if (option.playstyle === 'assassin') answerKeywords.push('assassin', 'oneshot');
-  } else if (type === 'range') {
-    if (option.text.includes('接近戦')) answerKeywords.push('melee', 'close');
-    if (option.text.includes('中距離')) answerKeywords.push('medium', 'skirmish');
-    if (option.text.includes('遠距離')) answerKeywords.push('ranged', 'long');
-  } else if (type === 'early') {
-    if (option.text.includes('序盤から有利')) answerKeywords.push('early', 'aggressive');
-    if (option.text.includes('安全に成長')) answerKeywords.push('scaling', 'late');
-  } else if (type === 'late') {
-    if (option.text.includes('ピック')) answerKeywords.push('pick', 'assassin');
-    if (option.text.includes('集団戦')) answerKeywords.push('teamfight', 'aoe');
-    if (option.text.includes('味方を守る')) answerKeywords.push('peel', 'protect');
-    if (option.text.includes('スプリット')) answerKeywords.push('split', 'duelist');
-  } else if (type === 'laning') {
-    if (option.text.includes('積極的')) answerKeywords.push('aggressive', 'trade');
-    if (option.text.includes('安全')) answerKeywords.push('safe', 'farm');
-    if (option.text.includes('ロー')) answerKeywords.push('roam', 'mobile');
-    if (option.text.includes('プッシュ')) answerKeywords.push('push', 'waveclear');
-  }
-}
+### ステップ 1: AdSense アカウントの作成
 
-// 「前の質問に戻る」ボタンの表示/非表示
-function updateBackButton() {
-  const backButton = document.getElementById('mood-back-question-btn');
-  if (backButton) {
-    if (currentQuestionIndex === 0) {
-      backButton.style.display = 'none';
-    } else {
-      backButton.style.display = 'inline-block';
-    }
-  }
-}
+1. **Google AdSense にアクセス**
+   - [https://www.google.com/adsense/](https://www.google.com/adsense/)
 
-// 前の質問に戻る
-function goBackQuestion() {
-  if (currentQuestionIndex === 0 || answerHistory.length === 0) {
-    console.log('⚠️ 最初の質問なので戻れません');
-    return;
-  }
-  
-  // 最後の回答を取り消す
-  const lastAnswer = answerHistory.pop();
-  
-  // スコアを復元
-  moodScores = { ...lastAnswer.scores };
-  answerKeywords = [...lastAnswer.keywords];
-  
-  // 質問インデックスを戻す
-  currentQuestionIndex--;
-  
-  // レーン選択をリセット（最初の質問に戻った場合）
-  if (currentQuestionIndex === 0) {
-    selectedLane = null;
-  }
-  
-  console.log(`⏪ 質問 ${currentQuestionIndex + 1} に戻りました`);
-  console.log('復元されたスコア:', moodScores);
-  
-  // 質問を再表示
-  displayQuestion();
-  updateProgressBar();
-}
+2. **アカウントを作成**
+   - Google アカウントでログイン
+   - サイトURLを入力: `https://pantherdragonpandora-debug.github.io`
+   - 国・地域を選択（日本）
+   - 利用規約に同意
 
-// プログレスバーを更新
-function updateProgressBar() {
-  const progress = ((currentQuestionIndex + 1) / moodQuizQuestions.length) * 100;
-  const progressBar = document.getElementById('mood-progress-bar');
-  
-  if (progressBar) {
-    progressBar.style.width = `${progress}%`;
-  }
-}
+3. **支払い情報を入力**
+   - 住所
+   - 電話番号
+   - 支払い方法（銀行口座）
 
-// 診断結果を表示
-function showResult() {
-  console.log('🎉 診断完了！最終スコア:', moodScores);
-  console.log('🎯 選択されたレーン:', selectedLane);
-  
-  // 最も高いスコアのタイプを判定
-  let moodType = 'balanced';
-  let maxScore = 0;
-  
-  Object.keys(moodScores).forEach(type => {
-    if (moodScores[type] > maxScore) {
-      maxScore = moodScores[type];
-      moodType = type;
-    }
-  });
-  
-  // スコアが均等な場合はバランス型
-  const scores = Object.values(moodScores);
-  const allSame = scores.every(score => score === scores[0]);
-  if (allSame) {
-    moodType = 'balanced';
-  }
-  
-  console.log(`🎭 診断結果: ${moodType}`);
-  
-  // 結果を表示
-  displayResult(moodType);
-  showScreen('mood-quiz-result-screen');
-}
+### ステップ 2: サイトの承認申請
 
-// チャンピオンの適合度スコアを計算（v5 - レーン適性ボーナス対応）
-function calculateChampionScore(champion, moodType) {
-  // 基本スコア: タイプマッチで100点
-  let score = 100;
-  
-  // スコア比率に応じて加点（最大+30点）
-  const totalScore = moodScores.aggressive + moodScores.supportive + moodScores.tactical;
-  if (totalScore > 0) {
-    if (moodType === 'aggressive') {
-      score += (moodScores.aggressive / totalScore) * 30;
-    } else if (moodType === 'supportive') {
-      score += (moodScores.supportive / totalScore) * 30;
-    } else if (moodType === 'tactical') {
-      score += (moodScores.tactical / totalScore) * 30;
-    } else if (moodType === 'balanced') {
-      const variance = Math.abs(moodScores.aggressive - moodScores.supportive) +
-                       Math.abs(moodScores.supportive - moodScores.tactical) +
-                       Math.abs(moodScores.tactical - moodScores.aggressive);
-      score += Math.max(0, 30 - variance);
-    }
-  }
-  
-  // レーン適性ボーナス（最大+30点）- NEW!
-  if (selectedLane && champion.lanes) {
-    const laneMatch = champion.lanes.find(l => l.lane === selectedLane);
-    if (laneMatch && laneBonusPoints) {
-      const bonus = laneBonusPoints[laneMatch.priority];
-      score += bonus;
-      console.log(`  ${champion.nameJa}: レーンボーナス +${bonus}点 (${laneMatch.priority})`);
-    }
-  }
-  
-  // チャンピオンの特性マッチング（最大+50点）
-  let matchScore = 0;
-  
-  // チャンピオン名と説明文からキーワードマッチング
-  const championText = `${champion.name} ${champion.nameJa} ${champion.description}`.toLowerCase();
-  
-  answerKeywords.forEach(keyword => {
-    if (championText.includes(keyword.toLowerCase())) {
-      matchScore += 5; // 1キーワードマッチで+5点
-    }
-  });
-  
-  // チャンピオンごとの個別調整（名前ベース）
-  matchScore += getChampionBonusScore(champion, answerKeywords);
-  
-  // マッチスコアは最大50点
-  matchScore = Math.min(matchScore, 50);
-  
-  score += matchScore;
-  
-  // ランダム要素（同点の場合の順位変動、最大+10点）
-  score += Math.random() * 10;
-  
-  return score;
-}
+1. **AdSense コードを取得**
+   - AdSense 管理画面 → サイト → コードを取得
+   - 以下のような形式のコードが表示されます：
 
-// チャンピオンごとのボーナススコア
-function getChampionBonusScore(champion, keywords) {
-  let bonus = 0;
-  const name = champion.name.toLowerCase();
-  
-  // アサシン系チャンピオン
-  const assassins = ['zed', 'talon', 'akali', 'katarina', 'khazix', 'rengar', 'qiyana', 'leblanc'];
-  if (assassins.includes(name) && (keywords.includes('assassin') || keywords.includes('burst') || keywords.includes('oneshot'))) {
-    bonus += 15;
-  }
-  
-  // タンク系チャンピオン
-  const tanks = ['malphite', 'ornn', 'maokai', 'shen', 'braum', 'alistar', 'leona', 'nautilus'];
-  if (tanks.includes(name) && (keywords.includes('tank') || keywords.includes('frontline') || keywords.includes('protect'))) {
-    bonus += 15;
-  }
-  
-  // サポート系チャンピオン
-  const supports = ['soraka', 'lulu', 'janna', 'nami', 'sona', 'yuumi'];
-  if (supports.includes(name) && (keywords.includes('support') || keywords.includes('utility') || keywords.includes('peel'))) {
-    bonus += 15;
-  }
-  
-  // メイジ系チャンピオン
-  const mages = ['syndra', 'orianna', 'azir', 'viktor', 'xerath', 'velkoz', 'ziggs'];
-  if (mages.includes(name) && (keywords.includes('poke') || keywords.includes('strategic') || keywords.includes('long'))) {
-    bonus += 15;
-  }
-  
-  // ファイター系チャンピオン
-  const fighters = ['darius', 'garen', 'jax', 'irelia', 'riven', 'fiora', 'camille'];
-  if (fighters.includes(name) && (keywords.includes('fighter') || keywords.includes('melee') || keywords.includes('duelist'))) {
-    bonus += 15;
-  }
-  
-  // ADC系チャンピオン
-  const adcs = ['jinx', 'caitlyn', 'ashe', 'vayne', 'kaisa', 'ezreal', 'lucian'];
-  if (adcs.includes(name) && (keywords.includes('ranged') || keywords.includes('damage') || keywords.includes('carry'))) {
-    bonus += 15;
-  }
-  
-  // 序盤強い系
-  const earlyGame = ['pantheon', 'renekton', 'draven', 'leblanc', 'elise'];
-  if (earlyGame.includes(name) && (keywords.includes('early') || keywords.includes('aggressive'))) {
-    bonus += 10;
-  }
-  
-  // 後半強い系
-  const lateGame = ['kayle', 'nasus', 'veigar', 'kassadin', 'vayne'];
-  if (lateGame.includes(name) && (keywords.includes('late') || keywords.includes('scaling'))) {
-    bonus += 10;
-  }
-  
-  return bonus;
-}
+```html
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXX"
+     crossorigin="anonymous"></script>
+```
 
-// 結果画面を表示
-function displayResult(moodType) {
-  const resultMessage = moodResultMessages[moodType];
-  let champions = championsByMood[moodType];
-  
-  // レーンで絞り込み（roleフィールドから判定）
-  if (selectedLane) {
-    champions = filterChampionsByLane(champions, selectedLane);
-    console.log(`🎯 ${selectedLane}レーンで絞り込み: ${champions.length}体`);
-  }
-  
-  // 各チャンピオンにスコアを計算
-  const championScores = champions.map(champion => ({
-    ...champion,
-    score: calculateChampionScore(champion, moodType)
-  }));
-  
-  // スコアでソート（降順）
-  championScores.sort((a, b) => b.score - a.score);
-  
-  // トップ3を取得
-  const top3Champions = championScores.slice(0, 3);
-  
-  console.log('🏆 トップ3チャンピオン:', top3Champions.map((c, i) => `${i+1}位: ${c.nameJa} (${c.score.toFixed(1)}点)`));
-  
-  // タイトルと説明
-  document.getElementById('mood-result-title').innerHTML = `${resultMessage.emoji} ${resultMessage.title}`;
-  
-  let description = resultMessage.description;
-  if (selectedLane) {
-    const laneNames = {
-      'top': 'トップレーン',
-      'jungle': 'ジャングル',
-      'mid': 'ミッドレーン',
-      'adc': 'ADC',
-      'support': 'サポート'
-    };
-    description += `<br><span style="color: var(--primary-color);">🎯 ${laneNames[selectedLane]}のチャンピオンから選びました</span>`;
-  }
-  document.getElementById('mood-result-description').innerHTML = description;
-  
-  // スコアグラフを表示
-  displayScoreChart();
-  
-  // おすすめチャンピオンを順位付きで表示
-  const championList = document.getElementById('mood-champion-list');
-  championList.innerHTML = '';
-  
-  // トップ3を順位付きで表示
-  top3Champions.forEach((champion, index) => {
-    const rank = index + 1;
-    const championCard = createRankedChampionCard(champion, rank);
-    championList.appendChild(championCard);
-  });
-  
-  // 「すべて見る」ボタンを追加
-  const showAllButton = document.createElement('button');
-  showAllButton.className = 'mood-show-all-btn';
-  showAllButton.innerHTML = `📋 すべて見る（全${champions.length}体）`;
-  showAllButton.onclick = () => showAllChampions(moodType, championScores);
-  championList.appendChild(showAllButton);
-  
-  console.log('✅ 結果画面を表示しました');
-}
+2. **コードを `index.html` に設置**（後述の手順を参照）
 
-// レーンでチャンピオンを絞り込む（v5 - lanes配列対応）
-function filterChampionsByLane(champions, lane) {
-  // lanes配列を持つチャンピオンをフィルタリング
-  const filtered = champions.filter(champion => {
-    if (!champion.lanes || !Array.isArray(champion.lanes)) {
-      return false;
-    }
-    // 選択されたレーンがlanes配列に含まれているかチェック
-    return champion.lanes.some(l => l.lane === lane);
-  });
-  
-  console.log(`  絞り込み結果: ${filtered.length}体 (元: ${champions.length}体)`);
-  
-  // 絞り込み結果が少なすぎる場合は全体を返す（最低3体確保）
-  return filtered.length >= 3 ? filtered : champions;
-}
+3. **審査を待つ**
+   - 通常 1〜2週間で審査結果が通知されます
+   - 審査基準：
+     - コンテンツが有益であること
+     - オリジナルコンテンツであること
+     - ナビゲーションが明確であること
+     - プライバシーポリシーが設置されていること
 
-// 順位付きチャンピオンカードを作成（v5 - レーン情報表示対応）
-function createRankedChampionCard(champion, rank) {
-  const card = document.createElement('div');
-  card.className = `mood-champion-card mood-rank-${rank}`;
-  
-  const imageUrl = `https://ddragon.leagueoflegends.com/cdn/13.24.1/img/champion/${champion.image}.png`;
-  
-  const medals = { 1: '🥇', 2: '🥈', 3: '🥉' };
-  const rankText = { 1: '1位', 2: '2位', 3: '3位' };
-  
-  // レーン情報を生成
-  const roleText = getLaneDisplayText(champion, selectedLane);
-  
-  card.innerHTML = `
-    <div class="mood-rank-badge">${medals[rank]} ${rankText[rank]}</div>
-    <div class="mood-champion-image">
-      <img src="${imageUrl}" alt="${champion.nameJa}" onerror="this.src='https://via.placeholder.com/120x120?text=${champion.name}'">
-    </div>
-    <div class="mood-champion-info">
-      <h3 class="mood-champion-name">${champion.nameJa}</h3>
-      <p class="mood-champion-name-en">${champion.name}</p>
-      <p class="mood-champion-role">${roleText}</p>
-      <p class="mood-champion-description">${champion.description}</p>
-      <p class="mood-champion-score">適合度: ${champion.score.toFixed(1)}点</p>
-    </div>
-  `;
-  
-  return card;
-}
+---
 
-// 通常のチャンピオンカードを作成（v5 - レーン情報表示対応）
-function createChampionCard(champion) {
-  const card = document.createElement('div');
-  card.className = 'mood-champion-card';
-  
-  const imageUrl = `https://ddragon.leagueoflegends.com/cdn/13.24.1/img/champion/${champion.image}.png`;
-  
-  // レーン情報を生成
-  const roleText = getLaneDisplayText(champion, selectedLane);
-  
-  card.innerHTML = `
-    <div class="mood-champion-image">
-      <img src="${imageUrl}" alt="${champion.nameJa}" onerror="this.src='https://via.placeholder.com/120x120?text=${champion.name}'">
-    </div>
-    <div class="mood-champion-info">
-      <h3 class="mood-champion-name">${champion.nameJa}</h3>
-      <p class="mood-champion-name-en">${champion.name}</p>
-      <p class="mood-champion-role">${roleText}</p>
-      <p class="mood-champion-description">${champion.description}</p>
-      <p class="mood-champion-score">適合度: ${champion.score.toFixed(1)}点</p>
-    </div>
-  `;
-  
-  return card;
-}
+## 🔧 広告コードの設置手順
 
-// レーン情報の表示テキストを生成
-function getLaneDisplayText(champion, selectedLane) {
-  if (!champion.lanes || !Array.isArray(champion.lanes)) {
-    return champion.role || '—';
-  }
-  
-  const laneNames = {
-    'top': 'トップ',
-    'jungle': 'ジャングル',
-    'mid': 'ミッド',
-    'adc': 'ADC',
-    'support': 'サポート'
-  };
-  
-  const priorityLabels = {
-    'main': '',
-    'viable': ' (サブ)',
-    'niche': ' (ニッチ)',
-    'off-meta': ' (オフメタ)'
-  };
-  
-  // 選択されたレーンがある場合、そのレーンを強調表示
-  if (selectedLane) {
-    const matchedLane = champion.lanes.find(l => l.lane === selectedLane);
-    if (matchedLane) {
-      const laneName = laneNames[matchedLane.lane];
-      const label = priorityLabels[matchedLane.priority];
-      return `${laneName}${label}`;
-    }
-  }
-  
-  // メインレーンのみ表示
-  const mainLanes = champion.lanes
-    .filter(l => l.priority === 'main')
-    .map(l => laneNames[l.lane])
-    .join('/');
-  
-  return mainLanes || '—';
-}
-  `;
-  
-  return card;
-}
+### ステップ 1: AdSense スクリプトを設置
 
-// スコアチャートを表示
-function displayScoreChart() {
-  const chartContainer = document.getElementById('mood-score-chart');
-  chartContainer.innerHTML = '';
-  
-  const maxScore = Math.max(...Object.values(moodScores));
-  
-  const scoreLabels = {
-    aggressive: '⚔️ アグレッシブ',
-    supportive: '💖 サポーティブ',
-    tactical: '🧠 タクティカル'
-  };
-  
-  Object.keys(moodScores).forEach(type => {
-    const score = moodScores[type];
-    const percentage = maxScore > 0 ? (score / maxScore) * 100 : 0;
-    
-    const barContainer = document.createElement('div');
-    barContainer.className = 'mood-score-bar-container';
-    
-    barContainer.innerHTML = `
-      <div class="mood-score-label">${scoreLabels[type]}</div>
-      <div class="mood-score-bar-wrapper">
-        <div class="mood-score-bar mood-score-${type}" style="width: ${percentage}%"></div>
-      </div>
-      <div class="mood-score-value">${score}</div>
-    `;
-    
-    chartContainer.appendChild(barContainer);
-  });
-}
+`index.html` の `<head>` セクションに、取得した AdSense コードを設置します。
 
-// すべてのチャンピオンを表示
-function showAllChampions(moodType, championScores) {
-  const championList = document.getElementById('mood-champion-list');
-  championList.innerHTML = '';
-  
-  // ヘッダーを追加
-  const header = document.createElement('div');
-  header.className = 'mood-all-champions-header';
-  header.innerHTML = `
-    <h3>📋 ${moodResultMessages[moodType].emoji} ${moodResultMessages[moodType].title} - 全${championScores.length}体</h3>
-    <p>あなたにおすすめのチャンピオン一覧です（適合度順）</p>
-  `;
-  championList.appendChild(header);
-  
-  // すべてのチャンピオンを表示
-  championScores.forEach(champion => {
-    const championCard = createChampionCard(champion);
-    championList.appendChild(championCard);
-  });
-  
-  // 「戻る」ボタンを追加
-  const backButton = document.createElement('button');
-  backButton.className = 'mood-back-btn';
-  backButton.textContent = '🔙 最初の表示に戻る';
-  backButton.onclick = () => displayResult(moodType);
-  championList.appendChild(backButton);
-  
-  // 一番上にスクロール
-  championList.scrollTop = 0;
-  
-  console.log(`✅ 全${championScores.length}体のチャンピオンを表示しました`);
-}
+#### 現在の状態（コメントアウト済み）:
 
-// もう一度診断
-function retryMoodQuiz() {
-  startMoodQuiz();
-}
+```html
+<!-- Google AdSense -->
+<!-- ⚠️ 重要: 以下の「ca-pub-XXXXXXXXXX」をあなたのAdSense IDに置き換えてください -->
+<!-- AdSense承認後、コメントアウトを外してください -->
+<!-- 
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXX"
+     crossorigin="anonymous"></script>
+-->
+```
 
-// ホームに戻る
-function backToMoodQuizHome() {
-  showScreen('mood-quiz-home-screen');
-}
+#### 実装手順:
 
-// 診断を終了してモード選択へ
-function exitMoodQuiz() {
-  if (confirm('気分診断を終了しますか？')) {
-    showScreen('mode-select-screen');
-  }
-}
+1. AdSense 管理画面から **あなたの Publisher ID**（`ca-pub-XXXXXXXXXX` の形式）を取得
+2. `ca-pub-XXXXXXXXXX` を実際の ID に置き換える
+3. コメントアウト（`<!-- -->` の部分）を削除
 
-// グローバルスコープに主要関数を露出
-window.retryMoodQuiz = retryMoodQuiz;
-window.backToMoodQuizHome = backToMoodQuizHome;
-window.exitMoodQuiz = exitMoodQuiz;
+#### 実装後のコード例:
 
-console.log('✅ 気分診断ロジックを読み込みました（v7 - 緊急修正版 - マルチレーン対応 & 順位表示）');
-console.log('✅ startMoodQuiz 関数が定義されました:', typeof startMoodQuiz);
-console.log('✅ グローバルスコープに登録されました:', typeof window.startMoodQuiz);
-console.log('📦 登録された関数:', {
-  startMoodQuiz: typeof window.startMoodQuiz,
-  retryMoodQuiz: typeof window.retryMoodQuiz,
-  backToMoodQuizHome: typeof window.backToMoodQuizHome,
-  exitMoodQuiz: typeof window.exitMoodQuiz
-});
+```html
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1234567890123456"
+     crossorigin="anonymous"></script>
+```
+
+### ステップ 2: 広告ユニットを作成
+
+1. **AdSense 管理画面 → 広告 → 広告ユニット → 新しい広告ユニット**
+
+2. **ディスプレイ広告を選択**
+   - 名前: 例）`LOL Wordwolf Footer Banner`
+   - 広告タイプ: レスポンシブ
+   - サイズ: 自動
+
+3. **広告コードを取得**
+   - 以下のような形式のコードが表示されます：
+
+```html
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-XXXXXXXXXX"
+     data-ad-slot="YYYYYYYYYY"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+```
+
+### ステップ 3: 広告ユニットを `index.html` に設置
+
+`index.html` のフッター上部にある広告コンテナを編集します。
+
+#### 現在の状態（コメントアウト済み）:
+
+```html
+<!-- 広告エリア（フッター上部） -->
+<div class="ad-container">
+    <!-- Google AdSense バナー広告 -->
+    <!-- ⚠️ 重要: 以下の手順で設定してください -->
+    <!-- 1. 「ca-pub-XXXXXXXXXX」をあなたのAdSense IDに置き換え -->
+    <!-- 2. 「YYYYYYYYYY」をAdSense管理画面で取得した広告スロットIDに置き換え -->
+    <!-- 3. AdSense承認後、コメントアウトを外す -->
+    <!--
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-XXXXXXXXXX"
+         data-ad-slot="YYYYYYYYYY"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+    -->
+</div>
+```
+
+#### 実装手順:
+
+1. `ca-pub-XXXXXXXXXX` を実際の Publisher ID に置き換え
+2. `YYYYYYYYYY` を AdSense で作成した広告スロット ID に置き換え
+3. コメントアウトを削除
+
+#### 実装後のコード例:
+
+```html
+<!-- 広告エリア（フッター上部） -->
+<div class="ad-container">
+    <!-- Google AdSense バナー広告 -->
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-1234567890123456"
+         data-ad-slot="9876543210"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+</div>
+```
+
+---
+
+## ⚖️ Legal Jibber Jabber ポリシーへの準拠
+
+### ✅ 許可されていること
+
+Riot Games の [Legal Jibber Jabber ポリシー](https://www.riotgames.com/en/legal) では、以下の条件下で広告掲載が許可されています：
+
+- ✅ **無料でアクセス可能**: すべてのコンテンツが無料で提供される
+- ✅ **非公式である旨を明記**: Riot Games とは関係がないことを明確にする
+- ✅ **適度な広告収入**: サイト運営費用をカバーする程度の広告
+- ✅ **Riot の知的財産を尊重**: 公式との混同を避ける
+
+### ❌ 禁止されていること
+
+- ❌ **有料コンテンツ化**: ゲームプレイに課金を要求する
+- ❌ **公式を装う**: Riot Games の承認を受けたかのように主張する
+- ❌ **過度な商業化**: サイト全体が広告で埋め尽くされる
+
+### 本サイトの対応状況
+
+| 要件 | 対応状況 |
+|------|---------|
+| 無料で提供 | ✅ 完全無料 |
+| 非公式の明記 | ✅ フッター・利用規約・著作権ポリシーに明記 |
+| プライバシーポリシー | ✅ 設置済み（広告・Cookie対応） |
+| 利用規約 | ✅ 設置済み（広告条項追加済み） |
+| 著作権ポリシー | ✅ 設置済み |
+| 適度な広告 | ✅ フッター上部に1箇所のみ |
+
+---
+
+## 🧪 広告が正しく表示されるか確認
+
+### ローカルでのテスト
+
+**注意**: AdSense 広告は `localhost` では表示されません。公開URLで確認してください。
+
+### 公開URLでの確認
+
+1. **サイトをデプロイ**
+   - GitHub Pages: `https://pantherdragonpandora-debug.github.io/lol-wordwolf/`
+   
+2. **ブラウザで確認**
+   - デプロイされたURLにアクセス
+   - フッター上部に広告スペースが表示されるか確認
+
+3. **ブラウザの開発者ツールで確認**
+   - F12 を押してコンソールを開く
+   - エラーがないか確認
+   - 広告関連のスクリプトが読み込まれているか確認
+
+### AdSense 承認前の表示
+
+- **承認前**: 広告スペースは空白のまま
+- **承認後**: 数時間〜1日で広告が表示開始
+
+---
+
+## 🔧 トラブルシューティング
+
+### 問題 1: 広告が表示されない
+
+**原因**:
+- AdSense がまだ承認されていない
+- 広告ブロッカーが有効になっている
+- Publisher ID が間違っている
+
+**解決策**:
+1. AdSense 管理画面で承認状況を確認
+2. 広告ブロッカーを無効化して再確認
+3. `ca-pub-XXXXXXXXXX` が正しいか確認
+
+### 問題 2: 「AdSense コードの重複」エラー
+
+**原因**:
+- 同じ AdSense スクリプトが複数回読み込まれている
+
+**解決策**:
+- `<head>` セクションに AdSense スクリプトが1回だけ含まれているか確認
+
+### 問題 3: コンソールに「adsbygoogle.push() error」
+
+**原因**:
+- 広告スロット ID が間違っている
+- AdSense がまだ承認されていない
+
+**解決策**:
+1. `data-ad-slot` の値が正しいか確認
+2. AdSense 管理画面で広告ユニットのスロット ID を再確認
+
+### 問題 4: ポリシー違反の警告
+
+**原因**:
+- コンテンツが AdSense ポリシーまたは Legal Jibber Jabber ポリシーに違反している
+
+**解決策**:
+1. プライバシーポリシーと利用規約が正しく設置されているか確認
+2. 非公式である旨が明記されているか確認
+3. 過度な広告がないか確認（本サイトは1箇所のみなので問題なし）
+
+---
+
+## 📊 収益の確認
+
+### AdSense レポート
+
+1. **AdSense 管理画面 → レポート**
+2. 以下の指標を確認：
+   - **表示回数**: 広告が表示された回数
+   - **クリック数**: 広告がクリックされた回数
+   - **CPC（クリック単価）**: 1クリックあたりの収益
+   - **見積もり収益額**: 現在の収益
+
+### 支払いスケジュール
+
+- **支払い基準額**: 8,000円（日本）
+- **支払い時期**: 毎月21日頃（前月分）
+- **支払い方法**: 銀行振込
+
+---
+
+## 💡 広告最適化のヒント
+
+### 1. 広告配置
+
+- ✅ **フッター上部**: ユーザーエクスペリエンスを損なわない位置
+- ❌ **ゲーム画面内**: プレイの妨げになる
+- ❌ **ポップアップ**: ユーザーに不快感を与える
+
+### 2. 広告密度
+
+- **推奨**: ページ全体の 30% 以下
+- **本サイト**: フッター上部の1箇所のみ（約 5%）= ✅ 適切
+
+### 3. コンテンツの質
+
+- オリジナルで有益なコンテンツを提供
+- 定期的に更新やメンテナンスを行う
+- ユーザーフィードバックに対応する
+
+---
+
+## 📄 関連ドキュメント
+
+- [Google AdSense ヘルプセンター](https://support.google.com/adsense)
+- [Riot Games Legal Jibber Jabber](https://www.riotgames.com/en/legal)
+- [プライバシーポリシー](./privacy.html)
+- [利用規約](./terms.html)
+- [著作権ポリシー](./copyright.html)
+
+---
+
+## ✅ チェックリスト
+
+実装前に以下を確認してください：
+
+- [ ] AdSense アカウントを作成した
+- [ ] Publisher ID（`ca-pub-XXXXXXXXXX`）を取得した
+- [ ] `index.html` の `<head>` に AdSense スクリプトを設置した
+- [ ] AdSense 管理画面で広告ユニットを作成した
+- [ ] 広告スロット ID（`YYYYYYYYYY`）を取得した
+- [ ] `index.html` のフッター上部に広告ユニットコードを設置した
+- [ ] プライバシーポリシーに広告に関する記載がある（✅ 完了済み）
+- [ ] 利用規約に広告に関する条項がある（✅ 完了済み）
+- [ ] サイトをデプロイした
+- [ ] 公開URLで広告が正しく表示されるか確認した
+- [ ] AdSense の審査結果を待つ
+
+---
+
+## 🎉 完了！
+
+これで Google AdSense 広告の実装準備が完了しました！
+
+### 次のステップ
+
+1. **AdSense の審査を待つ**（1〜2週間）
+2. **承認されたら広告が自動的に表示開始**
+3. **定期的に AdSense レポートを確認**
+4. **ユーザーフィードバックに基づいて最適化**
+
+### サポート
+
+問題が発生した場合：
+1. 本ドキュメントのトラブルシューティングセクションを確認
+2. [Google AdSense ヘルプセンター](https://support.google.com/adsense)を参照
+3. GitHub リポジトリで Issue を作成
+
+---
+
+**🎮 League of Legends の世界でワードウルフを楽しみながら、サイト運営費用もカバーしましょう！** ⚔️🛡️✨

@@ -1,195 +1,171 @@
-# 🚨 緊急：ブラウザキャッシュ問題の解決
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>お問い合わせ - Esports ワードウルフ</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .contact-container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: var(--spacing-lg);
+        }
+        .contact-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: var(--spacing-lg);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            margin-bottom: var(--spacing-md);
+        }
+        .contact-card h2 {
+            color: var(--primary-color);
+            margin-bottom: var(--spacing-md);
+        }
+        .contact-info {
+            line-height: 1.8;
+            color: var(--text-light);
+            margin-bottom: var(--spacing-lg);
+        }
+        .contact-methods {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+        .contact-method {
+            background: rgba(255, 255, 255, 0.05);
+            padding: var(--spacing-md);
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+        }
+        .contact-method h3 {
+            color: var(--primary-color);
+            margin-bottom: var(--spacing-sm);
+            font-size: 1.2rem;
+        }
+        .contact-method p {
+            margin: 0;
+            color: var(--text-light);
+        }
+        .contact-link {
+            color: var(--secondary-color);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .contact-link:hover {
+            color: var(--primary-color);
+        }
+        .response-time {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            border-radius: 8px;
+            padding: var(--spacing-md);
+            margin-top: var(--spacing-md);
+        }
+        .response-time h4 {
+            color: #ffc107;
+            margin-top: 0;
+            margin-bottom: var(--spacing-sm);
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: var(--spacing-md);
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .back-link:hover {
+            color: var(--secondary-color);
+        }
+        .topics-list {
+            list-style: none;
+            padding-left: var(--spacing-md);
+        }
+        .topics-list li:before {
+            content: "✓ ";
+            color: var(--primary-color);
+            font-weight: bold;
+            margin-right: var(--spacing-xs);
+        }
+    </style>
+</head>
+<body>
+    <!-- ナビゲーションメニュー -->
+    <nav class="main-nav" style="margin-bottom: var(--spacing-lg);">
+        <div class="nav-content">
+            <a href="index.html" class="nav-link">🎮 ゲーム</a>
+            <a href="games.html" class="nav-link">📖 ゲーム紹介</a>
+            <a href="how-to-play.html" class="nav-link">❓ 遊び方</a>
+            <a href="blog.html" class="nav-link">✍️ ブログ</a>
+            <a href="faq.html" class="nav-link">💬 FAQ</a>
+            <a href="contact.html" class="nav-link">📧 お問い合わせ</a>
+        </div>
+    </nav>
 
-## 問題
+    <header>
+        <div class="header-content">
+            <h1>📧 お問い合わせ</h1>
+        </div>
+    </header>
 
-```
-❌ VoidGameが未定義です。void-game.jsが読み込まれていない可能性があります。
-- typeof VoidGame: undefined
-- typeof window.VoidGame: undefined
-```
+    <main>
+        <div class="contact-container">
+            <div class="contact-card">
+                <h2>お問い合わせについて</h2>
+                <div class="contact-info">
+                    <p>Esports ワードウルフをご利用いただきありがとうございます。</p>
+                    <p>バグ報告、機能要望、その他ご質問がございましたら、<strong>XのDM</strong>でお気軽にお問い合わせください。</p>
+                </div>
 
-## 原因
+                <div class="contact-methods">
+                    <div class="contact-method">
+                        <h3>𝕏 X（Twitter）DM - おすすめ！</h3>
+                        <p>
+                            <a href="https://x.com/pan_doratalk" class="contact-link" target="_blank" rel="noopener noreferrer">@pan_doratalk</a>
+                        </p>
+                        <p style="margin-top: 8px; font-size: 0.9rem; opacity: 0.8;">
+                            ※ DMでお気軽にどうぞ。最も早く返信できます！
+                        </p>
+                    </div>
+                </div>
+            </div>
 
-**ブラウザのキャッシュ**により、古いバージョンのJavaScriptファイルが読み込まれ続けている。
+            <div class="contact-card">
+                <h2>お問い合わせ内容の例</h2>
+                <ul class="topics-list">
+                    <li>バグや不具合の報告</li>
+                    <li>新機能のリクエスト</li>
+                    <li>新しいゲームタイトルの追加要望</li>
+                    <li>お題の追加・修正提案</li>
+                    <li>操作方法やゲームルールの質問</li>
+                    <li>プライバシーや利用規約に関する質問</li>
+                    <li>その他のご意見・ご感想</li>
+                </ul>
+            </div>
 
----
+            <div class="contact-card">
+                <h2>よくある質問（FAQ）</h2>
+                <p>お問い合わせの前に、<a href="faq.html" class="contact-link">FAQページ</a>もご確認ください。多くの質問への回答がすでに掲載されています。</p>
+            </div>
 
-## ✅ 解決方法
+            <div class="contact-card">
+                <h2>バグ報告の際のお願い</h2>
+                <p>バグ報告をいただく際は、以下の情報を含めていただけると助かります：</p>
+                <ul class="topics-list">
+                    <li>使用しているブラウザとバージョン</li>
+                    <li>使用デバイス（PC、スマートフォンなど）</li>
+                    <li>発生した問題の詳細</li>
+                    <li>問題が発生する手順（再現方法）</li>
+                    <li>スクリーンショット（あれば）</li>
+                </ul>
+            </div>
 
-### 方法1: 完全リロード（最も重要）
+            <a href="index.html" class="back-link">← ゲームに戻る</a>
+        </div>
+    </main>
 
-以下のショートカットキーで**必ず**リロードしてください：
-
-```
-Windows/Linux: Ctrl + Shift + R
-Mac: Cmd + Shift + R
-```
-
-**重要**: 通常のF5やCtrl+Rでは不十分です！
-
----
-
-### 方法2: ブラウザキャッシュを完全削除
-
-#### Chrome
-1. `Ctrl + Shift + Delete`（Mac: `Cmd + Shift + Delete`）
-2. 「キャッシュされた画像とファイル」をチェック
-3. 「データを削除」をクリック
-4. ページを再読み込み
-
-#### Firefox
-1. `Ctrl + Shift + Delete`
-2. 「キャッシュ」をチェック
-3. 「今すぐ消去」をクリック
-4. ページを再読み込み
-
-#### Edge
-1. `Ctrl + Shift + Delete`
-2. 「キャッシュされた画像とファイル」をチェック
-3. 「今すぐクリア」をクリック
-4. ページを再読み込み
-
----
-
-### 方法3: シークレット/プライベートモードで試す
-
-#### Chrome
-```
-Ctrl + Shift + N  (Mac: Cmd + Shift + N)
-```
-
-#### Firefox
-```
-Ctrl + Shift + P  (Mac: Cmd + Shift + P)
-```
-
-#### Safari
-```
-Cmd + Shift + N
-```
-
-シークレットモードで開いて、サイトにアクセスしてテスト。
-
----
-
-### 方法4: 開発者ツールでキャッシュ無効化
-
-1. **F12**を押して開発者ツールを開く
-2. **ネットワーク**タブをクリック
-3. **「キャッシュを無効化」**にチェックを入れる（"Disable cache"）
-4. 開発者ツールを開いたままページをリロード
-
----
-
-## 🔍 確認方法
-
-### ステップ1: コンソールを開く
-
-**F12** → **コンソール**タブ
-
-### ステップ2: 以下のログが表示されることを確認
-
-```
-📦 void-game.js 読み込み開始 (v26)
-📦 現在時刻: 2026-02-17T...
-📦 firebase: object
-📦 window: object
-
-📦 VoidGameクラス定義完了 (v26)
-📦 VoidGame type: function
-📦 VoidGame.name: VoidGame
-
-✅ VoidGameクラスをグローバルにエクスポートしました (v26)
-✅ window.VoidGame type: function
-✅ window.VoidGame.name: VoidGame
-✅ テストインスタンス作成成功
-```
-
-**重要**: 必ず `(v26)` が表示されていることを確認してください！
-
-### ステップ3: ネットワークタブで確認
-
-**F12** → **ネットワーク**タブ
-
-以下のファイルが**200 OK**で読み込まれているか確認：
-- `void-game.js?v=26&t=20260217`
-- `void-main.js?v=26&t=20260217`
-
-**v=25やv=23が読み込まれている場合はキャッシュが残っています**
-
----
-
-## 🚨 まだエラーが出る場合
-
-### 方法5: 別のブラウザで試す
-
-- Chrome → Firefox
-- Firefox → Edge
-- Edge → Chrome
-
-### 方法6: インコグニートモード + キャッシュクリア
-
-1. シークレットモードで開く
-2. F12 → ネットワークタブ
-3. 「キャッシュを無効化」にチェック
-4. ページをリロード
-
-### 方法7: DNSキャッシュをクリア（上級者向け）
-
-#### Windows
-```
-ipconfig /flushdns
-```
-
-#### Mac
-```
-sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder
-```
-
-#### Linux
-```
-sudo systemd-resolve --flush-caches
-```
-
----
-
-## 📊 変更内容（v26）
-
-| ファイル | 変更内容 |
-|---------|---------|
-| `index.html` | バージョンをv26に更新、タイムスタンプ追加 |
-| `js/void-game.js` | 即座実行関数でログ強化、テストインスタンス作成 |
-| `css/*.css` | バージョンをv26に更新 |
-
----
-
-## ✅ 成功の確認
-
-以下がすべて✅になれば成功：
-
-- [ ] `Ctrl+Shift+R`で完全リロードした
-- [ ] コンソールに「v26」が表示される
-- [ ] コンソールに「✅ テストインスタンス作成成功」が表示される
-- [ ] ネットワークタブで`void-game.js?v=26&t=20260217`が200 OKで読み込まれる
-- [ ] ヴォイドモードでルーム作成が成功する
-
----
-
-## 💡 なぜこれほど厳しくキャッシュされるのか？
-
-ブラウザは**パフォーマンス向上のため**、JavaScriptファイルを積極的にキャッシュします。
-
-### キャッシュ戦略
-- 通常のリロード（F5）: キャッシュを優先
-- 完全リロード（Ctrl+Shift+R）: キャッシュを無視
-- クエリパラメータ（`?v=26`）: 異なるファイルとして扱う
-
-**今回の対策**: `v=26&t=20260217`で確実に新しいファイルを読み込ませる
-
----
-
-## 完了日
-2026-02-17
-
-## バージョン
-v26 - キャッシュバスター強化版
+    <footer>
+        <p>© 2025 Esports ワードウルフ | <a href="privacy.html">プライバシーポリシー</a> | <a href="terms.html">利用規約</a> | <a href="faq.html">FAQ</a> | <a href="contact.html">お問い合わせ</a></p>
+    </footer>
+</body>
+</html>

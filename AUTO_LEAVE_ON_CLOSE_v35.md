@@ -1,337 +1,298 @@
-# Google AdSense ポリシー違反への対応ガイド
+# ブラウザ/タブ閉じ時の自動退出機能 (v35/v38)
 
-## 📅 作成日
-2026年2月22日
+## 📋 報告された問題
+「ルームの参加時が退出ボタンを押さずに、ブラウザを閉じたり、タブを閉じたりした場合、ルームに残ったままになってるんだけど、退出にできる？」
 
-## 🚨 現状の問題
+## 🔍 問題
+プレイヤーが以下の操作をした場合、Firebaseのルームにプレイヤーデータが残り続けていました：
 
-Google AdSenseから「ポリシー違反」の通知を受けた。
+- ブラウザウィンドウを閉じる
+- タブを閉じる
+- ネットワーク接続が切れる
+- ブラウザがクラッシュする
 
-### 考えられる原因
-1. **有用性の低いコンテンツ**（最も可能性が高い）
-2. ゲーム内容の誤解（ワードウルフ＝人狼ゲーム）
-3. Riot Gamesの知的財産使用に関する誤解
+これにより、以下の問題が発生していました：
 
----
+1. **ルームが満員にならない**: 退出していないプレイヤーが枠を占有
+2. **ゴーストプレイヤー**: 実際には参加していないプレイヤーがリストに表示
+3. **ゲーム開始不能**: 退出済みプレイヤーの応答待ちで進行不可
 
-## ✅ 実施した対策（2026-02-22）
+## ✅ 実装内容
 
-### 1. サイト説明セクションの追加
+### 1. beforeunload イベント（ブラウザ/タブを閉じる時）
 
-`index.html` のトップページに、サイトの性質を明確に説明するセクションを追加：
-
-#### 追加内容
-- **健全なオンラインパーティーゲーム**であることを明記
-- **教育的価値**: 推理力、コミュニケーション能力、演技力を育む
-- **家族向け**: 年齢制限なし、安全で健全なコンテンツ
-- **多言語対応**: 日本語、英語、韓国語、中国語
-- **無料利用**: 完全無料、アカウント登録不要
-- **Riot Gamesのポリシー準拠**: 非公式ファンサイトであることを明記
-
-### 2. コンテンツの大幅拡充
-
-#### 追加ページ（2026-02-22実施済み）
-- `games.html` - ゲーム紹介ページ（約3,000文字）
-- `how-to-play.html` - 遊び方ガイド（約3,500文字）
-- `blog.html` - 開発者ブログ（約2,500文字）
-- `faq.html` - Q30に拡充（約2,000文字追加）
-- `blog-admin.html` - ブログ管理画面
-
-#### コンテンツ統計
-- **総ページ数**: 9ページ → **14ページ**（56%増加）
-- **テキストコンテンツ**: 約5,000文字 → **約16,000文字**（220%増加）
-- **FAQ**: 20問 → **30問**（50%増加）
-
-### 3. ナビゲーション改善
-全ページに統一されたナビゲーションメニューを配置。
-
----
-
-## 📋 Google AdSenseポリシー準拠状況
-
-### ✅ 準拠している項目
-
-| 項目 | 状態 | 説明 |
-|------|------|------|
-| **違法コンテンツ** | ✅ | なし |
-| **知的財産権** | ✅ | Riot Games「Legal Jibber Jabber」に準拠 |
-| **危険・中傷的コンテンツ** | ✅ | なし |
-| **不正行為** | ✅ | なし |
-| **性的コンテンツ** | ✅ | なし |
-| **ギャンブル関連** | ✅ | なし（パーティーゲームのみ） |
-| **暴力的コンテンツ** | ✅ | なし（ゲーム内の「武器」はVALORANTの用語） |
-| **差別的表現** | ✅ | なし |
-| **家族向け適性** | ✅ | 年齢制限なし、健全なコンテンツ |
-
-### ⚠️ 改善が必要な項目
-
-| 項目 | 状態 | 対応策 |
-|------|------|--------|
-| **有用性の低いコンテンツ** | ⚠️ | コンテンツを大幅拡充（実施済み） |
-| **コンテンツのインデックス** | ⚠️ | Googleのクローラー待ち（2-4週間） |
-
----
-
-## 🎯 今後の対応策
-
-### 短期（1-2週間）
-
-#### 1. ブログ記事の追加
-定期的に記事を投稿して、サイトの活性度をアピール：
-
-**推奨記事テーマ**:
-- ワードウルフ攻略法
-- デマーシアで高得点を取るコツ
-- ヴォイドモードの遊び方
-- 気分診断の使い方
-- オンラインパーティーゲームの魅力
-
-**投稿頻度**: 週1回（最低月2回）
-
-#### 2. Google Search Consoleに登録
-- サイトマップを送信
-- インデックス状況を確認
-- 新しいページのクロールをリクエスト
-
-#### 3. メタデータの最適化
-各ページに適切な `meta description` を追加：
-
-```html
-<meta name="description" content="League of LegendsとVALORANTをテーマにした健全なオンラインパーティーゲーム。ワードウルフ、デマーシア、ヴォイド、気分診断の4つのモードで友達と楽しもう！完全無料、アカウント登録不要。">
+#### main.js - ワードウルフ・デマーシア
+```javascript
+window.addEventListener('beforeunload', async (event) => {
+  // ワードウルフゲームから退出
+  if (currentGame && currentPlayer && currentRoomId) {
+    try {
+      await currentGame.leaveRoom(currentPlayer);
+      console.log('✅ ワードウルフルーム自動退出');
+    } catch (error) {
+      console.error('❌ 自動退出エラー:', error);
+    }
+  }
+  
+  // デマーシアゲームから退出
+  if (currentDemaciaGame && currentPlayer && currentRoomId) {
+    try {
+      await currentDemaciaGame.leaveRoom(currentPlayer);
+      console.log('✅ デマーシアルーム自動退出');
+    } catch (error) {
+      console.error('❌ 自動退出エラー:', error);
+    }
+  }
+});
 ```
 
-### 中期（2-4週間）
+#### void-main.js - ヴォイド
+```javascript
+window.addEventListener('beforeunload', async (event) => {
+  if (currentVoidGame && currentVoidPlayer && currentVoidRoomId) {
+    try {
+      await currentVoidGame.leaveRoom(currentVoidPlayer);
+      console.log('✅ ヴォイドルーム自動退出');
+    } catch (error) {
+      console.error('❌ ヴォイド自動退出エラー:', error);
+    }
+  }
+});
+```
 
-#### 1. コンテンツのさらなる拡充
-- ゲーム攻略記事（各モード）
-- プレイヤー向けTips集
-- よくあるミスとその対処法
-- コミュニティの声（ユーザーレビュー）
+### 2. Firebase onDisconnect（ネットワーク切断時）
 
-#### 2. 内部リンクの強化
-ページ間の関連性を高めるため、内部リンクを追加。
+Firebase の `onDisconnect()` 機能を使用して、ネットワーク接続が切れた時に自動的にプレイヤーデータを削除します。
 
-#### 3. 外部リンクの獲得
-- SNS（X、Discord）でサイトを紹介
-- League of Legends / VALORANTコミュニティに共有
-- Reddit、Discord サーバーでの宣伝
+#### main.js
+```javascript
+function setupFirebaseDisconnect() {
+  const connectedRef = firebase.database().ref('.info/connected');
+  
+  connectedRef.on('value', (snapshot) => {
+    if (snapshot.val() === true) {
+      // ワードウルフ
+      if (currentGame && currentPlayer && currentRoomId) {
+        const playerRef = firebase.database().ref(`rooms/${currentRoomId}/players/${currentPlayer}`);
+        const playerOrderRef = firebase.database().ref(`rooms/${currentRoomId}/playerOrder`);
+        
+        playerRef.onDisconnect().remove();
+        
+        playerOrderRef.once('value').then((orderSnapshot) => {
+          const playerOrder = orderSnapshot.val() || [];
+          const newOrder = playerOrder.filter(name => name !== currentPlayer);
+          playerOrderRef.onDisconnect().set(newOrder);
+        });
+      }
+      
+      // デマーシア
+      if (currentDemaciaGame && currentPlayer && currentRoomId) {
+        const playerRef = firebase.database().ref(`demacia_rooms/${currentRoomId}/players/${currentPlayer}`);
+        playerRef.onDisconnect().remove();
+      }
+    }
+  });
+}
+```
 
-### 長期（1-2ヶ月）
+#### void-main.js
+```javascript
+function setupVoidFirebaseDisconnect() {
+  const connectedRef = firebase.database().ref('.info/connected');
+  
+  connectedRef.on('value', (snapshot) => {
+    if (snapshot.val() === true && currentVoidGame && currentVoidPlayer && currentVoidRoomId) {
+      const playerRef = firebase.database().ref(`void_rooms/${currentVoidRoomId}/players/${currentVoidPlayer}`);
+      const playerOrderRef = firebase.database().ref(`void_rooms/${currentVoidRoomId}/playerOrder`);
+      
+      playerRef.onDisconnect().remove();
+      
+      playerOrderRef.once('value').then((orderSnapshot) => {
+        const playerOrder = orderSnapshot.val() || [];
+        const newOrder = playerOrder.filter(name => name !== currentVoidPlayer);
+        playerOrderRef.onDisconnect().set(newOrder);
+      });
+    }
+  });
+}
+```
 
-#### 1. AdSense再申請
-コンテンツが充実し、インデックスが進んだ段階で再申請。
+### 3. ルーム作成・参加時に自動退出設定を有効化
 
-#### 2. トラフィックの増加
-- SEO最適化の継続
-- SNSマーケティング
-- コミュニティとのエンゲージメント
+#### ワードウルフ・デマーシア（main.js）
+```javascript
+// ルーム作成時
+if (success) {
+  showWaitingRoom();
+  currentGame.watch(updateWaitingRoom);
+  setupFirebaseDisconnect();  // ✅ 追加
+}
 
-#### 3. ユーザー生成コンテンツ
-- プレイヤーの体験談を募集
-- 面白かったプレイ事例を紹介
-- コミュニティからのフィードバックを記事化
+// ルーム参加時
+await currentGame.joinRoom(playerName);
+showWaitingRoom();
+currentGame.watch(updateWaitingRoom);
+setupFirebaseDisconnect();  // ✅ 追加
+```
+
+#### ヴォイド（void-main.js）
+```javascript
+// ルーム作成時
+currentVoidGame.watchRoom(onVoidRoomUpdate);
+setupVoidFirebaseDisconnect();  // ✅ 追加
+
+// ルーム参加時
+currentVoidGame.watchRoom(onVoidRoomUpdate);
+setupVoidFirebaseDisconnect();  // ✅ 追加
+```
+
+## 📊 動作シナリオ
+
+### シナリオ1: ブラウザ/タブを閉じる
+```
+1. プレイヤーがルームに参加
+2. ブラウザ/タブを閉じる
+3. beforeunload イベント発火
+4. leaveRoom() が自動実行
+5. Firebaseからプレイヤーデータ削除 ✅
+6. 他のプレイヤーの画面からリアルタイムで消える ✅
+```
+
+### シナリオ2: ネットワーク接続が切れる
+```
+1. プレイヤーがルームに参加
+2. setupFirebaseDisconnect() でonDisconnect設定
+3. WiFiがオフ / 機内モードなど
+4. Firebaseが切断を検知
+5. onDisconnect() が自動実行
+6. プレイヤーデータが自動削除 ✅
+7. 他のプレイヤーの画面からリアルタイムで消える ✅
+```
+
+### シナリオ3: ブラウザクラッシュ
+```
+1. プレイヤーがルームに参加
+2. setupFirebaseDisconnect() でonDisconnect設定
+3. ブラウザがクラッシュ
+4. Firebaseが接続切断を検知（約30秒後）
+5. onDisconnect() が自動実行
+6. プレイヤーデータが自動削除 ✅
+```
+
+## 🔧 変更ファイル
+- `js/main.js` (+75行、自動退出機能追加、v34→v35)
+- `js/void-main.js` (+44行、自動退出機能追加、v37→v38)
+- `index.html` (バージョン更新)
+- `AUTO_LEAVE_ON_CLOSE_v35.md` (このドキュメント)
+
+## 🧪 テスト手順
+
+### テスト1: タブを閉じる
+1. ルームを作成・参加（2人推奨）
+2. プレイヤーAのコンソールを開く（F12）
+3. プレイヤーBのタブを閉じる
+4. **期待される動作**:
+   - プレイヤーBのコンソール: `✅ ワードウルフルーム自動退出`（一瞬表示）
+   - プレイヤーAの画面: プレイヤーBがリストから消える
+   - 人数表示: 2人 → 1人に減少
+
+### テスト2: ブラウザを閉じる
+1. ルームを作成・参加（2人推奨）
+2. プレイヤーBのブラウザウィンドウ全体を閉じる
+3. **期待される動作**:
+   - プレイヤーAの画面: プレイヤーBがリストから消える
+   - 人数表示: 2人 → 1人に減少
+
+### テスト3: ネットワーク切断（Chrome DevTools）
+1. ルームを作成・参加（2人推奨）
+2. プレイヤーBのブラウザでF12 → Network タブ
+3. 「Offline」を選択
+4. 約30秒待つ
+5. **期待される動作**:
+   - プレイヤーAの画面: プレイヤーBがリストから消える（約30秒後）
+   - コンソール: `🔒 ワードウルフ onDisconnect 設定完了`
+
+### テスト4: 機内モード（モバイル）
+1. スマホでルームに参加
+2. 機内モードをON
+3. 約30秒待つ
+4. PCの画面を確認
+5. **期待される動作**:
+   - スマホプレイヤーがリストから消える（約30秒後）
+
+### テスト5: リロード（退出しない確認）
+1. ルームを作成・参加
+2. F5キーでリロード
+3. **期待される動作**:
+   - ❌ 退出してはいけない（beforeunloadは発火するが、すぐに再接続）
+   - リロード後も同じルームに残っている
+
+## 📝 技術詳細
+
+### beforeunload の制限
+- **非同期処理の制限**: `beforeunload` では `await` が正しく動作しない場合があります
+- **ブラウザによる違い**: Chrome/Firefox/Safariで動作が異なる可能性
+- **タイムアウト**: 約1秒以内に処理を完了する必要
+
+### onDisconnect の仕組み
+Firebase Realtime Database の `onDisconnect()` は、サーバー側で管理されます：
+
+1. クライアントが接続時に `onDisconnect().remove()` を設定
+2. Firebaseサーバーがこの命令を記憶
+3. クライアントが切断（ハートビート途絶）
+4. サーバーが自動的に `remove()` を実行
+
+**メリット**:
+- クライアント側の処理不要
+- 確実に実行される（サーバー側）
+- ネットワーク切断にも対応
+
+**検出時間**:
+- 通常: 約30秒
+- ハートビート間隔: 30秒
+- タイムアウト: 60秒
+
+### playerOrder の更新
+`onDisconnect()` では配列の要素削除ができないため、以下の方法を使用：
+
+```javascript
+playerOrderRef.once('value').then((orderSnapshot) => {
+  const playerOrder = orderSnapshot.val() || [];
+  const newOrder = playerOrder.filter(name => name !== currentPlayer);
+  playerOrderRef.onDisconnect().set(newOrder);  // 新しい配列をセット
+});
+```
+
+## 🎯 修正効果
+
+### Before
+- ❌ ブラウザ/タブを閉じてもルームに残る
+- ❌ ゴーストプレイヤーが表示され続ける
+- ❌ ルームが満員になって新規参加不可
+- ❌ 手動で退出ボタンを押す必要
+
+### After
+- ✅ ブラウザ/タブを閉じると自動退出
+- ✅ ネットワーク切断でも自動退出（約30秒後）
+- ✅ プレイヤーリストがリアルタイム更新
+- ✅ ルーム枠が自動的に空く
+- ✅ 手間なく退出できる
+
+## ⚠️ 注意事項
+
+### リロード時の動作
+- F5やCtrl+Rでリロードすると `beforeunload` が発火しますが、すぐに再接続するため問題ありません
+- `onDisconnect()` も新しい接続で再設定されます
+
+### 同時接続の制限
+- 同じプレイヤー名で複数のタブ/デバイスから参加すると、最後の接続のみが有効になります
+
+### タイムラグ
+- `onDisconnect()` による削除は約30秒のタイムラグがあります
+- `beforeunload` は即座に実行されますが、ブラウザやネットワーク状況により失敗する可能性があります
 
 ---
-
-## 📝 AdSense再申請時のチェックリスト
-
-### サイト全体
-- [ ] 20ページ以上のオリジナルコンテンツ
-- [ ] 各ページに1,000文字以上のテキスト
-- [ [ すべてのページにナビゲーションメニュー
-- [ ] プライバシーポリシー、利用規約、お問い合わせページ
-- [ ] モバイル対応
-- [ ] ページ読み込み速度の最適化
-
-### コンテンツ品質
-- [ ] オリジナルで有用なコンテンツ
-- [ ] ユーザーの問題を解決する情報
-- [ ] 定期的な更新（週1回以上）
-- [ ] 画像に適切なalt属性
-- [ ] メタデータの最適化
-
-### ポリシー準拠
-- [ ] Riot Gamesのポリシー準拠を明記
-- [ ] 違法・有害コンテンツなし
-- [ ] 著作権侵害なし
-- [ ] 適切な免責事項
-
-### 技術的要件
-- [ ] Google Search Console登録
-- [ ] サイトマップ送信
-- [ ] robots.txt設置
-- [ ] SSL証明書（HTTPS）
-- [ ] 壊れたリンクなし
-
----
-
-## 🔍 「有用性の低いコンテンツ」への具体的対策
-
-### Googleが評価するポイント
-
-1. **オリジナリティ**: 他サイトのコピーではない独自コンテンツ
-2. **専門性**: 特定分野の深い知識
-3. **信頼性**: 正確で信頼できる情報
-4. **ユーザー価値**: 訪問者の問題を解決する
-
-### 当サイトの強み
-
-✅ **オリジナルゲーム機能**: 4つの独自ゲームモード  
-✅ **多言語対応**: 日本語、英語、韓国語、中国語  
-✅ **リアルタイムマルチプレイヤー**: Firebase連携  
-✅ **詳細な攻略ガイド**: 各ゲームの遊び方と戦略  
-✅ **コミュニティ重視**: ユーザーとの双方向コミュニケーション  
-
-### さらに強化する方法
-
-1. **ゲーム攻略コンテンツ**
-   - ワードウルフで勝つための10のコツ
-   - デマーシア高得点戦略
-   - ヴォイドモード完全ガイド
-   - 気分診断の活用法
-
-2. **League of Legends / VALORANT情報**
-   - チャンピオン解説
-   - 最新パッチ情報
-   - プロプレイヤーの戦略
-
-3. **コミュニティコンテンツ**
-   - ユーザーレビュー
-   - プレイ体験談
-   - 面白かったゲーム事例
-
----
-
-## 🚨 注意すべきポイント
-
-### やってはいけないこと
-
-❌ **自動生成コンテンツ**
-- AIが生成した文章をそのまま掲載
-- 他サイトのコピー＆ペースト
-
-❌ **広告の過剰配置**
-- 広告が多すぎる
-- コンテンツより広告が目立つ
-
-❌ **誤解を招く表現**
-- 「公式」と誤認させる表現
-- 虚偽の情報
-
-❌ **クリックベイト**
-- 誇張したタイトル
-- 内容と合わないタイトル
-
-### やるべきこと
-
-✅ **定期的な更新**
-- 週1回以上の新規コンテンツ
-- 既存コンテンツの改善
-
-✅ **ユーザーエンゲージメント**
-- SNSでの交流
-- フィードバックの反映
-
-✅ **透明性**
-- サイトの目的を明確に
-- 非公式であることを明記
-
-✅ **品質重視**
-- 正確な情報
-- 読みやすい文章
-- 適切な画像・動画
-
----
-
-## 📊 再申請までのタイムライン
-
-### Week 1-2（即座に実施）
-- [x] サイト説明セクション追加
-- [x] コンテンツ大幅拡充
-- [x] ナビゲーション改善
-- [ ] ブログ記事追加（5記事）
-- [ ] Google Search Console登録
-- [ ] メタデータ最適化
-
-### Week 3-4（継続実施）
-- [ ] ブログ記事追加（さらに5記事）
-- [ ] 内部リンク強化
-- [ ] SNSマーケティング開始
-- [ ] トラフィック分析
-
-### Week 5-6（準備完了）
-- [ ] 最終チェック
-- [ ] すべてのページ確認
-- [ ] AdSense再申請
-
-### Week 7-8（申請後）
-- [ ] 審査結果待ち
-- [ ] 追加指摘事項への対応
-- [ ] コンテンツの継続更新
-
----
-
-## 💡 成功事例と参考情報
-
-### AdSense承認に成功したサイトの特徴
-
-1. **明確な目的**: サイトの存在意義が明確
-2. **豊富なコンテンツ**: 20-30ページ以上
-3. **定期更新**: 週1回以上の新規コンテンツ
-4. **ユーザーフォーカス**: 訪問者のニーズに応える
-5. **専門性**: 特定分野の深い知識
-
-### 当サイトに適用
-
-- **目的**: League of Legends / VALORANTファンのためのパーティーゲームプラットフォーム
-- **コンテンツ**: 14ページ＋継続的なブログ更新
-- **更新**: 週1回のブログ投稿
-- **ユーザー**: ゲーム攻略、遊び方ガイド、FAQ
-- **専門性**: League of Legends / VALORANT特化
-
----
-
-## 📞 サポート・リソース
-
-### 公式ドキュメント
-- [Google AdSense ヘルプセンター](https://support.google.com/adsense/)
-- [Google パブリッシャー向けポリシー](https://support.google.com/adsense/answer/48182)
-- [Riot Games Legal Jibber Jabber](https://www.riotgames.com/ja/legal)
-
-### 関連ファイル
-- `ADSENSE_APPROVAL_STRATEGY.md` - 承認戦略の詳細
-- `CONTENT_EXPANSION_v1.0.24.md` - コンテンツ拡充の記録
-- `README.md` - プロジェクト全体のドキュメント
-
----
-
-## ✅ まとめ
-
-### 現状
-- **問題**: AdSenseから「ポリシー違反」の通知
-- **原因**: 「有用性の低いコンテンツ」の可能性が最も高い
-
-### 対策（実施済み）
-✅ サイト説明セクション追加  
-✅ コンテンツ大幅拡充（14ページ、16,000文字）  
-✅ ナビゲーション改善  
-✅ FAQ拡充（Q30）  
-✅ ブログ管理画面作成  
-
-### 次のステップ
-1. **短期**: ブログ記事追加、Google Search Console登録
-2. **中期**: コンテンツ継続拡充、SNSマーケティング
-3. **長期**: AdSense再申請（4-6週間後）
-
-### 成功の鍵
-- **定期的な更新**: 週1回以上のブログ投稿
-- **ユーザー価値**: 攻略ガイド、Tips、FAQ
-- **透明性**: 非公式サイトであることを明記
-- **品質重視**: オリジナルで有用なコンテンツ
-
----
-
-**作成日**: 2026年2月22日  
-**最終更新**: 2026年2月22日  
-**バージョン**: 1.0  
-**ステータス**: 対策実施中
+**修正日**: 2026-02-17  
+**バージョン**: main.js v35, void-main.js v38  
+**関連ファイル**: `js/main.js`, `js/void-main.js`, `index.html`  
+**ステータス**: ✅ 修正完了

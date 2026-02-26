@@ -1,139 +1,203 @@
-# 🔥 デマーシアゲーム Firebase権限エラー修正ガイド
+# デマーシア入室エラー修正 (v32/v19)
 
-## 🚨 問題
-
-デマーシアゲームのルーム作成時に以下のエラーが発生：
+## 📋 報告されたエラーログ
 ```
-PERMISSION_DENIED: Permission denied
+🔍 ルームのゲームタイプ: lol 選択中: lol
+✅ デマーシアルームに参加処理を開始
+❌ ルーム参加エラー: Error: ルームへの参加に失敗しました
 ```
 
 ## 🔍 原因
+`DemaciaGame` クラスのコンストラクタに `gameType` パラメータが定義されていなかったため、`this.gameType` が `undefined` になっていました。
 
-Firebase Realtime Databaseのセキュリティルールで `demacia_rooms` への書き込み権限が設定されていません。
+### エラーの流れ
+```
+main.js (725行):
+  currentDemaciaGame = new DemaciaGame(roomId);
+  // gameType が渡されていない！
 
-現在のルールは `rooms` パスのみ許可されていると思われます。
+demacia-game.js (6行):
+  constructor(roomId) {
+    this.gameType = undefined;  // 設定されていない
+  }
 
-## ✅ 修正方法
-
-### 1. Firebaseコンソールにアクセス
-
-1. https://console.firebase.google.com/ にアクセス
-2. `lol-word-wolf` プロジェクトを選択
-3. 左メニューから「Realtime Database」を選択
-4. 「ルール」タブをクリック
-
-### 2. セキュリティルールを更新
-
-**現在のルール（推測）:**
-```json
-{
-  "rules": {
-    "rooms": {
-      ".read": true,
-      ".write": true
+demacia-game.js (84-93行):
+  joinRoom(playerName) {
+    const roomGameType = room.settings?.gameType;  // "lol"
+    if (roomGameType && roomGameType !== this.gameType) {
+      // "lol" !== undefined → true
+      // エラー表示（本来は不一致ではない）
+      return false;
     }
+  }
+
+main.js (726行):
+  const success = await currentDemaciaGame.joinRoom(playerName);
+  if (success) {
+    // success が false なので実行されない
+  } else {
+    throw new Error('ルームへの参加に失敗しました');  // ここでエラー！
+  }
+```
+
+## ✅ 修正内容
+
+### 1. DemaciaGame コンストラクタの修正
+`gameType` パラメータを追加し、インスタンス変数に保存：
+
+**変更前:**
+```javascript
+class DemaciaGame {
+  constructor(roomId) {
+    this.roomRef = firebase.database().ref(`demacia_rooms/${roomId}`);
+    this.roomId = roomId;
+    this.roomData = null;
   }
 }
 ```
 
-**修正後のルール:**
-```json
-{
-  "rules": {
-    "rooms": {
-      ".read": true,
-      ".write": true
-    },
-    "demacia_rooms": {
-      ".read": true,
-      ".write": true
-    }
+**変更後:**
+```javascript
+class DemaciaGame {
+  constructor(roomId, gameType = 'lol') {
+    this.roomRef = firebase.database().ref(`demacia_rooms/${roomId}`);
+    this.roomId = roomId;
+    this.gameType = gameType;
+    this.roomData = null;
+    console.log('🎭 DemaciaGame constructor:', { roomId, gameType });
   }
 }
 ```
 
-### 3. より安全なルール（推奨）
-
-開発段階が終わったら、以下のようなより安全なルールに変更することを推奨します：
-
-```json
-{
-  "rules": {
-    "rooms": {
-      "$roomId": {
-        ".read": true,
-        ".write": true,
-        ".validate": "newData.hasChildren(['host', 'players', 'settings', 'gameState'])"
-      }
-    },
-    "demacia_rooms": {
-      "$roomId": {
-        ".read": true,
-        ".write": true,
-        ".validate": "newData.hasChildren(['host', 'players', 'settings', 'gameState'])"
-      }
-    }
-  }
-}
+### 2. ルーム作成時の修正（main.js 491行）
+**変更前:**
+```javascript
+currentDemaciaGame = new DemaciaGame(currentRoomId);
 ```
 
-### 4. ルールを公開
-
-1. 「公開」ボタンをクリック
-2. 変更が反映されるまで数秒待つ
-
-## 🧪 動作確認
-
-ルール変更後、以下を確認：
-
-1. ブラウザをリロード（F5）
-2. デマーシアモードでルーム作成を試す
-3. コンソールに `✅ デマーシアルーム作成成功` が表示されることを確認
-
-## 📝 その他の注意点
-
-### ワードウルフは動作するのにデマーシアが動作しない理由
-
-- ワードウルフ: `rooms/` パスを使用 → ルールで許可されている ✅
-- デマーシア: `demacia_rooms/` パスを使用 → ルールで許可されていない ❌
-
-### セキュリティについて
-
-現在の設定（`.read: true`, `.write: true`）は**開発・テスト用**です。
-
-本番環境では以下のようなルールを検討してください：
-
-```json
-{
-  "rules": {
-    "rooms": {
-      "$roomId": {
-        ".read": true,
-        "players": {
-          "$playerId": {
-            ".write": "!data.exists() || data.child('name').val() === $playerId"
-          }
-        },
-        ".write": "!data.exists() || data.child('host').val() === auth.uid"
-      }
-    },
-    "demacia_rooms": {
-      "$roomId": {
-        ".read": true,
-        "players": {
-          "$playerId": {
-            ".write": "!data.exists() || data.child('name').val() === $playerId"
-          }
-        },
-        ".write": "!data.exists() || data.child('host').val() === auth.uid"
-      }
-    }
-  }
-}
+**変更後:**
+```javascript
+currentDemaciaGame = new DemaciaGame(currentRoomId, selectedGameType);
 ```
 
-## 🎉 完了
+### 3. ルーム参加時の修正（main.js 725行）
+**変更前:**
+```javascript
+currentDemaciaGame = new DemaciaGame(roomId);
+```
 
-ルール変更後、デマーシアゲームが正常に動作するはずです！
+**変更後:**
+```javascript
+currentDemaciaGame = new DemaciaGame(roomId, selectedGameType);
+```
 
-何か問題があれば、Firebaseコンソールの「使用状況」タブでエラーログを確認してください。
+## 📊 修正前後の比較
+
+### 修正前
+| 処理 | this.gameType | room.settings.gameType | 比較結果 | 動作 |
+|------|--------------|----------------------|---------|------|
+| ルーム作成 | undefined | lol | undefined !== lol | ❌ エラー |
+| ルーム参加 | undefined | lol | undefined !== lol | ❌ エラー |
+
+### 修正後
+| 処理 | this.gameType | room.settings.gameType | 比較結果 | 動作 |
+|------|--------------|----------------------|---------|------|
+| ルーム作成 | lol | lol | lol === lol | ✅ 成功 |
+| ルーム参加 | lol | lol | lol === lol | ✅ 成功 |
+
+## 🔧 変更ファイル
+- `js/demacia-game.js` (コンストラクタ修正、v18→v19)
+- `js/main.js` (インスタンス作成時に gameType 追加、v31→v32)
+- `index.html` (バージョン更新)
+- `DEMACIA_JOIN_FIX_v32.md` (このドキュメント)
+
+## 🧪 テスト手順
+
+### 1. 完全リロード
+Ctrl+Shift+R (Mac: Cmd+Shift+R)
+
+### 2. コンソール確認
+```
+🎭 DemaciaGame constructor: { roomId: "XXXXXX", gameType: "lol" }
+```
+
+### 3. ルーム作成テスト（ホスト）
+1. デマーシアモード選択
+2. LOL選択
+3. プレイヤー名入力 → 「作成」
+4. **期待される結果**:
+   ```
+   🎭 DemaciaGame constructor: { roomId: "123456", gameType: "lol" }
+   ✅ DemaciaGameインスタンス作成成功
+   🔧 createRoom開始
+   - ゲームタイプ: lol
+   ✅ デマーシアルーム作成成功: 123456
+   ```
+
+### 4. ルーム参加テスト（ゲスト）
+1. デマーシアモード選択
+2. LOL選択（**ホストと同じ**）
+3. ルームIDとプレイヤー名入力 → 「参加」
+4. **期待される結果**:
+   ```
+   🔍 ルーム参加試行: 123456 プレイヤー: ゲスト名
+   🎮 選択中のゲームタイプ: lol
+   🔍 デマーシアルームを確認: demacia_rooms/123456
+   ✅ デマーシアルームが存在します
+   🔍 デマーシア - ルームのゲームタイプ: lol (type: string)
+   🔍 デマーシア - 選択中のゲームタイプ: lol (type: string)
+   🔍 デマーシア - 比較結果: true
+   🎭 DemaciaGame constructor: { roomId: "123456", gameType: "lol" }
+   ✅ デマーシアルームに参加処理を開始
+   ✅ ルーム参加: ゲスト名
+   ✅ デマーシアルーム参加成功
+   ```
+
+### 5. クロスゲームタイプテスト（エラーケース）
+1. ホスト: LOLで部屋作成
+2. ゲスト: VALORANTを選択して参加試行
+3. **期待される結果**:
+   ```
+   🔍 デマーシア - ルームのゲームタイプ: lol
+   🔍 デマーシア - 選択中のゲームタイプ: valorant
+   🔍 デマーシア - 比較結果: false
+   ❌ ゲームタイプ不一致エラー: このルームは LOL 用です。
+   現在 VALORANT を選択しています。
+   ゲーム選択画面に戻ってゲームタイプを変更してください。
+   ```
+
+## 📝 技術詳細
+
+### デフォルト引数の追加
+```javascript
+constructor(roomId, gameType = 'lol')
+```
+
+- `gameType` が渡されない場合は `'lol'` をデフォルト値として使用
+- 下位互換性を保つための措置（古いコードでも動作する）
+
+### コンストラクタのログ出力
+```javascript
+console.log('🎭 DemaciaGame constructor:', { roomId, gameType });
+```
+
+- インスタンス作成時に `roomId` と `gameType` を確認できる
+- デバッグが容易になる
+
+## 🎯 修正効果
+
+### Before（v18/v31）
+- ❌ LOL部屋にLOLで参加 → エラー
+- ❌ VALORANT部屋にVALORANTで参加 → エラー
+- ❌ すべてのデマーシアルーム参加が失敗
+
+### After（v19/v32）
+- ✅ LOL部屋にLOLで参加 → 成功
+- ✅ VALORANT部屋にVALORANTで参加 → 成功
+- ✅ ゲームタイプ不一致時のみエラー（正常）
+
+---
+**修正日**: 2026-02-17  
+**バージョン**: demacia-game.js v19, main.js v32  
+**関連ファイル**: `js/demacia-game.js`, `js/main.js`, `index.html`  
+**ステータス**: ✅ 修正完了

@@ -1,203 +1,91 @@
-# デマーシア入室エラー修正 (v32/v19)
+# 🔧 デマーシア結果画面修正 (v1.0.17)
 
-## 📋 報告されたエラーログ
+## 📋 概要
+デマーシアモードの結果発表画面から、ポイント表示要素を削除しました。
+
+## 🔧 修正内容
+
+### 削除した要素
+
+#### 1. ラウンド結果画面のポイント表示
+**削除前：**
 ```
-🔍 ルームのゲームタイプ: lol 選択中: lol
-✅ デマーシアルームに参加処理を開始
-❌ ルーム参加エラー: Error: ルームへの参加に失敗しました
-```
-
-## 🔍 原因
-`DemaciaGame` クラスのコンストラクタに `gameType` パラメータが定義されていなかったため、`this.gameType` が `undefined` になっていました。
-
-### エラーの流れ
-```
-main.js (725行):
-  currentDemaciaGame = new DemaciaGame(roomId);
-  // gameType が渡されていない！
-
-demacia-game.js (6行):
-  constructor(roomId) {
-    this.gameType = undefined;  // 設定されていない
-  }
-
-demacia-game.js (84-93行):
-  joinRoom(playerName) {
-    const roomGameType = room.settings?.gameType;  // "lol"
-    if (roomGameType && roomGameType !== this.gameType) {
-      // "lol" !== undefined → true
-      // エラー表示（本来は不一致ではない）
-      return false;
-    }
-  }
-
-main.js (726行):
-  const success = await currentDemaciaGame.joinRoom(playerName);
-  if (success) {
-    // success が false なので実行されない
-  } else {
-    throw new Error('ルームへの参加に失敗しました');  // ここでエラー！
-  }
+正解: ペンタキルを決めた時 (難易度: easy)
+✅ 正解者: 3 / 4人
+🎭 Player2さんの獲得ポイント: +3  ← 削除
 ```
 
-## ✅ 修正内容
-
-### 1. DemaciaGame コンストラクタの修正
-`gameType` パラメータを追加し、インスタンス変数に保存：
-
-**変更前:**
-```javascript
-class DemaciaGame {
-  constructor(roomId) {
-    this.roomRef = firebase.database().ref(`demacia_rooms/${roomId}`);
-    this.roomId = roomId;
-    this.roomData = null;
-  }
-}
+**削除後：**
+```
+正解: ペンタキルを決めた時 (難易度: easy)
+✅ 正解者: 3 / 4人
 ```
 
-**変更後:**
-```javascript
-class DemaciaGame {
-  constructor(roomId, gameType = 'lol') {
-    this.roomRef = firebase.database().ref(`demacia_rooms/${roomId}`);
-    this.roomId = roomId;
-    this.gameType = gameType;
-    this.roomData = null;
-    console.log('🎭 DemaciaGame constructor:', { roomId, gameType });
-  }
-}
+### 変更ファイル
+
+| ファイル | 変更内容 | 行数 |
+|---------|---------|------|
+| `js/main.js` | ポイント表示コード削除 | -3 |
+| `index.html` | ポイント表示要素削除 | -1 |
+| `js/version.js` | v1.0.17に更新 | +1, -1 |
+
+## 📊 結果画面の構成
+
+### ラウンド結果画面
+```
+┌─────────────────────────────────┐
+│  ラウンド結果                    │
+├─────────────────────────────────┤
+│  セリフ: デマーシアァァァァ！    │
+│                                 │
+│  正解: ペンタキルを決めた時     │
+│  (難易度: easy)                 │
+│                                 │
+│  ✅ 正解者: 3 / 4人             │
+│                                 │
+│  🗳️ 投票結果                   │
+│  Player1 → ペンタキル... ✅    │
+│  Player2 → バロン奪... ❌      │
+│  Player3 → ペンタキル... ✅    │
+│  Player4 → ペンタキル... ✅    │
+│                                 │
+│  [次のラウンドへ]               │
+└─────────────────────────────────┘
 ```
 
-### 2. ルーム作成時の修正（main.js 491行）
-**変更前:**
-```javascript
-currentDemaciaGame = new DemaciaGame(currentRoomId);
+### 最終結果画面（変更なし）
+```
+┌─────────────────────────────────┐
+│  最終結果                        │
+├─────────────────────────────────┤
+│  1位  Player1    15点           │
+│  2位  Player2    12点           │
+│  3位  Player3    10点           │
+│  4位  Player4     8点           │
+│                                 │
+│  [もう一度]  [ホームへ]         │
+└─────────────────────────────────┘
 ```
 
-**変更後:**
-```javascript
-currentDemaciaGame = new DemaciaGame(currentRoomId, selectedGameType);
-```
+**注記:** 最終結果画面のスコア表示は残しています。削除が必要な場合はお知らせください。
 
-### 3. ルーム参加時の修正（main.js 725行）
-**変更前:**
-```javascript
-currentDemaciaGame = new DemaciaGame(roomId);
-```
+## 🧪 確認方法
 
-**変更後:**
-```javascript
-currentDemaciaGame = new DemaciaGame(roomId, selectedGameType);
-```
+### ラウンド結果画面
+1. デマーシアゲームを開始
+2. 演技フェーズ → 投票フェーズを進める
+3. 全員投票完了後、結果画面を確認
+4. ✅ ポイント表示がないことを確認
+5. ✅ 正解者数が表示されることを確認
+6. ✅ 投票結果一覧が表示されることを確認
 
-## 📊 修正前後の比較
+## バージョン情報
 
-### 修正前
-| 処理 | this.gameType | room.settings.gameType | 比較結果 | 動作 |
-|------|--------------|----------------------|---------|------|
-| ルーム作成 | undefined | lol | undefined !== lol | ❌ エラー |
-| ルーム参加 | undefined | lol | undefined !== lol | ❌ エラー |
-
-### 修正後
-| 処理 | this.gameType | room.settings.gameType | 比較結果 | 動作 |
-|------|--------------|----------------------|---------|------|
-| ルーム作成 | lol | lol | lol === lol | ✅ 成功 |
-| ルーム参加 | lol | lol | lol === lol | ✅ 成功 |
-
-## 🔧 変更ファイル
-- `js/demacia-game.js` (コンストラクタ修正、v18→v19)
-- `js/main.js` (インスタンス作成時に gameType 追加、v31→v32)
-- `index.html` (バージョン更新)
-- `DEMACIA_JOIN_FIX_v32.md` (このドキュメント)
-
-## 🧪 テスト手順
-
-### 1. 完全リロード
-Ctrl+Shift+R (Mac: Cmd+Shift+R)
-
-### 2. コンソール確認
-```
-🎭 DemaciaGame constructor: { roomId: "XXXXXX", gameType: "lol" }
-```
-
-### 3. ルーム作成テスト（ホスト）
-1. デマーシアモード選択
-2. LOL選択
-3. プレイヤー名入力 → 「作成」
-4. **期待される結果**:
-   ```
-   🎭 DemaciaGame constructor: { roomId: "123456", gameType: "lol" }
-   ✅ DemaciaGameインスタンス作成成功
-   🔧 createRoom開始
-   - ゲームタイプ: lol
-   ✅ デマーシアルーム作成成功: 123456
-   ```
-
-### 4. ルーム参加テスト（ゲスト）
-1. デマーシアモード選択
-2. LOL選択（**ホストと同じ**）
-3. ルームIDとプレイヤー名入力 → 「参加」
-4. **期待される結果**:
-   ```
-   🔍 ルーム参加試行: 123456 プレイヤー: ゲスト名
-   🎮 選択中のゲームタイプ: lol
-   🔍 デマーシアルームを確認: demacia_rooms/123456
-   ✅ デマーシアルームが存在します
-   🔍 デマーシア - ルームのゲームタイプ: lol (type: string)
-   🔍 デマーシア - 選択中のゲームタイプ: lol (type: string)
-   🔍 デマーシア - 比較結果: true
-   🎭 DemaciaGame constructor: { roomId: "123456", gameType: "lol" }
-   ✅ デマーシアルームに参加処理を開始
-   ✅ ルーム参加: ゲスト名
-   ✅ デマーシアルーム参加成功
-   ```
-
-### 5. クロスゲームタイプテスト（エラーケース）
-1. ホスト: LOLで部屋作成
-2. ゲスト: VALORANTを選択して参加試行
-3. **期待される結果**:
-   ```
-   🔍 デマーシア - ルームのゲームタイプ: lol
-   🔍 デマーシア - 選択中のゲームタイプ: valorant
-   🔍 デマーシア - 比較結果: false
-   ❌ ゲームタイプ不一致エラー: このルームは LOL 用です。
-   現在 VALORANT を選択しています。
-   ゲーム選択画面に戻ってゲームタイプを変更してください。
-   ```
-
-## 📝 技術詳細
-
-### デフォルト引数の追加
-```javascript
-constructor(roomId, gameType = 'lol')
-```
-
-- `gameType` が渡されない場合は `'lol'` をデフォルト値として使用
-- 下位互換性を保つための措置（古いコードでも動作する）
-
-### コンストラクタのログ出力
-```javascript
-console.log('🎭 DemaciaGame constructor:', { roomId, gameType });
-```
-
-- インスタンス作成時に `roomId` と `gameType` を確認できる
-- デバッグが容易になる
-
-## 🎯 修正効果
-
-### Before（v18/v31）
-- ❌ LOL部屋にLOLで参加 → エラー
-- ❌ VALORANT部屋にVALORANTで参加 → エラー
-- ❌ すべてのデマーシアルーム参加が失敗
-
-### After（v19/v32）
-- ✅ LOL部屋にLOLで参加 → 成功
-- ✅ VALORANT部屋にVALORANTで参加 → 成功
-- ✅ ゲームタイプ不一致時のみエラー（正常）
+- **バージョン:** v1.0.17
+- **更新日:** 2026-02-14
+- **変更内容:** デマーシア結果画面のポイント表示削除
 
 ---
-**修正日**: 2026-02-17  
-**バージョン**: demacia-game.js v19, main.js v32  
-**関連ファイル**: `js/demacia-game.js`, `js/main.js`, `index.html`  
-**ステータス**: ✅ 修正完了
+
+**実装完了日:** 2026-02-14  
+**バージョン:** v1.0.17

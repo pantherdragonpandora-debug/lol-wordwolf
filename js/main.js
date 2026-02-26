@@ -187,6 +187,36 @@ function selectGame(gameType) {
 
 // イベントリスナー設定
 function setupEventListeners() {
+  // スタート画面に戻るボタン（固定ボタン）
+  const homeButton = document.getElementById('btn-home-fixed');
+  if (homeButton) {
+    console.log('✅ スタートボタン要素を取得しました');
+    
+    // クリックイベント
+    homeButton.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('🏠 スタートに戻るボタンがクリックされました');
+      goToStart();
+    });
+    
+    // タッチイベント（モバイル対応）
+    homeButton.addEventListener('touchstart', (e) => {
+      console.log('📱 タッチスタート検出');
+    }, { passive: true });
+    
+    homeButton.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('🏠 スタートに戻るボタンがタッチされました（モバイル）');
+      goToStart();
+    }, { passive: false });
+    
+    console.log('✅ スタートボタンのイベントリスナーを設定しました');
+  } else {
+    console.error('❌ スタートボタン要素が見つかりません');
+  }
+  
   // ヘッダータイトルクリックでホームに戻る
   document.getElementById('site-title').addEventListener('click', () => {
     if (currentGame || currentDemaciaGame) {
@@ -390,22 +420,31 @@ function showScreen(screenId) {
 // スタート画面に戻るボタンの表示制御
 function updateHomeButton(screenId) {
   const homeButton = document.getElementById('btn-home-fixed');
-  if (!homeButton) return;
+  if (!homeButton) {
+    console.warn('⚠️ btn-home-fixed が見つかりません');
+    return;
+  }
   
   // スタート画面（モード選択画面）では非表示
   if (screenId === 'mode-select-screen') {
     homeButton.style.display = 'none';
+    console.log('🔒 スタートボタンを非表示にしました（モード選択画面）');
   } else {
     homeButton.style.display = 'block';
+    console.log(`👁️ スタートボタンを表示しました（画面: ${screenId}）`);
   }
 }
 
 // スタート画面に戻る
 function goToStart() {
+  console.log('🔄 goToStart 関数が呼び出されました');
   const confirmMsg = 'スタート画面に戻りますか？\n進行中のゲームがある場合は退出されます。';
   if (!confirm(confirmMsg)) {
+    console.log('❌ ユーザーがキャンセルしました');
     return;
   }
+  
+  console.log('✅ ユーザーが確認しました。処理を続行します。');
   
   // 現在のゲームから退出
   if (currentGame && currentPlayer && currentRoomId) {
