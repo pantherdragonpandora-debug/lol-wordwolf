@@ -1,396 +1,481 @@
-# 🔑 Firebase APIキーの再生成手順（詳細版）
-
-## ❗ 重要な注意
-
-**Firebase Console** には APIキーを再生成する機能がありません。  
-**Google Cloud Console** から操作する必要があります。
-
----
-
-## 📋 手順1: Google Cloud Console にアクセス
-
-### 1-1. ログイン
-
-1. **[Google Cloud Console](https://console.cloud.google.com/)** を開く
-2. Firebaseで使用しているGoogleアカウントでログイン
-
-### 1-2. プロジェクトを選択
-
-画面上部のプロジェクト選択ドロップダウンをクリック:
-- プロジェクト名: **LOL WORD WOLF**
-- プロジェクトID: **lol-word-wolf**
-
----
-
-## 📋 手順2: 現在のAPIキーを確認・無効化
-
-### 2-1. 認証情報ページへ移動
-
-1. 左側のハンバーガーメニュー（≡）をクリック
-2. **APIとサービス** → **認証情報** を選択
-
-または、検索バー（上部）に「認証情報」と入力して移動
-
-### 2-2. APIキーを見つける
-
-「認証情報」ページで以下のセクションを探す:
-- **APIキー** セクション（下の方にあります）
-
-現在のAPIキー:
-```
-名前: Browser key (auto created by Firebase)
-キー: AIzaSyCICMaHGGxE4KLZLldB7DbatX5eS-jbt3Q
-```
-
-### 2-3. APIキーを無効化（即座に）
-
-1. APIキーの右側にある **︙（縦3点）** メニューをクリック
-2. **無効にする** を選択
-3. 確認ダイアログで **無効にする** をクリック
-
-✅ **これで古いキーは即座に使えなくなります**
-
----
-
-## 📋 手順3: 新しいAPIキーを作成
-
-### 3-1. 新しいAPIキーを作成
-
-1. 同じ「認証情報」ページの上部
-2. **＋ 認証情報を作成** ボタンをクリック
-3. **APIキー** を選択
-
-### 3-2. APIキーをコピー
-
-ポップアップが表示され、新しいAPIキーが生成されます:
-
-```
-API キーを作成しました
-YOUR-NEW-API-KEY-HERE
-```
-
-**重要**: このキーを必ずコピーして、安全な場所（メモ帳など）に保存してください。
-
-### 3-3. すぐに制限を設定
-
-⚠️ **ここで「完了」を押さないでください！**
-
-1. ポップアップ内の **キーを制限** ボタンをクリック
-
----
-
-## 📋 手順4: APIキーに制限を設定
-
-### 4-1. HTTPリファラー制限を設定
-
-「API キーを編集」画面が開きます:
-
-#### ① アプリケーションの制限
-
-1. **アプリケーションの制限** セクションを探す
-2. **HTTPリファラー（ウェブサイト）** を選択
-
-#### ② ウェブサイトの制限を追加
-
-「項目を追加」ボタンをクリックして、以下を1つずつ追加:
-
-```
-https://pantherdragonpandora-debug.github.io/*
-```
-
-```
-http://localhost:*
-```
-
-```
-http://127.0.0.1:*
-```
-
-**説明**:
-- 1つ目: GitHub Pages の本番環境
-- 2つ目: ローカル開発環境（localhost）
-- 3つ目: ローカル開発環境（127.0.0.1）
-
-### 4-2. API制限を設定
-
-#### ① API の制限
-
-同じページを下にスクロール:
-1. **API の制限** セクションを探す
-2. **キーを制限** を選択
-
-#### ② 必要なAPIのみを有効化
-
-「APIを選択」ドロップダウンから以下を追加:
-
-1. **Firebase Realtime Database API**
-   - 検索: "Firebase Realtime"
-   - 選択してチェック
-
-2. **Identity Toolkit API**
-   - 検索: "Identity Toolkit"
-   - 選択してチェック
-
-3. **Token Service API** （自動で有効化される場合あり）
-
-**注意**: 
-- 「Firebase Hosting API」は通常不要（クライアント側では使用しない）
-- 必要最小限のAPIのみを選択
-
-### 4-3. 保存
-
-1. ページ下部の **保存** ボタンをクリック
-2. 「API キーが更新されました」というメッセージを確認
-
----
-
-## 📋 手順5: 新しいAPIキーをプロジェクトに適用
-
-### 5-1. firebase-config.js を更新
-
-**js/firebase-config.js** ファイルを開き、8行目を更新:
-
-```javascript
-const firebaseConfig = {
-  // 🔑 APIキー
-  apiKey: "YOUR-NEW-API-KEY-HERE",  // ← ここに新しいキーを貼り付け
-  
-  // 🌐 認証ドメイン
-  authDomain: "lol-word-wolf.firebaseapp.com",
-  
-  // 📊 データベースURL（重要！）
-  databaseURL: "https://lol-word-wolf-default-rtdb.asia-southeast1.firebasedatabase.app",
-  
-  // 🆔 プロジェクトID
-  projectId: "lol-word-wolf",
-  
-  // 💾 ストレージバケット
-  storageBucket: "lol-word-wolf.firebasestorage.app",
-  
-  // 📧 メッセージ送信ID
-  messagingSenderId: "535370778213",
-  
-  // 📱 アプリID
-  appId: "1:535370778213:web:440df2e808fda1eea7288c",
-  
-  // 📈 測定ID
-  measurementId: "G-KKNBV5DYM0"
-};
-```
-
-### 5-2. 変更をコミット
-
-```bash
-# 変更を確認
-git status
-
-# firebase-config.js を追加
-git add js/firebase-config.js
-
-# コミット
-git commit -m "🔒 Update Firebase API key with restrictions"
-
-# GitHubにプッシュ
-git push origin main
-```
-
-### 5-3. デプロイ完了を待つ
-
-GitHub Actions が自動でデプロイします（1-2分）:
-1. GitHubリポジトリページを開く
-2. **Actions** タブをクリック
-3. 最新のワークフローが完了するまで待つ
-
----
-
-## 📋 手順6: 動作確認
-
-### 6-1. サイトにアクセス
-
-```
-https://pantherdragonpandora-debug.github.io/lol-wordwolf/
-```
-
-### 6-2. ブラウザをリロード
-
-```
-Ctrl + Shift + R (Windows/Linux)
-Cmd + Shift + R (Mac)
-```
-
-### 6-3. コンソールで確認
-
-1. **F12** キーを押して開発者ツールを開く
-2. **Console** タブを選択
-3. 以下のメッセージが表示されればOK:
-
-```
-✅ Firebase接続成功
-```
-
-❌ エラーが表示される場合:
-```
-❌ Firebase接続失敗
-Firebase: Error: Requests from referer <empty> are blocked.
-```
-
-→ HTTPリファラー制限の設定を再確認してください
-
----
-
-## 🐛 トラブルシューティング
-
-### エラー1: 「Requests from referer are blocked」
-
-**原因**: HTTPリファラー制限が厳しすぎる
-
-**解決策**:
-1. Google Cloud Console → APIとサービス → 認証情報
-2. 作成したAPIキーを編集
-3. ウェブサイトの制限に以下が含まれているか確認:
-   ```
-   https://pantherdragonpandora-debug.github.io/*
-   ```
-4. ワイルドカード `/*` が正しく入力されているか確認
-
-### エラー2: 「API keys with referer restrictions cannot be used」
-
-**原因**: 選択したAPIがHTTPリファラー制限に対応していない
-
-**解決策**:
-1. Google Cloud Console → APIとサービス → 認証情報
-2. APIキーを編集
-3. **API の制限** で以下のみを有効化:
-   - Firebase Realtime Database API
-   - Identity Toolkit API
-
-Firebase Hosting API などは削除
-
-### エラー3: APIキーが見つからない
-
-**原因**: プロジェクトを間違えている
-
-**解決策**:
-1. Google Cloud Console の上部でプロジェクト名を確認
-2. **LOL WORD WOLF** (lol-word-wolf) が選択されているか確認
-3. 違う場合は、プロジェクトを切り替え
-
-### エラー4: 「認証情報」メニューが見つからない
-
-**手順**:
-1. Google Cloud Console の左上のハンバーガーメニュー（≡）をクリック
-2. リストをスクロールして **APIとサービス** を探す
-3. **APIとサービス** をクリック → **認証情報** を選択
-
-または:
-1. 画面上部の検索バー（🔍）をクリック
-2. 「認証情報」と入力
-3. 検索結果から **認証情報** を選択
-
----
-
-## 📸 画面キャプチャで確認
-
-### 「認証情報」ページの見方
-
-```
-┌─────────────────────────────────────────┐
-│ Google Cloud Console                    │
-├─────────────────────────────────────────┤
-│ [≡] lol-word-wolf ▼   🔍              │
-├─────────────────────────────────────────┤
-│ APIとサービス > 認証情報                │
-│                                         │
-│ ＋ 認証情報を作成 ▼                     │
-│                                         │
-│ ━━━ APIキー ━━━                        │
-│                                         │
-│ 📌 Browser key (auto created...)   ︙   │
-│    AIzaSyCICMaHG...                     │
-│                                         │
-│ 📌 新しいAPIキー                    ︙   │
-│    AIzaXXXXXXXXXX...                    │
-│                                         │
-└─────────────────────────────────────────┘
-```
-
-### API制限設定画面
-
-```
-┌─────────────────────────────────────────┐
-│ API キーを編集                           │
-├─────────────────────────────────────────┤
-│ 名前: 新しいAPIキー                      │
-│                                         │
-│ ▼ アプリケーションの制限                 │
-│   ⚪ なし                               │
-│   ⚪ HTTP リファラー（ウェブサイト）     │ ← 選択
-│   ⚪ IPアドレス                         │
-│   ⚪ Android アプリ                     │
-│   ⚪ iOS アプリ                         │
-│                                         │
-│   ウェブサイトの制限                     │
-│   項目を追加 [+]                        │
-│   ┌───────────────────────────────┐    │
-│   │ https://pantherdragonpandora- │    │
-│   │ debug.github.io/*             │    │
-│   └───────────────────────────────┘    │
-│                                         │
-│ ▼ API の制限                            │
-│   ⚪ 制限なし                           │
-│   ⚪ キーを制限                         │ ← 選択
-│                                         │
-│   API を選択                            │
-│   ┌───────────────────────────────┐    │
-│   │ Firebase Realtime Database API│ ✓  │
-│   │ Identity Toolkit API          │ ✓  │
-│   └───────────────────────────────┘    │
-│                                         │
-│              [保存]  [キャンセル]        │
-└─────────────────────────────────────────┘
-```
-
----
-
-## ✅ 完了チェックリスト
-
-- [ ] Google Cloud Console にログインした
-- [ ] プロジェクト「lol-word-wolf」を選択した
-- [ ] 「認証情報」ページに移動した
-- [ ] 古いAPIキーを無効化した
-- [ ] 新しいAPIキーを作成した
-- [ ] 新しいAPIキーをコピーして保存した
-- [ ] HTTPリファラー制限を設定した（3つ）
-- [ ] API制限を設定した（2つのAPIのみ）
-- [ ] 保存ボタンをクリックした
-- [ ] js/firebase-config.js を更新した
-- [ ] GitHubにプッシュした
-- [ ] サイトにアクセスして動作確認した
-- [ ] コンソールで「✅ Firebase接続成功」を確認した
-
----
-
-## 📞 それでも見つからない場合
-
-### 方法1: 直接URLでアクセス
-
-```
-https://console.cloud.google.com/apis/credentials?project=lol-word-wolf
-```
-
-このURLをブラウザで開くと、直接「認証情報」ページに移動します。
-
-### 方法2: Firebase Consoleから移動
-
-1. [Firebase Console](https://console.firebase.google.com/)
-2. プロジェクト「LOL WORD WOLF」を選択
-3. 左メニューの **⚙️（歯車）** → **プロジェクトの設定**
-4. 「全般」タブ → 下にスクロール
-5. 「Google Cloud Platform（GCP）リソースのロケーション」セクション
-6. **Google Cloud Console を開く** リンクをクリック
-
----
-
-**最終更新**: 2026年2月14日
-
-このガイドに従って作業してもうまくいかない場合は、スクリーンショットを撮って質問してください。
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="League of LegendsとVALORANTをテーマにした4つのオンラインパーティーゲームを紹介。ワードウルフ、デマーシア、ヴォイド、気分診断で友達と楽しもう！">
+    <title>ゲーム紹介 - Esports ワードウルフ</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .games-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--spacing-lg);
+        }
+        .intro-section {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-lg);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+        .intro-section h1 {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            margin-bottom: var(--spacing-md);
+        }
+        .intro-section p {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            color: var(--text-light);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--spacing-md);
+            margin: var(--spacing-lg) 0;
+        }
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: var(--spacing-md);
+            border-radius: 8px;
+            text-align: center;
+        }
+        .feature-card .icon {
+            font-size: 3rem;
+            margin-bottom: var(--spacing-sm);
+        }
+        .feature-card h3 {
+            color: var(--primary-color);
+            margin-bottom: var(--spacing-sm);
+        }
+        .game-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-xl);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s;
+        }
+        .game-card:hover {
+            transform: translateY(-5px);
+        }
+        .game-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+        }
+        .game-icon {
+            font-size: 4rem;
+            margin-right: var(--spacing-md);
+        }
+        .game-title {
+            flex: 1;
+        }
+        .game-title h2 {
+            color: var(--primary-color);
+            margin: 0 0 var(--spacing-sm) 0;
+            font-size: 2rem;
+        }
+        .game-subtitle {
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+        .game-content h3 {
+            color: var(--accent-color);
+            margin-top: var(--spacing-lg);
+            margin-bottom: var(--spacing-md);
+        }
+        .game-specs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+            margin: var(--spacing-md) 0;
+            padding: var(--spacing-md);
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+        }
+        .spec-item {
+            text-align: center;
+        }
+        .spec-label {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+        }
+        .spec-value {
+            color: var(--primary-color);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        .game-features {
+            list-style: none;
+            padding: 0;
+        }
+        .game-features li {
+            padding: var(--spacing-sm) 0;
+            padding-left: 30px;
+            position: relative;
+        }
+        .game-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--primary-color);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .cta-section {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            border-radius: 12px;
+            padding: var(--spacing-xl);
+            text-align: center;
+            margin: var(--spacing-xl) 0;
+        }
+        .cta-section h2 {
+            color: white;
+            margin-bottom: var(--spacing-md);
+        }
+        .cta-button {
+            display: inline-block;
+            padding: var(--spacing-md) var(--spacing-xl);
+            background: white;
+            color: var(--primary-color);
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .cta-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: var(--spacing-lg);
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <!-- ナビゲーションメニュー -->
+    <nav class="main-nav" style="margin-bottom: var(--spacing-lg);">
+        <div class="nav-content">
+            <a href="index.html" class="nav-link" data-i18n="nav.game">🎮 ゲーム</a>
+            <a href="games.html" class="nav-link" data-i18n="nav.gamesIntro">📖 ゲーム紹介</a>
+            <a href="how-to-play.html" class="nav-link" data-i18n="nav.howToPlay">❓ 遊び方</a>
+            <a href="blog.html" class="nav-link" data-i18n="nav.blog">✍️ ブログ</a>
+            <a href="faq.html" class="nav-link" data-i18n="nav.faq">💬 FAQ</a>
+            <a href="contact.html" class="nav-link" data-i18n="nav.contact">📧 お問い合わせ</a>
+        </div>
+    </nav>
+
+    <div class="games-container">
+        <div class="intro-section">
+            <h1 data-i18n="gamesPage.title">🎮 Esports パーティーゲームコレクション</h1>
+            <p data-i18n="gamesPage.intro">
+                League of LegendsとVALORANTをテーマにした、オンラインで友達と楽しめる4つのパーティーゲーム！<br>
+                リアルタイムマルチプレイヤー対応で、どこにいても一緒に遊べます。<br>
+                アカウント不要、ブラウザだけですぐに始められます。
+            </p>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="icon">🔥</div>
+                <h3>完全無料</h3>
+                <p>すべてのゲームが無料で遊び放題</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">🌐</div>
+                <h3>オンライン対応</h3>
+                <p>リアルタイムマルチプレイヤー</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">📱</div>
+                <h3>モバイル対応</h3>
+                <p>スマホ・タブレットでもOK</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">🌍</div>
+                <h3>多言語対応</h3>
+                <p>日本語・英語・韓国語・中国語</p>
+            </div>
+        </div>
+
+        <!-- ワードウルフ -->
+        <div class="game-card">
+            <div class="game-header">
+                <div class="game-icon">🐺</div>
+                <div class="game-title">
+                    <h2>ワードウルフ</h2>
+                    <div class="game-subtitle">隠れたウルフを見つけ出す推理ゲーム</div>
+                </div>
+            </div>
+
+            <div class="game-content">
+                <p>
+                    参加者の中に隠れた「ウルフ（少数派）」を見つけ出すコミュニケーションゲーム。多数派は同じお題を、ウルフは少し違うお題を受け取ります。会話を通じて誰がウルフかを推理し、投票で決定します。
+                </p>
+
+                <div class="game-specs">
+                    <div class="spec-item">
+                        <div class="spec-label">プレイ人数</div>
+                        <div class="spec-value">3〜6人</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">プレイ時間</div>
+                        <div class="spec-value">5〜15分</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">難易度</div>
+                        <div class="spec-value">★★☆☆☆</div>
+                    </div>
+                </div>
+
+                <h3>🎯 対応ゲームタイプ</h3>
+                <ul>
+                    <li><strong>League of Legends:</strong> チャンピオン、アイテム、スキル、マップなど73ペア</li>
+                    <li><strong>VALORANT:</strong> エージェント、武器、アビリティ、マップなど77ペア</li>
+                    <li><strong>TFT:</strong> ユニット、特性、アイテムなど75ペア</li>
+                </ul>
+
+                <h3>✨ 特徴</h3>
+                <ul class="game-features">
+                    <li>リアルタイムマルチプレイヤー対応</li>
+                    <li>お題画像表示（公式CDN）</li>
+                    <li>チャット機能付き</li>
+                    <li>カスタマイズ可能なタイマー（3〜15分）</li>
+                    <li>投票システムで公平に決定</li>
+                    <li>多言語対応（お題も多言語）</li>
+                </ul>
+
+                <h3>🎭 こんな人におすすめ</h3>
+                <ul>
+                    <li>人狼ゲームが好き</li>
+                    <li>心理戦が得意</li>
+                    <li>ゲーム知識を活かしたい</li>
+                    <li>友達とワイワイ楽しみたい</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- デマーシアに心を込めて -->
+        <div class="game-card">
+            <div class="game-header">
+                <div class="game-icon">💖</div>
+                <div class="game-title">
+                    <h2>デマーシアに心を込めて</h2>
+                    <div class="game-subtitle">セリフを演じて当てる演技ゲーム</div>
+                </div>
+            </div>
+
+            <div class="game-content">
+                <p>
+                    有名なゲームキャラクターのセリフを、指定されたシチュエーションで演じて当ててもらうゲーム。演技力と推理力が試される、笑いありのパーティーゲームです。
+                </p>
+
+                <div class="game-specs">
+                    <div class="spec-item">
+                        <div class="spec-label">プレイ人数</div>
+                        <div class="spec-value">3〜10人</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">プレイ時間</div>
+                        <div class="spec-value">3〜5分/ラウンド</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">難易度</div>
+                        <div class="spec-value">★★★☆☆</div>
+                    </div>
+                </div>
+
+                <h3>🎯 対応ゲームタイプ</h3>
+                <ul>
+                    <li><strong>League of Legends:</strong> 60種類のセリフ × 6シチュエーション = 360パターン</li>
+                    <li><strong>VALORANT:</strong> 60種類のセリフ × 6シチュエーション = 360パターン</li>
+                </ul>
+
+                <h3>✨ 特徴</h3>
+                <ul class="game-features">
+                    <li>60種類以上の有名セリフ（ガレン、ヤスオ、ジンクス、Jett等）</li>
+                    <li>多彩なシチュエーション（ペンタキル達成時、告白するときなど）</li>
+                    <li>難易度別ポイントシステム（Easy/Medium/Hard）</li>
+                    <li>1人演技制（全員が推理者）</li>
+                    <li>演技者をランダムまたは手動で選択</li>
+                    <li>スコアシステムで競争</li>
+                </ul>
+
+                <h3>🎭 こんな人におすすめ</h3>
+                <ul>
+                    <li>演技が好き・得意</li>
+                    <li>ゲームのセリフに詳しい</li>
+                    <li>笑いを求めている</li>
+                    <li>大人数で盛り上がりたい</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ヴォイドに届くは光か闇か -->
+        <div class="game-card">
+            <div class="game-header">
+                <div class="game-icon">🌌</div>
+                <div class="game-title">
+                    <h2>ヴォイドに届くは光か闇か</h2>
+                    <div class="game-subtitle">連想ワードで伝える伝言ゲーム</div>
+                </div>
+            </div>
+
+            <div class="game-content">
+                <p>
+                    連想ワードを使ってテーマを伝える伝言ゲーム。最初のプレイヤーからワードを3つずつ伝えていき、最後のプレイヤーが元のテーマを推測します。言葉がどう変化していくかが見どころです。
+                </p>
+
+                <div class="game-specs">
+                    <div class="spec-item">
+                        <div class="spec-label">プレイ人数</div>
+                        <div class="spec-value">2〜8人</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">プレイ時間</div>
+                        <div class="spec-value">5〜10分</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">難易度</div>
+                        <div class="spec-value">★★★★☆</div>
+                    </div>
+                </div>
+
+                <h3>🎯 対応ゲームタイプ</h3>
+                <ul>
+                    <li><strong>League of Legends:</strong> チャンピオン、アイテム、場所、概念など25テーマ</li>
+                    <li><strong>VALORANT:</strong> エージェント、武器、マップ、概念など15テーマ</li>
+                </ul>
+
+                <h3>✨ 特徴</h3>
+                <ul class="game-features">
+                    <li>回答順番選択（プレイヤー自身が選択）</li>
+                    <li>修正機能（伝わりにくい言葉を途中で修正可能）</li>
+                    <li>視覚的フィードバック（修正部分が黄色でハイライト）</li>
+                    <li>テーマジャンル表示（難易度調整）</li>
+                    <li>推移表示（結果画面で言葉の変化を確認）</li>
+                    <li>待機画面（現在のターンとプレイヤー名表示）</li>
+                    <li>美しいUI（ヴォイドイメージの紫/青グラデーション）</li>
+                </ul>
+
+                <h3>🎭 こんな人におすすめ</h3>
+                <ul>
+                    <li>協力ゲームが好き</li>
+                    <li>言葉のセンスに自信がある</li>
+                    <li>じっくり考えるのが好き</li>
+                    <li>予想外の展開を楽しみたい</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 気分診断チャンピオン選択 -->
+        <div class="game-card">
+            <div class="game-header">
+                <div class="game-icon">🎭</div>
+                <div class="game-title">
+                    <h2>気分診断チャンピオン選択</h2>
+                    <div class="game-subtitle">あなたにピッタリのチャンピオンを診断</div>
+                </div>
+            </div>
+
+            <div class="game-content">
+                <p>
+                    今の気分やプレイスタイルから、最適なLeague of Legendsチャンピオンを診断するツール。全172体のチャンピオンの中から、あなたにピッタリのチャンピオンをAIがスコアリングして提案します。
+                </p>
+
+                <div class="game-specs">
+                    <div class="spec-item">
+                        <div class="spec-label">プレイ人数</div>
+                        <div class="spec-value">1人（ソロ）</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">所要時間</div>
+                        <div class="spec-value">2〜3分</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">質問数</div>
+                        <div class="spec-value">12問</div>
+                    </div>
+                </div>
+
+                <h3>🎯 診断タイプ</h3>
+                <ul>
+                    <li><strong>⚔️ アグレッシブタイプ:</strong> 敵を倒してスカッとしたい気分</li>
+                    <li><strong>🛡️ サポーティブタイプ:</strong> 味方を守って勝利に貢献したい気分</li>
+                    <li><strong>🧠 タクティカルタイプ:</strong> 頭を使って戦略的に戦いたい気分</li>
+                    <li><strong>⚖️ バランスタイプ:</strong> 状況に応じて柔軟に対応したい気分</li>
+                </ul>
+
+                <h3>✨ 特徴（v9アップデート）</h3>
+                <ul class="game-features">
+                    <li>全172体のチャンピオンがスコアリング対象</li>
+                    <li>マルチレーン対応（メイン/サブ/ニッチロール）</li>
+                    <li>ニッチロール対応（MID ガングプランク、SUP リサンドラなど）</li>
+                    <li>タイプ一致ボーナス（+50点）で診断結果を尊重</li>
+                    <li>レーン適性ボーナス（最大+30点）</li>
+                    <li>1位・2位・3位の順位表示（メダル付き）</li>
+                    <li>前の質問に戻る機能</li>
+                    <li>視覚的な結果（スコアチャート・チャンピオンカード）</li>
+                    <li>チャンピオン画像付き（公式CDN）</li>
+                </ul>
+
+                <h3>🎭 こんな人におすすめ</h3>
+                <ul>
+                    <li>チャンピオン選びに迷っている</li>
+                    <li>新しいチャンピオンを探している</li>
+                    <li>自分のプレイスタイルを知りたい</li>
+                    <li>ニッチなチャンピオンに挑戦したい</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="cta-section">
+            <h2>さあ、今すぐ遊んでみよう！</h2>
+            <p style="color: white; margin-bottom: var(--spacing-lg);">
+                アカウント不要、ブラウザだけで今すぐ始められます。<br>
+                友達にルームIDを共有して、一緒に楽しみましょう！
+            </p>
+            <a href="index.html" class="cta-button" data-i18n="gamesPage.playNow">🎮 ゲームを始める</a>
+        </div>
+
+        <a href="index.html" class="back-link" data-i18n="gamesPage.backToHome">← トップページに戻る</a>
+    </div>
+    
+    <!-- 多言語対応スクリプト -->
+    <script src="js/i18n.js"></script>
+    <script>
+        // 多言語初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof initLanguage === 'function') {
+                initLanguage();
+            }
+        });
+        
+        // 言語切り替え関数
+        function changeLanguage(lang) {
+            if (typeof window.changeLanguage === 'function') {
+                window.changeLanguage(lang);
+            } else {
+                currentLanguage = lang;
+                localStorage.setItem('language', lang);
+                if (typeof updatePageLanguage === 'function') {
+                    updatePageLanguage();
+                }
+            }
+        }
+    </script>
+</body>
+</html>

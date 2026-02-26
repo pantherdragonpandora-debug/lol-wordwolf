@@ -1,375 +1,298 @@
-# ブログ投稿ガイド
+# ブラウザ/タブ閉じ時の自動退出機能 (v35/v38)
 
-## 📝 概要
-このガイドでは、`blog.html` に新しいブログ記事を追加する方法を説明します。HTMLの知識がなくても、コピー＆ペーストで簡単に投稿できます。
+## 📋 報告された問題
+「ルームの参加時が退出ボタンを押さずに、ブラウザを閉じたり、タブを閉じたりした場合、ルームに残ったままになってるんだけど、退出にできる？」
 
-## 🎯 ブログ投稿の流れ
+## 🔍 問題
+プレイヤーが以下の操作をした場合、Firebaseのルームにプレイヤーデータが残り続けていました：
 
-1. **テンプレートをコピー**
-2. **内容を編集**
-3. **blog.htmlに貼り付け**
-4. **保存してデプロイ**
+- ブラウザウィンドウを閉じる
+- タブを閉じる
+- ネットワーク接続が切れる
+- ブラウザがクラッシュする
+
+これにより、以下の問題が発生していました：
+
+1. **ルームが満員にならない**: 退出していないプレイヤーが枠を占有
+2. **ゴーストプレイヤー**: 実際には参加していないプレイヤーがリストに表示
+3. **ゲーム開始不能**: 退出済みプレイヤーの応答待ちで進行不可
+
+## ✅ 実装内容
+
+### 1. beforeunload イベント（ブラウザ/タブを閉じる時）
+
+#### main.js - ワードウルフ・デマーシア
+```javascript
+window.addEventListener('beforeunload', async (event) => {
+  // ワードウルフゲームから退出
+  if (currentGame && currentPlayer && currentRoomId) {
+    try {
+      await currentGame.leaveRoom(currentPlayer);
+      console.log('✅ ワードウルフルーム自動退出');
+    } catch (error) {
+      console.error('❌ 自動退出エラー:', error);
+    }
+  }
+  
+  // デマーシアゲームから退出
+  if (currentDemaciaGame && currentPlayer && currentRoomId) {
+    try {
+      await currentDemaciaGame.leaveRoom(currentPlayer);
+      console.log('✅ デマーシアルーム自動退出');
+    } catch (error) {
+      console.error('❌ 自動退出エラー:', error);
+    }
+  }
+});
+```
+
+#### void-main.js - ヴォイド
+```javascript
+window.addEventListener('beforeunload', async (event) => {
+  if (currentVoidGame && currentVoidPlayer && currentVoidRoomId) {
+    try {
+      await currentVoidGame.leaveRoom(currentVoidPlayer);
+      console.log('✅ ヴォイドルーム自動退出');
+    } catch (error) {
+      console.error('❌ ヴォイド自動退出エラー:', error);
+    }
+  }
+});
+```
+
+### 2. Firebase onDisconnect（ネットワーク切断時）
+
+Firebase の `onDisconnect()` 機能を使用して、ネットワーク接続が切れた時に自動的にプレイヤーデータを削除します。
+
+#### main.js
+```javascript
+function setupFirebaseDisconnect() {
+  const connectedRef = firebase.database().ref('.info/connected');
+  
+  connectedRef.on('value', (snapshot) => {
+    if (snapshot.val() === true) {
+      // ワードウルフ
+      if (currentGame && currentPlayer && currentRoomId) {
+        const playerRef = firebase.database().ref(`rooms/${currentRoomId}/players/${currentPlayer}`);
+        const playerOrderRef = firebase.database().ref(`rooms/${currentRoomId}/playerOrder`);
+        
+        playerRef.onDisconnect().remove();
+        
+        playerOrderRef.once('value').then((orderSnapshot) => {
+          const playerOrder = orderSnapshot.val() || [];
+          const newOrder = playerOrder.filter(name => name !== currentPlayer);
+          playerOrderRef.onDisconnect().set(newOrder);
+        });
+      }
+      
+      // デマーシア
+      if (currentDemaciaGame && currentPlayer && currentRoomId) {
+        const playerRef = firebase.database().ref(`demacia_rooms/${currentRoomId}/players/${currentPlayer}`);
+        playerRef.onDisconnect().remove();
+      }
+    }
+  });
+}
+```
+
+#### void-main.js
+```javascript
+function setupVoidFirebaseDisconnect() {
+  const connectedRef = firebase.database().ref('.info/connected');
+  
+  connectedRef.on('value', (snapshot) => {
+    if (snapshot.val() === true && currentVoidGame && currentVoidPlayer && currentVoidRoomId) {
+      const playerRef = firebase.database().ref(`void_rooms/${currentVoidRoomId}/players/${currentVoidPlayer}`);
+      const playerOrderRef = firebase.database().ref(`void_rooms/${currentVoidRoomId}/playerOrder`);
+      
+      playerRef.onDisconnect().remove();
+      
+      playerOrderRef.once('value').then((orderSnapshot) => {
+        const playerOrder = orderSnapshot.val() || [];
+        const newOrder = playerOrder.filter(name => name !== currentVoidPlayer);
+        playerOrderRef.onDisconnect().set(newOrder);
+      });
+    }
+  });
+}
+```
+
+### 3. ルーム作成・参加時に自動退出設定を有効化
+
+#### ワードウルフ・デマーシア（main.js）
+```javascript
+// ルーム作成時
+if (success) {
+  showWaitingRoom();
+  currentGame.watch(updateWaitingRoom);
+  setupFirebaseDisconnect();  // ✅ 追加
+}
+
+// ルーム参加時
+await currentGame.joinRoom(playerName);
+showWaitingRoom();
+currentGame.watch(updateWaitingRoom);
+setupFirebaseDisconnect();  // ✅ 追加
+```
+
+#### ヴォイド（void-main.js）
+```javascript
+// ルーム作成時
+currentVoidGame.watchRoom(onVoidRoomUpdate);
+setupVoidFirebaseDisconnect();  // ✅ 追加
+
+// ルーム参加時
+currentVoidGame.watchRoom(onVoidRoomUpdate);
+setupVoidFirebaseDisconnect();  // ✅ 追加
+```
+
+## 📊 動作シナリオ
+
+### シナリオ1: ブラウザ/タブを閉じる
+```
+1. プレイヤーがルームに参加
+2. ブラウザ/タブを閉じる
+3. beforeunload イベント発火
+4. leaveRoom() が自動実行
+5. Firebaseからプレイヤーデータ削除 ✅
+6. 他のプレイヤーの画面からリアルタイムで消える ✅
+```
+
+### シナリオ2: ネットワーク接続が切れる
+```
+1. プレイヤーがルームに参加
+2. setupFirebaseDisconnect() でonDisconnect設定
+3. WiFiがオフ / 機内モードなど
+4. Firebaseが切断を検知
+5. onDisconnect() が自動実行
+6. プレイヤーデータが自動削除 ✅
+7. 他のプレイヤーの画面からリアルタイムで消える ✅
+```
+
+### シナリオ3: ブラウザクラッシュ
+```
+1. プレイヤーがルームに参加
+2. setupFirebaseDisconnect() でonDisconnect設定
+3. ブラウザがクラッシュ
+4. Firebaseが接続切断を検知（約30秒後）
+5. onDisconnect() が自動実行
+6. プレイヤーデータが自動削除 ✅
+```
+
+## 🔧 変更ファイル
+- `js/main.js` (+75行、自動退出機能追加、v34→v35)
+- `js/void-main.js` (+44行、自動退出機能追加、v37→v38)
+- `index.html` (バージョン更新)
+- `AUTO_LEAVE_ON_CLOSE_v35.md` (このドキュメント)
+
+## 🧪 テスト手順
+
+### テスト1: タブを閉じる
+1. ルームを作成・参加（2人推奨）
+2. プレイヤーAのコンソールを開く（F12）
+3. プレイヤーBのタブを閉じる
+4. **期待される動作**:
+   - プレイヤーBのコンソール: `✅ ワードウルフルーム自動退出`（一瞬表示）
+   - プレイヤーAの画面: プレイヤーBがリストから消える
+   - 人数表示: 2人 → 1人に減少
+
+### テスト2: ブラウザを閉じる
+1. ルームを作成・参加（2人推奨）
+2. プレイヤーBのブラウザウィンドウ全体を閉じる
+3. **期待される動作**:
+   - プレイヤーAの画面: プレイヤーBがリストから消える
+   - 人数表示: 2人 → 1人に減少
+
+### テスト3: ネットワーク切断（Chrome DevTools）
+1. ルームを作成・参加（2人推奨）
+2. プレイヤーBのブラウザでF12 → Network タブ
+3. 「Offline」を選択
+4. 約30秒待つ
+5. **期待される動作**:
+   - プレイヤーAの画面: プレイヤーBがリストから消える（約30秒後）
+   - コンソール: `🔒 ワードウルフ onDisconnect 設定完了`
+
+### テスト4: 機内モード（モバイル）
+1. スマホでルームに参加
+2. 機内モードをON
+3. 約30秒待つ
+4. PCの画面を確認
+5. **期待される動作**:
+   - スマホプレイヤーがリストから消える（約30秒後）
+
+### テスト5: リロード（退出しない確認）
+1. ルームを作成・参加
+2. F5キーでリロード
+3. **期待される動作**:
+   - ❌ 退出してはいけない（beforeunloadは発火するが、すぐに再接続）
+   - リロード後も同じルームに残っている
+
+## 📝 技術詳細
+
+### beforeunload の制限
+- **非同期処理の制限**: `beforeunload` では `await` が正しく動作しない場合があります
+- **ブラウザによる違い**: Chrome/Firefox/Safariで動作が異なる可能性
+- **タイムアウト**: 約1秒以内に処理を完了する必要
+
+### onDisconnect の仕組み
+Firebase Realtime Database の `onDisconnect()` は、サーバー側で管理されます：
+
+1. クライアントが接続時に `onDisconnect().remove()` を設定
+2. Firebaseサーバーがこの命令を記憶
+3. クライアントが切断（ハートビート途絶）
+4. サーバーが自動的に `remove()` を実行
+
+**メリット**:
+- クライアント側の処理不要
+- 確実に実行される（サーバー側）
+- ネットワーク切断にも対応
+
+**検出時間**:
+- 通常: 約30秒
+- ハートビート間隔: 30秒
+- タイムアウト: 60秒
+
+### playerOrder の更新
+`onDisconnect()` では配列の要素削除ができないため、以下の方法を使用：
+
+```javascript
+playerOrderRef.once('value').then((orderSnapshot) => {
+  const playerOrder = orderSnapshot.val() || [];
+  const newOrder = playerOrder.filter(name => name !== currentPlayer);
+  playerOrderRef.onDisconnect().set(newOrder);  // 新しい配列をセット
+});
+```
+
+## 🎯 修正効果
+
+### Before
+- ❌ ブラウザ/タブを閉じてもルームに残る
+- ❌ ゴーストプレイヤーが表示され続ける
+- ❌ ルームが満員になって新規参加不可
+- ❌ 手動で退出ボタンを押す必要
+
+### After
+- ✅ ブラウザ/タブを閉じると自動退出
+- ✅ ネットワーク切断でも自動退出（約30秒後）
+- ✅ プレイヤーリストがリアルタイム更新
+- ✅ ルーム枠が自動的に空く
+- ✅ 手間なく退出できる
+
+## ⚠️ 注意事項
+
+### リロード時の動作
+- F5やCtrl+Rでリロードすると `beforeunload` が発火しますが、すぐに再接続するため問題ありません
+- `onDisconnect()` も新しい接続で再設定されます
+
+### 同時接続の制限
+- 同じプレイヤー名で複数のタブ/デバイスから参加すると、最後の接続のみが有効になります
+
+### タイムラグ
+- `onDisconnect()` による削除は約30秒のタイムラグがあります
+- `beforeunload` は即座に実行されますが、ブラウザやネットワーク状況により失敗する可能性があります
 
 ---
-
-## 📋 ブログ記事テンプレート
-
-新しい記事を追加するときは、以下のテンプレートをコピーして使ってください：
-
-```html
-<!-- 新しい投稿 -->
-<div class="blog-post">
-    <div class="post-header">
-        <h2 class="post-title">
-            🎮 記事のタイトルをここに書く
-            <span class="update-badge">NEW</span>
-        </h2>
-        <div class="post-meta">
-            <span>📅 2026年2月22日</span>
-            <span>👤 開発者</span>
-            <span class="post-tag">アップデート</span>
-            <span class="post-tag">機能追加</span>
-        </div>
-    </div>
-    <div class="post-content">
-        <p>
-            記事の導入文をここに書きます。何についての記事かを簡潔に説明してください。
-        </p>
-
-        <h3>📊 見出し1</h3>
-        <p>本文の内容をここに書きます。</p>
-        <ul>
-            <li>箇条書き項目1</li>
-            <li>箇条書き項目2</li>
-            <li>箇条書き項目3</li>
-        </ul>
-
-        <h3>💡 見出し2</h3>
-        <p>
-            別のセクションの内容をここに書きます。
-        </p>
-
-        <h3>🎯 まとめ</h3>
-        <p>
-            記事のまとめや、ユーザーへのメッセージをここに書きます。
-        </p>
-    </div>
-</div>
-```
-
----
-
-## 🔧 記事を追加する手順
-
-### ステップ1: blog.htmlを開く
-
-テキストエディタで `blog.html` を開きます。
-
-### ステップ2: 挿入位置を探す
-
-ファイル内で以下を検索：
-```html
-<!-- 最新の投稿 -->
-```
-
-この行の**直後**に新しい記事を挿入します（最新の記事が一番上に来るように）。
-
-### ステップ3: テンプレートをコピー＆ペースト
-
-上記のテンプレートをコピーして、「<!-- 最新の投稿 -->」の直後に貼り付けます。
-
-### ステップ4: 内容を編集
-
-#### タイトルの変更
-```html
-<h2 class="post-title">
-    🎮 新機能追加：ランキングシステム実装！
-    <span class="update-badge">NEW</span>
-</h2>
-```
-
-絵文字のアイデア：
-- 🌟 重要なお知らせ
-- 🎮 新機能
-- 🐛 バグ修正
-- 💡 Tips・攻略
-- 📢 お知らせ
-- 🎉 リリース
-- ⚙️ 技術的な話
-
-#### 日付とタグの変更
-```html
-<div class="post-meta">
-    <span>📅 2026年2月25日</span>  <!-- ← 今日の日付 -->
-    <span>👤 開発者</span>
-    <span class="post-tag">新機能</span>  <!-- ← カテゴリー1 -->
-    <span class="post-tag">ランキング</span>  <!-- ← カテゴリー2 -->
-</div>
-```
-
-タグの例：
-- アップデート
-- バグ修正
-- 新機能
-- お知らせ
-- 攻略
-- Tips
-- イベント
-- メンテナンス
-
-#### 本文の編集
-```html
-<div class="post-content">
-    <p>
-        あなたの記事の内容をここに書きます。
-    </p>
-    <!-- 見出しや箇条書きを自由に追加 -->
-</div>
-```
-
-### ステップ5: NEWバッジの管理
-
-最新の記事にだけ `<span class="update-badge">NEW</span>` を残し、古い記事からは削除してください。
-
-```html
-<!-- 最新記事 -->
-<h2 class="post-title">
-    🎮 新しい記事
-    <span class="update-badge">NEW</span>  <!-- ← これを残す -->
-</h2>
-
-<!-- 古い記事 -->
-<h2 class="post-title">
-    🐛 前の記事
-    <!-- NEWバッジを削除 -->
-</h2>
-```
-
-### ステップ6: 保存してデプロイ
-
-1. `blog.html` を保存
-2. ローカルでブラウザで開いて確認
-3. 問題なければGitHubにプッシュしてデプロイ
-
----
-
-## 📝 実例：記事追加の完全な例
-
-### 例1: 新機能のお知らせ
-
-```html
-<!-- 新しい投稿 -->
-<div class="blog-post">
-    <div class="post-header">
-        <h2 class="post-title">
-            🎉 新モード「チャンピオンバトル」追加！
-            <span class="update-badge">NEW</span>
-        </h2>
-        <div class="post-meta">
-            <span>📅 2026年2月28日</span>
-            <span>👤 開発者</span>
-            <span class="post-tag">新機能</span>
-            <span class="post-tag">ゲームモード</span>
-        </div>
-    </div>
-    <div class="post-content">
-        <p>
-            お待たせしました！新しいゲームモード「チャンピオンバトル」を追加しました。
-        </p>
-
-        <h3>🎮 どんなゲーム？</h3>
-        <ul>
-            <li>2チームに分かれてチャンピオンの知識を競う</li>
-            <li>3〜8人でプレイ可能</li>
-            <li>LoLとVALORANTに対応</li>
-        </ul>
-
-        <h3>🎯 遊んでみてください！</h3>
-        <p>
-            モード選択画面から「チャンピオンバトル」を選んでね！
-        </p>
-    </div>
-</div>
-```
-
-### 例2: バグ修正のお知らせ
-
-```html
-<!-- 新しい投稿 -->
-<div class="blog-post">
-    <div class="post-header">
-        <h2 class="post-title">
-            🐛 投票画面のバグを修正しました
-            <span class="update-badge">NEW</span>
-        </h2>
-        <div class="post-meta">
-            <span>📅 2026年3月1日</span>
-            <span>👤 開発者</span>
-            <span class="post-tag">バグ修正</span>
-        </div>
-    </div>
-    <div class="post-content">
-        <p>
-            投票画面で票が正しく集計されない問題を修正しました。
-        </p>
-
-        <h3>✅ 修正内容</h3>
-        <ul>
-            <li>投票結果の集計ロジック修正</li>
-            <li>同点の場合の処理を改善</li>
-            <li>投票画面のUIを微調整</li>
-        </ul>
-
-        <p>
-            ご報告いただいた皆様、ありがとうございました！
-        </p>
-    </div>
-</div>
-```
-
-### 例3: Tips・攻略記事
-
-```html
-<!-- 新しい投稿 -->
-<div class="blog-post">
-    <div class="post-header">
-        <h2 class="post-title">
-            💡 ワードウルフで勝つための5つのコツ
-        </h2>
-        <div class="post-meta">
-            <span>📅 2026年3月5日</span>
-            <span>👤 開発者</span>
-            <span class="post-tag">攻略</span>
-            <span class="post-tag">Tips</span>
-        </div>
-    </div>
-    <div class="post-content">
-        <p>
-            ワードウルフで勝率を上げるための実践的なコツを紹介します！
-        </p>
-
-        <h3>🎯 市民のコツ</h3>
-        <ul>
-            <li>質問は具体的に、でも答えは曖昧に</li>
-            <li>早めに怪しい人をマークする</li>
-            <li>他の市民と情報を共有する</li>
-        </ul>
-
-        <h3>🐺 ウルフのコツ</h3>
-        <ul>
-            <li>最初は聞き役に徹する</li>
-            <li>市民のお題を推測してから発言</li>
-            <li>疑われたら堂々と振る舞う</li>
-        </ul>
-
-        <h3>🎮 ぜひ試してみてね！</h3>
-        <p>
-            これらのコツを使って、もっとゲームを楽しんでください！
-        </p>
-    </div>
-</div>
-```
-
----
-
-## 🎨 使える装飾要素
-
-### 箇条書き（ul）
-```html
-<ul>
-    <li>項目1</li>
-    <li>項目2</li>
-    <li>項目3</li>
-</ul>
-```
-
-### 番号付きリスト（ol）
-```html
-<ol>
-    <li>ステップ1</li>
-    <li>ステップ2</li>
-    <li>ステップ3</li>
-</ol>
-```
-
-### 強調（太字）
-```html
-<strong>重要な部分</strong>を強調できます
-```
-
-### コード表示
-```html
-<code>変数名</code>のように表示されます
-```
-
-### リンク
-```html
-<a href="index.html" style="color: var(--primary-color);">ゲームページ</a>
-```
-
----
-
-## ✅ チェックリスト
-
-新しい記事を追加する前に、以下を確認してください：
-
-- [ ] タイトルは分かりやすいか？
-- [ ] 日付は正しいか？
-- [ ] タグは適切か？
-- [ ] 最新記事にだけNEWバッジがついているか？
-- [ ] 絵文字は適切か？
-- [ ] 誤字脱字はないか？
-- [ ] ローカルでブラウザ表示を確認したか？
-
----
-
-## 💡 投稿のアイデア
-
-### 定期的に投稿できる内容
-- **アップデート情報**: 新機能、バグ修正
-- **攻略Tips**: 各ゲームモードの戦略
-- **統計情報**: 人気のお題、プレイ回数など
-- **お知らせ**: メンテナンス、イベント
-- **開発秘話**: 機能実装の裏側
-- **ユーザー紹介**: 面白かったプレイ事例
-- **FAQ更新**: よくある質問の追加
-
-### 投稿頻度の目安
-- **理想**: 週1回（毎週金曜日など）
-- **最低**: 月2回（月初と月末など）
-- **大型アップデート時**: 即座に投稿
-
----
-
-## 🚨 注意点
-
-1. **HTMLタグを閉じ忘れないように**
-   - 開始タグ `<div>` には必ず終了タグ `</div>` が必要
-
-2. **古い記事を残す**
-   - 新しい記事を追加するとき、古い記事は削除せず残しておく
-   - 記事の履歴がSEOにも有利
-
-3. **日付を間違えない**
-   - 投稿日は正確に記載
-
-4. **テスト必須**
-   - 必ずローカルでブラウザ確認してからデプロイ
-
----
-
-## 📚 まとめ
-
-1. ✅ テンプレートをコピー
-2. ✅ タイトル、日付、タグを編集
-3. ✅ 本文を書く
-4. ✅ NEWバッジを管理
-5. ✅ 保存してデプロイ
-
-これで簡単にブログを更新できます！🎉
-
----
-
-**作成日**: 2026年2月22日  
-**バージョン**: 1.0  
-**関連ファイル**: `blog.html`
+**修正日**: 2026-02-17  
+**バージョン**: main.js v35, void-main.js v38  
+**関連ファイル**: `js/main.js`, `js/void-main.js`, `index.html`  
+**ステータス**: ✅ 修正完了

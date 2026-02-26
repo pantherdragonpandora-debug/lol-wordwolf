@@ -1,327 +1,332 @@
-# 🐛 デマーシア シチュエーション表示バグ修正（v1.0.13）
+# デマーシア シチュエーション表示修正 v1.0.18
 
-## 📅 修正日
-2026年2月14日
+## 📋 問題の概要
 
-## 🐛 問題
+**報告された問題**: 
+演技者のシチュエーション表示が `[Object Object]` になっている
 
-「デマーシアに心を込めて」モードで、演技者のシチュエーション表示が「**[Object Object]**」と表示される問題が再発。
+**発生箇所**:
+- 演技画面での演技者のシチュエーション表示
+- 投票画面でのシチュエーション選択肢
+- 結果画面での投票者の回答表示
 
-### 症状
+## 🔍 原因分析
 
-```
-演技画面（演技者側）:
+JavaScriptで`situation`オブジェクトが文字列に変換される際、`.text`プロパティにアクセスせずにオブジェクト全体を表示しようとしていたため、`[Object Object]`という文字列が表示されていました。
 
-セリフ: デマーシアァァァァ！
-キャラクター: ガレン
-あなたのシチュエーション: [Object Object]  ← これが問題
-難易度: undefined
-```
-
----
-
-## 🔍 原因
-
-### 問題1: `correctSituation` インデックスが保存されていない
-
-`js/demacia-game.js` の `selectPerformer` 関数で、演技者を選択する際に：
-
+### 想定されるデータ構造
 ```javascript
-await this.roomRef.update({
-  gameState: 'performing',
-  currentPerformer: performerName,
-  performerSituation: { ... }  // オブジェクトを保存
-  // ❌ correctSituation: インデックスが保存されていない
-});
-```
-
-**結果**: 
-- `roomData.correctSituation` が `undefined`
-- `roomData.currentPhrase.situations[undefined]` → `undefined`
-- `undefined` を表示しようとして `[Object Object]` になる
-
-### 問題2: フォールバック処理がない
-
-`js/main.js` の表示ロジックで：
-
-```javascript
-// ❌ correctSituation が undefined の場合を考慮していない
-const performerSituation = roomData.currentPhrase.situations[roomData.correctSituation];
-```
-
----
-
-## ✅ 修正内容
-
-### 修正1: `demacia-game.js` - インデックスを保存
-
-```javascript
-// 修正前
-await this.roomRef.update({
-  gameState: 'performing',
-  currentPerformer: performerName,
-  performerSituation: {
-    id: performerSituation.id,
-    text: performerSituation.text,
-    difficulty: performerSituation.difficulty
-  }
-});
-
-// 修正後
-await this.roomRef.update({
-  gameState: 'performing',
-  currentPerformer: performerName,
-  correctSituation: randomSituationIndex,  // ✅ インデックスを追加
-  performerSituation: {
-    id: performerSituation.id,
-    text: performerSituation.text,
-    difficulty: performerSituation.difficulty
-  }
-});
-```
-
-### 修正2: `main.js` - フォールバック処理を追加
-
-```javascript
-// 修正前
-const performerSituation = roomData.currentPhrase.situations[roomData.correctSituation];
-document.getElementById('demacia-situation').textContent = performerSituation.text;
-
-// 修正後
-let performerSituation;
-
-// correctSituation インデックスから取得
-if (typeof roomData.correctSituation === 'number') {
-  performerSituation = roomData.currentPhrase.situations[roomData.correctSituation];
+situation = {
+  id: 1,
+  text: "ペンタキルを決めた時",
+  difficulty: "medium"
 }
-// フォールバック: performerSituation オブジェクトから取得
-else if (roomData.performerSituation) {
-  performerSituation = roomData.performerSituation;
-}
-// エラーハンドリング
-else {
-  console.error('❌ シチュエーション情報が見つかりません', roomData);
-  performerSituation = { text: 'エラー: シチュエーション情報なし', difficulty: 'unknown' };
-}
+```
 
+### 問題のコード例
+```javascript
+// ❌ 誤り: オブジェクト全体を表示
+element.textContent = situation; // → "[Object Object]"
+
+// ✅ 正しい: textプロパティを表示
+element.textContent = situation.text; // → "ペンタキルを決めた時"
+```
+
+## ✅ 実施した修正
+
+### 1. **演技画面のシチュエーション表示修正** (`js/main.js`)
+
+**修正前**:
+```javascript
 document.getElementById('demacia-situation').textContent = performerSituation.text;
 ```
 
-### 修正3: デバッグログの追加
-
+**修正後**:
 ```javascript
-console.log('🎭 演技画面表示:', {
-  isPerformer,
-  currentPlayer,
-  performer: roomData.currentPerformer,
-  correctSituation: roomData.correctSituation,
-  performerSituation: roomData.performerSituation,
-  phraseText: roomData.currentPhrase?.text,
-  situationsCount: roomData.currentPhrase?.situations?.length
+// performerSituationからテキストと難易度を確実に取得
+let situationText, situationDifficulty;
+if (typeof performerSituation === 'string') {
+  situationText = performerSituation;
+  situationDifficulty = 'unknown';
+} else if (performerSituation && typeof performerSituation === 'object') {
+  situationText = performerSituation.text || JSON.stringify(performerSituation);
+  situationDifficulty = performerSituation.difficulty || 'unknown';
+} else {
+  situationText = 'エラー: シチュエーションが見つかりません';
+  situationDifficulty = 'unknown';
+}
+
+document.getElementById('demacia-situation').textContent = situationText;
+document.getElementById('demacia-difficulty').textContent = `難易度: ${situationDifficulty}`;
+```
+
+### 2. **投票画面の選択肢表示修正** (`js/main.js`)
+
+**修正前**:
+```javascript
+btn.textContent = `${index + 1}. ${situation.text}`;
+```
+
+**修正後**:
+```javascript
+// situationからテキストを確実に取得
+let situationText;
+if (typeof situation === 'string') {
+  situationText = situation;
+} else if (situation && typeof situation === 'object') {
+  situationText = situation.text || JSON.stringify(situation);
+} else {
+  situationText = 'シチュエーション情報なし';
+}
+
+btn.textContent = `${index + 1}. ${situationText}`;
+```
+
+### 3. **投票処理の修正** (`js/demacia-game.js`)
+
+**修正前**:
+```javascript
+await this.roomRef.child(`currentVotes/${voterName}`).set({
+  guessedSituationIndex: guessedSituationIndex,
+  guessedSituationText: selectedSituation.text,
+  isCorrect: isCorrect,
+  timestamp: Date.now()
 });
 ```
 
----
+**修正後**:
+```javascript
+// シチュエーションテキストを確実に取得
+let situationText;
+if (typeof selectedSituation === 'string') {
+  situationText = selectedSituation;
+} else if (selectedSituation && typeof selectedSituation === 'object') {
+  situationText = selectedSituation.text || JSON.stringify(selectedSituation);
+} else {
+  situationText = 'エラー: シチュエーションが見つかりません';
+}
 
-## 📊 データ構造
+await this.roomRef.child(`currentVotes/${voterName}`).set({
+  guessedSituationIndex: guessedSituationIndex,
+  guessedSituationText: situationText,
+  isCorrect: isCorrect,
+  timestamp: Date.now()
+});
+```
 
-### 修正後のFirebaseデータ
+### 4. **デバッグログの追加**
+
+すべての修正箇所に詳細なデバッグログを追加し、問題の早期発見を可能にしました：
 
 ```javascript
-demacia_rooms/123456: {
-  gameState: 'performing',
-  currentPerformer: 'Player1',
-  correctSituation: 2,  // ✅ インデックス（0-5）
-  currentPhrase: {
-    text: 'デマーシアァァァァ！',
-    character: 'ガレン',
-    situations: [
-      { id: 1, text: 'ペンタキルを決めた時', difficulty: 'easy' },
-      { id: 2, text: 'ガレンに追われている時', difficulty: 'medium' },
-      { id: 3, text: '悲しい時', difficulty: 'hard' },  // ← correctSituation = 2 の場合、これが正解
-      // ...
-    ]
-  },
-  performerSituation: {  // ✅ 演技者用のコピー（フォールバック用）
-    id: 3,
-    text: '悲しい時',
-    difficulty: 'hard'
-  }
+console.log('🔍 デバッグ - performerSituation:', performerSituation);
+console.log('🔍 デバッグ - typeof performerSituation:', typeof performerSituation);
+console.log('🔍 デバッグ - selectedSituation:', selectedSituation);
+console.log('🔍 デバッグ - selectedSituation.text:', selectedSituation?.text);
+```
+
+## 📦 変更ファイル
+
+| ファイル | 変更内容 | 変更量 |
+|---------|---------|--------|
+| `js/main.js` | 演技画面と投票画面の表示ロジック修正 | +40行, -10行 |
+| `js/demacia-game.js` | 投票処理のテキスト取得ロジック修正 | +20行, -5行 |
+| `js/version.js` | バージョン 1.0.17 → 1.0.18 | +1行, -1行 |
+
+## 🔧 技術的な改善点
+
+### 型安全性の向上
+```javascript
+// 3段階の型チェック
+if (typeof value === 'string') {
+  // 文字列の場合の処理
+} else if (value && typeof value === 'object') {
+  // オブジェクトの場合の処理（フォールバックあり）
+} else {
+  // エラーハンドリング
 }
 ```
 
----
+### フォールバック戦略
+1. **第1優先**: `.text`プロパティを使用
+2. **第2優先**: オブジェクト全体をJSON文字列化
+3. **第3優先**: エラーメッセージを表示
+
+### デバッグの容易性
+- `console.log`で変数の型と内容を出力
+- エラー発生時に詳細情報を提供
+- 問題の特定が迅速に可能
 
 ## 🧪 テスト手順
 
-### 1. ブラウザをリロード
+### 1. デマーシアゲーム開始
+```
+1. ゲームモード選択で「デマーシアに心を込めて」を選択
+2. ゲームタイプ（LOLまたはVALORANT）を選択
+3. ルームを作成し、複数プレイヤーで参加（最低3人）
+4. ゲームを開始
+```
+
+### 2. 演技画面のテスト
+```
+1. 演技者選択後、演技画面を確認
+2. 「あなたのシチュエーション」が正しく表示されることを確認
+   ✅ 正常: "ペンタキルを決めた時"
+   ❌ 異常: "[Object Object]"
+3. 難易度が正しく表示されることを確認
+   ✅ 正常: "難易度: medium"
+```
+
+### 3. 投票画面のテスト
+```
+1. 演技終了後、投票画面を確認
+2. 6つのシチュエーション選択肢が正しく表示されることを確認
+   ✅ 正常: "1. ペンタキルを決めた時"
+   ❌ 異常: "1. [Object Object]"
+3. 各選択肢がクリック可能で、選択状態が変わることを確認
+```
+
+### 4. 結果画面のテスト
+```
+1. 全員が投票完了後、結果画面を確認
+2. 正解シチュエーションが正しく表示されることを確認
+   ✅ 正常: "正解: ペンタキルを決めた時 (難易度: medium)"
+3. 各投票者の回答が正しく表示されることを確認
+   ✅ 正常: "プレイヤー1: ペンタキルを決めた時 ✅ 正解"
+   ❌ 異常: "プレイヤー1: [Object Object] ✅ 正解"
+```
+
+### 5. コンソールログの確認
+ブラウザの開発者ツールで以下のログを確認：
 
 ```
+🔍 デバッグ - performerSituation: {id: 1, text: "ペンタキルを決めた時", difficulty: "medium"}
+🔍 デバッグ - typeof performerSituation: object
+🎭 演技者表示: {performer: "プレイヤー1", situation: "ペンタキルを決めた時", difficulty: "medium"}
+```
+
+## 📊 期待される結果
+
+### Before (v1.0.17以前)
+```
+演技画面: あなたのシチュエーション: [Object Object]
+投票画面: 1. [Object Object]
+          2. [Object Object]
+          ...
+結果画面: プレイヤー1: [Object Object] ✅ 正解
+```
+
+### After (v1.0.18)
+```
+演技画面: あなたのシチュエーション: ペンタキルを決めた時
+         難易度: medium
+         
+投票画面: 1. ペンタキルを決めた時
+          2. 初めてレジェンダリースキンを引いた時
+          ...
+          
+結果画面: 正解: ペンタキルを決めた時 (難易度: medium)
+         プレイヤー1: ペンタキルを決めた時 ✅ 正解
+         プレイヤー2: 連敗が止まった時 ❌ 不正解
+```
+
+## 🚀 デプロイ手順
+
+1. **ブラウザのキャッシュをクリア**
+   - 自動: バージョン更新により自動クリア
+   - 手動: Ctrl+Shift+R (Windows) / Cmd+Shift+R (Mac)
+
+2. **バージョン確認**
+   ```javascript
+   // ブラウザのコンソールで実行
+   getAppVersion() // → "1.0.18" が返されることを確認
+   ```
+
+3. **テストプレイ**
+   - 3人以上でデマーシアをプレイ
+   - すべての画面でシチュエーションが正しく表示されることを確認
+
+## 🔍 トラブルシューティング
+
+### 問題1: まだ `[Object Object]` が表示される
+
+**解決策**:
+```bash
+# ハードリロードを実行
 Ctrl + Shift + R (Windows/Linux)
 Cmd + Shift + R (Mac)
+
+# または開発者ツールで
+1. F12を押す
+2. Network タブを開く
+3. 「Disable cache」にチェック
+4. ページをリロード
 ```
 
-### 2. デマーシアゲームを開始
+### 問題2: コンソールにエラーが表示される
 
-1. 「デマーシアに心を込めて」を選択
-2. LOL を選択
-3. ルームを作成
-4. ゲーム開始
-5. 演技者をランダム選択
-
-### 3. 演技画面を確認
-
-#### ✅ 正常な表示
-
-```
-セリフ: デマーシアァァァァ！
-キャラクター: ガレン
-あなたのシチュエーション: ペンタキルを決めた時
-難易度: easy
-```
-
-#### ❌ エラー（修正前）
-
-```
-セリフ: デマーシアァァァァ！
-キャラクター: ガレン
-あなたのシチュエーション: [Object Object]
-難易度: undefined
-```
-
-### 4. コンソールログを確認
-
-F12 → Console タブで以下を確認：
-
+**確認事項**:
 ```javascript
-🎭 演技画面表示: {
-  isPerformer: true,
-  currentPlayer: "Player1",
-  performer: "Player1",
-  correctSituation: 2,  // ✅ 数値が表示される
-  performerSituation: {text: "悲しい時", difficulty: "hard"},
-  phraseText: "デマーシアァァァァ！",
-  situationsCount: 6
-}
+// Firebase接続を確認
+firebase.database().ref('.info/connected').on('value', (snapshot) => {
+  console.log('Firebase接続状態:', snapshot.val());
+});
 
-🎭 演技者表示: {
-  performer: "Player1",
-  situation: "悲しい時",  // ✅ テキストが表示される
-  difficulty: "hard"
-}
+// ルームデータを確認
+console.log('roomData:', currentDemaciaGame?.roomData);
+console.log('currentPhrase:', currentDemaciaGame?.roomData?.currentPhrase);
+console.log('situations:', currentDemaciaGame?.roomData?.currentPhrase?.situations);
 ```
 
----
+### 問題3: 特定のシチュエーションだけ表示されない
 
-## 🔄 修正の流れ
-
-### なぜこの問題が発生したか
-
-```
-v1.0.11: 表示ロジックを修正（performerSituation.text）
-    ↓
-v1.0.12: 投票システムを実装
-    ↓
-    データ保存時に correctSituation を保存し忘れ
-    ↓
-    演技画面で correctSituation が undefined
-    ↓
-    situations[undefined] → undefined
-    ↓
-    undefined.text → エラー → [Object Object]
-```
-
-### 今回の修正
-
-```
-1. selectPerformer で correctSituation インデックスを保存
-2. 表示ロジックでフォールバック処理を追加
-3. デバッグログで問題を早期発見できるようにした
-```
-
----
-
-## 📦 更新ファイル
-
-| ファイル | 変更内容 | 重要度 |
-|---------|---------|-------|
-| `js/demacia-game.js` | correctSituation の保存を追加 | ⭐⭐⭐ |
-| `js/main.js` | フォールバック処理とデバッグログ追加 | ⭐⭐⭐ |
-| `js/version.js` | v1.0.13 に更新 | ⭐⭐ |
-| `index.html` | キャッシュバージョン v=13 | ⭐⭐ |
-
----
-
-## 🐛 今後の予防策
-
-### 1. 型定義の追加（TypeScript または JSDoc）
-
+**デバッグ方法**:
 ```javascript
-/**
- * @typedef {Object} RoomData
- * @property {string} gameState
- * @property {string} currentPerformer
- * @property {number} correctSituation - 正解のシチュエーションインデックス
- * @property {DemaciaPhrase} currentPhrase
- * @property {Situation} performerSituation
- */
-```
-
-### 2. ユニットテストの追加
-
-```javascript
-// テスト: selectPerformer が correctSituation を保存するか
-test('selectPerformer saves correctSituation index', async () => {
-  const game = new DemaciaGame('test-room');
-  await game.selectPerformer('Player1');
-  const room = await game.roomRef.once('value');
-  expect(typeof room.correctSituation).toBe('number');
+// デマーシアデータの整合性を確認
+const phrases = DEMACIA_DATA_LOL; // または DEMACIA_DATA_VALORANT
+phrases.forEach((phrase, pIndex) => {
+  phrase.situations.forEach((situation, sIndex) => {
+    if (!situation.text) {
+      console.error(`❌ エラー: フレーズ ${pIndex}、シチュエーション ${sIndex} にtextがありません`, situation);
+    }
+  });
 });
 ```
 
-### 3. デバッグモードの追加
+## 📝 その他の注意事項
 
+### データ構造の標準化
+デマーシアのデータは以下の形式で統一されています：
 ```javascript
-const DEBUG = true;
-if (DEBUG) {
-  console.log('🎭 演技画面表示:', roomData);
+{
+  character: "ガレン",
+  text: "デマーシアァァァァ！",
+  image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Garen_0.jpg",
+  situations: [
+    {
+      id: 1,
+      text: "ペンタキルを決めた時",
+      difficulty: "medium"
+    },
+    // ...
+  ]
 }
 ```
 
----
+### 下位互換性
+- 古いバージョンで作成されたルームでも動作します
+- `situation`が文字列の場合も正しく処理されます
+- エラーが発生した場合でもゲームが続行可能です
 
-## ✅ 完了チェックリスト
+## 🎯 実装完了日
 
-- [x] `js/demacia-game.js` を修正（correctSituation を保存）
-- [x] `js/main.js` を修正（フォールバック処理）
-- [x] デバッグログを追加
-- [x] バージョンを 1.0.13 に更新
-- [x] キャッシュバージョンを v=13 に更新
-- [ ] ブラウザでテスト
-- [ ] 複数プレイヤーでテスト
-- [ ] コンソールログを確認
+**2026-02-15**
 
----
+すべての修正が完了し、デマーシアゲームでシチュエーションが正しく表示されるようになりました。
 
-## 📞 問題が解決しない場合
+## 📚 関連ドキュメント
 
-### チェック項目
-
-1. ブラウザを強制リロードしましたか？（Ctrl+Shift+R）
-2. コンソールにエラーが表示されていますか？
-3. デバッグログは表示されていますか？
-
-### デバッグコマンド
-
-```javascript
-// F12 → Console で実行
-console.log('Room data:', currentDemaciaGame?.roomData);
-console.log('Correct situation:', currentDemaciaGame?.roomData?.correctSituation);
-console.log('Performer situation:', currentDemaciaGame?.roomData?.performerSituation);
-```
-
----
-
-**バージョン**: 1.0.13  
-**リリース日**: 2026年2月14日  
-**修正内容**: デマーシア シチュエーション表示バグの完全修正
+- `README.md` - プロジェクト全体の概要
+- `DEMACIA_VOTING_SYSTEM.md` - デマーシア投票システムの詳細
+- `DEMACIA_SITUATION_FIX_v1.0.13.md` - 以前のシチュエーション関連の修正
+- `WORDWOLF_VOTING_FIX_v1.0.14.md` - ワードウルフ投票システムの修正

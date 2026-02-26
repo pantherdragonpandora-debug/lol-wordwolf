@@ -3,575 +3,328 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ブログ管理画面 - Esports ワードウルフ</title>
+    <meta name="description" content="Esportsワードウルフの開発ブログ。最新アップデート情報、開発秘話、ゲーム攻略のヒントなど、作成者からの投稿をお届けします。">
+    <title>ブログ・開発者ノート - Esports ワードウルフ</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
-        .admin-container {
-            max-width: 900px;
+        .blog-container {
+            max-width: 1000px;
             margin: 0 auto;
             padding: var(--spacing-lg);
         }
-        .login-screen {
+        .blog-header {
             background: var(--card-bg);
             border-radius: 12px;
             padding: var(--spacing-xl);
-            max-width: 400px;
-            margin: 100px auto;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            margin-bottom: var(--spacing-lg);
             text-align: center;
-        }
-        .login-screen h1 {
-            color: var(--primary-color);
-            margin-bottom: var(--spacing-lg);
-        }
-        .login-form {
-            display: flex;
-            flex-direction: column;
-            gap: var(--spacing-md);
-        }
-        .login-form input {
-            padding: var(--spacing-sm);
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--text-color);
-            font-size: 1rem;
-        }
-        .login-form button {
-            padding: var(--spacing-sm) var(--spacing-md);
-            background: var(--primary-color);
-            color: var(--bg-dark);
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .login-form button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        }
-        .error-message {
-            color: #e74c3c;
-            margin-top: var(--spacing-sm);
-            font-size: 0.9rem;
-        }
-        .admin-header {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: var(--spacing-lg);
-            margin-bottom: var(--spacing-lg);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .admin-header h1 {
-            color: var(--primary-color);
-            margin: 0;
-        }
-        .logout-btn {
-            padding: var(--spacing-sm) var(--spacing-md);
-            background: #e74c3c;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .logout-btn:hover {
-            background: #c0392b;
-        }
-        .editor-card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: var(--spacing-xl);
-            margin-bottom: var(--spacing-lg);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
-        .editor-card h2 {
+        .blog-header h1 {
             color: var(--primary-color);
             margin-bottom: var(--spacing-md);
         }
-        .form-group {
-            margin-bottom: var(--spacing-md);
+        .blog-header p {
+            color: var(--text-light);
+            font-size: 1.1rem;
         }
-        .form-group label {
-            display: block;
-            color: var(--text-color);
-            margin-bottom: var(--spacing-sm);
-            font-weight: 600;
-        }
-        .form-group input,
-        .form-group textarea,
-        .form-group select {
-            width: 100%;
-            padding: var(--spacing-sm);
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--text-color);
-            font-size: 1rem;
-            font-family: inherit;
-        }
-        .form-group textarea {
-            min-height: 200px;
-            resize: vertical;
-        }
-        .tag-input-container {
+        .social-links {
             display: flex;
-            gap: var(--spacing-sm);
+            justify-content: center;
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-md);
         }
-        .tag-input-container input {
-            flex: 1;
-        }
-        .tags-display {
-            display: flex;
-            flex-wrap: wrap;
-            gap: var(--spacing-sm);
-            margin-top: var(--spacing-sm);
-        }
-        .tag-item {
+        .social-link {
             display: inline-flex;
             align-items: center;
+            gap: 8px;
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--text-color);
+            transition: all 0.3s;
+        }
+        .social-link:hover {
+            background: var(--primary-color);
+            transform: translateY(-2px);
+        }
+        .social-link .icon {
+            font-size: 1.5rem;
+        }
+        .blog-post {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-lg);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        .post-header {
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+        }
+        .post-title {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            margin-bottom: var(--spacing-sm);
+        }
+        .post-meta {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            display: flex;
+            gap: var(--spacing-md);
+            flex-wrap: wrap;
+        }
+        .post-meta span {
+            display: flex;
+            align-items: center;
             gap: 4px;
+        }
+        .post-tag {
+            display: inline-block;
             padding: 4px 12px;
             background: rgba(52, 152, 219, 0.2);
             border-radius: 16px;
             font-size: 0.85rem;
             color: var(--primary-color);
         }
-        .tag-item button {
-            background: none;
-            border: none;
-            color: var(--primary-color);
-            cursor: pointer;
-            font-size: 1.2rem;
-            padding: 0;
-            margin-left: 4px;
+        .post-content {
+            line-height: 1.8;
+            color: var(--text-light);
         }
-        .emoji-selector {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
-            gap: 8px;
-            margin-top: var(--spacing-sm);
-            padding: var(--spacing-sm);
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 8px;
-        }
-        .emoji-btn {
-            font-size: 1.5rem;
-            padding: 8px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid transparent;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .emoji-btn:hover {
-            background: var(--primary-color);
-            border-color: var(--primary-color);
-            transform: scale(1.1);
-        }
-        .action-buttons {
-            display: flex;
-            gap: var(--spacing-md);
+        .post-content h3 {
+            color: var(--accent-color);
             margin-top: var(--spacing-lg);
-        }
-        .action-buttons button {
-            flex: 1;
-            padding: var(--spacing-md);
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .btn-preview {
-            background: #3498db;
-            color: white;
-        }
-        .btn-preview:hover {
-            background: #2980b9;
-        }
-        .btn-generate {
-            background: var(--primary-color);
-            color: var(--bg-dark);
-        }
-        .btn-generate:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        }
-        .output-card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: var(--spacing-xl);
-            margin-top: var(--spacing-lg);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        }
-        .output-card h2 {
-            color: var(--primary-color);
             margin-bottom: var(--spacing-md);
         }
-        .code-output {
-            background: #1a1a2e;
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
-            padding: var(--spacing-md);
-            overflow-x: auto;
-            position: relative;
+        .post-content ul, .post-content ol {
+            margin-left: var(--spacing-lg);
         }
-        .code-output pre {
-            margin: 0;
-            color: #d4d4d4;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
-            line-height: 1.6;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }
-        .copy-btn {
-            position: absolute;
-            top: var(--spacing-sm);
-            right: var(--spacing-sm);
-            padding: 8px 16px;
-            background: var(--primary-color);
-            color: var(--bg-dark);
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: bold;
-        }
-        .copy-btn:hover {
-            opacity: 0.8;
-        }
-        .preview-card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: var(--spacing-xl);
-            margin-top: var(--spacing-lg);
-        }
-        .instructions {
-            background: rgba(52, 152, 219, 0.1);
-            border-left: 4px solid var(--primary-color);
-            padding: var(--spacing-md);
-            margin-top: var(--spacing-lg);
-            border-radius: 4px;
-        }
-        .instructions h3 {
-            color: var(--primary-color);
-            margin-top: 0;
-        }
-        .instructions ol {
-            margin: var(--spacing-sm) 0 0 var(--spacing-lg);
-        }
-        .instructions li {
+        .post-content li {
             margin-bottom: var(--spacing-sm);
-            color: var(--text-light);
+        }
+        .update-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #e74c3c;
+            color: white;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-left: var(--spacing-sm);
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: var(--spacing-lg);
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
         }
     </style>
 </head>
 <body>
-    <!-- ログイン画面 -->
-    <div id="login-screen" class="login-screen">
-        <h1>🔐 ブログ管理画面</h1>
-        <form class="login-form" onsubmit="login(event)">
-            <input type="password" id="password-input" placeholder="パスワードを入力" required>
-            <button type="submit">ログイン</button>
-            <div id="error-message" class="error-message" style="display: none;"></div>
-        </form>
-        <p style="margin-top: var(--spacing-lg); color: var(--text-light); font-size: 0.9rem;">
-            ⚠️ このページは管理者専用です
-        </p>
-    </div>
-
-    <!-- 管理画面 -->
-    <div id="admin-panel" style="display: none;">
-        <div class="admin-container">
-            <div class="admin-header">
-                <h1>📝 ブログ記事作成</h1>
-                <button class="logout-btn" onclick="logout()">ログアウト</button>
-            </div>
-
-            <div class="editor-card">
-                <h2>記事情報</h2>
-                
-                <div class="form-group">
-                    <label>📌 タイトルの絵文字</label>
-                    <div class="emoji-selector">
-                        <button type="button" class="emoji-btn" onclick="selectEmoji('🌟')">🌟</button>
-                        <button type="button" class="emoji-btn" onclick="selectEmoji('🎮')">🎮</button>
-                        <button type="button" class="emoji-btn" onclick="selectEmoji('🐛')">🐛</button>
-                        <button type="button" class="emoji-btn" onclick="selectEmoji('💡')">💡</button>
-                        <button type="button" class="emoji-btn" onclick="selectEmoji('📢')">📢</button>
-                        <button type="button" class="emoji-btn" onclick="selectEmoji('🎉')">🎉</button>
-                        <button type="button" class="emoji-btn" onclick="selectEmoji('⚙️')">⚙️</button>
-                        <button type="button" class="emoji-btn" onclick="selectEmoji('🎭')">🎭</button>
-                        <button type="button" class="emoji-btn" onclick="selectEmoji('🔥')">🔥</button>
-                        <button type="button" class="emoji-btn" onclick="selectEmoji('✨')">✨</button>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>📝 記事タイトル</label>
-                    <input type="text" id="post-title" placeholder="例: 新機能追加！ランキングシステム実装" required>
-                </div>
-
-                <div class="form-group">
-                    <label>📅 投稿日</label>
-                    <input type="date" id="post-date" required>
-                </div>
-
-                <div class="form-group">
-                    <label>🏷️ タグ</label>
-                    <div class="tag-input-container">
-                        <input type="text" id="tag-input" placeholder="タグを入力してEnter">
-                        <button type="button" onclick="addTag()" style="padding: 8px 16px; background: var(--primary-color); border: none; border-radius: 8px; cursor: pointer; color: var(--bg-dark); font-weight: bold;">追加</button>
-                    </div>
-                    <div id="tags-display" class="tags-display"></div>
-                    <p style="font-size: 0.85rem; color: var(--text-light); margin-top: 4px;">
-                        おすすめ: アップデート、バグ修正、新機能、お知らせ、攻略、Tips
-                    </p>
-                </div>
-
-                <div class="form-group">
-                    <label>✍️ 記事本文（HTML形式）</label>
-                    <textarea id="post-content" placeholder="<p>記事の内容をここに書きます。</p>
-
-<h3>📊 見出し1</h3>
-<p>本文...</p>
-<ul>
-    <li>項目1</li>
-    <li>項目2</li>
-</ul>
-
-<h3>💡 見出し2</h3>
-<p>本文...</p>" required></textarea>
-                    <p style="font-size: 0.85rem; color: var(--text-light); margin-top: 4px;">
-                        💡 HTMLタグが使えます: &lt;p&gt;, &lt;h3&gt;, &lt;ul&gt;, &lt;li&gt;, &lt;strong&gt;, &lt;code&gt;
-                    </p>
-                </div>
-
-                <div class="form-group">
-                    <label>
-                        <input type="checkbox" id="is-new" checked style="width: auto; margin-right: 8px;">
-                        NEWバッジを表示
-                    </label>
-                </div>
-
-                <div class="action-buttons">
-                    <button type="button" class="btn-preview" onclick="previewPost()">👁️ プレビュー</button>
-                    <button type="button" class="btn-generate" onclick="generateCode()">📋 HTMLコード生成</button>
-                </div>
-            </div>
-
-            <!-- プレビュー -->
-            <div id="preview-section" style="display: none;">
-                <div class="preview-card">
-                    <h2>👁️ プレビュー</h2>
-                    <div id="preview-content"></div>
-                </div>
-            </div>
-
-            <!-- 生成されたコード -->
-            <div id="output-section" style="display: none;">
-                <div class="output-card">
-                    <h2>📋 生成されたHTMLコード</h2>
-                    <div class="code-output">
-                        <button class="copy-btn" onclick="copyCode()">📋 コピー</button>
-                        <pre id="generated-code"></pre>
-                    </div>
-                    
-                    <div class="instructions">
-                        <h3>📝 使い方</h3>
-                        <ol>
-                            <li>「📋 コピー」ボタンをクリック</li>
-                            <li><code>blog.html</code> をテキストエディタで開く</li>
-                            <li><code>&lt;!-- 最新の投稿 --&gt;</code> の直後に貼り付け</li>
-                            <li>古い記事の <code>&lt;span class="update-badge"&gt;NEW&lt;/span&gt;</code> を削除</li>
-                            <li>ファイルを保存してデプロイ</li>
-                        </ol>
-                    </div>
-                </div>
-            </div>
+    <!-- ナビゲーションメニュー -->
+    <nav class="main-nav" style="margin-bottom: var(--spacing-lg);">
+        <div class="nav-content">
+            <a href="index.html" class="nav-link">🎮 ゲーム</a>
+            <a href="games.html" class="nav-link">📖 ゲーム紹介</a>
+            <a href="how-to-play.html" class="nav-link">❓ 遊び方</a>
+            <a href="blog.html" class="nav-link">✍️ ブログ</a>
+            <a href="faq.html" class="nav-link">💬 FAQ</a>
+            <a href="contact.html" class="nav-link">📧 お問い合わせ</a>
         </div>
-    </div>
+    </nav>
 
-    <script>
-        // パスワード設定（ここを変更してください）
-        const ADMIN_PASSWORD = 'your_secure_password_here';
-        
-        let selectedEmoji = '🎮';
-        let tags = [];
-
-        // ページ読み込み時に日付を今日に設定
-        window.onload = function() {
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('post-date').value = today;
+    <div class="blog-container">
+        <div class="blog-header">
+            <h1>📝 ブログ・開発者ノート</h1>
+            <p>最新アップデート情報、開発秘話、ゲーム攻略のヒントなど、<br>作成者からの投稿をお届けします。</p>
             
-            // タグ入力でEnterキーを押したら追加
-            document.getElementById('tag-input').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    addTag();
-                }
-            });
-        };
+            <div class="social-links">
+                <a href="https://x.com/pan_doratalk" target="_blank" class="social-link" rel="noopener noreferrer">
+                    <span class="icon">𝕏</span>
+                    <span>Xでフォロー</span>
+                </a>
+            </div>
+            <p style="margin-top: var(--spacing-md); font-size: 0.9rem; color: var(--text-light);">
+                📧 お問い合わせは <a href="https://x.com/pan_doratalk" target="_blank" style="color: var(--primary-color); text-decoration: none;">XのDM</a> でお願いします
+            </p>
+        </div>
 
-        function login(event) {
-            event.preventDefault();
-            const password = document.getElementById('password-input').value;
-            const errorMessage = document.getElementById('error-message');
-            
-            if (password === ADMIN_PASSWORD) {
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('admin-panel').style.display = 'block';
-                sessionStorage.setItem('admin_logged_in', 'true');
-            } else {
-                errorMessage.textContent = '❌ パスワードが間違っています';
-                errorMessage.style.display = 'block';
-                setTimeout(() => {
-                    errorMessage.style.display = 'none';
-                }, 3000);
-            }
-        }
-
-        function logout() {
-            sessionStorage.removeItem('admin_logged_in');
-            document.getElementById('login-screen').style.display = 'block';
-            document.getElementById('admin-panel').style.display = 'none';
-            document.getElementById('password-input').value = '';
-        }
-
-        // ページロード時にログイン状態を確認
-        if (sessionStorage.getItem('admin_logged_in') === 'true') {
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('admin-panel').style.display = 'block';
-        }
-
-        function selectEmoji(emoji) {
-            selectedEmoji = emoji;
-            // 選択された絵文字を視覚的に表示
-            document.querySelectorAll('.emoji-btn').forEach(btn => {
-                btn.style.background = 'rgba(255, 255, 255, 0.05)';
-            });
-            event.target.style.background = 'var(--primary-color)';
-        }
-
-        function addTag() {
-            const tagInput = document.getElementById('tag-input');
-            const tagText = tagInput.value.trim();
-            
-            if (tagText && !tags.includes(tagText)) {
-                tags.push(tagText);
-                updateTagsDisplay();
-                tagInput.value = '';
-            }
-        }
-
-        function removeTag(tag) {
-            tags = tags.filter(t => t !== tag);
-            updateTagsDisplay();
-        }
-
-        function updateTagsDisplay() {
-            const container = document.getElementById('tags-display');
-            container.innerHTML = tags.map(tag => `
-                <span class="tag-item">
-                    ${tag}
-                    <button onclick="removeTag('${tag}')">×</button>
-                </span>
-            `).join('');
-        }
-
-        function formatDate(dateStr) {
-            const date = new Date(dateStr);
-            const year = date.getFullYear();
-            const month = date.getMonth() + 1;
-            const day = date.getDate();
-            return `${year}年${month}月${day}日`;
-        }
-
-        function previewPost() {
-            const title = document.getElementById('post-title').value;
-            const date = document.getElementById('post-date').value;
-            const content = document.getElementById('post-content').value;
-            const isNew = document.getElementById('is-new').checked;
-            
-            if (!title || !date || !content) {
-                alert('すべての必須項目を入力してください');
-                return;
-            }
-
-            const preview = `
-                <div class="blog-post" style="background: var(--card-bg); border-radius: 12px; padding: var(--spacing-xl); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);">
-                    <div class="post-header" style="border-bottom: 2px solid rgba(255, 255, 255, 0.1); padding-bottom: var(--spacing-md); margin-bottom: var(--spacing-md);">
-                        <h2 class="post-title" style="color: var(--primary-color); font-size: 1.8rem; margin-bottom: var(--spacing-sm);">
-                            ${selectedEmoji} ${title}
-                            ${isNew ? '<span class="update-badge" style="display: inline-block; padding: 4px 12px; background: #e74c3c; color: white; border-radius: 4px; font-size: 0.85rem; font-weight: bold; margin-left: var(--spacing-sm);">NEW</span>' : ''}
-                        </h2>
-                        <div class="post-meta" style="color: var(--text-light); font-size: 0.9rem; display: flex; gap: var(--spacing-md); flex-wrap: wrap;">
-                            <span style="display: flex; align-items: center; gap: 4px;">📅 ${formatDate(date)}</span>
-                            <span style="display: flex; align-items: center; gap: 4px;">👤 開発者</span>
-                            ${tags.map(tag => `<span class="post-tag" style="display: inline-block; padding: 4px 12px; background: rgba(52, 152, 219, 0.2); border-radius: 16px; font-size: 0.85rem; color: var(--primary-color);">${tag}</span>`).join('')}
-                        </div>
-                    </div>
-                    <div class="post-content" style="line-height: 1.8; color: var(--text-light);">
-                        ${content}
-                    </div>
-                </div>
-            `;
-            
-            document.getElementById('preview-content').innerHTML = preview;
-            document.getElementById('preview-section').style.display = 'block';
-            document.getElementById('preview-section').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function generateCode() {
-            const title = document.getElementById('post-title').value;
-            const date = document.getElementById('post-date').value;
-            const content = document.getElementById('post-content').value;
-            const isNew = document.getElementById('is-new').checked;
-            
-            if (!title || !date || !content) {
-                alert('すべての必須項目を入力してください');
-                return;
-            }
-
-            const code = `        <!-- 新しい投稿 -->
+        <!-- 最新の投稿 -->
         <div class="blog-post">
             <div class="post-header">
                 <h2 class="post-title">
-                    ${selectedEmoji} ${title}${isNew ? '\n                    <span class="update-badge">NEW</span>' : ''}
+                    🌟 気分診断v9アップデート：全172体から最適なチャンピオンを選出！
+                    <span class="update-badge">NEW</span>
                 </h2>
                 <div class="post-meta">
-                    <span>📅 ${formatDate(date)}</span>
-                    <span>👤 開発者</span>${tags.length > 0 ? '\n                    ' + tags.map(tag => `<span class="post-tag">${tag}</span>`).join('\n                    ') : ''}
+                    <span>📅 2026年2月21日</span>
+                    <span>👤 開発者</span>
+                    <span class="post-tag">アップデート</span>
+                    <span class="post-tag">気分診断</span>
                 </div>
             </div>
             <div class="post-content">
-                ${content.split('\n').join('\n                ')}
+                <p>
+                    気分診断機能が大幅にパワーアップ！v9では、診断結果のタイプに関係なく、<strong>全172体のチャンピオンがスコアリングの対象</strong>になりました。
+                </p>
+
+                <h3>📊 何が変わったの？</h3>
+                <ul>
+                    <li><strong>Before:</strong> 診断結果タイプの約40体だけが候補</li>
+                    <li><strong>After:</strong> 全172体が候補に！タイプ一致ボーナスで診断結果も尊重</li>
+                    <li>意外な発見も：MIDガングプランク、SUPリサンドラなど</li>
+                </ul>
+
+                <h3>🎯 試してみてください！</h3>
+                <p>
+                    完全リロード（Ctrl+Shift+R）してから気分診断を始めると、以前と違う結果が出るかも！
+                </p>
             </div>
-        </div>`;
+        </div>
 
-            document.getElementById('generated-code').textContent = code;
-            document.getElementById('output-section').style.display = 'block';
-            document.getElementById('output-section').scrollIntoView({ behavior: 'smooth' });
-        }
+        <!-- 2つ目の投稿 -->
+        <div class="blog-post">
+            <div class="post-header">
+                <h2 class="post-title">🐛 気分診断のロード問題を完全修正（v8）</h2>
+                <div class="post-meta">
+                    <span>📅 2026年2月21日</span>
+                    <span>👤 開発者</span>
+                    <span class="post-tag">バグ修正</span>
+                </div>
+            </div>
+            <div class="post-content">
+                <p>
+                    「診断を始める」ボタンが動かないバグを修正しました。JavaScriptの構文エラーが原因でした。
+                </p>
 
-        function copyCode() {
-            const code = document.getElementById('generated-code').textContent;
-            navigator.clipboard.writeText(code).then(() => {
-                const btn = document.querySelector('.copy-btn');
-                const originalText = btn.textContent;
-                btn.textContent = '✅ コピーしました！';
-                setTimeout(() => {
-                    btn.textContent = originalText;
-                }, 2000);
-            });
-        }
-    </script>
+                <h3>✅ 修正内容</h3>
+                <ul>
+                    <li>構文エラーの修正</li>
+                    <li>関数の正しい登録</li>
+                    <li>デバッグログの追加</li>
+                </ul>
+
+                <p>
+                    報告してくださった方、ありがとうございました！
+                </p>
+            </div>
+        </div>
+
+        <!-- 3つ目の投稿 -->
+        <div class="blog-post">
+            <div class="post-header">
+                <h2 class="post-title">🎭 4つのゲームモード、それぞれの魅力</h2>
+                <div class="post-meta">
+                    <span>📅 2026年2月20日</span>
+                    <span>👤 開発者</span>
+                    <span class="post-tag">ゲーム紹介</span>
+                </div>
+            </div>
+            <div class="post-content">
+                <p>
+                    Esportsワードウルフには4つのゲームモードがあります。それぞれ異なる魅力があるので、紹介させてください。
+                </p>
+
+                <h3>🐺 ワードウルフ - 王道の推理ゲーム</h3>
+                <p>
+                    最も人気のあるモードです。人狼ゲームのようなスリルと、ゲーム知識を活かした推理が楽しめます。「このチャンピオン、メレーかレンジか？」という微妙な質問が戦略のカギです。
+                </p>
+
+                <h3>💖 デマーシアに心を込めて - 爆笑必至の演技ゲーム</h3>
+                <p>
+                    個人的に最も笑えるモードです。「デマーシア！」を恋人への告白風に演じる、なんてシチュエーションは本当に面白い。カメラONでプレイすることを強くおすすめします！
+                </p>
+
+                <h3>🌌 ヴォイド - 言葉のセンスが光る</h3>
+                <p>
+                    最も頭を使うモードです。「どうすれば次の人に伝わるか」を考えるのが楽しい。修正機能も戦略的に使うと、意外な逆転劇が生まれます。
+                </p>
+
+                <h3>🎭 気分診断 - ソロでもOK</h3>
+                <p>
+                    1人でサクッと診断できるのが魅力。「今日はどのチャンピオンを使おう？」と迷ったとき、この診断がヒントをくれます。v9アップデートで、さらに精度が上がりました！
+                </p>
+            </div>
+        </div>
+
+        <!-- 4つ目の投稿 -->
+        <div class="blog-post">
+            <div class="post-header">
+                <h2 class="post-title">💡 ワードウルフで勝つための5つのコツ</h2>
+                <div class="post-meta">
+                    <span>📅 2026年2月18日</span>
+                    <span>👤 開発者</span>
+                    <span class="post-tag">攻略</span>
+                    <span class="post-tag">ワードウルフ</span>
+                </div>
+            </div>
+            <div class="post-content">
+                <h3>🎯 市民側のコツ</h3>
+                <ol>
+                    <li><strong>序盤は広い質問、後半は絞り込む</strong><br>
+                    最初から具体的すぎる質問はNG。「レーンは？」→「ダメージタイプは？」→「スキルの特徴は？」と徐々に絞り込みましょう。</li>
+                    
+                    <li><strong>他の人の回答をメモする</strong><br>
+                    矛盾がないかチェック。ウルフは他の人の回答に合わせようとするので、微妙なズレが出ます。</li>
+                    
+                    <li><strong>あえて曖昧な質問をする</strong><br>
+                    「使いやすいですか？」のような主観的な質問は、ウルフが答えづらい。</li>
+                </ol>
+
+                <h3>🐺 ウルフ側のコツ</h3>
+                <ol>
+                    <li><strong>多数派の会話から推測する</strong><br>
+                    最初の2-3問で、だいたいのカテゴリーが分かります。そこから自分のお題と比較。</li>
+                    
+                    <li><strong>時には積極的に話す</strong><br>
+                    黙っていると怪しまれます。逆に、誰かを怪しむ側に回ると疑いをそらせます。</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- 5つ目の投稿 -->
+        <div class="blog-post">
+            <div class="post-header">
+                <h2 class="post-title">🚀 このサイトの誕生秘話</h2>
+                <div class="post-meta">
+                    <span>📅 2026年2月15日</span>
+                    <span>👤 開発者</span>
+                    <span class="post-tag">開発秘話</span>
+                </div>
+            </div>
+            <div class="post-content">
+                <p>
+                    このサイトは、League of Legendsが大好きな友達とオンラインで遊ぶために作りました。コロナ禍で会えなくなった友達と、どうにかしてLoLの話題で盛り上がりたい...そんな思いからスタートしたプロジェクトです。
+                </p>
+
+                <h3>📈 進化の歴史</h3>
+                <ul>
+                    <li><strong>v1.0:</strong> ワードウルフのみ、LOLのみ</li>
+                    <li><strong>v1.5:</strong> VALORANT対応追加</li>
+                    <li><strong>v2.0:</strong> デマーシアモード追加</li>
+                    <li><strong>v3.0:</strong> ヴォイドモード追加</li>
+                    <li><strong>v4.0:</strong> 気分診断追加</li>
+                    <li><strong>v5.0:</strong> 気分診断マルチレーン対応</li>
+                    <li><strong>v9.0:</strong> 全172体対応（NEW！）</li>
+                </ul>
+
+                <h3>🎯 これからの展開</h3>
+                <p>
+                    今後も新しいゲームモードやテーマを追加していく予定です。Apex LegendsやOverwatch 2にも対応したい！要望があればぜひ<a href="contact.html" style="color: var(--primary-color);">お問い合わせ</a>ください。
+                </p>
+
+                <p>
+                    最後に、このサイトを遊んでくれているすべての皆さん、本当にありがとうございます！これからも改善を続けていきますので、末永くよろしくお願いします。
+                </p>
+            </div>
+        </div>
+
+        <a href="index.html" class="back-link">← ゲームを始める</a>
+    </div>
 </body>
 </html>
