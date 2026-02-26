@@ -1,454 +1,194 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Esportsワードウルフの各ゲームモードの詳しい遊び方を解説。ワードウルフ、デマーシア、ヴォイド、気分診断の攻略ガイド。">
-    <title>遊び方ガイド - Esports ワードウルフ</title>
-    <link rel="stylesheet" href="css/style.css">
-    <style>
-        .guide-container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: var(--spacing-lg);
-        }
-        .guide-nav {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: var(--spacing-md);
-            margin-bottom: var(--spacing-lg);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        }
-        .guide-nav h2 {
-            color: var(--primary-color);
-            margin-bottom: var(--spacing-md);
-        }
-        .guide-nav-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: var(--spacing-md);
-        }
-        .guide-nav-item {
-            background: rgba(255, 255, 255, 0.05);
-            padding: var(--spacing-md);
-            border-radius: 8px;
-            text-align: center;
-            text-decoration: none;
-            color: var(--text-color);
-            transition: all 0.3s;
-        }
-        .guide-nav-item:hover {
-            background: var(--primary-color);
-            transform: translateY(-2px);
-        }
-        .guide-nav-item .icon {
-            font-size: 2rem;
-            margin-bottom: var(--spacing-sm);
-        }
-        .game-guide {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: var(--spacing-lg);
-            margin-bottom: var(--spacing-lg);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        }
-        .game-guide h2 {
-            color: var(--primary-color);
-            border-bottom: 2px solid var(--primary-color);
-            padding-bottom: var(--spacing-sm);
-            margin-bottom: var(--spacing-md);
-            font-size: 1.8rem;
-        }
-        .game-guide h3 {
-            color: var(--accent-color);
-            margin-top: var(--spacing-lg);
-            margin-bottom: var(--spacing-md);
-        }
-        .step-list {
-            counter-reset: step-counter;
-            list-style: none;
-            padding: 0;
-        }
-        .step-list li {
-            counter-increment: step-counter;
-            position: relative;
-            padding-left: 50px;
-            margin-bottom: var(--spacing-md);
-            line-height: 1.6;
-        }
-        .step-list li::before {
-            content: counter(step-counter);
-            position: absolute;
-            left: 0;
-            top: 0;
-            background: var(--primary-color);
-            color: white;
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
-        .tip-box {
-            background: rgba(52, 152, 219, 0.1);
-            border-left: 4px solid var(--primary-color);
-            padding: var(--spacing-md);
-            margin: var(--spacing-md) 0;
-            border-radius: 4px;
-        }
-        .tip-box h4 {
-            color: var(--primary-color);
-            margin-top: 0;
-        }
-        .warning-box {
-            background: rgba(231, 76, 60, 0.1);
-            border-left: 4px solid #e74c3c;
-            padding: var(--spacing-md);
-            margin: var(--spacing-md) 0;
-            border-radius: 4px;
-        }
-        .warning-box h4 {
-            color: #e74c3c;
-            margin-top: 0;
-        }
-        .back-link {
-            display: inline-block;
-            margin-top: var(--spacing-lg);
-            padding: var(--spacing-sm) var(--spacing-md);
-            background: var(--primary-color);
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            transition: background 0.3s;
-        }
-        .back-link:hover {
-            background: var(--accent-color);
-        }
-    </style>
-</head>
-<body>
-    <!-- ナビゲーションメニュー -->
-    <nav class="main-nav" style="margin-bottom: var(--spacing-lg);">
-        <div class="nav-content">
-            <a href="index.html" class="nav-link">🎮 ゲーム</a>
-            <a href="games.html" class="nav-link">📖 ゲーム紹介</a>
-            <a href="how-to-play.html" class="nav-link">❓ 遊び方</a>
-            <a href="blog.html" class="nav-link">✍️ ブログ</a>
-            <a href="faq.html" class="nav-link">💬 FAQ</a>
-            <a href="contact.html" class="nav-link">📧 お問い合わせ</a>
-        </div>
-    </nav>
+# 📋 v1.0.14 実装サマリー
 
-    <div class="guide-container">
-        <h1 style="text-align: center; color: var(--primary-color); margin-bottom: var(--spacing-lg);">
-            🎮 遊び方ガイド
-        </h1>
+## ✅ 実装完了 - ワードウルフ投票システム全面改善
 
-        <div class="guide-nav">
-            <h2>ゲームを選択</h2>
-            <div class="guide-nav-grid">
-                <a href="#wordwolf" class="guide-nav-item">
-                    <div class="icon">🐺</div>
-                    <div>ワードウルフ</div>
-                </a>
-                <a href="#demacia" class="guide-nav-item">
-                    <div class="icon">💖</div>
-                    <div>デマーシアに心を込めて</div>
-                </a>
-                <a href="#void" class="guide-nav-item">
-                    <div class="icon">🌌</div>
-                    <div>ヴォイドに届くは光か闇か</div>
-                </a>
-                <a href="#mood-quiz" class="guide-nav-item">
-                    <div class="icon">🎭</div>
-                    <div>気分診断</div>
-                </a>
-            </div>
-        </div>
+### 🎯 目的
+**問題:** ワードウルフで誰か一人が投票した瞬間に結果が表示され、他のプレイヤーが投票できない
 
-        <!-- ワードウルフガイド -->
-        <div id="wordwolf" class="game-guide">
-            <h2>🐺 ワードウルフ - 完全ガイド</h2>
-            
-            <h3>📖 ゲームの概要</h3>
-            <p>ワードウルフは、参加者の中に隠れた「ウルフ（少数派）」を見つけ出すコミュニケーションゲームです。多数派は同じお題を、ウルフは少し違うお題を受け取ります。会話を通じて誰がウルフかを推理し、投票で決定します。</p>
+**解決:** 全員の投票完了を待ってから結果を表示するシステムを実装
 
-            <h3>👥 プレイ人数と時間</h3>
-            <ul>
-                <li><strong>推奨人数:</strong> 3〜6人</li>
-                <li><strong>プレイ時間:</strong> 1ラウンド 5〜15分</li>
-                <li><strong>対応ゲーム:</strong> League of Legends、VALORANT、TFT</li>
-            </ul>
+---
 
-            <h3>🎯 遊び方</h3>
-            <ol class="step-list">
-                <li><strong>ルーム作成</strong><br>
-                ホストがゲームタイプ（LOL/VALORANT/TFT）とプレイ人数を選択してルームを作成します。ルームIDが発行されるので、友達に共有しましょう。</li>
-                
-                <li><strong>参加者を集める</strong><br>
-                友達はルームIDを入力して参加します。全員が揃ったらホストが「ゲーム開始」ボタンを押します。</li>
-                
-                <li><strong>お題を確認</strong><br>
-                各プレイヤーに異なるお題が表示されます。多数派は同じお題、ウルフは似ているけど違うお題を受け取ります。お題は絶対に口に出してはいけません！</li>
-                
-                <li><strong>討論タイム</strong><br>
-                制限時間内（デフォルト10分）に、お互いに質問し合ってウルフを見つけます。「それって赤いですか？」「どのレーンで使いますか？」など、お題を特定されない程度にヒントを出し合います。</li>
-                
-                <li><strong>投票</strong><br>
-                討論終了後、誰がウルフだと思うか投票します。最多票を獲得したプレイヤーがウルフかどうか判明します。</li>
-                
-                <li><strong>結果発表</strong><br>
-                ウルフが誰だったか、お題が何だったかが公開されます。市民側はウルフを当てれば勝利、ウルフは最後まで正体を隠せば勝利です。</li>
-            </ol>
+## 🔧 主要な変更
 
-            <h3>💡 勝つためのコツ</h3>
-            <div class="tip-box">
-                <h4>🎯 市民側（多数派）の戦略</h4>
-                <ul>
-                    <li>具体的すぎる質問は避ける（ウルフにお題がバレる）</li>
-                    <li>他の人の回答をよく聞く（矛盾がないか）</li>
-                    <li>序盤は広い質問、後半は絞り込む質問をする</li>
-                    <li>あえて曖昧な答えをする人は怪しい</li>
-                </ul>
-            </div>
+### 1. 投票完了の自動検知 ✨
+- Firebaseリアルタイム監視で全員の投票状況を追跡
+- 全員投票完了時のみ自動で結果集計・画面遷移
+- デマーシアモードと同じ仕組みを採用
 
-            <div class="tip-box">
-                <h4>🐺 ウルフ側の戦略</h4>
-                <ul>
-                    <li>多数派の会話をよく聞いて、お題を推測する</li>
-                    <li>具体的な答えを避け、曖昧に返答する</li>
-                    <li>他の人と同じような表現を使う</li>
-                    <li>逆に誰かを怪しんで話題をそらす</li>
-                </ul>
-            </div>
+### 2. 投票状況のリアルタイム表示 📊
+```
+2 / 5 人が投票完了
+```
+- 何人が投票完了したかリアルタイムで表示
+- プレイヤーの待機ストレス軽減
 
-            <h3>⚠️ よくある失敗</h3>
-            <div class="warning-box">
-                <h4>これをやると負けます！</h4>
-                <ul>
-                    <li>❌ お題の名前を直接言ってしまう</li>
-                    <li>❌ 最初から決めつけて投票する</li>
-                    <li>❌ 全く発言しない（怪しまれる）</li>
-                    <li>❌ ウルフが諦めて認めてしまう</li>
-                </ul>
-            </div>
+### 3. 投票後のUI制御 🔒
+- **投票前:** ボタン有効「投票確定」
+- **投票後:** ボタン無効「投票完了」
+- ラジオボタンも無効化され、二重投票を防止
+- 「他のプレイヤーの投票を待っています...」アラート表示
 
-            <h3>📝 お題の例</h3>
-            <p><strong>League of Legends:</strong></p>
-            <ul>
-                <li>市民のお題: 「ヤスオ」 / ウルフのお題: 「ヨネ」（兄弟チャンピオン）</li>
-                <li>市民のお題: 「トリニティフォース」 / ウルフのお題: 「ブラッククリーバー」（似た効果のアイテム）</li>
-                <li>市民のお題: 「フラッシュ」 / ウルフのお題: 「テレポート」（サモナースペル）</li>
-            </ul>
-        </div>
+### 4. 詳細な投票結果表示 📈
+```
+各プレイヤーの投票:
+  Player1 → Player3  (青: 市民)
+  Player2 → Player3  (青: 市民)
+  Player3 → Player1  (赤: ウルフ)
+  Player4 → Player3  (青: 市民)
 
-        <!-- デマーシアガイド -->
-        <div id="demacia" class="game-guide">
-            <h2>💖 デマーシアに心を込めて - 完全ガイド</h2>
-            
-            <h3>📖 ゲームの概要</h3>
-            <p>「デマーシアに心を込めて」は、有名なゲームキャラクターのセリフを、指定されたシチュエーションで演じて当ててもらうゲームです。演技力と推理力が試される、笑いありのパーティーゲームです。</p>
+投票数:
+  Player3: 3 票
+  Player1: 1 票
+```
+- 各プレイヤーが誰に投票したか表示
+- ウルフは赤色、市民は青色で色分け
+- 投票数の集計結果も表示
 
-            <h3>👥 プレイ人数と時間</h3>
-            <ul>
-                <li><strong>推奨人数:</strong> 3〜10人</li>
-                <li><strong>プレイ時間:</strong> 1ラウンド 3〜5分</li>
-                <li><strong>対応ゲーム:</strong> League of Legends、VALORANT</li>
-            </ul>
+---
 
-            <h3>🎯 遊び方</h3>
-            <ol class="step-list">
-                <li><strong>ルーム作成と参加</strong><br>
-                ホストがルームを作成し、参加者を集めます。最低3人から遊べますが、5人以上いると盛り上がります。</li>
-                
-                <li><strong>演技者の決定</strong><br>
-                各ラウンドで1人が「演技者」になります。ランダム選択か、手動選択が可能です。</li>
-                
-                <li><strong>お題の確認</strong><br>
-                演技者だけに「セリフ」と「シチュエーション」が表示されます。例: ガレンの「デマーシア！」を「恋人に告白するとき」のシチュエーションで演じる。</li>
-                
-                <li><strong>演技タイム</strong><br>
-                演技者は指定されたシチュエーションで、セリフを演じます。他のプレイヤーは何のセリフか、どのシチュエーションかを推理します。</li>
-                
-                <li><strong>回答と採点</strong><br>
-                他のプレイヤーは「セリフ」を当てます。正解者数と難易度（Easy/Medium/Hard）に応じて、演技者がポイントを獲得します。</li>
-                
-                <li><strong>次のラウンド</strong><br>
-                演技者を交代して、全員が演技者を経験するまで続けます。最終的に最も高得点を獲得したプレイヤーが優勝です。</li>
-            </ol>
+## 📁 変更ファイル
 
-            <h3>💡 高得点を取るコツ</h3>
-            <div class="tip-box">
-                <h4>🎭 演技者向け</h4>
-                <ul>
-                    <li>シチュエーションを大げさに演じる</li>
-                    <li>声のトーンや抑揚を工夫する</li>
-                    <li>身振り手振りを使う（オンラインでもカメラONがおすすめ）</li>
-                    <li>わざと難易度を上げて高得点を狙う</li>
-                </ul>
-            </div>
+| ファイル | 内容 | 行数 |
+|---------|------|------|
+| `js/main.js` | 投票システム全面改修 | +75, -20 |
+| `index.html` | 投票状況UI追加 | +5 |
+| `js/version.js` | v1.0.14に更新 | +1, -1 |
+| **合計** | **3ファイル** | **+81, -21** |
 
-            <div class="tip-box">
-                <h4>🔍 推理側向け</h4>
-                <ul>
-                    <li>有名なセリフから優先的に考える</li>
-                    <li>シチュエーションのヒントから逆算する</li>
-                    <li>ゲーム知識を総動員する</li>
-                </ul>
-            </div>
+---
 
-            <h3>📝 セリフとシチュエーションの例</h3>
-            <p><strong>League of Legends:</strong></p>
-            <ul>
-                <li>「デマーシア！」（ガレン） × 「恋人に告白するとき」</li>
-                <li>「ハサキ！」（ヤスオ） × 「試験に合格したとき」</li>
-                <li>「もっと輝け！」（ルクス） × 「励ますとき」</li>
-            </ul>
+## 📝 新規ドキュメント
 
-            <p><strong>VALORANT:</strong></p>
-            <ul>
-                <li>「お前のために用意した墓は冷たいぞ」（Reyna） × 「プレゼントを渡すとき」</li>
-                <li>「俺は炎だ」（Phoenix） × 「料理が焦げたとき」</li>
-            </ul>
-        </div>
+| ファイル | 内容 |
+|---------|------|
+| `WORDWOLF_VOTING_FIX_v1.0.14.md` | 実装の詳細解説・トラブルシューティング |
+| `RELEASE_NOTES_v1.0.14.md` | v1.0.14リリースノート |
 
-        <!-- ヴォイドガイド -->
-        <div id="void" class="game-guide">
-            <h2>🌌 ヴォイドに届くは光か闇か - 完全ガイド</h2>
-            
-            <h3>📖 ゲームの概要</h3>
-            <p>ヴォイドは、連想ワードを使ってテーマを伝える伝言ゲームです。最初のプレイヤーからワードを3つずつ伝えていき、最後のプレイヤーが元のテーマを当てます。言葉がどう変化していくかが見どころです。</p>
+---
 
-            <h3>👥 プレイ人数と時間</h3>
-            <ul>
-                <li><strong>推奨人数:</strong> 2〜8人</li>
-                <li><strong>プレイ時間:</strong> 1ラウンド 5〜10分</li>
-                <li><strong>対応ゲーム:</strong> League of Legends、VALORANT</li>
-            </ul>
+## 🧪 テスト手順（3人以上推奨）
 
-            <h3>🎯 遊び方</h3>
-            <ol class="step-list">
-                <li><strong>順番を決める</strong><br>
-                各プレイヤーが自分の回答順番（1番目、2番目...）を選択します。重複はできません。</li>
-                
-                <li><strong>テーマを確認（1番目のみ）</strong><br>
-                1番目のプレイヤーだけにテーマが表示されます。例: 「ヤスオ」</li>
-                
-                <li><strong>連想ワードを入力</strong><br>
-                1番目のプレイヤーは、テーマを連想させる3つのワードを入力します。例: 「風」「侍」「ハサキ」</li>
-                
-                <li><strong>次のプレイヤーへ伝達</strong><br>
-                2番目のプレイヤーは、前の人のワードを見て、さらに連想する3つのワードを入力します。途中で修正も可能（既存ワードの変更のみ）。</li>
-                
-                <li><strong>最終プレイヤーが推測</strong><br>
-                最後のプレイヤーは、伝えられたワードから元のテーマを推測します。</li>
-                
-                <li><strong>結果発表</strong><br>
-                元のテーマと、各プレイヤーが入力したワードの推移が表示されます。正解すれば全員勝利！</li>
-            </ol>
+### 基本フロー
+1. **ゲーム開始**
+   - ワードウルフ → LOL/VALORANT/TFT → 部屋作成
+   - 他のプレイヤーが参加
+   - ホストがゲーム開始
 
-            <h3>💡 成功のコツ</h3>
-            <div class="tip-box">
-                <h4>🎯 1番目のプレイヤー（テーマを知っている）</h4>
-                <ul>
-                    <li>あまりにも直接的すぎるワードは避ける</li>
-                    <li>でも、曖昧すぎると伝わらない</li>
-                    <li>特徴的な3つの要素を選ぶ</li>
-                </ul>
-            </div>
+2. **ゲームプレイ**
+   - お題を確認（ウルフは異なるお題）
+   - チャットで議論
+   - タイマー終了で投票画面へ
 
-            <div class="tip-box">
-                <h4>🔄 中間のプレイヤー</h4>
-                <ul>
-                    <li>前の人のワードから共通点を見つける</li>
-                    <li>明らかに違う方向に行っていたら修正機能を使う</li>
-                    <li>ゲーム内の知識を活用する</li>
-                </ul>
-            </div>
+3. **投票フェーズ（ここが改善点！）**
+   - ✅ 投票状況表示「0 / N 人が投票完了」
+   - ✅ 各プレイヤーが投票
+   - ✅ 投票後にボタン無効化「投票完了」
+   - ✅ 投票状況が更新「1 / N」「2 / N」...
+   - ✅ 全員投票完了「N / N」→ 自動で結果画面へ
 
-            <div class="tip-box">
-                <h4>🎭 最後のプレイヤー</h4>
-                <ul>
-                    <li>複数のワードの共通点を探す</li>
-                    <li>ゲーム内の有名な要素から考える</li>
-                    <li>修正された部分（黄色）は重要なヒント</li>
-                </ul>
-            </div>
+4. **結果画面（ここも改善点！）**
+   - ✅ 各プレイヤーの投票先が表示
+   - ✅ ウルフは赤色、市民は青色
+   - ✅ 投票数の集計が表示
+   - ✅ 勝敗判定が表示
 
-            <h3>📝 プレイ例</h3>
-            <p><strong>テーマ: 「エコー」</strong></p>
-            <ul>
-                <li>1番目: 「時間」「少年」「Z-Drive」</li>
-                <li>2番目: 「時計」「若い」「装置」（修正: Z-Drive → 装置）</li>
-                <li>3番目（最終）: 「時間を操る」「若いチャンピオン」... → 答え: 「エコー」！</li>
-            </ul>
-        </div>
+### コンソールログ確認
+```
+📤 投票送信中: Player1 → Player3
+✅ 投票完了: Player1
+🗳️ 投票状況: 1/4
+...
+🎉 全員の投票が完了！結果を集計します
+✅ 結果集計完了
+```
 
-        <!-- 気分診断ガイド -->
-        <div id="mood-quiz" class="game-guide">
-            <h2>🎭 気分診断チャンピオン選択 - 完全ガイド</h2>
-            
-            <h3>📖 診断の概要</h3>
-            <p>気分診断は、あなたの今の気分やプレイスタイルから、最適なLeague of Legendsチャンピオンを見つけるツールです。全172体のチャンピオンから、あなたにピッタリのチャンピオンをAIがスコアリングして提案します。</p>
+---
 
-            <h3>⏱️ 所要時間</h3>
-            <ul>
-                <li><strong>質問数:</strong> 12問</li>
-                <li><strong>所要時間:</strong> 約2〜3分</li>
-                <li><strong>対応:</strong> League of Legends 全172体</li>
-            </ul>
+## 🎉 改善効果
 
-            <h3>🎯 使い方</h3>
-            <ol class="step-list">
-                <li><strong>診断を開始</strong><br>
-                モード選択画面で「気分診断」を選び、「診断を始める」をクリックします。</li>
-                
-                <li><strong>質問に答える</strong><br>
-                12問の質問に答えます。好きなレーン、プレイスタイル、戦闘距離、序盤・後半の動きなどについて聞かれます。</li>
-                
-                <li><strong>結果を確認</strong><br>
-                あなたのタイプ（アグレッシブ/サポーティブ/タクティカル/バランス）と、おすすめチャンピオンTOP3が表示されます。</li>
-                
-                <li><strong>詳細を見る</strong><br>
-                各チャンピオンの適合度スコア、得意レーン、説明が表示されます。「すべて見る」で全172体のスコアを確認できます。</li>
-            </ol>
+### Before (v1.0.13以前)
+- ❌ 誰か一人の投票で即座に結果表示
+- ❌ 他のプレイヤーが投票できない
+- ❌ 投票状況が分からない
+- ❌ 投票の重複が可能
 
-            <h3>💡 診断の仕組み</h3>
-            <div class="tip-box">
-                <h4>🎯 スコアリングシステム（v9）</h4>
-                <ul>
-                    <li><strong>基本スコア:</strong> 100点（全チャンピオン共通）</li>
-                    <li><strong>タイプ一致ボーナス:</strong> +50点（診断結果と同じタイプ）</li>
-                    <li><strong>タイプ比率:</strong> +30点（気分スコアの比率）</li>
-                    <li><strong>レーン適性:</strong> +30点（選択レーンとの適合度）</li>
-                    <li><strong>キーワードマッチ:</strong> +50点（回答内容との一致）</li>
-                    <li><strong>ランダム調整:</strong> +5点（同点時の順位変動）</li>
-                </ul>
-                <p><strong>合計スコア範囲:</strong> 100〜265点</p>
-            </div>
+### After (v1.0.14)
+- ✅ 全員の投票完了を待ってから結果表示
+- ✅ すべてのプレイヤーが投票できる
+- ✅ 投票状況がリアルタイム表示
+- ✅ 投票後は再投票不可
+- ✅ 各プレイヤーの投票先が可視化
+- ✅ 公平で透明性の高いゲーム進行
 
-            <h3>🌟 v9の新機能</h3>
-            <p>以前は診断結果のタイプ（アグレッシブなど）の約43体からしか選ばれませんでしたが、v9では<strong>全172体のチャンピオンがスコアリング対象</strong>になりました！</p>
-            
-            <ul>
-                <li>✅ 全172体から最適なマッチを選出</li>
-                <li>✅ ニッチロールも候補に（MID ガングプランク、SUP リサンドラなど）</li>
-                <li>✅ より正確なマッチング</li>
-                <li>✅ 意外な発見や新しいチャンピオンとの出会い</li>
-            </ul>
+---
 
-            <h3>📝 4つのタイプ</h3>
-            <ul>
-                <li><strong>⚔️ アグレッシブタイプ:</strong> 敵を倒してスカッとしたい気分！攻撃的なチャンピオンで思いっきり暴れましょう。</li>
-                <li><strong>🛡️ サポーティブタイプ:</strong> 味方を守って勝利に貢献したい気分！サポート系チャンピオンで仲間を守りましょう。</li>
-                <li><strong>🧠 タクティカルタイプ:</strong> 頭を使って戦略的に戦いたい気分！計算されたプレイで勝利を掴みましょう。</li>
-                <li><strong>⚖️ バランスタイプ:</strong> 状況に応じて柔軟に対応したい気分！バランスの取れたチャンピオンで臨機応変に戦いましょう。</li>
-            </ul>
-        </div>
+## 🚀 デプロイ手順
 
-        <a href="index.html" class="back-link">← ゲームを始める</a>
-    </div>
-</body>
-</html>
+### 1. キャッシュクリア（自動）
+ページアクセス時に自動実行：
+- 旧バージョン検出
+- キャッシュクリア
+- 通知表示「🎉 アップデート完了！ v1.0.14」
+- 自動リロード
+
+### 2. バージョン確認
+ブラウザコンソールで確認：
+```javascript
+getAppVersion()  // "1.0.14" と表示されればOK
+```
+
+### 3. 動作確認
+- ブラウザをリロード（Ctrl/Cmd + Shift + R）
+- 3人以上でゲーム開始
+- 投票フローを実行
+- 上記のテスト項目を確認
+
+---
+
+## 💡 トラブルシューティング
+
+### 問題: 投票ボタンが反応しない
+**対処法:**
+1. コンソールでエラー確認
+2. スーパーリロード（Ctrl/Cmd + Shift + R）
+3. `getAppVersion()` でバージョン確認
+
+### 問題: 投票状況が更新されない
+**対処法:**
+1. Firebase接続状況確認（`✅ Firebase接続成功`）
+2. コンソールで `🗳️ 投票状況: X/Y` 表示を確認
+3. ページリロード
+
+### 問題: 全員投票しても結果に進まない
+**対処法:**
+1. コンソールで `🎉 全員の投票が完了！` が表示されるか確認
+2. すべてのプレイヤーが投票したか確認
+3. Firebase Consoleで `players` データ確認
+
+---
+
+## 📞 サポート
+
+詳細は以下を参照：
+- `WORDWOLF_VOTING_FIX_v1.0.14.md` - 完全ガイド
+- `RELEASE_NOTES_v1.0.14.md` - リリースノート
+- `TROUBLESHOOTING.md` - 一般的な問題
+
+---
+
+## 🎮 次のステップ
+
+実装が完了したので：
+1. ✅ ブラウザをリロード
+2. ✅ バージョンを確認
+3. ✅ 3人以上でテストプレイ
+4. ✅ 投票フローが正しく動作するか確認
+
+**Happy Gaming! 🎉**
+
+---
+
+**実装日:** 2026-02-14  
+**バージョン:** v1.0.14  
+**担当:** AI Assistant

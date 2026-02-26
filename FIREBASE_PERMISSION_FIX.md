@@ -1,71 +1,46 @@
-# ✅ ヴォイドルーム作成 - 完全解決（最終版）
+# 🚨 ヴォイドルーム作成エラー - Firebase権限エラー修正
 
-## 🎉 問題解決！
+## エラー内容
 
-シンプル版のテストで、VoidGameクラスが正しく読み込まれることを確認しました。
-元の`void-game.js`に構文エラーはありません。
+```
+@firebase/database: FIREBASE WARNING: set at /_connection_test/1771289061961 failed: permission_denied
+```
+
+または
+
+```
+Error: permission denied
+```
 
 ---
 
-## 📋 最終手順
+## 🎯 原因
 
-### ステップ1: プレビューを完全リロード
-
-**重要**: ブラウザのキャッシュをクリアしてください
-
-```
-1. Ctrl + Shift + R (Mac: Cmd + Shift + R) でリロード
-2. または、プレビューの更新ボタンをクリック
-```
-
-### ステップ2: コンソールで確認（F12）
-
-以下のログが表示されればOK：
-
-```
-📦 void-game.js 読み込み開始 (v27)
-📦 firebase: object
-📦 firebase.database: function
-📦 VoidGameクラス定義完了 (v27)
-📦 VoidGame type: function
-✅ VoidGameクラスをグローバルにエクスポートしました (v27)
-✅ window.VoidGame type: function
-✅ テストインスタンス作成成功
-```
-
-### ステップ3: ヴォイドモードでルーム作成
-
-1. ヴォイドモードを選択
-2. 「ルームを作成」をクリック
-3. プレイヤー名を入力
-4. カテゴリーを選択（デフォルトでOK）
-5. 「作成」ボタンをクリック
+Firebase Realtime Databaseのセキュリティルールに**`void_rooms`パスが追加されていない**ため、ヴォイドゲームのデータを書き込めません。
 
 ---
 
-## 🎯 予想される結果
+## ✅ 解決方法：Firebaseセキュリティルールの更新
 
-### ケースA: 完全成功 🎉
-- 待機画面に遷移
-- ルームIDが表示される
-- 「参加人数 1 / 4」が表示される
-- **完璧です！**
+### ステップ1: Firebase Consoleにアクセス
 
-### ケースB: Firebase権限エラー（次のステップ）
+以下のURLを開いてください：
+
 ```
-Error: PERMISSION_DENIED: Permission denied
+https://console.firebase.google.com/project/lol-word-wolf/database/lol-word-wolf-default-rtdb/rules
 ```
 
-これは**正常な動作**です。次にFirebaseのセキュリティルールを設定する必要があります。
+または、手動で：
+1. https://console.firebase.google.com/
+2. **「lol-word-wolf」** プロジェクトをクリック
+3. 左メニュー **「構築」** → **「Realtime Database」**
+4. 上部タブの **「ルール」** をクリック
 
-**解決方法**:
+---
 
-1. Firebase Consoleを開く
-   ```
-   https://console.firebase.google.com/project/lol-word-wolf/database/lol-word-wolf-default-rtdb/rules
-   ```
+### ステップ2: 現在のルールを確認
 
-2. 以下のルールをコピー&ペースト
+現在のルールは以下のようになっているはずです：
 
 ```json
 {
@@ -82,10 +57,46 @@ Error: PERMISSION_DENIED: Permission denied
         ".write": true
       }
     },
+    "site_stats": {
+      "pageviews": {
+        ".read": true,
+        ".write": true
+      }
+    }
+  }
+}
+```
+
+**問題**: `void_rooms` が含まれていません！
+
+---
+
+### ステップ3: ルールを更新
+
+以下の**完全なルール**をコピーして、エディタに貼り付けてください：
+
+```json
+{
+  "rules": {
+    "rooms": {
+      "$roomId": {
+        ".read": true,
+        ".write": true,
+        ".indexOn": ["createdAt", "gameState"]
+      }
+    },
+    "demacia_rooms": {
+      "$roomId": {
+        ".read": true,
+        ".write": true,
+        ".indexOn": ["createdAt", "gameState"]
+      }
+    },
     "void_rooms": {
       "$roomId": {
         ".read": true,
-        ".write": true
+        ".write": true,
+        ".indexOn": ["createdAt", "gameState"]
       }
     },
     "site_stats": {
@@ -102,97 +113,196 @@ Error: PERMISSION_DENIED: Permission denied
 }
 ```
 
-3. 「公開」ボタンをクリック
-
-4. プレビューをリロードして再試行
-
-詳細: `FIREBASE_PERMISSION_FIX.md`
+**追加された内容**:
+- ✅ `void_rooms` パス（ヴォイドゲーム用）
+- ✅ `_connection_test` パス（Firebase接続テスト用）
+- ✅ `.indexOn` でパフォーマンス向上
 
 ---
 
-## ✅ 完了チェックリスト
+### ステップ4: 公開
 
-- [ ] プレビューをリロードした
-- [ ] コンソールに「v27」が表示される
-- [ ] コンソールに「📦 void-game.js 読み込み開始」が表示される
-- [ ] コンソールに「✅ テストインスタンス作成成功」が表示される
+1. 右上の **「公開」** または **「Publish」** ボタンをクリック
+2. 確認ダイアログが表示されたら **「公開」** をクリック
+
+**成功メッセージ**:
+```
+✅ ルールが正常に公開されました
+```
+
+---
+
+### ステップ5: サイトをテスト
+
+1. ブラウザで完全リロード（`Ctrl+Shift+R` / `Cmd+Shift+R`）
+2. ヴォイドモードを選択
+3. ルーム作成を試す
+
+**期待される結果**:
+- エラーメッセージが表示されない
+- 待機画面に遷移する
+- コンソールに成功ログが表示される
+
+```
+✅ Firebase書き込み完了
+✅ ヴォイドルーム作成成功: 123456
+```
+
+---
+
+## 🔍 トラブルシューティング
+
+### ケース1: まだ "permission_denied" エラーが出る
+
+**対処法**:
+1. Firebase Consoleで「公開」ボタンを押したか確認
+2. ブラウザを完全リロード（`Ctrl+Shift+R`）
+3. ルールが正しく保存されているか再確認
+4. 数分待ってから再試行（ルール反映に時間がかかる場合がある）
+
+### ケース2: "_connection_test" のエラーが続く
+
+**原因**: Firebase SDKの接続テストが拒否されている
+
+**対処法**:
+ルールに以下を追加したか確認：
+```json
+"_connection_test": {
+  ".read": true,
+  ".write": true
+}
+```
+
+### ケース3: ルールが公開できない
+
+**エラーメッセージ**: "Invalid JSON" など
+
+**原因**: JSON構文エラー
+
+**対処法**:
+1. カンマ（`,`）の位置を確認
+2. 括弧（`{}`）が正しく閉じられているか確認
+3. 上記の完全なルールをコピー&ペーストで再試行
+
+---
+
+## 📊 各パスの説明
+
+| パス | 用途 | 必須 |
+|------|------|------|
+| `rooms/` | ワードウルフのルームデータ | ✅ はい |
+| `demacia_rooms/` | デマーシアのルームデータ | ✅ はい |
+| `void_rooms/` | **ヴォイドのルームデータ** | ✅ **はい（新規）** |
+| `site_stats/` | サイト統計（ページビュー） | ⚠️ オプション |
+| `_connection_test/` | Firebase接続テスト | ✅ はい |
+
+---
+
+## 🎮 ヴォイドゲームのデータ構造
+
+Firebase上で以下のような構造でデータが保存されます：
+
+```
+void_rooms/
+  └── 123456/  (ルームID)
+      ├── roomId: "123456"
+      ├── gameType: "lol" | "valorant"
+      ├── hostName: "Player1"
+      ├── maxPlayers: 4
+      ├── theme: {
+      │     id: "yasuo",
+      │     name: "ヤスオ",
+      │     category: "champions"
+      │   }
+      ├── gameState: "waiting" | "selecting_order" | "playing" | "finished"
+      ├── currentTurn: 0
+      ├── players: {
+      │     "Player1": {
+      │       joinOrder: 0,
+      │       isHost: true,
+      │       ready: false,
+      │       submitted: false
+      │     }
+      │   }
+      ├── playerOrder: ["Player1", "Player2", ...]
+      ├── playOrder: [1, 2, 3, ...]
+      ├── orderSelections: {
+      │     "Player1": 1,
+      │     "Player2": 2
+      │   }
+      ├── turns: {
+      │     "0": {
+      │       playerName: "Player1",
+      │       words: ["風", "剣", "疾走"],
+      │       modified: [],
+      │       timestamp: 1771289061961
+      │     }
+      │   }
+      ├── finalAnswer: "ヤスオ"
+      ├── isCorrect: true
+      └── createdAt: 1771289061961
+```
+
+---
+
+## 🔒 セキュリティに関する注意
+
+### 現在のルール
+```json
+".read": true,
+".write": true
+```
+
+**これは開発/テスト用です**。
+
+### 本番環境での推奨ルール
+
+将来的には、以下のようなより厳格なルールを設定することを推奨します：
+
+```json
+"void_rooms": {
+  "$roomId": {
+    ".read": true,
+    ".write": "!data.exists() || data.child('players').hasChild(auth.uid)",
+    ".validate": "newData.hasChildren(['roomId', 'gameType', 'hostName'])",
+    ".indexOn": ["createdAt", "gameState"]
+  }
+}
+```
+
+ただし、このアプリは**匿名認証なし**で動作するため、当面は `".write": true` のままで問題ありません。
+
+---
+
+## ✅ 完了確認チェックリスト
+
+- [ ] Firebase Consoleにアクセスした
+- [ ] Realtime Database → ルール タブを開いた
+- [ ] `void_rooms` を含む完全なルールをコピー&ペーストした
+- [ ] 「公開」ボタンをクリックした
+- [ ] 公開成功のメッセージを確認した
+- [ ] ブラウザを完全リロード（Ctrl+Shift+R）した
 - [ ] ヴォイドモードでルーム作成を試した
-- [ ] 成功（待機画面へ）またはFirebase権限エラーが出た
+- [ ] エラーが出ずに成功した
+
+すべてチェックが付けば、完了です！🎉
 
 ---
 
-## 📊 今回の修正内容まとめ
+## 📞 サポート
 
-### 問題
-- VoidGameクラスが未定義だった
-- `void-game.js`が正しく読み込まれていなかった
+まだエラーが出る場合は、以下の情報を確認してください：
 
-### 原因
-- Firebaseの読み込みタイミング
-- コンストラクタでのFirebase参照エラー
-
-### 解決策
-1. Firebaseチェックをコンストラクタに追加
-2. エラーハンドリングを強化
-3. 詳細なデバッグログを追加
-4. シンプル版でテストして動作確認
-
-### 結果
-- ✅ VoidGameクラスが正しく読み込まれる
-- ✅ window.VoidGameが利用可能
-- ✅ インスタンスが作成できる
-- ⏭️ 次のステップ: Firebaseルール設定
-
----
-
-## 🔥 トラブルシューティング
-
-### まだ「VoidGame is not defined」エラーが出る
-
-**対処法**:
-1. ブラウザキャッシュを完全削除
-   - `Ctrl + Shift + Delete`
-   - 「キャッシュされた画像とファイル」を削除
-2. プレビューを完全リロード
-   - `Ctrl + Shift + R`
-3. シークレットモードで試す
-   - `Ctrl + Shift + N`
-
-### コンソールに「v27」が表示されない
-
-**原因**: 古いバージョンがキャッシュされている
-
-**対処法**:
-- ネットワークタブで `void-game.js?v=27` が読み込まれているか確認
-- v25やv26が読み込まれている場合はキャッシュをクリア
-
-### 「firebase: undefined」が表示される
-
-**原因**: Firebase SDKが読み込まれていない
-
-**対処法**:
-1. HTMLでFirebase SDKが正しく読み込まれているか確認
-2. ネットワークエラーがないか確認
-3. Firebase CDNが利用可能か確認
-
----
-
-## 📞 次のサポート
-
-Firebaseルールを設定した後、まだ問題がある場合は以下をお知らせください：
-
-1. コンソールに表示されているすべてのログ
-2. エラーメッセージの全文
-3. ネットワークタブのスクリーンショット
+1. **Firebase Consoleのルールタブのスクリーンショット**
+2. **ブラウザコンソールのエラーメッセージ（F12）**
+3. **Firebaseプロジェクト名**: `lol-word-wolf`
 
 ---
 
 ## 完了日
 2026-02-17
 
-## 最終バージョン
-v27 - 完全動作版
-
----
-
-**プレビューをリロードして、ヴォイドモードでルーム作成を試してください！** 🚀
+## 関連ドキュメント
+- `VOID_FIREBASE_RULES.md` - ヴォイドゲームのFirebaseルール設定
+- `FIREBASE_RULES_FIX.md` - 一般的なFirebaseルール設定ガイド
+- `VOID_ROOM_CREATION_FIX.md` - ヴォイドルーム作成の技術的修正
