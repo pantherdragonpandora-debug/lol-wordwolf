@@ -1,0 +1,29 @@
+# robots.txt for Esports ワードウルフ
+
+User-agent: *
+Allow: /
+
+# Allow all pages
+Allow: /index.html
+Allow: /games.html
+Allow: /how-to-play.html
+Allow: /blog.html
+Allow: /faq.html
+Allow: /contact.html
+Allow: /about.html
+Allow: /privacy.html
+Allow: /terms.html
+
+# Allow CSS and JS files
+Allow: /css/
+Allow: /js/
+Allow: /images/
+
+# Disallow admin pages
+Disallow: /blog-admin.html
+Disallow: /firebase-rules-guide.html
+Disallow: /void-diagnostic.html
+Disallow: /diagnosis.html
+
+# Sitemap location
+Sitemap: https://yourdomain.com/sitemap.xml
