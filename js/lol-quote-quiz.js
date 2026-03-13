@@ -4933,12 +4933,23 @@ function startQuiz() {
     const quote = currentQuestion.quotes[currentLanguage];
     document.getElementById('quote-text').textContent = `"${quote}"`;
     
-    // 現在の言語の選択肢を表示
-    const choices = currentQuestion.choices[currentLanguage];
+    // 現在の言語の選択肢を取得
+    const originalChoices = currentQuestion.choices[currentLanguage];
+    const originalAnswer = currentQuestion.answer;
+    
+    // 選択肢をシャッフル（正解のインデックスも追跡）
+    const shuffledData = shuffleChoices(originalChoices, originalAnswer);
+    const shuffledChoices = shuffledData.choices;
+    const newAnswerIndex = shuffledData.answerIndex;
+    
+    // シャッフル後の正解インデックスを保存
+    currentQuestion.shuffledAnswer = newAnswerIndex;
+    
+    // 選択肢を表示
     const choicesContainer = document.getElementById('choices-container');
     choicesContainer.innerHTML = '';
     
-    choices.forEach((choice, index) => {
+    shuffledChoices.forEach((choice, index) => {
         const button = document.createElement('button');
         button.className = 'choice-btn';
         button.textContent = choice;
@@ -4953,16 +4964,38 @@ function startQuiz() {
     console.log(`📝 問題表示: ${currentQuestion.id} (${currentLanguage})`);
 }
 
+// 選択肢をシャッフルする関数（Fisher-Yates）
+function shuffleChoices(choices, answerIndex) {
+    // 配列のコピーを作成
+    const shuffled = [...choices];
+    const indices = choices.map((_, i) => i);
+    
+    // Fisher-Yatesシャッフル
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        [indices[i], indices[j]] = [indices[j], indices[i]];
+    }
+    
+    // 新しい正解のインデックスを見つける
+    const newAnswerIndex = indices.indexOf(answerIndex);
+    
+    return {
+        choices: shuffled,
+        answerIndex: newAnswerIndex
+    };
+}
+
 function selectAnswer(selectedIndex) {
     const buttons = document.querySelectorAll('.choice-btn');
-    const isCorrect = selectedIndex === currentQuestion.answer;
+    const isCorrect = selectedIndex === currentQuestion.shuffledAnswer;
     
     // すべてのボタンを無効化
     buttons.forEach((button, index) => {
         button.disabled = true;
         
         // 正解・不正解の色付け
-        if (index === currentQuestion.answer) {
+        if (index === currentQuestion.shuffledAnswer) {
             button.classList.add('correct');
         } else if (index === selectedIndex && !isCorrect) {
             button.classList.add('incorrect');
@@ -5047,6 +5080,16 @@ function showGeneration() {
     
     showScreen('generation-screen');
     
+    // 既存のimg要素を削除してキャンバスを再表示
+    const existingImg = document.getElementById('character-image');
+    if (existingImg) {
+        existingImg.remove();
+    }
+    const canvas = document.getElementById('character-canvas');
+    if (canvas) {
+        canvas.style.display = 'block';
+    }
+    
     // チケット消費
     gameData.availableGenerations--;
     saveGameData();
@@ -5099,9 +5142,12 @@ function generateCharacter() {
     // キャンバスに描画
     drawCharacter('character-canvas', combinationId, rarity);
     
+    // キャンバスをimg要素に変換（スマホで長押し保存可能にする）
+    convertCanvasToImage('character-canvas');
+    
     // レアリティを表示
     displayRarity(rarity);
-    document.getElementById('generation-info').textContent = '💾 画像を右クリック（長押し）で保存できます';
+    document.getElementById('generation-info').textContent = '💾 画像を長押し（右クリック）で保存できます';
     
     // シェアボタンを追加
     addShareButtonsToGeneration();
@@ -5593,11 +5639,49 @@ function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
 
 // PNG保存
 function downloadCharacter() {
+    // img要素がある場合はそれを使用、なければキャンバスから生成
+    const img = document.getElementById('character-image');
     const canvas = document.getElementById('character-canvas');
+    
+    let dataURL;
+    if (img) {
+        dataURL = img.src;
+    } else if (canvas) {
+        dataURL = canvas.toDataURL('image/png');
+    } else {
+        alert('画像が見つかりません。');
+        return;
+    }
+    
     const link = document.createElement('a');
     link.download = `lol-character-${currentGeneratedCharacter.id}.png`;
-    link.href = canvas.toDataURL('image/png');
+    link.href = dataURL;
     link.click();
+}
+
+// キャンバスをimg要素に変換（スマホで長押し保存可能にする）
+function convertCanvasToImage(canvasId) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    
+    // キャンバスをPNG形式のDataURLに変換
+    const dataURL = canvas.toDataURL('image/png');
+    
+    // img要素を作成
+    const img = document.createElement('img');
+    img.src = dataURL;
+    img.id = 'character-image';
+    img.alt = 'Generated Character';
+    img.style.maxWidth = '100%';
+    img.style.height = 'auto';
+    img.style.borderRadius = '8px';
+    img.style.background = '#fff';
+    img.style.margin = '20px 0';
+    img.style.display = 'block';
+    
+    // キャンバスを非表示にしてimg要素に置き換え
+    canvas.style.display = 'none';
+    canvas.parentNode.insertBefore(img, canvas.nextSibling);
 }
 
 // キャンバスに右クリック保存のヒントを追加

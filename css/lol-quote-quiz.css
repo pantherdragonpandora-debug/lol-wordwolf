@@ -431,7 +431,8 @@ header h1 {
     align-items: center;
 }
 
-#character-canvas {
+#character-canvas,
+#character-image {
     max-width: 100%;
     height: auto;
     border-radius: 8px;
@@ -443,7 +444,13 @@ header h1 {
     -webkit-user-select: none;
 }
 
-/* 右クリックメニューを有効化 */
+/* 長押しメニューを有効化（img要素の場合） */
+#character-image {
+    -webkit-touch-callout: default;
+    -webkit-user-drag: auto;
+}
+
+/* キャンバスは右クリックメニューを有効化 */
 #character-canvas {
     -webkit-touch-callout: default;
 }
