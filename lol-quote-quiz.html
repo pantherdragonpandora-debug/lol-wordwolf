@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="League of Legendsのチャンピオンのセリフを当てるクイズゲーム。ポイントを貯めてオリジナルキャラクターを生成しよう！">
+    <title>LoL セリフ当てクイズ - League of Legends Champion Quote Quiz</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/lol-quote-quiz.css">
+    <link rel="stylesheet" href="css/lol-quote-quiz-auth.css">
+    <link rel="stylesheet" href="css/lol-quote-quiz-rarity.css">
+    <link rel="stylesheet" href="css/lol-quote-quiz-share.css">
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header>
+        <div class="header-content">
+            <h1 id="site-title" style="cursor: pointer;" onclick="window.location.href='index.html'">
+                <span data-i18n="header.title">Esports ワードウルフ</span>
+            </h1>
+        </div>
+    </header>
+
+    <!-- ナビゲーションメニュー -->
+    <nav class="main-nav" style="margin-bottom: var(--spacing-lg);">
+        <div class="nav-content">
+            <a href="index.html" class="nav-link">🎮 ゲーム</a>
+            <a href="games.html" class="nav-link">📖 ゲーム紹介</a>
+            <a href="how-to-play.html" class="nav-link">❓ 遊び方</a>
+            <a href="blog.html" class="nav-link">✍️ ブログ</a>
+            <a href="faq.html" class="nav-link">💬 FAQ</a>
+            <a href="contact.html" class="nav-link">📧 お問い合わせ</a>
+            <a href="about.html" class="nav-link">👤 About</a>
+        </div>
+    </nav>
+
+    <!-- トップページ -->
+    <div id="home-screen" class="screen active">
+        <div class="container">
+            <h1 class="game-title">🎮 LoL セリフ当てクイズ</h1>
+            <p class="game-subtitle">Champion Quote Challenge</p>
+
+            <div class="stats-card">
+                <div class="stat-item">
+                    <div class="stat-label">現在ポイント</div>
+                    <div class="stat-value">
+                        <span id="current-points">0</span> / 10
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">生成チケット</div>
+                    <div class="stat-value" id="generation-tickets">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">コレクション</div>
+                    <div class="stat-value" id="collection-count">0</div>
+                </div>
+            </div>
+
+            <!-- ログイン・同期UI -->
+            <div class="auth-card">
+                <div class="auth-info">
+                    <div id="user-info" style="display: none;"></div>
+                    <div id="sync-status" class="sync-status" style="display: none;"></div>
+                </div>
+                <div class="auth-buttons">
+                    <button id="google-login-btn" class="btn btn-google" onclick="handleGoogleLogin()">
+                        🔐 Googleでログイン（記録を保存）
+                    </button>
+                    <button id="google-logout-btn" class="btn btn-secondary" onclick="handleLogout()" style="display: none;">
+                        🚪 ログアウト
+                    </button>
+                    <button id="manual-sync-btn" class="btn btn-sync" onclick="handleManualSync()" style="display: none;">
+                        🔄 手動同期
+                    </button>
+                </div>
+                <p class="auth-note">
+                    ℹ️ ログインしなくても遊べます。ログインすると進捗がクラウドに保存されます。
+                </p>
+            </div>
+
+            <div class="progress-message" id="progress-message">
+                あと10問正解でキャラ生成可能！
+            </div>
+
+            <button class="btn btn-primary btn-large" onclick="startQuiz()">
+                🎯 クイズスタート
+            </button>
+
+            <button class="btn btn-secondary" onclick="showCollection()">
+                🖼️ コレクション
+            </button>
+
+            <div class="how-to-play">
+                <h3>📖 遊び方</h3>
+                <ul>
+                    <li>チャンピオンのセリフを見て、誰のセリフか4択で当てよう</li>
+                    <li>1問正解 = 1ポイント獲得</li>
+                    <li>10ポイント貯まると、オリジナルキャラクターを生成できる</li>
+                    <li>生成したキャラはPNGでダウンロード可能</li>
+                    <li>毎日少しずつ遊んで、コレクションを増やそう！</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- クイズ画面 -->
+    <div id="quiz-screen" class="screen">
+        <div class="container">
+            <div class="quiz-header">
+                <button class="btn-back" onclick="backToHome()">← 戻る</button>
+                <div class="quiz-info">
+                    <span>問題 <span id="question-number">1</span></span>
+                </div>
+            </div>
+
+            <div class="quote-card">
+                <div class="quote-icon">💬</div>
+                <div class="quote-text" id="quote-text">
+                    Death is like the wind — always by my side.
+                </div>
+            </div>
+
+            <div class="choices" id="choices-container">
+                <!-- 選択肢が動的に生成される -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 結果画面 -->
+    <div id="result-screen" class="screen">
+        <div class="container">
+            <div class="result-card">
+                <div class="result-icon" id="result-icon">✅</div>
+                <h2 class="result-title" id="result-title">正解！</h2>
+                <div class="result-answer" id="result-answer">ヤスオ</div>
+                
+                <div class="result-stats">
+                    <div class="result-stat-item">
+                        <div class="result-stat-label">獲得ポイント</div>
+                        <div class="result-stat-value" id="earned-points">+1</div>
+                    </div>
+                    <div class="result-stat-item">
+                        <div class="result-stat-label">累計ポイント</div>
+                        <div class="result-stat-value" id="total-points-result">1</div>
+                    </div>
+                </div>
+
+                <div class="generation-notice" id="generation-notice" style="display: none;">
+                    🎉 生成チケットを獲得しました！
+                </div>
+
+                <button class="btn btn-primary" onclick="nextQuestion()">
+                    次の問題へ →
+                </button>
+
+                <button class="btn btn-accent" id="generate-btn" onclick="showGeneration()" style="display: none;">
+                    ✨ キャラ生成
+                </button>
+
+                <button class="btn btn-secondary" onclick="backToHome()">
+                    トップへ戻る
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- キャラ生成画面 -->
+    <div id="generation-screen" class="screen">
+        <div class="container">
+            <h2 class="screen-title">✨ キャラクター生成</h2>
+
+            <div class="generation-card">
+                <canvas id="character-canvas" width="400" height="400"></canvas>
+                <div class="generation-info" id="generation-info">
+                    生成中...
+                </div>
+            </div>
+
+            <div class="generation-actions">
+                <button class="btn btn-primary" onclick="downloadCharacter()">
+                    📥 PNG保存
+                </button>
+                <button class="btn btn-accent" onclick="saveToCollection()">
+                    💾 コレクションに保存
+                </button>
+                <button class="btn btn-secondary" onclick="backToHome()">
+                    トップへ戻る
+                </button>
+            </div>
+
+            <div class="generation-stats">
+                <div>生成パターン: <span id="combination-id">---</span></div>
+                <div>残りチケット: <span id="remaining-tickets">0</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- コレクション画面 -->
+    <div id="collection-screen" class="screen">
+        <div class="container">
+            <div class="collection-header">
+                <button class="btn-back" onclick="backToHome()">← 戻る</button>
+                <h2 class="screen-title">🖼️ コレクション</h2>
+            </div>
+
+            <div class="collection-stats">
+                <div>保有数: <span id="collection-total">0</span> / 3125</div>
+                <div>完成率: <span id="collection-percentage">0.0</span>%</div>
+            </div>
+
+            <div class="collection-grid" id="collection-grid">
+                <!-- コレクションが動的に生成される -->
+            </div>
+
+            <div class="collection-empty" id="collection-empty">
+                <div class="empty-icon">📦</div>
+                <p>まだキャラクターを生成していません</p>
+                <p>クイズに挑戦してポイントを貯めよう！</p>
+                <button class="btn btn-primary" onclick="backToHome()">
+                    クイズに挑戦
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- キャラクター詳細モーダル -->
+    <div id="character-modal" class="modal" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeModal()">×</button>
+            <canvas id="modal-canvas" width="400" height="400"></canvas>
+            <div class="modal-info">
+                <div id="modal-character-id">---</div>
+                <div id="modal-character-date">---</div>
+            </div>
+            <button class="btn btn-primary" onclick="downloadModalCharacter()">
+                📥 PNG保存
+            </button>
+        </div>
+    </div>
+
+    <!-- Firebase同期スクリプト（最初に読み込む） -->
+    <script src="js/firebase-sync.js"></script>
+    <!-- SNSシェアスクリプト -->
+    <script src="js/lol-quote-quiz-share.js"></script>
+    <!-- メインスクリプト -->
+    <script src="js/lol-quote-quiz.js"></script>
+    <!-- クイズ問題バッチ（メインスクリプトの後に読み込む） -->
+    <script src="js/quiz-batch-111-160.js"></script>
+    <script src="js/quiz-batch-161-210.js"></script>
+    <script src="js/quiz-batch-211-260.js"></script>
+    <script src="js/quiz-batch-261-300.js"></script>
+    <!-- 問題統合スクリプト -->
+    <script src="js/quiz-integration.js"></script>
+</body>
+</html>

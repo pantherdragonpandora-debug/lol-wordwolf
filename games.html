@@ -705,6 +705,118 @@
             </div>
         </div>
 
+        <!-- セリフ当てクイズ -->
+        <div class="game-card">
+            <div class="game-header">
+                <div class="game-icon">💬</div>
+                <div class="game-title">
+                    <h2>セリフ当てクイズ</h2>
+                    <div class="game-subtitle">ポイントを貯めてキャラクターを生成しよう</div>
+                </div>
+            </div>
+
+            <div class="game-content">
+                <p>
+                    League of Legendsのチャンピオンのセリフを見て、誰のセリフか4択で当てるクイズゲーム。正解すると1ポイント獲得し、10ポイント貯まるとオリジナルキャラクターを生成できます。毎日少しずつ遊んで、コレクションを増やそう！
+                </p>
+
+                <div class="game-specs">
+                    <div class="spec-item">
+                        <div class="spec-label">プレイ人数</div>
+                        <div class="spec-value">1人（ソロ）</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">所要時間</div>
+                        <div class="spec-value">1分/問</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">キャラ生成</div>
+                        <div class="spec-value">3,125通り</div>
+                    </div>
+                </div>
+
+                <h3>🎯 ゲームの特徴</h3>
+                <ul>
+                    <li><strong>50問のセリフ問題:</strong> ヤスオ、ジンクス、ブラウム、ジン、ガレン、アーリ、ゼドなど人気チャンピオンのセリフ</li>
+                    <li><strong>完全多言語対応:</strong> 日本語、英語、韓国語、中国語の4言語でセリフと選択肢を表示</li>
+                    <li><strong>ポイントシステム:</strong> 1問正解 = 1ポイント、10ポイントで生成チケット獲得</li>
+                    <li><strong>キャラクター生成:</strong> 3,125通りの組み合わせからランダムに生成</li>
+                    <li><strong>コレクション機能:</strong> 生成したキャラクターをPNG保存・コレクション管理</li>
+                </ul>
+
+                <h3>✨ 特徴</h3>
+                <ul class="game-features">
+                    <li>継続型ゲームデザイン（一気にクリアではなく、毎日少しずつ）</li>
+                    <li>Canvas画像合成（ボディ25種類、目5種類、口5種類、アイテム5種類）</li>
+                    <li>PNG形式でダウンロード可能</li>
+                    <li>localStorage保存（サーバー不要）</li>
+                    <li>スマホ完全対応</li>
+                    <li>同じ組み合わせの連続生成を自動回避</li>
+                </ul>
+
+                <h3>🎭 遊び方</h3>
+                <ol style="padding-left: 20px; line-height: 1.8;">
+                    <li><strong>クイズに挑戦</strong>: チャンピオンのセリフを読んで、誰のセリフか4択から選ぶ。</li>
+                    <li><strong>ポイント獲得</strong>: 正解すると1ポイント獲得。進捗はリアルタイムで表示される。</li>
+                    <li><strong>10ポイント貯める</strong>: 10ポイント達成すると、キャラクター生成チケットが1枚もらえる。</li>
+                    <li><strong>キャラ生成</strong>: チケットを使ってランダムなキャラクターを生成。ボディ、目、口、アイテムが組み合わさる。</li>
+                    <li><strong>保存・ダウンロード</strong>: 気に入ったキャラクターをPNG保存、またはコレクションに追加。</li>
+                    <li><strong>コレクション</strong>: 生成したキャラクター一覧を確認。クリックで拡大表示・再ダウンロード可能。</li>
+                </ol>
+
+                <h3>💡 キャラクター生成の仕組み</h3>
+                <ul class="game-features">
+                    <li><strong>ボディ（25種類）</strong>: 5つの形状（円、四角、三角、楕円、ひし形） × 5色のバリエーション</li>
+                    <li><strong>目（5種類）</strong>: 丸い目、つり目、大きい目、点の目、X目</li>
+                    <li><strong>口（5種類）</strong>: 笑顔、直線、悲しい、O形、ニヤリ</li>
+                    <li><strong>アイテム（5種類）</strong>: 王冠、帽子、リボン、星、眼鏡</li>
+                    <li><strong>合計3,125通り</strong>: 25 × 5 × 5 × 5 = 3,125パターンの組み合わせ</li>
+                </ul>
+
+                <h3>🎮 プレイ例</h3>
+                <div style="background: rgba(255, 255, 255, 0.05); padding: var(--spacing-md); border-radius: 8px; margin-top: var(--spacing-md);">
+                    <p><strong>1日目:</strong> クイズに3問挑戦 → 3ポイント獲得（累計: 3 / 10）</p>
+                    <p><strong>2日目:</strong> クイズに4問挑戦 → 4ポイント獲得（累計: 7 / 10）</p>
+                    <p><strong>3日目:</strong> クイズに5問挑戦 → 5ポイント獲得（累計: 12 / 10）</p>
+                    <p style="margin-left: 20px; color: var(--primary-color);">🎉 生成チケット1枚獲得！キャラクターを生成</p>
+                    <p><strong>4日目:</strong> コレクションを眺めて満足 → また明日挑戦しよう！</p>
+                </div>
+
+                <h3>🎨 コレクション完成率</h3>
+                <ul style="padding-left: 20px; line-height: 1.8;">
+                    <li>全3,125通りのキャラクターをコレクション可能</li>
+                    <li>完成率がパーセンテージで表示される</li>
+                    <li>同じ組み合わせが連続で生成されないように自動調整</li>
+                    <li>全組み合わせを使い切った後のみ重複を許可</li>
+                </ul>
+
+                <h3>❓ よくある質問</h3>
+                <div style="background: rgba(255, 255, 255, 0.05); padding: var(--spacing-md); border-radius: 8px; margin-top: var(--spacing-md);">
+                    <p><strong>Q: ポイントはリセットされる？</strong></p>
+                    <p style="margin-left: 20px; color: var(--text-light);">A: いいえ、ポイントはlocalStorageに保存され、ブラウザを閉じても消えません。ずっと貯まり続けます。</p>
+                    
+                    <p style="margin-top: var(--spacing-sm);"><strong>Q: 生成チケットの有効期限は？</strong></p>
+                    <p style="margin-left: 20px; color: var(--text-light);">A: ありません。いつでも好きなタイミングでキャラクター生成に使えます。</p>
+                    
+                    <p style="margin-top: var(--spacing-sm);"><strong>Q: 同じ問題が出る？</strong></p>
+                    <p style="margin-left: 20px; color: var(--text-light);">A: はい、問題はランダムに選ばれるので、同じ問題が出ることがあります。覚えてしまえば簡単にポイントが貯まります！</p>
+                    
+                    <p style="margin-top: var(--spacing-sm);"><strong>Q: キャラクターを再ダウンロードできる？</strong></p>
+                    <p style="margin-left: 20px; color: var(--text-light);">A: はい、コレクション画面からいつでも再生成・再ダウンロード可能です。</p>
+                    
+                    <p style="margin-top: var(--spacing-sm);"><strong>Q: データが消える心配は？</strong></p>
+                    <p style="margin-left: 20px; color: var(--text-light);">A: localStorageに保存されるため、ブラウザのキャッシュをクリアすると消えます。大切なキャラクターはPNG保存しておくことをおすすめします。</p>
+                </div>
+
+                <div style="background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); padding: var(--spacing-lg); border-radius: 12px; text-align: center; margin-top: var(--spacing-lg);">
+                    <h3 style="color: white; margin-bottom: var(--spacing-md);">今すぐプレイ！</h3>
+                    <a href="lol-quote-quiz.html" style="display: inline-block; padding: var(--spacing-md) var(--spacing-xl); background: white; color: var(--primary-color); text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 1.2rem; transition: transform 0.3s;">
+                        💬 セリフ当てクイズを始める →
+                    </a>
+                </div>
+            </div>
+        </div>
+
         <div class="cta-section">
             <h2>さあ、今すぐ遊んでみよう！</h2>
             <p style="color: white; margin-bottom: var(--spacing-lg);">
