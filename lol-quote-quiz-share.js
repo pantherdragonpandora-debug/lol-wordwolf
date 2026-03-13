@@ -4933,15 +4933,41 @@ function startQuiz() {
     const quote = currentQuestion.quotes[currentLanguage];
     document.getElementById('quote-text').textContent = `"${quote}"`;
     
-    // 現在の言語の選択肢を表示
-    const choices = currentQuestion.choices[currentLanguage];
+    // 現在の言語の選択肢を取得
+    const originalChoices = currentQuestion.choices[currentLanguage];
+    const originalAnswer = currentQuestion.answer;
+    
+    console.log('🔍 元の選択肢:', originalChoices);
+    console.log('🔍 元の正解インデックス:', originalAnswer);
+    
+    // 選択肢をシャッフル（正解のインデックスも追跡）
+    const shuffledData = shuffleChoices(originalChoices, originalAnswer);
+    const shuffledChoices = shuffledData.choices;
+    const newAnswerIndex = shuffledData.answerIndex;
+    
+    console.log('🎲 シャッフル後の選択肢:', shuffledChoices);
+    console.log('🎲 シャッフル後の正解インデックス:', newAnswerIndex);
+    console.log('✅ 正解:', shuffledChoices[newAnswerIndex]);
+    
+    // シャッフル後の正解インデックスを保存
+    currentQuestion.shuffledAnswer = newAnswerIndex;
+    
+    // デバッグ情報を表示（開発用）
+    const debugInfo = document.getElementById('debug-info');
+    const debugAnswer = document.getElementById('debug-answer');
+    if (debugInfo && debugAnswer) {
+        debugInfo.style.display = 'block';
+        debugAnswer.textContent = `${newAnswerIndex + 1}番目 (${shuffledChoices[newAnswerIndex]})`;
+    }
+    
+    // 選択肢を表示
     const choicesContainer = document.getElementById('choices-container');
     choicesContainer.innerHTML = '';
     
-    choices.forEach((choice, index) => {
+    shuffledChoices.forEach((choice, index) => {
         const button = document.createElement('button');
         button.className = 'choice-btn';
-        button.textContent = choice;
+        button.textContent = `${index + 1}. ${choice}`;
         button.onclick = () => selectAnswer(index);
         choicesContainer.appendChild(button);
     });
@@ -4953,16 +4979,56 @@ function startQuiz() {
     console.log(`📝 問題表示: ${currentQuestion.id} (${currentLanguage})`);
 }
 
+// 選択肢をシャッフルする関数（Fisher-Yates）
+function shuffleChoices(choices, answerIndex) {
+    // デバッグ用
+    console.log('shuffleChoices呼び出し - 入力:', { choices, answerIndex });
+    
+    // 配列のコピーを作成
+    const shuffled = [...choices];
+    const indices = choices.map((_, i) => i);
+    
+    // Fisher-Yatesシャッフル
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        [indices[i], indices[j]] = [indices[j], indices[i]];
+    }
+    
+    // 新しい正解のインデックスを見つける
+    const newAnswerIndex = indices.indexOf(answerIndex);
+    
+    console.log('shuffleChoices呼び出し - 出力:', { 
+        shuffled, 
+        newAnswerIndex,
+        correctAnswer: shuffled[newAnswerIndex]
+    });
+    
+    return {
+        choices: shuffled,
+        answerIndex: newAnswerIndex
+    };
+}
+
 function selectAnswer(selectedIndex) {
     const buttons = document.querySelectorAll('.choice-btn');
-    const isCorrect = selectedIndex === currentQuestion.answer;
+    const isCorrect = selectedIndex === currentQuestion.shuffledAnswer;
+    
+    // デバッグ情報
+    console.log('🎯 回答選択:', {
+        selectedIndex,
+        shuffledAnswer: currentQuestion.shuffledAnswer,
+        isCorrect,
+        selectedText: buttons[selectedIndex].textContent,
+        correctText: buttons[currentQuestion.shuffledAnswer].textContent
+    });
     
     // すべてのボタンを無効化
     buttons.forEach((button, index) => {
         button.disabled = true;
         
         // 正解・不正解の色付け
-        if (index === currentQuestion.answer) {
+        if (index === currentQuestion.shuffledAnswer) {
             button.classList.add('correct');
         } else if (index === selectedIndex && !isCorrect) {
             button.classList.add('incorrect');
