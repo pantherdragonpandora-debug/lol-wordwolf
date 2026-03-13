@@ -426,6 +426,9 @@ header h1 {
     padding: 30px;
     text-align: center;
     margin-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 #character-canvas {
@@ -433,12 +436,22 @@ header h1 {
     height: auto;
     border-radius: 8px;
     background: #fff;
-    margin-bottom: 20px;
+    margin: 20px 0;
+    cursor: pointer;
+    /* 画像として保存しやすくする */
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* 右クリックメニューを有効化 */
+#character-canvas {
+    -webkit-touch-callout: default;
 }
 
 .generation-info {
     color: var(--text-light);
     font-size: 1rem;
+    margin-top: 10px;
 }
 
 .generation-actions {

@@ -4860,6 +4860,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 画像を事前読み込み
     await preloadImages();
     
+    // キャンバス保存ヒントの設定
+    setupCanvasSaveHint();
+    
     console.log(`✅ 多言語対応クイズ初期化完了: ${currentLanguage} | 問題数: ${quizQuestions.length}`);
 });
 
@@ -5096,10 +5099,9 @@ function generateCharacter() {
     // キャンバスに描画
     drawCharacter('character-canvas', combinationId, rarity);
     
-    // 組み合わせIDとレアリティを表示
-    document.getElementById('combination-id').textContent = combinationId;
+    // レアリティを表示
     displayRarity(rarity);
-    document.getElementById('generation-info').textContent = `生成完了！ ${getRarityText(rarity)}を獲得！`;
+    document.getElementById('generation-info').textContent = '💾 画像を右クリック（長押し）で保存できます';
     
     // シェアボタンを追加
     addShareButtonsToGeneration();
@@ -5206,36 +5208,22 @@ function getRarityText(rarity) {
 
 // レアリティを画面に表示
 function displayRarity(rarity) {
-    const rarityDisplay = document.getElementById('rarity-display');
-    if (!rarityDisplay) {
-        // 要素がない場合は作成
-        const container = document.getElementById('generation-screen').querySelector('.container');
-        const infoElement = document.getElementById('generation-info');
-        const newDisplay = document.createElement('div');
-        newDisplay.id = 'rarity-display';
-        newDisplay.className = 'rarity-display';
-        container.insertBefore(newDisplay, infoElement.nextSibling);
-    }
+    const rarityDisplay = document.getElementById('character-rarity-display');
+    if (!rarityDisplay) return;
     
-    const display = document.getElementById('rarity-display');
-    display.innerHTML = '';
+    // レア度表示を表示
+    rarityDisplay.style.display = 'flex';
     
     // 星を表示
-    for (let i = 0; i < rarity; i++) {
-        const star = document.createElement('span');
-        star.className = 'rarity-star';
-        star.textContent = '★';
-        display.appendChild(star);
-    }
+    const starElement = rarityDisplay.querySelector('.rarity-star');
+    starElement.textContent = '★'.repeat(rarity);
     
     // レアリティテキスト
-    const text = document.createElement('span');
-    text.className = 'rarity-text';
-    text.textContent = getRarityText(rarity).split(' ')[1]; // "レジェンダリー" のみ
-    display.appendChild(text);
+    const textElement = rarityDisplay.querySelector('.rarity-text');
+    textElement.textContent = getRarityText(rarity).split(' ')[1]; // "レジェンダリー" のみ
     
-    // レアリティに応じたエフェクト
-    display.className = `rarity-display rarity-${rarity}`;
+    // レアリティに応じたクラスを設定
+    rarityDisplay.className = `rarity-display rarity-${rarity}`;
 }
 
 // 画像キャッシュ
@@ -5315,22 +5303,6 @@ function drawCharacter(canvasId, combinationId, rarity = null) {
     drawImagePart(ctx, canvas, 'eye', eyeNum);
     drawImagePart(ctx, canvas, 'mouth', mouthNum);
     drawImagePart(ctx, canvas, 'item', itemNum);
-    
-    // レアリティを表示
-    if (rarity) {
-        ctx.fillStyle = '#FFD700';
-        ctx.font = 'bold 24px Arial';
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth = 3;
-        const stars = '★'.repeat(rarity);
-        ctx.strokeText(stars, 10, 35);
-        ctx.fillText(stars, 10, 35);
-    }
-    
-    // IDをキャンバスに表示
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-    ctx.font = 'bold 14px monospace';
-    ctx.fillText(combinationId, 10, canvas.height - 10);
 }
 
 function drawImagePart(ctx, canvas, type, num) {
@@ -5626,6 +5598,43 @@ function downloadCharacter() {
     link.download = `lol-character-${currentGeneratedCharacter.id}.png`;
     link.href = canvas.toDataURL('image/png');
     link.click();
+}
+
+// キャンバスに右クリック保存のヒントを追加
+function setupCanvasSaveHint() {
+    const canvas = document.getElementById('character-canvas');
+    if (!canvas) return;
+    
+    // タッチデバイス用：長押しで保存可能にする
+    let touchTimer;
+    canvas.addEventListener('touchstart', (e) => {
+        touchTimer = setTimeout(() => {
+            // 長押し時のヒント表示
+            const info = document.getElementById('generation-info');
+            if (info) {
+                info.textContent = '画像を長押しして保存できます 📥';
+                setTimeout(() => {
+                    info.textContent = '';
+                }, 3000);
+            }
+        }, 500);
+    });
+    
+    canvas.addEventListener('touchend', () => {
+        clearTimeout(touchTimer);
+    });
+    
+    // PC用：右クリックで保存可能
+    canvas.addEventListener('contextmenu', (e) => {
+        // 右クリックメニューを許可（デフォルト動作）
+        const info = document.getElementById('generation-info');
+        if (info) {
+            info.textContent = '右クリックで画像を保存できます 📥';
+            setTimeout(() => {
+                info.textContent = '';
+            }, 3000);
+        }
+    });
 }
 
 // コレクションに保存

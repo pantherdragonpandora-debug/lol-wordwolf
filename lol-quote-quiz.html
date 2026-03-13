@@ -176,7 +176,14 @@
             <h2 class="screen-title">✨ キャラクター生成</h2>
 
             <div class="generation-card">
+                <!-- レア度表示（画像の外） -->
+                <div id="character-rarity-display" class="rarity-display" style="display: none;">
+                    <div class="rarity-star">★★★</div>
+                    <div class="rarity-text">レア</div>
+                </div>
+                
                 <canvas id="character-canvas" width="400" height="400"></canvas>
+                
                 <div class="generation-info" id="generation-info">
                     生成中...
                 </div>
@@ -195,7 +202,6 @@
             </div>
 
             <div class="generation-stats">
-                <div>生成パターン: <span id="combination-id">---</span></div>
                 <div>残りチケット: <span id="remaining-tickets">0</span></div>
             </div>
         </div>
