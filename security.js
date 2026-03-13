@@ -1,284 +1,221 @@
 /**
- * バージョン管理とキャッシュクリア
- * 
- * 使い方：
- * 1. APP_VERSIONを更新する（例: '1.0.10' → '1.0.11'）
- * 2. ファイルを保存してデプロイ
- * 3. ユーザーがアクセスすると自動的にキャッシュがクリアされる
+ * Firebase診断ツール
+ * ブラウザのコンソールで使用可能なデバッグコマンド
  */
 
-// ========================================
-// バージョン設定（更新時にここを変更）
-// ========================================
-const APP_VERSION = '1.0.23';
+// グローバル診断関数を定義
+window.diagnosisFirebase = async function() {
+  console.log('🔬 Firebase診断を開始します...\n');
+  
+  // 1. Firebase接続状態
+  console.log('1️⃣ Firebase接続状態を確認');
+  try {
+    const connectedRef = firebase.database().ref('.info/connected');
+    const connectedSnap = await connectedRef.once('value');
+    const isConnected = connectedSnap.val();
+    console.log(`   ${isConnected ? '✅' : '❌'} 接続状態:`, isConnected ? '接続済み' : '切断');
+  } catch (error) {
+    console.error('   ❌ エラー:', error.message);
+  }
+  
+  // 2. 読み取り権限テスト
+  console.log('\n2️⃣ 読み取り権限をテスト');
+  try {
+    const testRef = firebase.database().ref('rooms');
+    const snapshot = await testRef.limitToFirst(1).once('value');
+    console.log('   ✅ rooms/ の読み取り: 成功');
+    console.log('   📊 データ件数:', snapshot.numChildren());
+  } catch (error) {
+    console.error('   ❌ rooms/ の読み取り: 失敗');
+    console.error('   エラー:', error.message);
+  }
+  
+  try {
+    const testRef = firebase.database().ref('demacia_rooms');
+    const snapshot = await testRef.limitToFirst(1).once('value');
+    console.log('   ✅ demacia_rooms/ の読み取り: 成功');
+    console.log('   📊 データ件数:', snapshot.numChildren());
+  } catch (error) {
+    console.error('   ❌ demacia_rooms/ の読み取り: 失敗');
+    console.error('   エラー:', error.message);
+  }
+  
+  // 3. 書き込み権限テスト
+  console.log('\n3️⃣ 書き込み権限をテスト');
+  const testRoomId = 'TEST' + Date.now();
+  
+  try {
+    const testRef = firebase.database().ref(`rooms/${testRoomId}`);
+    await testRef.set({ test: true, createdAt: Date.now() });
+    console.log('   ✅ rooms/ の書き込み: 成功');
+    // テストデータを削除
+    await testRef.remove();
+    console.log('   ✅ テストデータを削除');
+  } catch (error) {
+    console.error('   ❌ rooms/ の書き込み: 失敗');
+    console.error('   エラー:', error.message);
+    console.error('   💡 Firebaseセキュリティルールを確認してください');
+  }
+  
+  try {
+    const testRef = firebase.database().ref(`demacia_rooms/${testRoomId}`);
+    await testRef.set({ test: true, createdAt: Date.now() });
+    console.log('   ✅ demacia_rooms/ の書き込み: 成功');
+    // テストデータを削除
+    await testRef.remove();
+    console.log('   ✅ テストデータを削除');
+  } catch (error) {
+    console.error('   ❌ demacia_rooms/ の書き込み: 失敗');
+    console.error('   エラー:', error.message);
+    console.error('   💡 Firebaseセキュリティルールを確認してください');
+  }
+  
+  // 4. 既存ルームの一覧
+  console.log('\n4️⃣ 既存ルームを確認');
+  try {
+    const roomsRef = firebase.database().ref('rooms');
+    const roomsSnap = await roomsRef.once('value');
+    const rooms = roomsSnap.val();
+    console.log('   📦 ワードウルフルーム数:', roomsSnap.numChildren());
+    if (rooms) {
+      Object.keys(rooms).forEach(roomId => {
+        const room = rooms[roomId];
+        console.log(`      - ${roomId}: ${room.host} (${room.gameState})`);
+      });
+    }
+  } catch (error) {
+    console.error('   ❌ エラー:', error.message);
+  }
+  
+  try {
+    const demaciaRef = firebase.database().ref('demacia_rooms');
+    const demaciaSnap = await demaciaRef.once('value');
+    const demaciaRooms = demaciaSnap.val();
+    console.log('   📦 デマーシアルーム数:', demaciaSnap.numChildren());
+    if (demaciaRooms) {
+      Object.keys(demaciaRooms).forEach(roomId => {
+        const room = demaciaRooms[roomId];
+        console.log(`      - ${roomId}: ${room.host} (${room.gameState})`);
+      });
+    }
+  } catch (error) {
+    console.error('   ❌ エラー:', error.message);
+  }
+  
+  // 5. 推奨設定
+  console.log('\n5️⃣ Firebaseセキュリティルール（推奨設定）');
+  console.log(`
+{
+  "rules": {
+    "rooms": {
+      ".read": true,
+      ".write": true
+    },
+    "demacia_rooms": {
+      ".read": true,
+      ".write": true
+    }
+  }
+}
+  `);
+  
+  console.log('📋 設定方法:');
+  console.log('1. https://console.firebase.google.com/ にアクセス');
+  console.log('2. プロジェクト「lol-word-wolf」を選択');
+  console.log('3. Realtime Database → ルール');
+  console.log('4. 上記のJSONをコピーして貼り付け');
+  console.log('5. 「公開」ボタンをクリック\n');
+  
+  console.log('✅ 診断完了！\n');
+};
 
-// ========================================
-// バージョン管理システム
-// ========================================
-(function() {
-  'use strict';
+// 特定のルームを確認する関数
+window.checkRoom = async function(roomId) {
+  console.log('🔍 ルームを確認:', roomId);
   
-  const VERSION_KEY = 'esports_wordwolf_version';
-  const LAST_CHECK_KEY = 'esports_wordwolf_last_check';
-  const CHECK_INTERVAL = 1000 * 60 * 60; // 1時間ごとにチェック
-  
-  /**
-   * バージョンチェックとキャッシュクリア
-   */
-  function checkAndClearCache() {
-    const savedVersion = localStorage.getItem(VERSION_KEY);
-    const lastCheck = localStorage.getItem(LAST_CHECK_KEY);
-    const now = Date.now();
-    
-    // 初回アクセスの場合
-    if (!savedVersion) {
-      console.log('🎮 Esports ワードウルフへようこそ！');
-      console.log('📦 バージョン:', APP_VERSION);
-      localStorage.setItem(VERSION_KEY, APP_VERSION);
-      localStorage.setItem(LAST_CHECK_KEY, now);
-      return;
-    }
-    
-    // バージョンが異なる場合
-    if (savedVersion !== APP_VERSION) {
-      console.log('🔄 新バージョンが検出されました');
-      console.log('📦 旧バージョン:', savedVersion, '→ 新バージョン:', APP_VERSION);
-      console.log('🧹 キャッシュをクリアしています...');
-      
-      clearAllCaches().then(() => {
-        console.log('✅ キャッシュクリア完了');
-        
-        // 言語設定を保持
-        const lang = localStorage.getItem('selectedLanguage');
-        
-        // LocalStorageをクリア
-        localStorage.clear();
-        
-        // 言語設定を復元
-        if (lang) {
-          localStorage.setItem('selectedLanguage', lang);
-        }
-        
-        // 新バージョンを保存
-        localStorage.setItem(VERSION_KEY, APP_VERSION);
-        localStorage.setItem(LAST_CHECK_KEY, now);
-        
-        // 通知表示
-        showUpdateNotification();
-        
-        // 1秒後にリロード
-        setTimeout(() => {
-          window.location.reload(true);
-        }, 1000);
-      });
-    } else {
-      // 定期チェック（1時間ごと）
-      if (!lastCheck || (now - parseInt(lastCheck)) > CHECK_INTERVAL) {
-        console.log('🔍 バージョンチェック実行中...');
-        localStorage.setItem(LAST_CHECK_KEY, now);
-        
-        // サーバーから最新バージョンを確認（オプション）
-        checkServerVersion();
-      }
-    }
+  // ワードウルフルームを確認
+  const wordwolfRef = firebase.database().ref(`rooms/${roomId}`);
+  const wordwolfSnap = await wordwolfRef.once('value');
+  console.log('\n📦 ワードウルフルーム (rooms/' + roomId + '):');
+  console.log('   存在:', wordwolfSnap.exists());
+  if (wordwolfSnap.exists()) {
+    const data = wordwolfSnap.val();
+    console.log('   データ:', data);
+    console.log('   ゲームタイプ:', data.settings?.gameType);
+    console.log('   ホスト:', data.host);
+    console.log('   ゲーム状態:', data.gameState);
+    console.log('   プレイヤー数:', Object.keys(data.players || {}).length);
   }
   
-  /**
-   * すべてのキャッシュをクリア
-   */
-  async function clearAllCaches() {
-    const promises = [];
-    
-    // Service Worker キャッシュ
-    if ('caches' in window) {
-      promises.push(
-        caches.keys().then(names => {
-          return Promise.all(
-            names.map(name => {
-              console.log('🗑️ キャッシュ削除:', name);
-              return caches.delete(name);
-            })
-          );
-        })
-      );
+  // デマーシアルームを確認
+  const demaciaRef = firebase.database().ref(`demacia_rooms/${roomId}`);
+  const demaciaSnap = await demaciaRef.once('value');
+  console.log('\n📦 デマーシアルーム (demacia_rooms/' + roomId + '):');
+  console.log('   存在:', demaciaSnap.exists());
+  if (demaciaSnap.exists()) {
+    const data = demaciaSnap.val();
+    console.log('   データ:', data);
+    console.log('   ゲームタイプ:', data.settings?.gameType);
+    console.log('   ホスト:', data.host);
+    console.log('   ゲーム状態:', data.gameState);
+    console.log('   プレイヤー数:', Object.keys(data.players || {}).length);
+  }
+  
+  if (!wordwolfSnap.exists() && !demaciaSnap.exists()) {
+    console.log('\n❌ ルームが見つかりません');
+    console.log('💡 ルームIDが正しいか確認してください');
+  }
+  
+  // 現在選択中のモードとの互換性チェック
+  console.log('\n🔍 現在の選択状態:');
+  console.log('   ゲームモード:', window.selectedGameMode || '未選択');
+  console.log('   ゲームタイプ:', window.selectedGameType || '未選択');
+  
+  if (window.selectedGameMode) {
+    if (window.selectedGameMode === 'wordwolf' && wordwolfSnap.exists()) {
+      console.log('   ✅ ワードウルフモードで参加可能');
+    } else if (window.selectedGameMode === 'demacia' && demaciaSnap.exists()) {
+      console.log('   ✅ デマーシアモードで参加可能');
+    } else if (window.selectedGameMode === 'wordwolf' && demaciaSnap.exists()) {
+      console.log('   ❌ モード不一致: ワードウルフを選択中だがデマーシアルーム');
+    } else if (window.selectedGameMode === 'demacia' && wordwolfSnap.exists()) {
+      console.log('   ❌ モード不一致: デマーシアを選択中だがワードウルフルーム');
     }
-    
-    // IndexedDB クリア（オプション）
-    if ('indexedDB' in window) {
-      promises.push(clearIndexedDB());
-    }
-    
-    await Promise.all(promises);
-  }
-  
-  /**
-   * IndexedDBをクリア
-   */
-  function clearIndexedDB() {
-    return new Promise((resolve) => {
-      if (!window.indexedDB) {
-        resolve();
-        return;
-      }
-      
-      try {
-        const dbs = ['firebaseLocalStorageDb', 'firestore'];
-        let cleared = 0;
-        
-        dbs.forEach(dbName => {
-          const request = indexedDB.deleteDatabase(dbName);
-          request.onsuccess = () => {
-            console.log('🗑️ IndexedDB削除:', dbName);
-            cleared++;
-            if (cleared === dbs.length) resolve();
-          };
-          request.onerror = () => {
-            cleared++;
-            if (cleared === dbs.length) resolve();
-          };
-        });
-        
-        // タイムアウト処理
-        setTimeout(() => resolve(), 1000);
-      } catch (e) {
-        console.warn('IndexedDBクリアエラー:', e);
-        resolve();
-      }
-    });
-  }
-  
-  /**
-   * サーバーから最新バージョンを確認（オプション）
-   */
-  function checkServerVersion() {
-    // version.json をサーバーに配置すれば、動的にバージョンチェック可能
-    fetch('version.json?t=' + Date.now())
-      .then(res => res.json())
-      .then(data => {
-        if (data.version && data.version !== APP_VERSION) {
-          console.log('🆕 サーバー上の新バージョン:', data.version);
-          // 必要に応じてリロードを促す
-          showUpdateAvailable(data.version);
-        }
-      })
-      .catch(() => {
-        // version.jsonが存在しない場合は無視
-      });
-  }
-  
-  /**
-   * 更新通知を表示
-   */
-  function showUpdateNotification() {
-    const notification = document.createElement('div');
-    notification.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: linear-gradient(135deg, #0bc6e3 0%, #0a9fb5 100%);
-      color: white;
-      padding: 1rem 1.5rem;
-      border-radius: 8px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-      z-index: 10000;
-      font-weight: 600;
-      animation: slideIn 0.3s ease;
-    `;
-    notification.innerHTML = `
-      <div style="display: flex; align-items: center; gap: 0.5rem;">
-        <span>🎉</span>
-        <span>アップデート完了！ v${APP_VERSION}</span>
-      </div>
-    `;
-    document.body.appendChild(notification);
-    
-    // 3秒後に削除
-    setTimeout(() => {
-      notification.style.animation = 'slideOut 0.3s ease';
-      setTimeout(() => notification.remove(), 300);
-    }, 3000);
-  }
-  
-  /**
-   * 新バージョン利用可能通知
-   */
-  function showUpdateAvailable(newVersion) {
-    if (document.getElementById('update-banner')) return;
-    
-    const banner = document.createElement('div');
-    banner.id = 'update-banner';
-    banner.style.cssText = `
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: linear-gradient(135deg, #c89b3c 0%, #a67c2b 100%);
-      color: #0a1428;
-      padding: 1rem;
-      text-align: center;
-      z-index: 9999;
-      font-weight: 600;
-      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
-    `;
-    banner.innerHTML = `
-      <div style="display: flex; justify-content: center; align-items: center; gap: 1rem;">
-        <span>🆕 新しいバージョン (${newVersion}) が利用可能です</span>
-        <button onclick="location.reload(true)" style="
-          background: rgba(10, 20, 40, 0.9);
-          color: #c89b3c;
-          border: none;
-          padding: 0.5rem 1rem;
-          border-radius: 4px;
-          cursor: pointer;
-          font-weight: 600;
-        ">更新</button>
-        <button onclick="this.parentElement.parentElement.remove()" style="
-          background: transparent;
-          color: rgba(10, 20, 40, 0.7);
-          border: none;
-          padding: 0.5rem;
-          cursor: pointer;
-        ">×</button>
-      </div>
-    `;
-    document.body.appendChild(banner);
-  }
-  
-  // アニメーション定義
-  const style = document.createElement('style');
-  style.textContent = `
-    @keyframes slideIn {
-      from {
-        transform: translateX(400px);
-        opacity: 0;
-      }
-      to {
-        transform: translateX(0);
-        opacity: 1;
-      }
-    }
-    @keyframes slideOut {
-      from {
-        transform: translateX(0);
-        opacity: 1;
-      }
-      to {
-        transform: translateX(400px);
-        opacity: 0;
-      }
-    }
-  `;
-  document.head.appendChild(style);
-  
-  // ページ読み込み時に実行
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', checkAndClearCache);
   } else {
-    checkAndClearCache();
+    console.log('   ⚠️ ゲームモードが選択されていません');
+  }
+};
+
+// すべてのルームを削除する関数（デバッグ用）
+window.clearAllRooms = async function() {
+  const confirm = window.confirm('すべてのルームを削除しますか？この操作は取り消せません。');
+  if (!confirm) {
+    console.log('キャンセルされました');
+    return;
   }
   
-  // グローバルに公開（デバッグ用）
-  window.clearAppCache = clearAllCaches;
-  window.getAppVersion = () => APP_VERSION;
+  console.log('🧹 すべてのルームを削除中...');
   
-})();
+  try {
+    await firebase.database().ref('rooms').remove();
+    console.log('✅ ワードウルフルームを削除');
+  } catch (error) {
+    console.error('❌ エラー:', error.message);
+  }
+  
+  try {
+    await firebase.database().ref('demacia_rooms').remove();
+    console.log('✅ デマーシアルームを削除');
+  } catch (error) {
+    console.error('❌ エラー:', error.message);
+  }
+  
+  console.log('✅ 完了');
+};
+
+// ヘルプメッセージ
+console.log('🔧 Firebase診断ツールが利用可能です！\n');
+console.log('使い方:');
+console.log('  diagnosisFirebase()     - Firebase接続と権限を診断');
+console.log('  checkRoom("123456")     - 特定のルームを確認');
+console.log('  clearAllRooms()         - すべてのルームを削除（デバッグ用）\n');

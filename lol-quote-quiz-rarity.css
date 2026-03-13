@@ -1,0 +1,134 @@
+/* ========================================
+   ログイン・同期UI スタイル
+   ======================================== */
+
+.auth-card {
+    background: rgba(30, 35, 40, 0.6);
+    border: 1px solid rgba(200, 155, 60, 0.3);
+    border-radius: 12px;
+    padding: var(--spacing-lg);
+    margin: var(--spacing-lg) 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.auth-info {
+    margin-bottom: var(--spacing-md);
+    text-align: center;
+}
+
+#user-info {
+    color: var(--success-color);
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: var(--spacing-sm);
+}
+
+.sync-status {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin: var(--spacing-sm) auto;
+    max-width: 300px;
+}
+
+.sync-status.success {
+    background: rgba(0, 208, 132, 0.2);
+    color: var(--success-color);
+    border: 1px solid var(--success-color);
+}
+
+.sync-status.error {
+    background: rgba(209, 54, 57, 0.2);
+    color: var(--error-color);
+    border: 1px solid var(--error-color);
+}
+
+.sync-status.info {
+    background: rgba(3, 151, 171, 0.2);
+    color: var(--secondary-color);
+    border: 1px solid var(--secondary-color);
+}
+
+.auth-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    align-items: center;
+}
+
+.btn-google {
+    background: linear-gradient(135deg, #4285F4, #34A853);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(66, 133, 244, 0.3);
+    width: 100%;
+    max-width: 320px;
+}
+
+.btn-google:hover {
+    background: linear-gradient(135deg, #5a95f5, #46b865);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(66, 133, 244, 0.4);
+}
+
+.btn-google:active {
+    transform: translateY(0);
+}
+
+.btn-sync {
+    background: rgba(3, 151, 171, 0.2);
+    color: var(--secondary-color);
+    border: 1px solid var(--secondary-color);
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    max-width: 200px;
+}
+
+.btn-sync:hover {
+    background: rgba(3, 151, 171, 0.3);
+    border-color: #04B8D4;
+    color: #04B8D4;
+}
+
+.btn-sync:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.auth-note {
+    margin-top: var(--spacing-md);
+    font-size: 0.85rem;
+    color: var(--text-light);
+    text-align: center;
+    line-height: 1.5;
+}
+
+/* ========================================
+   レスポンシブ対応
+   ======================================== */
+
+@media (max-width: 768px) {
+    .auth-card {
+        padding: var(--spacing-md);
+    }
+
+    .btn-google {
+        font-size: 0.9rem;
+        padding: 10px 20px;
+    }
+
+    .auth-note {
+        font-size: 0.8rem;
+    }
+}

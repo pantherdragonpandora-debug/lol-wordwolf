@@ -1,0 +1,515 @@
+/* ========================================
+   気分診断チャンピオン選択 - スタイルシート
+   ======================================== */
+
+/* ホーム画面 */
+.mood-quiz-home {
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.mood-quiz-title {
+  font-size: 2.5rem;
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.mood-quiz-subtitle {
+  font-size: 1.2rem;
+  color: var(--text-color);
+  margin-bottom: 2rem;
+  opacity: 0.9;
+}
+
+.mood-quiz-description {
+  font-size: 1rem;
+  color: var(--text-color);
+  margin-bottom: 2rem;
+  line-height: 1.8;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mood-quiz-features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.mood-quiz-feature {
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mood-quiz-feature-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.mood-quiz-feature-text {
+  font-size: 0.9rem;
+  color: var(--text-color);
+}
+
+/* 質問画面 */
+.mood-question-container {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.mood-progress-container {
+  margin-bottom: 2rem;
+}
+
+.mood-question-number {
+  text-align: center;
+  color: var(--primary-color);
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.mood-progress-bar-wrapper {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.mood-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.mood-question-card {
+  background: linear-gradient(135deg, var(--bg-dark-secondary), rgba(0, 0, 0, 0.3));
+  border: 2px solid var(--border-color);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.mood-question-text {
+  font-size: 1.8rem;
+  color: var(--text-white);
+  text-align: center;
+  margin-bottom: 2rem;
+  font-weight: 600;
+}
+
+.mood-question-options {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.mood-option-btn {
+  padding: 1.2rem 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  color: var(--text-white);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+}
+
+.mood-option-btn:hover {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  border-color: var(--primary-color);
+  transform: translateX(8px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* 前の質問に戻るボタン */
+.mood-back-question-btn {
+  width: 100%;
+  padding: 1rem;
+  margin-top: 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  color: var(--text-white);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.mood-back-question-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+}
+
+/* 結果画面 */
+.mood-result-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.mood-result-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.mood-result-title {
+  font-size: 2.5rem;
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+}
+
+.mood-result-description {
+  font-size: 1.2rem;
+  color: var(--text-color);
+  line-height: 1.8;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* スコアチャート */
+.mood-score-section {
+  margin-bottom: 3rem;
+}
+
+.mood-score-section h3 {
+  font-size: 1.5rem;
+  color: var(--text-white);
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.mood-score-chart {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.mood-score-bar-container {
+  display: grid;
+  grid-template-columns: 150px 1fr 50px;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.mood-score-label {
+  font-size: 1rem;
+  color: var(--text-white);
+  font-weight: 600;
+}
+
+.mood-score-bar-wrapper {
+  height: 30px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+.mood-score-bar {
+  height: 100%;
+  border-radius: 15px;
+  transition: width 0.5s ease;
+}
+
+.mood-score-aggressive {
+  background: linear-gradient(90deg, #e74c3c, #c0392b);
+}
+
+.mood-score-supportive {
+  background: linear-gradient(90deg, #3498db, #2980b9);
+}
+
+.mood-score-tactical {
+  background: linear-gradient(90deg, #9b59b6, #8e44ad);
+}
+
+.mood-score-value {
+  font-size: 1.2rem;
+  color: var(--primary-color);
+  font-weight: 700;
+  text-align: center;
+}
+
+/* チャンピオンリスト */
+.mood-champion-section h3 {
+  font-size: 1.5rem;
+  color: var(--text-white);
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.mood-champion-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.mood-champion-card {
+  background: linear-gradient(135deg, var(--bg-dark-secondary), rgba(0, 0, 0, 0.3));
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.mood-champion-card:hover {
+  transform: translateY(-8px);
+  border-color: var(--primary-color);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* 順位バッジ */
+.mood-rank-badge {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  color: var(--text-white);
+  font-size: 1.2rem;
+  font-weight: 700;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  z-index: 10;
+}
+
+/* 1位の特別スタイル */
+.mood-rank-1 {
+  border: 3px solid #FFD700;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(0, 0, 0, 0.3));
+}
+
+.mood-rank-1 .mood-rank-badge {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  font-size: 1.4rem;
+  animation: pulse-gold 2s infinite;
+}
+
+.mood-rank-1 .mood-champion-image img {
+  border: 4px solid #FFD700;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+}
+
+/* 2位のスタイル */
+.mood-rank-2 {
+  border: 3px solid #C0C0C0;
+  box-shadow: 0 0 15px rgba(192, 192, 192, 0.4);
+  background: linear-gradient(135deg, rgba(192, 192, 192, 0.1), rgba(0, 0, 0, 0.3));
+}
+
+.mood-rank-2 .mood-rank-badge {
+  background: linear-gradient(135deg, #C0C0C0, #A9A9A9);
+}
+
+.mood-rank-2 .mood-champion-image img {
+  border: 4px solid #C0C0C0;
+}
+
+/* 3位のスタイル */
+.mood-rank-3 {
+  border: 3px solid #CD7F32;
+  box-shadow: 0 0 15px rgba(205, 127, 50, 0.4);
+  background: linear-gradient(135deg, rgba(205, 127, 50, 0.1), rgba(0, 0, 0, 0.3));
+}
+
+.mood-rank-3 .mood-rank-badge {
+  background: linear-gradient(135deg, #CD7F32, #B8732E);
+}
+
+.mood-rank-3 .mood-champion-image img {
+  border: 4px solid #CD7F32;
+}
+
+/* 金メダルのパルスアニメーション */
+@keyframes pulse-gold {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(255, 215, 0, 0.6);
+  }
+}
+
+.mood-champion-image {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.mood-champion-image img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 3px solid var(--primary-color);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.mood-champion-info {
+  text-align: center;
+}
+
+.mood-champion-name {
+  font-size: 1.3rem;
+  color: var(--text-white);
+  margin-bottom: 0.3rem;
+}
+
+.mood-champion-name-en {
+  font-size: 0.9rem;
+  color: var(--text-color);
+  opacity: 0.7;
+  margin-bottom: 0.5rem;
+}
+
+.mood-champion-role {
+  font-size: 0.9rem;
+  color: var(--primary-color);
+  font-weight: 600;
+  margin-bottom: 0.8rem;
+}
+
+.mood-champion-description {
+  font-size: 0.9rem;
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+/* 適合度スコア表示 */
+.mood-champion-score {
+  font-size: 0.85rem;
+  color: var(--primary-color);
+  font-weight: 600;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+/* すべて見るボタン */
+.mood-show-all-btn {
+  width: 100%;
+  padding: 1.2rem;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  color: var(--text-white);
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.mood-show-all-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  filter: brightness(1.1);
+}
+
+/* 全チャンピオン表示ヘッダー */
+.mood-all-champions-header {
+  text-align: center;
+  padding: 2rem 1rem;
+  margin-bottom: 2rem;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  grid-column: 1 / -1;
+}
+
+.mood-all-champions-header h3 {
+  font-size: 2rem;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+.mood-all-champions-header p {
+  font-size: 1rem;
+  color: var(--text-color);
+  opacity: 0.8;
+}
+
+/* 戻るボタン */
+.mood-back-btn {
+  width: 100%;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-white);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+  grid-column: 1 / -1;
+}
+
+.mood-back-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+}
+
+/* ボタングループ */
+.mood-result-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .mood-quiz-title {
+    font-size: 2rem;
+  }
+  
+  .mood-question-text {
+    font-size: 1.4rem;
+  }
+  
+  .mood-option-btn {
+    font-size: 1rem;
+    padding: 1rem;
+  }
+  
+  .mood-score-bar-container {
+    grid-template-columns: 120px 1fr 40px;
+    gap: 0.5rem;
+  }
+  
+  .mood-score-label {
+    font-size: 0.85rem;
+  }
+  
+  .mood-champion-list {
+    grid-template-columns: 1fr;
+  }
+  
+  .mood-result-actions {
+    flex-direction: column;
+  }
+  
+  .mood-result-actions button {
+    width: 100%;
+  }
+}

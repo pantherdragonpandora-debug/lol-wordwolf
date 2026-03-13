@@ -1,2041 +1,1652 @@
 // ========================================
-// UI制御とメイン処理
+// 多言語翻訳データ (i18n)
 // ========================================
+// 英語(en)、韓国語(ko)、中国語(zh)、日本語(ja)対応
 
-let selectedGameType = null; // 'lol' または 'valorant' または 'tft'
-let selectedGameMode = 'wordwolf'; // 'wordwolf' または 'demacia'
-let currentGame = null;
-let currentDemaciaGame = null; // デマーシアゲーム用
-let currentPlayer = null;
-let currentRoomId = null;
-let gameTimer = null;
-let selectedVoteSituation = null; // デマーシア投票用
+const translations = {
+  // 日本語
+  ja: {
+    // ヘッダー
+    'header.title': 'Esports ワードウルフ',
+    'header.connection.connected': '接続中',
+    'header.connection.disconnected': '切断',
+    'header.connection.connecting': '接続中...',
+    'header.backToStart': 'スタート画面に戻る',
+    
+    // ゲーム選択画面
+    'modeSelect.title': 'ゲームモード選択',
+    'modeSelect.subtitle': 'どのモードで遊びますか？',
+    'modeSelect.wordwolf': 'ワードウルフ',
+    'modeSelect.wordwolfDesc': '少数派のウルフを見つけ出すゲーム',
+    'modeSelect.wordwolfPlayers': '👥 3〜6人',
+    'modeSelect.demacia': 'デマーシアに心を込めて',
+    'modeSelect.demaciaDesc': 'セリフを演技して当ててもらうゲーム',
+    'modeSelect.demaciaPlayers': '👥 3〜10人',
+    'modeSelect.void': 'ヴォイドに届くは光か闇か',
+    'modeSelect.voidDesc': '連想ワードで繋ぐ協力ゲーム',
+    'modeSelect.voidPlayers': '👥 2〜8人',
+    'modeSelect.moodQuiz': '気分診断チャンピオン選択',
+    'modeSelect.moodQuizDesc': '今の気分にピッタリのチャンピオンを診断',
+    'modeSelect.moodQuizPlayers': '👤 1人',
+    
+    'gameSelect.title': 'ゲームタイプ選択',
+    'gameSelect.subtitle': 'どのゲームで遊びますか？',
+    'gameSelect.backToMode': 'モード選択に戻る',
+    'gameSelect.lolDesc': 'チャンピオン・アイテム・スキル',
+    'gameSelect.valorantDesc': 'エージェント・武器・マップ',
+    'gameSelect.tftDesc': 'ユニット・特性・アイテム',
+    
+    // ホーム画面
+    'home.title': 'ワードウルフゲーム',
+    'home.titleLol': 'League of Legends ワードウルフ',
+    'home.titleValorant': 'VALORANT ワードウルフ',
+    'home.titleTft': 'Teamfight Tactics ワードウルフ',
+    'home.demaciaTitleLol': 'デマーシアに心を込めて (LOL)',
+    'home.demaciaTitleValorant': 'デマーシアに心を込めて (VALORANT)',
+    'home.voidTitleLol': 'ヴォイドに届くは光か闇か (LOL)',
+    'home.voidTitleValorant': 'ヴォイドに届くは光か闇か (VALORANT)',
+    'home.backToSelect': 'ゲーム選択に戻る',
+    'home.backToModeSelect': 'モード選択に戻る',
+    'home.backToGameType': 'ゲーム選択に戻る',
+    'home.selectMode': 'ゲームモードを選択',
+    'home.modeWordwolf': 'ワードウルフ',
+    'home.modeDemacia': 'デマーシアに心を込めて',
+    'home.create': 'ルームを作成',
+    'home.join': 'ルームに参加',
+    'home.rules': 'ルール説明',
+    'home.soloPlay': '🎭 ソロプレイ（配信者向け）',
+    
+    // デマーシアゲーム
+    'demacia.performTitle': '演技タイム',
+    'demacia.phrase': 'セリフ',
+    'demacia.character': 'キャラクター',
+    'demacia.yourSituation': 'あなたのシチュエーション',
+    'demacia.currentPerformer': '現在の演技者',
+    'demacia.next': '次へ',
+    'demacia.votingTitle': '投票タイム',
+    'demacia.votingInstruction': '各プレイヤーがどのシチュエーションを演じていたか投票してください',
+    'demacia.submitVote': '投票する',
+    'demacia.resultTitle': 'ラウンド結果',
+    'demacia.scores': '現在のスコア',
+    'demacia.nextRound': '次のラウンドへ',
+    'demacia.finalResults': '最終結果',
+    'demacia.winner': '優勝',
+    
+    // ルーム作成画面
+    'create.title': 'ルーム作成',
+    'create.playerName': 'プレイヤー名',
+    'create.playerNamePlaceholder': '名前を入力',
+    'create.playerCount': 'プレイ人数',
+    'create.timer': '検討時間（分）',
+    'create.categories': 'お題カテゴリー',
+    // LOL
+    'create.category.champions': 'チャンピオン',
+    'create.category.items': 'アイテム',
+    'create.category.skills': 'スキル・能力',
+    'create.category.map': 'マップ・レーン',
+    'create.category.spells': 'スペル',
+    // VALORANT
+    'create.category.agents': 'エージェント',
+    'create.category.weapons': '武器',
+    'create.category.abilities': 'アビリティ',
+    'create.category.maps': 'マップ',
+    'create.category.terms': 'ゲーム用語',
+    // TFT
+    'create.category.units': 'ユニット',
+    'create.category.traits': '特性',
+    'create.category.tftItems': 'アイテム',
+    'create.category.tftTerms': 'ゲーム用語',
+    // デマーシア：LOL用ジャンル
+    'create.situationGenres': 'シチュエーションジャンル',
+    'create.genre.battle': '戦闘シーン',
+    'create.genre.victory': '勝利・エース',
+    'create.genre.emotion': '感情表現',
+    'create.genre.strategy': '戦略・判断',
+    'create.genre.teamwork': 'チームワーク',
+    'create.genre.casual': 'カジュアル',
+    // デマーシア：VALORANT用ジャンル
+    'create.genre.clutch': 'クラッチ状況',
+    'create.genre.ace': 'エース獲得',
+    'create.genre.ability': 'アビリティ使用',
+    'create.genre.teamworkVal': 'チーム連携',
+    'create.genre.defuse': '設置・解除',
+    'create.genre.humor': 'ユーモア',
+    // ヴォイド：LOL用カテゴリー
+    'void.category.champions': 'チャンピオン',
+    'void.category.items': 'アイテム',
+    'void.category.places': '地域',
+    'void.category.concepts': 'ゲーム用語',
+    // ヴォイド：VALORANT用カテゴリー
+    'void.category.agents': 'エージェント',
+    'void.category.weapons': '武器',
+    'void.category.maps': 'マップ',
+    // ヴォイド：ホーム画面
+    'void.home.title': 'ヴォイドに届くは光か闇か',
+    'void.home.description': '連想ワードを伝えてテーマを当てよう',
+    'void.home.createRoom': 'ルームを作成',
+    'void.home.joinRoom': 'ルームに参加',
+    'void.home.rules': 'ルール説明',
+    'void.home.backToGameType': 'ゲーム選択に戻る',
+    // ヴォイド：ルーム作成画面
+    'void.create.title': 'ルーム作成',
+    'void.create.playerName': 'プレイヤー名',
+    'void.create.playerNamePlaceholder': '名前を入力',
+    'void.create.maxPlayers': '参加人数',
+    'void.create.themeSelection': 'テーマ選択',
+    'void.create.random': 'ランダム',
+    'void.create.select': '選択',
+    'void.create.categorySelection': 'カテゴリー選択',
+    'void.create.createButton': '作成',
+    'void.create.back': '戻る',
+    // ヴォイド：ルーム参加画面
+    'void.join.title': 'ルームに参加',
+    'void.join.roomId': 'ルームID',
+    'void.join.roomIdPlaceholder': '6桁の数字',
+    'void.join.playerName': 'プレイヤー名',
+    'void.join.playerNamePlaceholder': '名前を入力',
+    'void.join.joinButton': '参加',
+    'void.join.back': '戻る',
+    // ヴォイド：待機画面
+    'void.waiting.title': '待機室',
+    'void.waiting.roomId': 'ルームID',
+    'void.waiting.copyUrl': 'URLをコピー',
+    'void.waiting.playerList': '参加プレイヤー',
+    'void.waiting.startGame': 'ゲーム開始',
+    'void.waiting.leaveRoom': '退出',
+    'create.createButton': '作成',
+    'create.back': '戻る',
+    
+    // ルーム参加画面
+    'join.title': 'ルームに参加',
+    'join.roomId': 'ルームID',
+    'join.roomIdPlaceholder': '6桁のルームID',
+    'join.playerName': 'プレイヤー名',
+    'join.playerNamePlaceholder': '名前を入力',
+    'join.joinButton': '参加',
+    'join.back': '戻る',
+    
+    // 待機室
+    'waiting.title': '待機室',
+    'waiting.roomId': 'ルームID:',
+    'waiting.copyUrl': 'URLをコピー',
+    'waiting.players': '参加プレイヤー',
+    'waiting.playerCount': '参加人数',
+    'waiting.remainingSlots': '残り人数',
+    'waiting.host': 'ホスト',
+    'waiting.startGame': 'ゲーム開始',
+    'waiting.leave': '退出',
+    
+    // ゲーム画面
+    'game.title': '検討タイム',
+    'game.yourTopic': 'あなたのお題',
+    'game.roleWolf': 'あなたはウルフです！',
+    'game.roleCitizen': 'あなたは市民です',
+    'game.chatPlaceholder': 'メッセージを入力...',
+    'game.send': '送信',
+    'game.endDiscussion': '投票へ進む',
+    
+    // 投票画面
+    'voting.title': '投票タイム',
+    'voting.question': '誰がウルフだと思いますか？',
+    'voting.confirm': '投票確定',
+    
+    // 結果画面
+    'result.title': '結果発表',
+    'result.citizensWin': '市民の勝利！',
+    'result.wolfWin': 'ウルフの勝利！',
+    'result.wolfWas': 'ウルフは {wolf} でした',
+    'result.votedOut': '追放されたのは {player} です',
+    'result.topics': 'お題',
+    'result.wolfWord': 'ウルフのワード',
+    'result.citizenWord': '市民のワード',
+    'result.voteResults': '投票結果',
+    'result.votes': '票',
+    'result.playAgain': 'もう一度',
+    'result.backToHome': 'ホームへ',
+    
+    // アラート・メッセージ
+    'alert.enterPlayerName': 'プレイヤー名を入力してください',
+    'alert.selectCategory': 'カテゴリーを1つ以上選択してください',
+    'alert.createFailed': 'ルーム作成に失敗しました',
+    'alert.enterRoomIdAndName': 'ルームIDとプレイヤー名を入力してください',
+    'alert.selectVote': '投票先を選択してください',
+    'alert.votingComplete': '投票完了！他のプレイヤーの投票を待っています...',
+    'alert.urlCopied': 'URLをコピーしました！',
+    'alert.urlCopyFailed': 'URLのコピーに失敗しました',
+    'alert.confirmLeave': 'ルームを退出しますか？',
+    'alert.discussionEnd': '検討時間が終了しました！',
+    
+    // フッター
+    'footer.fanMade': '🎮 Riot Games（League of Legends / VALORANT）ファンによる非公式ゲームサイト',
+    'footer.notAffiliated': '本サイトは Riot Games によって承認されたものではありませんが、Riot Games の Legal Jibber Jabber ポリシーに準拠して運営されています',
+    'footer.privacy': 'プライバシーポリシー',
+    'footer.terms': '利用規約',
+    'footer.copyright': '著作権ポリシー',
+    
+    // デマーシアゲーム
+    'demacia.selectPerformerTitle': '演技者を選択',
+    'demacia.phrase': 'セリフ',
+    'demacia.character': 'キャラクター',
+    'demacia.randomPerformer': 'ランダムに選ぶ',
+    'demacia.or': 'または',
+    'demacia.performTitle': '演技タイム',
+    'demacia.yourSituation': 'あなたのシチュエーション',
+    'demacia.currentPerformer': '現在の演技者',
+    'demacia.performInstruction': '上記のシチュエーションで、このセリフを演技してください！',
+    'demacia.performWaiting': '他のプレイヤーは演技を見て、どのシチュエーションか推理してください。',
+    'demacia.startVoting': '投票を開始',
+    'demacia.performerWait': '他のプレイヤーが投票中...',
+    'demacia.votingTitle': '投票タイム',
+    'demacia.votingInstruction': '演技者はどのシチュエーションを演じていましたか？',
+    'demacia.selectSituation': 'どのシチュエーションで言っていると思いますか？',
+    'demacia.submitVote': '投票する',
+    'demacia.confirmVote': '投票する',
+    'demacia.roundResult': 'ラウンド結果',
+    'demacia.resultTitle': 'ラウンド結果',
+    'demacia.correctSituation': '正解',
+    'demacia.correctCount': '正解者数: {count}人',
+    'demacia.performerScore': '{performer}の獲得スコア: {score}点',
+    'demacia.nextRound': '次のラウンドへ',
+    'demacia.showResults': '最終結果を見る',
+    'demacia.finalResults': '最終結果',
+    'demacia.scores': '現在のスコア',
+    'alert.selectSituation': 'シチュエーションを選択してください',
+    
+    // ヴォイド
+    'void.alert.classNotLoaded': 'エラー: VoidGameクラスが読み込まれていません。\nブラウザを完全リロード（Ctrl+Shift+R）してください。',
+    'void.alert.tooFast': 'ルーム作成が早すぎます。5秒後にもう一度お試しください。',
+    'void.alert.maxPlayersNotFound': 'エラー: 人数選択要素が見つかりません',
+    'void.alert.themeModeNotFound': 'エラー: テーマモード選択要素が見つかりません',
+    'void.alert.playerNameLength': 'プレイヤー名は1〜20文字で入力してください',
+    'void.alert.selectCategory': 'カテゴリーを1つ以上選択してください',
+    'void.alert.createFailed': 'ルーム作成に失敗しました: {error}',
+    'void.alert.joinTooFast': 'ルーム参加の試行が早すぎます。3秒後にもう一度お試しください。',
+    'void.alert.roomIdFormat': 'ルームIDは6桁の数字で入力してください',
+    'void.alert.joinFailed': 'ルーム参加に失敗しました: {error}',
+    'void.alert.selectPlayers': 'プレイヤーの順番を決定してください',
+    'void.alert.selectAllPlayers': '全員の順番を決定してください（{current}/{total}）',
+    'void.alert.orderConfirmFailed': '順番確定に失敗しました: {error}',
+    'void.alert.themeWordNotAllowed': 'テーマと同じ単語「{theme}」は使用できません。\n別の連想ワードを入力してください。',
+    'void.alert.enterAllWords': '3つすべての言葉を入力してください',
+    'void.alert.enterAnswer': '回答を入力してください',
+    'void.alert.selectOrder': '順番を選択してください',
+    'void.alert.alreadySubmitted': '既に回答済みです',
+    'void.orderSelect.title': '回答順番を選択',
+    'void.orderSelect.themeGenre': 'テーマジャンル',
+    'void.orderSelect.description': '全員が順番を選んでください。',
+    'void.orderSelect.firstInfo': '1番目：テーマを見て3つのワードを入力',
+    'void.orderSelect.lastInfo': '最後：ワードを見てテーマを回答',
+    'void.orderSelect.selectionStatus': '選択状況',
+    'void.orderSelect.yourOrder': 'あなたの順番',
+    'void.orderSelect.selectPlaceholder': '選択してください',
+    'void.orderSelect.confirm': '決定',
+    'void.orderSelect.selected': '選択済み',
+    'void.orderSelect.autoStart': '全員が選択するとゲームが自動的に開始されます',
+    'void.orderSelect.orderSuffix': '番目',
+    'void.orderSelect.selecting': '選択中...',
+    'void.waiting.otherTurn': '他のプレイヤーの番です',
+    'void.waiting.genre': 'ジャンル',
+    'void.waiting.answering': 'が回答中...',
+    'void.waiting.pleaseWait': 'しばらくお待ちください',
+    'void.word.modified': '✏️ 修正済み',
+    
+    // 気分診断
+    'moodQuiz.questionNumber': '質問 {current} / {total}',
+    'moodQuiz.backButton': '前の質問に戻る',
+    'moodQuiz.progress': '進捗状況',
+    'moodQuiz.resultTitle': '診断結果',
+    'moodQuiz.yourChampion': 'あなたにおすすめのチャンピオンは...',
+    'moodQuiz.matchType': 'タイプマッチ',
+    'moodQuiz.score': 'スコア',
+    'moodQuiz.points': '点',
+    'moodQuiz.playAgain': 'もう一度診断する',
+    'moodQuiz.shareResult': '結果をシェア',
+    'moodQuiz.backToHome': 'ホームへ戻る',
+    'moodQuiz.analysisTitle': '診断分析',
+    'moodQuiz.yourAnswers': 'あなたの回答',
+    'moodQuiz.personalityType': '性格タイプ',
+    'moodQuiz.aggressive': 'アグレッシブ',
+    'moodQuiz.supportive': 'サポート',
+    'moodQuiz.tactical': '戦術的',
+    'moodQuiz.selectedLane': '選択レーン',
+    'moodQuiz.top': 'トップレーン',
+    'moodQuiz.jungle': 'ジャングル',
+    'moodQuiz.mid': 'ミッドレーン',
+    'moodQuiz.adc': 'ADC',
+    'moodQuiz.support': 'サポート',
+    'moodQuiz.recommendation': 'おすすめ理由',
+    'moodQuiz.otherMatches': '他のマッチ',
+    'moodQuiz.champion': 'チャンピオン',
+    'moodQuiz.reasonPrefix': '理由:',
+    'moodQuiz.matchBonus': 'タイプ一致ボーナス: +50点',
+    'moodQuiz.fromLane': 'のチャンピオンから選びました',
+    'moodQuiz.showAll': 'すべて見る',
+    'moodQuiz.total': '全',
+    'moodQuiz.champions': '体',
+    'moodQuiz.rank1': '1位',
+    'moodQuiz.rank2': '2位',
+    'moodQuiz.rank3': '3位',
+    'moodQuiz.compatibility': '適合度',
+    
+    // 気分診断ホーム画面
+    'moodQuiz.homeTitle': '気分診断チャンピオン選択',
+    'moodQuiz.homeSubtitle': '今の気分にピッタリのチャンピオンを診断！',
+    'moodQuiz.homeDesc1': '12の質問に答えるだけで、今のあなたの気分に最適なチャンピオンをおすすめします。',
+    'moodQuiz.homeDesc2': 'アグレッシブ、サポーティブ、タクティカル...あなたは今どんな気分？',
+    'moodQuiz.featureAggressive': '攻撃的',
+    'moodQuiz.featureSupportive': '支援的',
+    'moodQuiz.featureTactical': '戦術的',
+    'moodQuiz.featureBalanced': 'バランス型',
+    'moodQuiz.startButton': '診断を始める',
+    'moodQuiz.backToModeSelect': 'モード選択に戻る',
+    
+    // サイト説明（フッター）
+    'siteDescription.title': 'League of Legends & VALORANT オンラインパーティーゲーム',
+    'siteDescription.intro': 'このサイトは、League of LegendsとVALORANTをテーマにした<strong>健全なオンラインパーティーゲーム集</strong>です。<br>友達や家族と一緒に、コミュニケーションを楽しみながら遊べる4つのゲームモードを提供しています。',
+    'siteDescription.educationalTitle': '教育的価値',
+    'siteDescription.educationalDesc': '推理力、コミュニケーション能力、演技力を育む',
+    'siteDescription.familyTitle': '家族向け',
+    'siteDescription.familyDesc': '年齢制限なし、安全で健全なコンテンツ',
+    'siteDescription.multilingualTitle': '多言語対応',
+    'siteDescription.multilingualDesc': '日本語、英語、韓国語、中国語に対応',
+    'siteDescription.freeTitle': '無料利用',
+    'siteDescription.freeDesc': '完全無料、アカウント登録不要',
+    'siteDescription.disclaimer': '※ 本サイトはRiot Gamesの非公式ファンサイトです。「Legal Jibber Jabber」ポリシーに準拠しています。',
+    
+    // ナビゲーション
+    'nav.game': 'ゲーム',
+    'nav.gamesIntro': 'ゲーム紹介',
+    'nav.howToPlay': '遊び方',
+    'nav.blog': 'ブログ',
+    'nav.faq': 'FAQ',
+    'nav.contact': 'お問い合わせ',
+    
+    // ゲーム紹介ページ
+    'gamesPage.title': 'Esports パーティーゲームコレクション',
+    'gamesPage.intro': 'League of LegendsとVALORANTをテーマにした4つのオンラインパーティーゲームで、友達や家族と楽しい時間を過ごしましょう！',
+    'gamesPage.feature1Title': 'マルチプレイヤー対応',
+    'gamesPage.feature1Desc': '最大10人まで同時プレイ可能',
+    'gamesPage.feature2Title': 'リアルタイム通信',
+    'gamesPage.feature2Desc': 'Firebase Realtime Databaseで即座に同期',
+    'gamesPage.feature3Title': '完全無料',
+    'gamesPage.feature3Desc': 'アカウント登録不要で今すぐプレイ',
+    'gamesPage.feature4Title': '多言語対応',
+    'gamesPage.feature4Desc': '日本語・英語・韓国語・中国語',
+    'gamesPage.game1Title': 'ワードウルフ',
+    'gamesPage.game1Tagline': '少数派を見つけ出す推理ゲーム',
+    'gamesPage.game1Desc': '参加者の中に隠れた「ウルフ（少数派）」を見つけ出すコミュニケーションゲーム。多数派は同じお題を、ウルフは少し違うお題を受け取り、会話を通じて誰がウルフか推理します。',
+    'gamesPage.game1Feature1': '3〜6人でプレイ',
+    'gamesPage.game1Feature2': '225種類のお題ペア',
+    'gamesPage.game1Feature3': 'LOL/VALORANT/TFT対応',
+    'gamesPage.game2Title': 'デマーシアに心を込めて',
+    'gamesPage.game2Tagline': 'セリフを演技して当ててもらう',
+    'gamesPage.game2Desc': '有名なセリフを、指定されたシチュエーションで演じ、他のプレイヤーに当ててもらうゲーム。演技力と推理力が試される新感覚パーティーゲームです。',
+    'gamesPage.game2Feature1': '3〜10人でプレイ',
+    'gamesPage.game2Feature2': '60種類以上のセリフ',
+    'gamesPage.game2Feature3': '難易度別ポイント制',
+    'gamesPage.game3Title': 'ヴォイドに届くは光か闇か',
+    'gamesPage.game3Tagline': '連想ワードで繋ぐ協力ゲーム',
+    'gamesPage.game3Desc': '連想ワードを伝えてテーマを当てる伝言ゲーム。最初のプレイヤーからワードを3つずつ伝えていき、最後のプレイヤーが元のテーマを推測します。',
+    'gamesPage.game3Feature1': '2〜8人でプレイ',
+    'gamesPage.game3Feature2': '40種類以上のテーマ',
+    'gamesPage.game3Feature3': '順番選択システム',
+    'gamesPage.game4Title': '気分診断チャンピオン選択',
+    'gamesPage.game4Tagline': '今の気分にピッタリのチャンピオンを診断',
+    'gamesPage.game4Desc': '12の質問に答えるだけで、あなたの今の気分やプレイスタイルに最適なチャンピオンを診断します。全172体のチャンピオンから最適な3体を選出！',
+    'gamesPage.game4Feature1': '1人でプレイ',
+    'gamesPage.game4Feature2': '全172体対応',
+    'gamesPage.game4Feature3': 'レーン適性診断',
+    'gamesPage.playNow': '今すぐプレイ',
+    'gamesPage.backToHome': 'ホームへ戻る',
+    
+    // 遊び方ページ
+    'howToPlay.title': '遊び方ガイド',
+    'howToPlay.intro': 'このページでは、各ゲームモードの詳しい遊び方とルールを説明します。',
+    'howToPlay.wordwolfTitle': 'ワードウルフの遊び方',
+    'howToPlay.demaciaTitle': 'デマーシアに心を込めての遊び方',
+    'howToPlay.voidTitle': 'ヴォイドに届くは光か闇かの遊び方',
+    'howToPlay.moodQuizTitle': '気分診断チャンピオン選択の遊び方',
+    
+    // ブログページ
+    'blog.title': 'ブログ・開発者ノート',
+    'blog.intro': 'ゲームのアップデート情報、開発の裏話、遊び方のコツなどを随時更新しています。',
+    'blog.contactNotice': 'お問い合わせはX（Twitter）のDMでお気軽にどうぞ！',
+    'blog.followX': 'Xをフォロー',
+    
+    // FAQページ
+    'faq.title': 'よくある質問（FAQ）',
+    'faq.intro': 'Esports ワードウルフに関するよくある質問をまとめました。',
+    
+    // お問い合わせページ
+    'contact.title': 'お問い合わせ',
+    'contact.intro': 'バグ報告、ご意見・ご要望はX（Twitter）のDMでお気軽にお寄せください。',
+    'contact.xDM': 'X（Twitter）のDM',
+    'contact.xDMDesc': '最も早く対応できます',
+    'contact.faq': 'よくある質問',
+    'contact.faqDesc': 'まずはFAQをご確認ください',
+    'contact.bugReport': 'バグ報告時の情報',
+    'contact.bugReportDesc': '以下の情報をお知らせいただけるとスムーズです',
+    'contact.browser': 'ブラウザとバージョン',
+    'contact.device': '使用デバイス',
+    'contact.issue': '発生した問題',
+    'contact.steps': '再現手順',
+    'contact.screenshot': 'スクリーンショット（任意）',
+    'contact.backToHome': 'ホームへ戻る'
+  },
+  
+  // 英語
+  en: {
+    'header.title': 'Esports Word Wolf',
+    'header.connection.connected': 'Connected',
+    'header.connection.disconnected': 'Disconnected',
+    'header.connection.connecting': 'Connecting...',
+    'header.backToStart': 'Back to Start',
+    
+    // Mode Selection Screen
+    'modeSelect.title': 'Game Mode Selection',
+    'modeSelect.subtitle': 'Which mode do you want to play?',
+    'modeSelect.wordwolf': 'Word Wolf',
+    'modeSelect.wordwolfDesc': 'Find the hidden minority wolf',
+    'modeSelect.wordwolfPlayers': '👥 3-6 Players',
+    'modeSelect.demacia': 'With Love from Demacia',
+    'modeSelect.demaciaDesc': 'Act out lines and guess the situation',
+    'modeSelect.demaciaPlayers': '👥 3-10 Players',
+    'modeSelect.void': 'Light or Dark to the Void',
+    'modeSelect.voidDesc': 'Cooperative word association chain',
+    'modeSelect.voidPlayers': '👥 2-8 Players',
+    'modeSelect.moodQuiz': 'Mood Quiz Champion Selector',
+    'modeSelect.moodQuizDesc': 'Find the perfect champion for your mood',
+    'modeSelect.moodQuizPlayers': '👤 1 Player',
+    
+    'gameSelect.title': 'Game Type Selection',
+    'gameSelect.subtitle': 'Which game do you want to play?',
+    'gameSelect.backToMode': 'Back to Mode',
+    'gameSelect.lolDesc': 'Champions, Items, Skills',
+    'gameSelect.valorantDesc': 'Agents, Weapons, Maps',
+    'gameSelect.tftDesc': 'Units, Traits, Items',
+    
+    'home.title': 'Word Wolf Game',
+    'home.titleLol': 'League of Legends Word Wolf',
+    'home.titleValorant': 'VALORANT Word Wolf',
+    'home.titleTft': 'Teamfight Tactics Word Wolf',
+    'home.demaciaTitleLol': 'With Love from Demacia (LOL)',
+    'home.demaciaTitleValorant': 'With Love from Demacia (VALORANT)',
+    'home.voidTitleLol': 'Light or Dark to the Void (LOL)',
+    'home.voidTitleValorant': 'Light or Dark to the Void (VALORANT)',
+    'home.backToSelect': 'Back to Game Select',
+    'home.backToModeSelect': 'Back to Mode',
+    'home.backToGameType': 'Back to Game Select',
+    'home.create': 'Create Room',
+    'home.join': 'Join Room',
+    'home.rules': 'Rules',
+    'home.soloPlay': '🎭 Solo Play (for Streamers)',
+    
+    'create.title': 'Create Room',
+    'create.playerName': 'Player Name',
+    'create.playerNamePlaceholder': 'Enter your name',
+    'create.playerCount': 'Player Count',
+    'create.timer': 'Discussion Time (min)',
+    'create.categories': 'Topic Categories',
+    'create.category.champions': 'Champions',
+    'create.category.items': 'Items',
+    'create.category.skills': 'Skills & Abilities',
+    'create.category.map': 'Map & Lanes',
+    'create.category.spells': 'Spells',
+    'create.category.agents': 'Agents',
+    'create.category.weapons': 'Weapons',
+    'create.category.abilities': 'Abilities',
+    'create.category.maps': 'Maps',
+    'create.category.terms': 'Game Terms',
+    'create.category.units': 'Units',
+    'create.category.traits': 'Traits',
+    'create.category.tftItems': 'Items',
+    'create.category.tftTerms': 'Game Terms',
+    // Demacia: LOL Genres
+    'create.situationGenres': 'Situation Genres',
+    'create.genre.battle': 'Battle Scene',
+    'create.genre.victory': 'Victory/Ace',
+    'create.genre.emotion': 'Emotion Expression',
+    'create.genre.strategy': 'Strategy/Decision',
+    'create.genre.teamwork': 'Teamwork',
+    'create.genre.casual': 'Casual',
+    // Demacia: VALORANT Genres
+    'create.genre.clutch': 'Clutch Situation',
+    'create.genre.ace': 'Ace Moment',
+    'create.genre.ability': 'Ability Usage',
+    'create.genre.teamworkVal': 'Team Coordination',
+    'create.genre.defuse': 'Plant/Defuse',
+    'create.genre.humor': 'Humor',
+    // Void: LOL Categories
+    'void.category.champions': 'Champions',
+    'void.category.items': 'Items',
+    'void.category.places': 'Regions',
+    'void.category.concepts': 'Game Terms',
+    // Void: VALORANT Categories
+    'void.category.agents': 'Agents',
+    'void.category.weapons': 'Weapons',
+    'void.category.maps': 'Maps',
+    'create.createButton': 'Create',
+    'create.back': 'Back',
+    
+    'join.title': 'Join Room',
+    'join.roomId': 'Room ID',
+    'join.roomIdPlaceholder': '6-digit Room ID',
+    'join.playerName': 'Player Name',
+    'join.playerNamePlaceholder': 'Enter your name',
+    'join.joinButton': 'Join',
+    'join.back': 'Back',
+    
+    'waiting.title': 'Waiting Room',
+    'waiting.roomId': 'Room ID:',
+    'waiting.copyUrl': 'Copy URL',
+    'waiting.players': 'Players',
+    'waiting.playerCount': 'Player Count',
+    'waiting.remainingSlots': 'Remaining Slots',
+    'waiting.host': 'Host',
+    'waiting.startGame': 'Start Game',
+    'waiting.leave': 'Leave',
+    
+    'game.title': 'Discussion Time',
+    'game.yourTopic': 'Your Topic',
+    'game.roleWolf': 'You are the Wolf!',
+    'game.roleCitizen': 'You are a Citizen',
+    'game.chatPlaceholder': 'Type a message...',
+    'game.send': 'Send',
+    'game.endDiscussion': 'Go to Voting',
+    
+    'voting.title': 'Voting Time',
+    'voting.question': 'Who do you think is the Wolf?',
+    'voting.confirm': 'Confirm Vote',
+    
+    'result.title': 'Results',
+    'result.citizensWin': 'Citizens Win!',
+    'result.wolfWin': 'Wolf Wins!',
+    'result.wolfWas': 'The Wolf was {wolf}',
+    'result.votedOut': '{player} was voted out',
+    'result.topics': 'Topics',
+    'result.wolfWord': 'Wolf Word',
+    'result.citizenWord': 'Citizen Word',
+    'result.voteResults': 'Vote Results',
+    'result.votes': 'votes',
+    'result.playAgain': 'Play Again',
+    'result.backToHome': 'Back to Home',
+    
+    'alert.enterPlayerName': 'Please enter your player name',
+    'alert.selectCategory': 'Please select at least one category',
+    'alert.createFailed': 'Failed to create room',
+    'alert.enterRoomIdAndName': 'Please enter Room ID and Player Name',
+    'alert.selectVote': 'Please select who to vote for',
+    'alert.votingComplete': 'Vote complete! Waiting for other players...',
+    'alert.urlCopied': 'URL copied!',
+    'alert.urlCopyFailed': 'Failed to copy URL',
+    'alert.confirmLeave': 'Do you want to leave the room?',
+    'alert.discussionEnd': 'Discussion time is over!',
+    
+    // Void
+    'void.alert.classNotLoaded': 'Error: VoidGame class not loaded.\nPlease reload the page (Ctrl+Shift+R).',
+    'void.alert.tooFast': 'Room creation too fast. Please try again in 5 seconds.',
+    'void.alert.maxPlayersNotFound': 'Error: Max players element not found',
+    'void.alert.themeModeNotFound': 'Error: Theme mode element not found',
+    'void.alert.playerNameLength': 'Player name must be 1-20 characters',
+    'void.alert.selectCategory': 'Please select at least one category',
+    'void.alert.createFailed': 'Failed to create room: {error}',
+    'void.alert.joinTooFast': 'Join attempt too fast. Please try again in 3 seconds.',
+    'void.alert.roomIdFormat': 'Room ID must be 6 digits',
+    'void.alert.joinFailed': 'Failed to join room: {error}',
+    'void.alert.selectPlayers': 'Please decide the player order',
+    'void.alert.selectAllPlayers': 'Please decide all player orders ({current}/{total})',
+    'void.alert.orderConfirmFailed': 'Failed to confirm order: {error}',
+    'void.alert.themeWordNotAllowed': 'You cannot use the theme word "{theme}".\nPlease enter different associated words.',
+    'void.alert.enterAllWords': 'Please enter all 3 words',
+    'void.alert.enterAnswer': 'Please enter your answer',
+    'void.alert.selectOrder': 'Please select your turn order',
+    'void.alert.alreadySubmitted': 'Already submitted',
+    'void.orderSelect.title': 'Select Turn Order',
+    'void.orderSelect.themeGenre': 'Theme Genre',
+    'void.orderSelect.description': 'Everyone must select their turn order.',
+    'void.orderSelect.firstInfo': '1st: See theme and enter 3 words',
+    'void.orderSelect.lastInfo': 'Last: See words and guess theme',
+    'void.orderSelect.selectionStatus': 'Selection Status',
+    'void.orderSelect.yourOrder': 'Your Turn',
+    'void.orderSelect.selectPlaceholder': 'Please select',
+    'void.orderSelect.confirm': 'Confirm',
+    'void.orderSelect.selected': 'Selected',
+    'void.orderSelect.autoStart': 'Game will start automatically when everyone has selected',
+    'void.orderSelect.orderSuffix': '',
+    'void.orderSelect.selecting': 'Selecting...',
+    'void.waiting.otherTurn': 'Other player\'s turn',
+    'void.waiting.genre': 'Genre',
+    'void.waiting.answering': 'is answering...',
+    'void.waiting.pleaseWait': 'Please wait',
+    'void.word.modified': '✏️ Modified',
+    // Void: Categories
+    'void.category.champions': 'Champions',
+    'void.category.items': 'Items',
+    'void.category.places': 'Regions',
+    'void.category.concepts': 'Game Terms',
+    'void.category.agents': 'Agents',
+    'void.category.weapons': 'Weapons',
+    'void.category.maps': 'Maps',
+    // Void: Home Screen
+    'void.home.title': 'Light or Dark to the Void',
+    'void.home.description': 'Pass words to guess the theme',
+    'void.home.createRoom': 'Create Room',
+    'void.home.joinRoom': 'Join Room',
+    'void.home.rules': 'Rules',
+    'void.home.backToGameType': 'Back to Game Selection',
+    // Void: Create Room
+    'void.create.title': 'Create Room',
+    'void.create.playerName': 'Player Name',
+    'void.create.playerNamePlaceholder': 'Enter your name',
+    'void.create.maxPlayers': 'Players',
+    'void.create.themeSelection': 'Theme Selection',
+    'void.create.random': 'Random',
+    'void.create.select': 'Select',
+    'void.create.categorySelection': 'Category Selection',
+    'void.create.createButton': 'Create',
+    'void.create.back': 'Back',
+    // Void: Join Room
+    'void.join.title': 'Join Room',
+    'void.join.roomId': 'Room ID',
+    'void.join.roomIdPlaceholder': '6-digit number',
+    'void.join.playerName': 'Player Name',
+    'void.join.playerNamePlaceholder': 'Enter your name',
+    'void.join.joinButton': 'Join',
+    'void.join.back': 'Back',
+    // Void: Waiting Room
+    'void.waiting.title': 'Waiting Room',
+    'void.waiting.roomId': 'Room ID',
+    'void.waiting.copyUrl': 'Copy URL',
+    'void.waiting.playerList': 'Players',
+    'void.waiting.startGame': 'Start Game',
+    'void.waiting.leaveRoom': 'Leave',
+    
+    // Footer
+    'footer.fanMade': '🎮 Unofficial Riot Games (LoL / VALORANT) Fan Game Site',
+    'footer.notAffiliated': 'Not endorsed by Riot Games, but complies with Riot Games\' Legal Jibber Jabber policy',
+    'footer.privacy': 'Privacy Policy',
+    'footer.terms': 'Terms of Service',
+    'footer.copyright': 'Copyright Policy',
+    
+    // Mood Quiz
+    'moodQuiz.questionNumber': 'Question {current} / {total}',
+    'moodQuiz.backButton': 'Previous Question',
+    'moodQuiz.progress': 'Progress',
+    'moodQuiz.resultTitle': 'Your Result',
+    'moodQuiz.yourChampion': 'Your recommended champion is...',
+    'moodQuiz.matchType': 'Type Match',
+    'moodQuiz.score': 'Score',
+    'moodQuiz.points': 'pts',
+    'moodQuiz.playAgain': 'Take Quiz Again',
+    'moodQuiz.shareResult': 'Share Result',
+    'moodQuiz.backToHome': 'Back to Home',
+    'moodQuiz.analysisTitle': 'Analysis',
+    'moodQuiz.yourAnswers': 'Your Answers',
+    'moodQuiz.personalityType': 'Personality Type',
+    'moodQuiz.aggressive': 'Aggressive',
+    'moodQuiz.supportive': 'Supportive',
+    'moodQuiz.tactical': 'Tactical',
+    'moodQuiz.selectedLane': 'Selected Lane',
+    'moodQuiz.top': 'Top Lane',
+    'moodQuiz.jungle': 'Jungle',
+    'moodQuiz.mid': 'Mid Lane',
+    'moodQuiz.adc': 'ADC',
+    'moodQuiz.support': 'Support',
+    'moodQuiz.recommendation': 'Why this champion?',
+    'moodQuiz.otherMatches': 'Other Matches',
+    'moodQuiz.champion': 'Champion',
+    'moodQuiz.reasonPrefix': 'Reason:',
+    'moodQuiz.matchBonus': 'Type Match Bonus: +50 pts',
+    'moodQuiz.fromLane': ' champions selected',
+    'moodQuiz.showAll': 'Show All',
+    'moodQuiz.total': 'Total ',
+    'moodQuiz.champions': ' champions',
+    'moodQuiz.rank1': '1st',
+    'moodQuiz.rank2': '2nd',
+    'moodQuiz.rank3': '3rd',
+    'moodQuiz.compatibility': 'Compatibility',
+    
+    // Mood Quiz Home Screen
+    'moodQuiz.homeTitle': 'Mood Quiz Champion Selector',
+    'moodQuiz.homeSubtitle': 'Find the perfect champion for your mood!',
+    'moodQuiz.homeDesc1': 'Answer 12 questions to discover the champion that best suits your current mood.',
+    'moodQuiz.homeDesc2': 'Aggressive, Supportive, Tactical... What\'s your mood today?',
+    'moodQuiz.featureAggressive': 'Aggressive',
+    'moodQuiz.featureSupportive': 'Supportive',
+    'moodQuiz.featureTactical': 'Tactical',
+    'moodQuiz.featureBalanced': 'Balanced',
+    'moodQuiz.startButton': 'Start Quiz',
+    'moodQuiz.backToModeSelect': 'Back to Mode Select',
+    
+    // Site Description (Footer)
+    'siteDescription.title': 'League of Legends & VALORANT Online Party Games',
+    'siteDescription.intro': 'This site is a collection of <strong>family-friendly online party games</strong> themed around League of Legends and VALORANT.<br>Enjoy 4 game modes with friends and family while having fun communication.',
+    'siteDescription.educationalTitle': 'Educational Value',
+    'siteDescription.educationalDesc': 'Develops deduction, communication, and acting skills',
+    'siteDescription.familyTitle': 'Family-Friendly',
+    'siteDescription.familyDesc': 'No age restrictions, safe and wholesome content',
+    'siteDescription.multilingualTitle': 'Multilingual',
+    'siteDescription.multilingualDesc': 'Supports Japanese, English, Korean, and Chinese',
+    'siteDescription.freeTitle': 'Free to Use',
+    'siteDescription.freeDesc': 'Completely free, no account required',
+    'siteDescription.disclaimer': '※ This is an unofficial fan site for Riot Games. Complies with Riot Games\' "Legal Jibber Jabber" policy.',
+    
+    // Navigation
+    'nav.game': 'Game',
+    'nav.gamesIntro': 'Games',
+    'nav.howToPlay': 'How to Play',
+    'nav.blog': 'Blog',
+    'nav.faq': 'FAQ',
+    'nav.contact': 'Contact',
+    
+    // Games Page
+    'gamesPage.title': 'Esports Party Game Collection',
+    'gamesPage.intro': 'Enjoy 4 online party games themed around League of Legends and VALORANT with friends and family!',
+    'gamesPage.feature1Title': 'Multiplayer Support',
+    'gamesPage.feature1Desc': 'Up to 10 players simultaneously',
+    'gamesPage.feature2Title': 'Real-time Communication',
+    'gamesPage.feature2Desc': 'Instant sync with Firebase Realtime Database',
+    'gamesPage.feature3Title': 'Completely Free',
+    'gamesPage.feature3Desc': 'No account registration required',
+    'gamesPage.feature4Title': 'Multilingual',
+    'gamesPage.feature4Desc': 'Japanese, English, Korean, Chinese',
+    'gamesPage.game1Title': 'Word Wolf',
+    'gamesPage.game1Tagline': 'Find the hidden minority',
+    'gamesPage.game1Desc': 'A communication game where you find the hidden "Wolf" (minority). The majority gets the same topic while the Wolf gets a slightly different one. Use conversation to deduce who the Wolf is.',
+    'gamesPage.game1Feature1': '3-6 players',
+    'gamesPage.game1Feature2': '225 topic pairs',
+    'gamesPage.game1Feature3': 'LOL/VALORANT/TFT support',
+    'gamesPage.game2Title': 'With Love from Demacia',
+    'gamesPage.game2Tagline': 'Act out lines and guess',
+    'gamesPage.game2Desc': 'Act out famous lines in specified situations and have other players guess. A new party game that tests acting and deduction skills.',
+    'gamesPage.game2Feature1': '3-10 players',
+    'gamesPage.game2Feature2': '60+ lines',
+    'gamesPage.game2Feature3': 'Difficulty-based points',
+    'gamesPage.game3Title': 'Light or Darkness Reaches the Void',
+    'gamesPage.game3Tagline': 'Connect with association words',
+    'gamesPage.game3Desc': 'A relay game where you pass association words to guess the theme. Players relay 3 words each, and the last player deduces the original theme.',
+    'gamesPage.game3Feature1': '2-8 players',
+    'gamesPage.game3Feature2': '40+ themes',
+    'gamesPage.game3Feature3': 'Order selection system',
+    'gamesPage.game4Title': 'Mood Quiz Champion Selector',
+    'gamesPage.game4Tagline': 'Find the perfect champion for your mood',
+    'gamesPage.game4Desc': 'Answer 12 questions to discover which champion suits your current mood and playstyle. Selects the best 3 from all 172 champions!',
+    'gamesPage.game4Feature1': '1 player',
+    'gamesPage.game4Feature2': 'All 172 champions',
+    'gamesPage.game4Feature3': 'Lane aptitude diagnosis',
+    'gamesPage.playNow': 'Play Now',
+    'gamesPage.backToHome': 'Back to Home',
+    
+    // How to Play Page
+    'howToPlay.title': 'How to Play Guide',
+    'howToPlay.intro': 'This page explains detailed rules and how to play each game mode.',
+    'howToPlay.wordwolfTitle': 'How to Play Word Wolf',
+    'howToPlay.demaciaTitle': 'How to Play With Love from Demacia',
+    'howToPlay.voidTitle': 'How to Play Light or Darkness Reaches the Void',
+    'howToPlay.moodQuizTitle': 'How to Use Mood Quiz Champion Selector',
+    
+    // Blog Page
+    'blog.title': 'Blog & Developer Notes',
+    'blog.intro': 'We regularly update with game updates, development stories, and gameplay tips.',
+    'blog.contactNotice': 'Feel free to contact us via X (Twitter) DM!',
+    'blog.followX': 'Follow on X',
+    
+    // FAQ Page
+    'faq.title': 'Frequently Asked Questions (FAQ)',
+    'faq.intro': 'Here are frequently asked questions about Esports Word Wolf.',
+    
+    // Contact Page
+    'contact.title': 'Contact Us',
+    'contact.intro': 'For bug reports, feedback, or requests, feel free to send us a DM on X (Twitter).',
+    'contact.xDM': 'X (Twitter) DM',
+    'contact.xDMDesc': 'We can respond fastest here',
+    'contact.faq': 'FAQ',
+    'contact.faqDesc': 'Please check the FAQ first',
+    'contact.bugReport': 'Bug Report Information',
+    'contact.bugReportDesc': 'Providing the following information helps us respond smoothly',
+    'contact.browser': 'Browser and version',
+    'contact.device': 'Device used',
+    'contact.issue': 'Issue encountered',
+    'contact.steps': 'Steps to reproduce',
+    'contact.screenshot': 'Screenshot (optional)',
+    'contact.backToHome': 'Back to Home'
+  },
+  
+  // 韓国語
+  ko: {
+    'header.title': '이스포츠 워드울프',
+    'header.connection.connected': '연결됨',
+    'header.connection.disconnected': '연결 끊김',
+    'header.connection.connecting': '연결 중...',
+    'header.backToStart': '시작 화면으로 돌아가기',
+    
+    // 모드 선택 화면
+    'modeSelect.title': '게임 모드 선택',
+    'modeSelect.subtitle': '어떤 모드로 플레이하시겠습니까?',
+    'modeSelect.wordwolf': '워드울프',
+    'modeSelect.wordwolfDesc': '소수파 늑대를 찾아내는 게임',
+    'modeSelect.wordwolfPlayers': '👥 3~6명',
+    'modeSelect.demacia': '데마시아에 진심을 담아',
+    'modeSelect.demaciaDesc': '대사를 연기하고 상황을 맞히는 게임',
+    'modeSelect.demaciaPlayers': '👥 3~10명',
+    'modeSelect.void': '보이드에 닿는 것은 빛인가 어둠인가',
+    'modeSelect.voidDesc': '연상 단어로 이어가는 협력 게임',
+    'modeSelect.voidPlayers': '👥 2~8명',
+    'modeSelect.moodQuiz': '기분 진단 챔피언 선택',
+    'modeSelect.moodQuizDesc': '지금 기분에 맞는 챔피언을 진단',
+    'modeSelect.moodQuizPlayers': '👤 1명',
+    
+    'gameSelect.title': '게임 타입 선택',
+    'gameSelect.subtitle': '어떤 게임으로 플레이하시겠습니까?',
+    'gameSelect.backToMode': '모드 선택으로 돌아가기',
+    'gameSelect.lolDesc': '챔피언, 아이템, 스킬',
+    'gameSelect.valorantDesc': '요원, 무기, 맵',
+    'gameSelect.tftDesc': '유닛, 특성, 아이템',
+    
+    'home.title': '워드울프 게임',
+    'home.titleLol': 'League of Legends 워드울프',
+    'home.titleValorant': 'VALORANT 워드울프',
+    'home.titleTft': 'Teamfight Tactics 워드울프',
+    'home.demaciaTitleLol': '데마시아에 진심을 담아 (LOL)',
+    'home.demaciaTitleValorant': '데마시아에 진심을 담아 (VALORANT)',
+    'home.voidTitleLol': '보이드에 닿는 것은 빛인가 어둠인가 (LOL)',
+    'home.voidTitleValorant': '보이드에 닿는 것은 빛인가 어둠인가 (VALORANT)',
+    'home.backToSelect': '게임 선택으로 돌아가기',
+    'home.backToModeSelect': '모드 선택으로 돌아가기',
+    'home.backToGameType': '게임 선택으로 돌아가기',
+    'home.create': '방 만들기',
+    'home.join': '방 참가',
+    'home.rules': '규칙 설명',
+    'home.soloPlay': '🎭 솔로 플레이 (스트리머용)',
+    
+    'create.title': '방 만들기',
+    'create.playerName': '플레이어 이름',
+    'create.playerNamePlaceholder': '이름을 입력하세요',
+    'create.playerCount': '플레이 인원',
+    'create.timer': '토론 시간 (분)',
+    'create.categories': '주제 카테고리',
+    'create.category.champions': '챔피언',
+    'create.category.items': '아이템',
+    'create.category.skills': '스킬 및 능력',
+    'create.category.map': '맵 및 라인',
+    'create.category.spells': '스펠',
+    'create.category.agents': '요원',
+    'create.category.weapons': '무기',
+    'create.category.abilities': '능력',
+    'create.category.maps': '맵',
+    'create.category.terms': '게임 용어',
+    'create.category.units': '유닛',
+    'create.category.traits': '특성',
+    'create.category.tftItems': '아이템',
+    'create.category.tftTerms': '게임 용어',
+    // 데마시아: LOL 장르
+    'create.situationGenres': '상황 장르',
+    'create.genre.battle': '전투 장면',
+    'create.genre.victory': '승리/에이스',
+    'create.genre.emotion': '감정 표현',
+    'create.genre.strategy': '전략/판단',
+    'create.genre.teamwork': '팀워크',
+    'create.genre.casual': '캐주얼',
+    // 데마시아: VALORANT 장르
+    'create.genre.clutch': '클러치 상황',
+    'create.genre.ace': '에이스 획득',
+    'create.genre.ability': '능력 사용',
+    'create.genre.teamworkVal': '팀 협동',
+    'create.genre.defuse': '설치/해제',
+    'create.genre.humor': '유머',
+    // 보이드: LOL 카테고리
+    'void.category.champions': '챔피언',
+    'void.category.items': '아이템',
+    'void.category.places': '지역',
+    'void.category.concepts': '게임 용어',
+    // 보이드: VALORANT 카테고리
+    'void.category.agents': '요원',
+    'void.category.weapons': '무기',
+    'void.category.maps': '맵',
+    'create.createButton': '만들기',
+    'create.back': '뒤로',
+    
+    'join.title': '방 참가',
+    'join.roomId': '방 ID',
+    'join.roomIdPlaceholder': '6자리 방 ID',
+    'join.playerName': '플레이어 이름',
+    'join.playerNamePlaceholder': '이름을 입력하세요',
+    'join.joinButton': '참가',
+    'join.back': '뒤로',
+    
+    'waiting.title': '대기실',
+    'waiting.roomId': '방 ID:',
+    'waiting.copyUrl': 'URL 복사',
+    'waiting.players': '참가자',
+    'waiting.playerCount': '참가 인원',
+    'waiting.remainingSlots': '남은 인원',
+    'waiting.host': '방장',
+    'waiting.startGame': '게임 시작',
+    'waiting.leave': '나가기',
+    
+    'game.title': '토론 시간',
+    'game.yourTopic': '당신의 주제',
+    'game.roleWolf': '당신은 울프입니다!',
+    'game.roleCitizen': '당신은 시민입니다',
+    'game.chatPlaceholder': '메시지를 입력하세요...',
+    'game.send': '전송',
+    'game.endDiscussion': '투표로 이동',
+    
+    'voting.title': '투표 시간',
+    'voting.question': '누가 울프라고 생각하세요?',
+    'voting.confirm': '투표 확정',
+    
+    'result.title': '결과 발표',
+    'result.citizensWin': '시민 승리!',
+    'result.wolfWin': '울프 승리!',
+    'result.wolfWas': '울프는 {wolf}였습니다',
+    'result.votedOut': '{player}가 추방되었습니다',
+    'result.topics': '주제',
+    'result.wolfWord': '울프 단어',
+    'result.citizenWord': '시민 단어',
+    'result.voteResults': '투표 결과',
+    'result.votes': '표',
+    'result.playAgain': '다시 하기',
+    'result.backToHome': '홈으로',
+    
+    'alert.enterPlayerName': '플레이어 이름을 입력하세요',
+    'alert.selectCategory': '카테고리를 하나 이상 선택하세요',
+    'alert.createFailed': '방 만들기에 실패했습니다',
+    'alert.enterRoomIdAndName': '방 ID와 플레이어 이름을 입력하세요',
+    'alert.selectVote': '투표할 사람을 선택하세요',
+    'alert.votingComplete': '투표 완료! 다른 플레이어를 기다리는 중...',
+    'alert.urlCopied': 'URL이 복사되었습니다!',
+    'alert.urlCopyFailed': 'URL 복사에 실패했습니다',
+    'alert.confirmLeave': '방에서 나가시겠습니까?',
+    'alert.discussionEnd': '토론 시간이 종료되었습니다!',
+    
+    // 보이드
+    'void.alert.classNotLoaded': '오류: VoidGame 클래스가 로드되지 않았습니다.\n페이지를 새로고침(Ctrl+Shift+R)하세요.',
+    'void.alert.tooFast': '방 생성이 너무 빠릅니다. 5초 후에 다시 시도하세요.',
+    'void.alert.maxPlayersNotFound': '오류: 인원 선택 요소를 찾을 수 없습니다',
+    'void.alert.themeModeNotFound': '오류: 테마 모드 선택 요소를 찾을 수 없습니다',
+    'void.alert.playerNameLength': '플레이어 이름은 1~20자로 입력하세요',
+    'void.alert.selectCategory': '카테고리를 하나 이상 선택하세요',
+    'void.alert.createFailed': '방 생성 실패: {error}',
+    'void.alert.joinTooFast': '참가 시도가 너무 빠릅니다. 3초 후에 다시 시도하세요.',
+    'void.alert.roomIdFormat': '방 ID는 6자리 숫자여야 합니다',
+    'void.alert.joinFailed': '방 참가 실패: {error}',
+    'void.alert.selectPlayers': '플레이어 순서를 결정하세요',
+    'void.alert.selectAllPlayers': '모든 플레이어 순서를 결정하세요 ({current}/{total})',
+    'void.alert.orderConfirmFailed': '순서 확정 실패: {error}',
+    'void.alert.themeWordNotAllowed': '테마와 같은 단어 "{theme}"는 사용할 수 없습니다.\n다른 연상 단어를 입력하세요.',
+    'void.alert.enterAllWords': '3개의 단어를 모두 입력하세요',
+    'void.alert.enterAnswer': '답변을 입력하세요',
+    'void.alert.selectOrder': '순서를 선택하세요',
+    'void.alert.alreadySubmitted': '이미 제출했습니다',
+    'void.orderSelect.title': '답변 순서 선택',
+    'void.orderSelect.themeGenre': '테마 장르',
+    'void.orderSelect.description': '모든 사람이 순서를 선택해야 합니다.',
+    'void.orderSelect.firstInfo': '1번째: 테마를 보고 3개의 단어 입력',
+    'void.orderSelect.lastInfo': '마지막: 단어를 보고 테마 맞추기',
+    'void.orderSelect.selectionStatus': '선택 현황',
+    'void.orderSelect.yourOrder': '당신의 순서',
+    'void.orderSelect.selectPlaceholder': '선택하세요',
+    'void.orderSelect.confirm': '확인',
+    'void.orderSelect.selected': '선택 완료',
+    'void.orderSelect.autoStart': '모두가 선택하면 게임이 자동으로 시작됩니다',
+    'void.orderSelect.orderSuffix': '번째',
+    'void.orderSelect.selecting': '선택 중...',
+    'void.waiting.otherTurn': '다른 플레이어 차례',
+    'void.waiting.genre': '장르',
+    'void.waiting.answering': '가 답변 중...',
+    'void.waiting.pleaseWait': '잠시만 기다려주세요',
+    'void.word.modified': '✏️ 수정됨',
+    // 보이드: 카테고리
+    'void.category.champions': '챔피언',
+    'void.category.items': '아이템',
+    'void.category.places': '지역',
+    'void.category.concepts': '게임 용어',
+    'void.category.agents': '요원',
+    'void.category.weapons': '무기',
+    'void.category.maps': '맵',
+    // 보이드: 홈 화면
+    'void.home.title': '보이드에 닿는 것은 빛인가 어둠인가',
+    'void.home.description': '연상 단어로 테마를 맞히자',
+    'void.home.createRoom': '방 만들기',
+    'void.home.joinRoom': '방 참가',
+    'void.home.rules': '규칙 설명',
+    'void.home.backToGameType': '게임 선택으로',
+    // 보이드: 방 만들기
+    'void.create.title': '방 만들기',
+    'void.create.playerName': '플레이어 이름',
+    'void.create.playerNamePlaceholder': '이름 입력',
+    'void.create.maxPlayers': '인원',
+    'void.create.themeSelection': '테마 선택',
+    'void.create.random': '랜덤',
+    'void.create.select': '선택',
+    'void.create.categorySelection': '카테고리 선택',
+    'void.create.createButton': '만들기',
+    'void.create.back': '돌아가기',
+    // 보이드: 방 참가
+    'void.join.title': '방 참가',
+    'void.join.roomId': '방 ID',
+    'void.join.roomIdPlaceholder': '6자리 숫자',
+    'void.join.playerName': '플레이어 이름',
+    'void.join.playerNamePlaceholder': '이름 입력',
+    'void.join.joinButton': '참가',
+    'void.join.back': '돌아가기',
+    // 보이드: 대기실
+    'void.waiting.title': '대기실',
+    'void.waiting.roomId': '방 ID',
+    'void.waiting.copyUrl': 'URL 복사',
+    'void.waiting.playerList': '참가자',
+    'void.waiting.startGame': '게임 시작',
+    'void.waiting.leaveRoom': '나가기',
+    
+    // 푸터
+    'footer.fanMade': '🎮 Riot Games (LoL / VALORANT) 팬이 만든 비공식 게임 사이트',
+    'footer.notAffiliated': 'Riot Games의 승인을 받지 않았으나, Riot Games의 Legal Jibber Jabber 정책을 준수합니다',
+    'footer.privacy': '개인정보 처리방침',
+    'footer.terms': '이용약관',
+    'footer.copyright': '저작권 정책',
+    
+    // 기분 진단
+    'moodQuiz.questionNumber': '질문 {current} / {total}',
+    'moodQuiz.backButton': '이전 질문으로',
+    'moodQuiz.progress': '진행 상황',
+    'moodQuiz.resultTitle': '진단 결과',
+    'moodQuiz.yourChampion': '당신에게 추천하는 챔피언은...',
+    'moodQuiz.matchType': '타입 매치',
+    'moodQuiz.score': '점수',
+    'moodQuiz.points': '점',
+    'moodQuiz.playAgain': '다시 진단하기',
+    'moodQuiz.shareResult': '결과 공유',
+    'moodQuiz.backToHome': '홈으로',
+    'moodQuiz.analysisTitle': '진단 분석',
+    'moodQuiz.yourAnswers': '당신의 답변',
+    'moodQuiz.personalityType': '성격 타입',
+    'moodQuiz.aggressive': '공격적',
+    'moodQuiz.supportive': '지원형',
+    'moodQuiz.tactical': '전술적',
+    'moodQuiz.selectedLane': '선택 라인',
+    'moodQuiz.top': '탑 라인',
+    'moodQuiz.jungle': '정글',
+    'moodQuiz.mid': '미드 라인',
+    'moodQuiz.adc': 'ADC',
+    'moodQuiz.support': '서포트',
+    'moodQuiz.recommendation': '추천 이유',
+    'moodQuiz.otherMatches': '다른 매치',
+    'moodQuiz.champion': '챔피언',
+    'moodQuiz.reasonPrefix': '이유:',
+    'moodQuiz.matchBonus': '타입 일치 보너스: +50점',
+    'moodQuiz.fromLane': '챔피언을 선택했습니다',
+    'moodQuiz.showAll': '모두 보기',
+    'moodQuiz.total': '전체 ',
+    'moodQuiz.champions': '명',
+    'moodQuiz.rank1': '1위',
+    'moodQuiz.rank2': '2위',
+    'moodQuiz.rank3': '3위',
+    'moodQuiz.compatibility': '적합도',
+    
+    // 기분 진단 홈 화면
+    'moodQuiz.homeTitle': '기분 진단 챔피언 선택',
+    'moodQuiz.homeSubtitle': '지금 기분에 딱 맞는 챔피언을 진단!',
+    'moodQuiz.homeDesc1': '12개의 질문에 답하면 현재 기분에 최적인 챔피언을 추천합니다.',
+    'moodQuiz.homeDesc2': '공격적, 지원형, 전술적... 당신은 지금 어떤 기분인가요?',
+    'moodQuiz.featureAggressive': '공격적',
+    'moodQuiz.featureSupportive': '지원형',
+    'moodQuiz.featureTactical': '전술적',
+    'moodQuiz.featureBalanced': '균형형',
+    'moodQuiz.startButton': '진단 시작',
+    'moodQuiz.backToModeSelect': '모드 선택으로',
+    
+    // 사이트 설명 (푸터)
+    'siteDescription.title': 'League of Legends & VALORANT 온라인 파티 게임',
+    'siteDescription.intro': '이 사이트는 League of Legends와 VALORANT를 테마로 한 <strong>건전한 온라인 파티 게임 모음</strong>입니다.<br>친구나 가족과 함께 커뮤니케이션을 즐기며 플레이할 수 있는 4가지 게임 모드를 제공합니다.',
+    'siteDescription.educationalTitle': '교육적 가치',
+    'siteDescription.educationalDesc': '추리력, 커뮤니케이션 능력, 연기력을 키움',
+    'siteDescription.familyTitle': '가족 친화적',
+    'siteDescription.familyDesc': '연령 제한 없음, 안전하고 건전한 콘텐츠',
+    'siteDescription.multilingualTitle': '다국어 지원',
+    'siteDescription.multilingualDesc': '일본어, 영어, 한국어, 중국어 지원',
+    'siteDescription.freeTitle': '무료 이용',
+    'siteDescription.freeDesc': '완전 무료, 계정 등록 불필요',
+    'siteDescription.disclaimer': '※ 본 사이트는 Riot Games의 비공식 팬 사이트입니다. Riot Games의 "Legal Jibber Jabber" 정책을 준수합니다.',
+    
+    // 네비게이션
+    'nav.game': '게임',
+    'nav.gamesIntro': '게임 소개',
+    'nav.howToPlay': '플레이 방법',
+    'nav.blog': '블로그',
+    'nav.faq': 'FAQ',
+    'nav.contact': '문의하기',
+    
+    // 게임 소개 페이지
+    'gamesPage.title': '이스포츠 파티 게임 컬렉션',
+    'gamesPage.intro': 'League of Legends와 VALORANT를 테마로 한 4가지 온라인 파티 게임으로 친구와 가족과 즐거운 시간을 보내세요!',
+    'gamesPage.feature1Title': '멀티플레이어 지원',
+    'gamesPage.feature1Desc': '최대 10명 동시 플레이',
+    'gamesPage.feature2Title': '실시간 통신',
+    'gamesPage.feature2Desc': 'Firebase Realtime Database로 즉시 동기화',
+    'gamesPage.feature3Title': '완전 무료',
+    'gamesPage.feature3Desc': '계정 등록 불필요',
+    'gamesPage.feature4Title': '다국어 지원',
+    'gamesPage.feature4Desc': '일본어, 영어, 한국어, 중국어',
+    'gamesPage.game1Title': '워드울프',
+    'gamesPage.game1Tagline': '숨겨진 소수를 찾아라',
+    'gamesPage.game1Desc': '참가자 중 숨어있는 "울프(소수파)"를 찾아내는 커뮤니케이션 게임. 다수파는 같은 주제를, 울프는 조금 다른 주제를 받고 대화를 통해 누가 울프인지 추리합니다.',
+    'gamesPage.game1Feature1': '3-6명 플레이',
+    'gamesPage.game1Feature2': '225개 주제 쌍',
+    'gamesPage.game1Feature3': 'LOL/VALORANT/TFT 지원',
+    'gamesPage.game2Title': '데마시아에 마음을 담아',
+    'gamesPage.game2Tagline': '대사를 연기하고 맞춰보세요',
+    'gamesPage.game2Desc': '유명한 대사를 지정된 상황에서 연기하고 다른 플레이어가 맞추는 게임. 연기력과 추리력이 시험되는 새로운 파티 게임입니다.',
+    'gamesPage.game2Feature1': '3-10명 플레이',
+    'gamesPage.game2Feature2': '60개 이상의 대사',
+    'gamesPage.game2Feature3': '난이도별 점수 시스템',
+    'gamesPage.game3Title': '보이드에 닿는 빛과 어둠',
+    'gamesPage.game3Tagline': '연상 단어로 연결하는 협력 게임',
+    'gamesPage.game3Desc': '연상 단어를 전달하여 테마를 맞추는 릴레이 게임. 첫 플레이어부터 단어를 3개씩 전달하고 마지막 플레이어가 원래 테마를 추측합니다.',
+    'gamesPage.game3Feature1': '2-8명 플레이',
+    'gamesPage.game3Feature2': '40개 이상의 테마',
+    'gamesPage.game3Feature3': '순서 선택 시스템',
+    'gamesPage.game4Title': '기분 진단 챔피언 선택',
+    'gamesPage.game4Tagline': '지금 기분에 맞는 챔피언 진단',
+    'gamesPage.game4Desc': '12개의 질문에 답하면 현재 기분과 플레이 스타일에 최적인 챔피언을 진단합니다. 전체 172개 챔피언 중 최적의 3명을 선정!',
+    'gamesPage.game4Feature1': '1명 플레이',
+    'gamesPage.game4Feature2': '전체 172명 지원',
+    'gamesPage.game4Feature3': '라인 적성 진단',
+    'gamesPage.playNow': '지금 플레이',
+    'gamesPage.backToHome': '홈으로 돌아가기',
+    
+    // 플레이 방법 페이지
+    'howToPlay.title': '플레이 방법 가이드',
+    'howToPlay.intro': '이 페이지에서는 각 게임 모드의 자세한 플레이 방법과 규칙을 설명합니다.',
+    'howToPlay.wordwolfTitle': '워드울프 플레이 방법',
+    'howToPlay.demaciaTitle': '데마시아에 마음을 담아 플레이 방법',
+    'howToPlay.voidTitle': '보이드에 닿는 빛과 어둠 플레이 방법',
+    'howToPlay.moodQuizTitle': '기분 진단 챔피언 선택 사용법',
+    
+    // 블로그 페이지
+    'blog.title': '블로그 & 개발자 노트',
+    'blog.intro': '게임 업데이트 정보, 개발 비화, 플레이 팁 등을 수시로 업데이트합니다.',
+    'blog.contactNotice': '문의는 X(Twitter) DM으로 부담 없이 연락주세요!',
+    'blog.followX': 'X 팔로우',
+    
+    // FAQ 페이지
+    'faq.title': '자주 묻는 질문 (FAQ)',
+    'faq.intro': 'Esports 워드울프에 관한 자주 묻는 질문을 정리했습니다.',
+    
+    // 문의 페이지
+    'contact.title': '문의하기',
+    'contact.intro': '버그 보고, 의견 및 요청사항은 X(Twitter) DM으로 부담 없이 보내주세요.',
+    'contact.xDM': 'X(Twitter) DM',
+    'contact.xDMDesc': '가장 빠르게 응답할 수 있습니다',
+    'contact.faq': '자주 묻는 질문',
+    'contact.faqDesc': '먼저 FAQ를 확인해주세요',
+    'contact.bugReport': '버그 보고 시 정보',
+    'contact.bugReportDesc': '다음 정보를 알려주시면 원활합니다',
+    'contact.browser': '브라우저 및 버전',
+    'contact.device': '사용 기기',
+    'contact.issue': '발생한 문제',
+    'contact.steps': '재현 절차',
+    'contact.screenshot': '스크린샷(선택)',
+    'contact.backToHome': '홈으로 돌아가기'
+  },
+  
+  // 中国語（簡体字）
+  zh: {
+    'header.title': '电竞狼人游戏',
+    'header.connection.connected': '已连接',
+    'header.connection.disconnected': '已断开',
+    'header.connection.connecting': '连接中...',
+    'header.backToStart': '返回开始画面',
+    
+    // 模式选择界面
+    'modeSelect.title': '游戏模式选择',
+    'modeSelect.subtitle': '您想玩哪个模式？',
+    'modeSelect.wordwolf': '狼人游戏',
+    'modeSelect.wordwolfDesc': '找出隐藏的少数派狼人',
+    'modeSelect.wordwolfPlayers': '👥 3-6名玩家',
+    'modeSelect.demacia': '用心来自德玛西亚',
+    'modeSelect.demaciaDesc': '表演台词并猜测情境',
+    'modeSelect.demaciaPlayers': '👥 3-10名玩家',
+    'modeSelect.void': '光明或黑暗通往虚空',
+    'modeSelect.voidDesc': '合作联想词链游戏',
+    'modeSelect.voidPlayers': '👥 2-8名玩家',
+    'modeSelect.moodQuiz': '心情诊断英雄选择',
+    'modeSelect.moodQuizDesc': '根据您的心情推荐最适合的英雄',
+    'modeSelect.moodQuizPlayers': '👤 1名玩家',
+    
+    'gameSelect.title': '游戏类型选择',
+    'gameSelect.subtitle': '您想玩哪个游戏？',
+    'gameSelect.backToMode': '返回模式选择',
+    'gameSelect.lolDesc': '英雄、物品、技能',
+    'gameSelect.valorantDesc': '特工、武器、地图',
+    'gameSelect.tftDesc': '棋子、特质、装备',
+    
+    'home.title': '狼人游戏',
+    'home.titleLol': 'League of Legends 狼人游戏',
+    'home.titleValorant': 'VALORANT 狼人游戏',
+    'home.titleTft': 'Teamfight Tactics 狼人游戏',
+    'home.demaciaTitleLol': '用心来自德玛西亚 (LOL)',
+    'home.demaciaTitleValorant': '用心来自德玛西亚 (VALORANT)',
+    'home.voidTitleLol': '光明或黑暗通往虚空 (LOL)',
+    'home.voidTitleValorant': '光明或黑暗通往虚空 (VALORANT)',
+    'home.backToSelect': '返回游戏选择',
+    'home.backToModeSelect': '返回模式选择',
+    'home.backToGameType': '返回游戏选择',
+    'home.create': '创建房间',
+    'home.join': '加入房间',
+    'home.rules': '游戏规则',
+    'home.soloPlay': '🎭 单人模式（主播专用）',
+    
+    'create.title': '创建房间',
+    'create.playerName': '玩家名称',
+    'create.playerNamePlaceholder': '输入您的名字',
+    'create.playerCount': '玩家人数',
+    'create.timer': '讨论时间（分钟）',
+    'create.categories': '主题类别',
+    'create.category.champions': '英雄',
+    'create.category.items': '装备',
+    'create.category.skills': '技能与能力',
+    'create.category.map': '地图与线路',
+    'create.category.spells': '召唤师技能',
+    'create.category.agents': '特工',
+    'create.category.weapons': '武器',
+    'create.category.abilities': '技能',
+    'create.category.maps': '地图',
+    'create.category.terms': '游戏术语',
+    'create.category.units': '棋子',
+    'create.category.traits': '特质',
+    'create.category.tftItems': '装备',
+    'create.category.tftTerms': '游戏术语',
+    // 德玛西亚: LOL 类型
+    'create.situationGenres': '情境类型',
+    'create.genre.battle': '战斗场景',
+    'create.genre.victory': '胜利/Ace',
+    'create.genre.emotion': '情感表达',
+    'create.genre.strategy': '策略/决策',
+    'create.genre.teamwork': '团队合作',
+    'create.genre.casual': '休闲',
+    // 德玛西亚: VALORANT 类型
+    'create.genre.clutch': '残局情况',
+    'create.genre.ace': '全队击杀',
+    'create.genre.ability': '技能使用',
+    'create.genre.teamworkVal': '团队协作',
+    'create.genre.defuse': '安装/拆除',
+    'create.genre.humor': '幽默',
+    // 虚空: LOL 类别
+    'void.category.champions': '英雄',
+    'void.category.items': '物品',
+    'void.category.places': '地区',
+    'void.category.concepts': '游戏术语',
+    // 虚空: VALORANT 类别
+    'void.category.agents': '特工',
+    'void.category.weapons': '武器',
+    'void.category.maps': '地图',
+    'create.createButton': '创建',
+    'create.back': '返回',
+    
+    'join.title': '加入房间',
+    'join.roomId': '房间ID',
+    'join.roomIdPlaceholder': '6位房间ID',
+    'join.playerName': '玩家名称',
+    'join.playerNamePlaceholder': '输入您的名字',
+    'join.joinButton': '加入',
+    'join.back': '返回',
+    
+    'waiting.title': '等待室',
+    'waiting.roomId': '房间ID:',
+    'waiting.copyUrl': '复制链接',
+    'waiting.players': '参与玩家',
+    'waiting.playerCount': '参加人数',
+    'waiting.remainingSlots': '剩余名额',
+    'waiting.host': '房主',
+    'waiting.startGame': '开始游戏',
+    'waiting.leave': '离开',
+    
+    'game.title': '讨论时间',
+    'game.yourTopic': '您的主题',
+    'game.roleWolf': '您是狼人！',
+    'game.roleCitizen': '您是平民',
+    'game.chatPlaceholder': '输入消息...',
+    'game.send': '发送',
+    'game.endDiscussion': '进入投票',
+    
+    'voting.title': '投票时间',
+    'voting.question': '您认为谁是狼人？',
+    'voting.confirm': '确认投票',
+    
+    'result.title': '结果公布',
+    'result.citizensWin': '平民胜利！',
+    'result.wolfWin': '狼人胜利！',
+    'result.wolfWas': '狼人是 {wolf}',
+    'result.votedOut': '{player} 被投票出局',
+    'result.topics': '主题',
+    'result.wolfWord': '狼人词汇',
+    'result.citizenWord': '平民词汇',
+    'result.voteResults': '投票结果',
+    'result.votes': '票',
+    'result.playAgain': '再玩一次',
+    'result.backToHome': '返回主页',
+    
+    'alert.enterPlayerName': '请输入玩家名称',
+    'alert.selectCategory': '请至少选择一个类别',
+    'alert.createFailed': '创建房间失败',
+    'alert.enterRoomIdAndName': '请输入房间ID和玩家名称',
+    'alert.selectVote': '请选择要投票的玩家',
+    'alert.votingComplete': '投票完成！等待其他玩家...',
+    'alert.urlCopied': '链接已复制！',
+    'alert.urlCopyFailed': '复制链接失败',
+    'alert.confirmLeave': '确定要离开房间吗？',
+    'alert.discussionEnd': '讨论时间结束！',
+    
+    // 虚空
+    'void.alert.classNotLoaded': '错误：VoidGame类未加载。\n请刷新页面（Ctrl+Shift+R）。',
+    'void.alert.tooFast': '创建房间太快。请5秒后重试。',
+    'void.alert.maxPlayersNotFound': '错误：未找到人数选择元素',
+    'void.alert.themeModeNotFound': '错误：未找到主题模式选择元素',
+    'void.alert.playerNameLength': '玩家名称必须为1-20个字符',
+    'void.alert.selectCategory': '请至少选择一个类别',
+    'void.alert.createFailed': '创建房间失败：{error}',
+    'void.alert.joinTooFast': '加入尝试太快。请3秒后重试。',
+    'void.alert.roomIdFormat': '房间ID必须为6位数字',
+    'void.alert.joinFailed': '加入房间失败：{error}',
+    'void.alert.selectPlayers': '请决定玩家顺序',
+    'void.alert.selectAllPlayers': '请决定所有玩家顺序（{current}/{total}）',
+    'void.alert.orderConfirmFailed': '确认顺序失败：{error}',
+    'void.alert.themeWordNotAllowed': '不能使用主题词 "{theme}"。\n请输入其他联想词。',
+    'void.alert.enterAllWords': '请输入全部3个词语',
+    'void.alert.enterAnswer': '请输入您的答案',
+    'void.alert.selectOrder': '请选择顺序',
+    'void.alert.alreadySubmitted': '已经提交',
+    'void.orderSelect.title': '选择回答顺序',
+    'void.orderSelect.themeGenre': '主题类别',
+    'void.orderSelect.description': '所有人必须选择顺序。',
+    'void.orderSelect.firstInfo': '第1个：看主题输入3个词',
+    'void.orderSelect.lastInfo': '最后：看词语猜主题',
+    'void.orderSelect.selectionStatus': '选择状态',
+    'void.orderSelect.yourOrder': '您的顺序',
+    'void.orderSelect.selectPlaceholder': '请选择',
+    'void.orderSelect.confirm': '确定',
+    'void.orderSelect.selected': '已选择',
+    'void.orderSelect.autoStart': '所有人选择后游戏将自动开始',
+    'void.orderSelect.orderSuffix': '个',
+    'void.orderSelect.selecting': '选择中...',
+    'void.waiting.otherTurn': '其他玩家回合',
+    'void.waiting.genre': '类别',
+    'void.waiting.answering': '正在回答...',
+    'void.waiting.pleaseWait': '请稍候',
+    'void.word.modified': '✏️ 已修改',
+    // 虚空: 类别
+    'void.category.champions': '英雄',
+    'void.category.items': '物品',
+    'void.category.places': '地区',
+    'void.category.concepts': '游戏术语',
+    'void.category.agents': '特工',
+    'void.category.weapons': '武器',
+    'void.category.maps': '地图',
+    // 虚空: 主页
+    'void.home.title': '虚空之光或暗',
+    'void.home.description': '传递联想词猜主题',
+    'void.home.createRoom': '创建房间',
+    'void.home.joinRoom': '加入房间',
+    'void.home.rules': '规则说明',
+    'void.home.backToGameType': '返回游戏选择',
+    // 虚空: 创建房间
+    'void.create.title': '创建房间',
+    'void.create.playerName': '玩家名称',
+    'void.create.playerNamePlaceholder': '输入名称',
+    'void.create.maxPlayers': '人数',
+    'void.create.themeSelection': '主题选择',
+    'void.create.random': '随机',
+    'void.create.select': '选择',
+    'void.create.categorySelection': '类别选择',
+    'void.create.createButton': '创建',
+    'void.create.back': '返回',
+    // 虚空: 加入房间
+    'void.join.title': '加入房间',
+    'void.join.roomId': '房间ID',
+    'void.join.roomIdPlaceholder': '6位数字',
+    'void.join.playerName': '玩家名称',
+    'void.join.playerNamePlaceholder': '输入名称',
+    'void.join.joinButton': '加入',
+    'void.join.back': '返回',
+    // 虚空: 等待室
+    'void.waiting.title': '等待室',
+    'void.waiting.roomId': '房间ID',
+    'void.waiting.copyUrl': '复制链接',
+    'void.waiting.playerList': '参加者',
+    'void.waiting.startGame': '开始游戏',
+    'void.waiting.leaveRoom': '离开',
+    
+    // 页脚
+    'footer.fanMade': '🎮 Riot Games (LoL / VALORANT) 粉丝非官方游戏网站',
+    'footer.notAffiliated': '未经 Riot Games 授权，但遵守 Riot Games 的 Legal Jibber Jabber 政策',
+    'footer.privacy': '隐私政策',
+    'footer.terms': '使用条款',
+    'footer.copyright': '版权政策',
+    
+    // 心情诊断
+    'moodQuiz.questionNumber': '问题 {current} / {total}',
+    'moodQuiz.backButton': '返回上一题',
+    'moodQuiz.progress': '进度',
+    'moodQuiz.resultTitle': '诊断结果',
+    'moodQuiz.yourChampion': '推荐给你的英雄是...',
+    'moodQuiz.matchType': '类型匹配',
+    'moodQuiz.score': '分数',
+    'moodQuiz.points': '分',
+    'moodQuiz.playAgain': '重新诊断',
+    'moodQuiz.shareResult': '分享结果',
+    'moodQuiz.backToHome': '返回首页',
+    'moodQuiz.analysisTitle': '诊断分析',
+    'moodQuiz.yourAnswers': '你的回答',
+    'moodQuiz.personalityType': '性格类型',
+    'moodQuiz.aggressive': '进攻型',
+    'moodQuiz.supportive': '辅助型',
+    'moodQuiz.tactical': '战术型',
+    'moodQuiz.selectedLane': '选择路线',
+    'moodQuiz.top': '上路',
+    'moodQuiz.jungle': '打野',
+    'moodQuiz.mid': '中路',
+    'moodQuiz.adc': 'ADC',
+    'moodQuiz.support': '辅助',
+    'moodQuiz.recommendation': '推荐理由',
+    'moodQuiz.otherMatches': '其他匹配',
+    'moodQuiz.champion': '英雄',
+    'moodQuiz.reasonPrefix': '理由：',
+    'moodQuiz.matchBonus': '类型匹配奖励：+50分',
+    'moodQuiz.fromLane': '的英雄中选出',
+    'moodQuiz.showAll': '查看全部',
+    'moodQuiz.total': '共',
+    'moodQuiz.champions': '个',
+    'moodQuiz.rank1': '第1名',
+    'moodQuiz.rank2': '第2名',
+    'moodQuiz.rank3': '第3名',
+    'moodQuiz.compatibility': '适配度',
+    
+    // 心情诊断主页
+    'moodQuiz.homeTitle': '心情诊断英雄选择',
+    'moodQuiz.homeSubtitle': '诊断最适合当前心情的英雄！',
+    'moodQuiz.homeDesc1': '只需回答12个问题，就能推荐最适合你当前心情的英雄。',
+    'moodQuiz.homeDesc2': '进攻型、辅助型、战术型...你现在是什么心情？',
+    'moodQuiz.featureAggressive': '进攻型',
+    'moodQuiz.featureSupportive': '辅助型',
+    'moodQuiz.featureTactical': '战术型',
+    'moodQuiz.featureBalanced': '均衡型',
+    'moodQuiz.startButton': '开始诊断',
+    'moodQuiz.backToModeSelect': '返回模式选择',
+    
+    // 网站说明（页脚）
+    'siteDescription.title': 'League of Legends & VALORANT 在线派对游戏',
+    'siteDescription.intro': '本网站是以League of Legends和VALORANT为主题的<strong>健康在线派对游戏合集</strong>。<br>与朋友和家人一起享受交流的乐趣，提供4种游戏模式。',
+    'siteDescription.educationalTitle': '教育价值',
+    'siteDescription.educationalDesc': '培养推理力、沟通能力和表演能力',
+    'siteDescription.familyTitle': '家庭友好',
+    'siteDescription.familyDesc': '无年龄限制，安全健康的内容',
+    'siteDescription.multilingualTitle': '多语言支持',
+    'siteDescription.multilingualDesc': '支持日语、英语、韩语和中文',
+    'siteDescription.freeTitle': '免费使用',
+    'siteDescription.freeDesc': '完全免费，无需注册账户',
+    'siteDescription.disclaimer': '※ 本网站是Riot Games的非官方粉丝网站。遵守Riot Games的"Legal Jibber Jabber"政策。',
+    
+    // 导航
+    'nav.game': '游戏',
+    'nav.gamesIntro': '游戏介绍',
+    'nav.howToPlay': '玩法',
+    'nav.blog': '博客',
+    'nav.faq': 'FAQ',
+    'nav.contact': '联系我们',
+    
+    // 游戏介绍页面
+    'gamesPage.title': '电竞派对游戏合集',
+    'gamesPage.intro': '与朋友和家人一起享受以League of Legends和VALORANT为主题的4款在线派对游戏！',
+    'gamesPage.feature1Title': '多人游戏支持',
+    'gamesPage.feature1Desc': '最多10人同时游玩',
+    'gamesPage.feature2Title': '实时通信',
+    'gamesPage.feature2Desc': '使用Firebase Realtime Database即时同步',
+    'gamesPage.feature3Title': '完全免费',
+    'gamesPage.feature3Desc': '无需注册账户',
+    'gamesPage.feature4Title': '多语言支持',
+    'gamesPage.feature4Desc': '日语、英语、韩语、中文',
+    'gamesPage.game1Title': '狼人游戏',
+    'gamesPage.game1Tagline': '找出隐藏的少数派',
+    'gamesPage.game1Desc': '在参与者中找出隐藏的"狼"（少数派）的沟通游戏。多数派获得相同的主题，而狼获得略有不同的主题，通过对话推理谁是狼。',
+    'gamesPage.game1Feature1': '3-6人游玩',
+    'gamesPage.game1Feature2': '225个主题对',
+    'gamesPage.game1Feature3': '支持LOL/VALORANT/TFT',
+    'gamesPage.game2Title': '用心来自德玛西亚',
+    'gamesPage.game2Tagline': '表演台词并猜测',
+    'gamesPage.game2Desc': '在指定的情境中表演著名台词，让其他玩家猜测。这是一款测试演技和推理能力的新派对游戏。',
+    'gamesPage.game2Feature1': '3-10人游玩',
+    'gamesPage.game2Feature2': '60多条台词',
+    'gamesPage.game2Feature3': '难度级别积分',
+    'gamesPage.game3Title': '光明或黑暗抵达虚空',
+    'gamesPage.game3Tagline': '用联想词连接的合作游戏',
+    'gamesPage.game3Desc': '通过传递联想词来猜测主题的接力游戏。玩家依次传递3个词，最后一位玩家推测原始主题。',
+    'gamesPage.game3Feature1': '2-8人游玩',
+    'gamesPage.game3Feature2': '40多个主题',
+    'gamesPage.game3Feature3': '顺序选择系统',
+    'gamesPage.game4Title': '心情诊断英雄选择',
+    'gamesPage.game4Tagline': '诊断适合当前心情的英雄',
+    'gamesPage.game4Desc': '回答12个问题，发现最适合你当前心情和游戏风格的英雄。从全部172个英雄中选出最佳3个！',
+    'gamesPage.game4Feature1': '1人游玩',
+    'gamesPage.game4Feature2': '全部172个英雄',
+    'gamesPage.game4Feature3': '路线适应性诊断',
+    'gamesPage.playNow': '立即游玩',
+    'gamesPage.backToHome': '返回首页',
+    
+    // 玩法页面
+    'howToPlay.title': '玩法指南',
+    'howToPlay.intro': '本页面详细说明每种游戏模式的规则和玩法。',
+    'howToPlay.wordwolfTitle': '狼人游戏玩法',
+    'howToPlay.demaciaTitle': '用心来自德玛西亚玩法',
+    'howToPlay.voidTitle': '光明或黑暗抵达虚空玩法',
+    'howToPlay.moodQuizTitle': '心情诊断英雄选择使用方法',
+    
+    // 博客页面
+    'blog.title': '博客 & 开发者笔记',
+    'blog.intro': '我们定期更新游戏更新信息、开发故事和游戏技巧。',
+    'blog.contactNotice': '欢迎通过X(Twitter) DM与我们联系！',
+    'blog.followX': '关注X',
+    
+    // FAQ页面
+    'faq.title': '常见问题 (FAQ)',
+    'faq.intro': '这里整理了关于Esports狼人游戏的常见问题。',
+    
+    // 联系页面
+    'contact.title': '联系我们',
+    'contact.intro': '如需报告错误、提供反馈或请求，欢迎通过X(Twitter) DM与我们联系。',
+    'contact.xDM': 'X(Twitter) DM',
+    'contact.xDMDesc': '我们可以最快速回复',
+    'contact.faq': 'FAQ',
+    'contact.faqDesc': '请先查看FAQ',
+    'contact.bugReport': '错误报告信息',
+    'contact.bugReportDesc': '提供以下信息可帮助我们更顺利地回复',
+    'contact.browser': '浏览器和版本',
+    'contact.device': '使用设备',
+    'contact.issue': '遇到的问题',
+    'contact.steps': '重现步骤',
+    'contact.screenshot': '截图(可选)',
+    'contact.backToHome': '返回首页'
+  }
+};
 
-// ページ読み込み時
-document.addEventListener('DOMContentLoaded', () => {
-  // 多言語初期化
-  initLanguage();
-  
-  // URL パラメータからルームIDを取得
-  const urlParams = new URLSearchParams(window.location.search);
-  const roomIdFromUrl = urlParams.get('room');
-  
-  if (roomIdFromUrl) {
-    // URL経由でアクセスされた場合、まずモード選択画面へ
-    console.log('🔗 URL経由でアクセス。ルームID:', roomIdFromUrl);
-    document.getElementById('join-room-id').value = roomIdFromUrl;
-    // モード選択画面を表示
-    showScreen('mode-select-screen');
-    // 注意メッセージを表示（オプション）
-    setTimeout(() => {
-      alert('招待されたルームに参加するには、まずゲームモードとゲームタイプを選択してください。');
-    }, 500);
-  } else {
-    showScreen('mode-select-screen');
-  }
-  
-  // イベントリスナー設定
-  setupEventListeners();
-  
-  // Firebase接続状態表示
-  updateConnectionStatus();
-  
-  // ブラウザ/タブを閉じる時の処理
-  setupAutoLeaveOnClose();
-});
+// デフォルト言語
+let currentLanguage = 'ja';
 
-// ゲームモード選択関数
-function selectGameMode(mode) {
-  console.log('🎮 Game mode selected:', mode);
-  selectedGameMode = mode;
+// 翻訳関数
+function t(key, params = {}) {
+  let text = translations[currentLanguage][key] || translations['en'][key] || key;
   
-  // モードごとにbodyクラスを変更（テーマカラー切り替え）
-  document.body.classList.remove('mode-wordwolf', 'mode-demacia', 'mode-void');
-  document.body.classList.add(`mode-${mode}`);
+  // パラメータ置換
+  Object.keys(params).forEach(param => {
+    text = text.replace(`{${param}}`, params[param]);
+  });
   
-  // ヴォイドモードの場合は直接ゲーム選択画面へ
-  if (mode === 'void') {
-    showScreen('game-select-screen');
-    // TFTボタンを非表示
-    const tftBtn = document.getElementById('select-tft-btn');
-    if (tftBtn) tftBtn.style.display = 'none';
-    return;
-  }
-  
-  // デマーシアモードの場合、TFTボタンを非表示に＆説明文を空に
-  const tftBtn = document.getElementById('select-tft-btn');
-  const lolDesc = document.getElementById('lol-desc');
-  const valorantDesc = document.getElementById('valorant-desc');
-  const tftDesc = document.getElementById('tft-desc');
-  
-  if (mode === 'demacia') {
-    tftBtn.style.display = 'none';
-    // デマーシアモードでは説明文を空にする
-    lolDesc.textContent = '';
-    valorantDesc.textContent = '';
-  } else {
-    tftBtn.style.display = 'flex';
-    // ワードウルフモードでは説明文を表示
-    lolDesc.textContent = t('gameSelect.lolDesc');
-    valorantDesc.textContent = t('gameSelect.valorantDesc');
-    tftDesc.textContent = t('gameSelect.tftDesc');
-  }
-  
-  showScreen('game-select-screen');
+  return text;
 }
 
-// ゲーム選択関数
-function selectGame(gameType) {
-  console.log('🎮 Game selected:', gameType);
-  console.log('🎮 Current mode:', selectedGameMode);
-  selectedGameType = gameType;
-  console.log('✅ selectedGameType set to:', selectedGameType);
-  
-  // ヴォイドモードの場合
-  if (selectedGameMode === 'void') {
-    // ヴォイド用カテゴリー表示切り替え
-    const voidLolCategories = document.querySelectorAll('.void-lol-category');
-    const voidValorantCategories = document.querySelectorAll('.void-valorant-category');
+// 言語設定を保存
+function saveLanguage(lang) {
+  localStorage.setItem('lol_wordwolf_language', lang);
+}
+
+// 言語設定を読み込み
+function loadLanguage() {
+  const saved = localStorage.getItem('lol_wordwolf_language');
+  return saved || 'ja';
+}
+
+// 言語を変更
+function changeLanguage(lang) {
+  currentLanguage = lang;
+  saveLanguage(lang);
+  updatePageLanguage();
+}
+
+// ページの言語を更新
+function updatePageLanguage() {
+  // data-i18n 属性を持つすべての要素を更新
+  document.querySelectorAll('[data-i18n]').forEach(element => {
+    const key = element.getAttribute('data-i18n');
+    const text = t(key);
     
-    if (gameType === 'lol') {
-      voidLolCategories.forEach(el => el.style.display = 'flex');
-      voidValorantCategories.forEach(el => el.style.display = 'none');
-    } else if (gameType === 'valorant') {
-      voidLolCategories.forEach(el => el.style.display = 'none');
-      voidValorantCategories.forEach(el => el.style.display = 'flex');
-    }
-    
-    showScreen('void-home-screen');
-    return;
-  }
-  
-  // カテゴリー/ジャンルセクションの表示切り替え
-  const wordwolfCategories = document.getElementById('wordwolf-categories');
-  const demaciaGenres = document.getElementById('demacia-genres');
-  const timerSection = document.querySelector('#timer').closest('.form-group');
-  const playerCountSection = document.getElementById('player-count-section');
-  
-  if (selectedGameMode === 'wordwolf') {
-    // ワードウルフモード：カテゴリー表示、検討時間表示、プレイ人数表示
-    wordwolfCategories.style.display = 'block';
-    demaciaGenres.style.display = 'none';
-    timerSection.style.display = 'block';
-    playerCountSection.style.display = 'block';
-    
-    // ゲームタイプ別カテゴリー表示
-    const lolCategories = document.querySelectorAll('.lol-category');
-    const valorantCategories = document.querySelectorAll('.valorant-category');
-    const tftCategories = document.querySelectorAll('.tft-category');
-    
-    if (gameType === 'lol') {
-      lolCategories.forEach(el => el.style.display = 'flex');
-      valorantCategories.forEach(el => el.style.display = 'none');
-      tftCategories.forEach(el => el.style.display = 'none');
-    } else if (gameType === 'valorant') {
-      lolCategories.forEach(el => el.style.display = 'none');
-      valorantCategories.forEach(el => el.style.display = 'flex');
-      tftCategories.forEach(el => el.style.display = 'none');
-    } else if (gameType === 'tft') {
-      lolCategories.forEach(el => el.style.display = 'none');
-      valorantCategories.forEach(el => el.style.display = 'none');
-      tftCategories.forEach(el => el.style.display = 'flex');
-    }
-  } else {
-    // デマーシアモード：ジャンル表示、検討時間・プレイ人数非表示
-    wordwolfCategories.style.display = 'none';
-    demaciaGenres.style.display = 'block';
-    timerSection.style.display = 'none';
-    playerCountSection.style.display = 'none';
-    
-    // デマーシアモード：ゲームタイプ別ジャンル表示
-    const lolGenres = document.querySelectorAll('.lol-genre');
-    const valorantGenres = document.querySelectorAll('.valorant-genre');
-    
-    if (gameType === 'lol') {
-      lolGenres.forEach(el => el.style.display = 'flex');
-      valorantGenres.forEach(el => el.style.display = 'none');
-    } else if (gameType === 'valorant') {
-      lolGenres.forEach(el => el.style.display = 'none');
-      valorantGenres.forEach(el => el.style.display = 'flex');
-    }
-  }
-  
-  // ホーム画面のソロプレイボタン表示制御
-  const soloPlayBtn = document.getElementById('solo-play-btn');
-  if (soloPlayBtn) {
-    if (selectedGameMode === 'demacia') {
-      soloPlayBtn.style.display = 'block';
+    if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+      element.placeholder = text;
     } else {
-      soloPlayBtn.style.display = 'none';
+      element.innerHTML = text;
     }
-  }
+  });
   
-  // ホーム画面のタイトルを更新
-  const titleKey = selectedGameMode === 'wordwolf' ? 
-    `home.title${gameType.charAt(0).toUpperCase() + gameType.slice(1)}` : 
-    `home.demaciaTitle${gameType.charAt(0).toUpperCase() + gameType.slice(1)}`;
-  document.getElementById('home-game-mode-title').textContent = t(titleKey);
-  
-  // bodyにゲームタイプのクラスを追加（テーマカラー切り替え用）
-  document.body.classList.remove('game-lol', 'game-valorant', 'game-tft');
-  document.body.classList.add(`game-${gameType}`);
-  
-  console.log('🖥️ Showing home-screen...');
-  showScreen('home-screen');
-  console.log('✅ selectGame completed');
-}
-
-// イベントリスナー設定
-function setupEventListeners() {
-  // スタート画面に戻るボタン（固定ボタン）
-  const homeButton = document.getElementById('btn-home-fixed');
-  if (homeButton) {
-    console.log('✅ スタートボタン要素を取得しました');
-    
-    // クリックイベント
-    homeButton.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      console.log('🏠 スタートに戻るボタンがクリックされました');
-      goToStart();
-    });
-    
-    // タッチイベント（モバイル対応）
-    homeButton.addEventListener('touchstart', (e) => {
-      console.log('📱 タッチスタート検出');
-    }, { passive: true });
-    
-    homeButton.addEventListener('touchend', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      console.log('🏠 スタートに戻るボタンがタッチされました（モバイル）');
-      goToStart();
-    }, { passive: false });
-    
-    console.log('✅ スタートボタンのイベントリスナーを設定しました');
-  } else {
-    console.error('❌ スタートボタン要素が見つかりません');
-  }
-  
-  // ヘッダータイトルクリックでホームに戻る
-  document.getElementById('site-title').addEventListener('click', () => {
-    if (currentGame || currentDemaciaGame) {
-      if (confirm(t('alert.confirmLeave'))) {
-        backToHome();
-      }
+  // 言語ボタンのアクティブ状態を更新
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    if (btn.getAttribute('data-lang') === currentLanguage) {
+      btn.classList.add('active');
     } else {
-      showScreen('mode-select-screen');
-      selectedGameType = null;
-      selectedGameMode = null;
-      document.body.classList.remove('game-lol', 'game-valorant', 'game-tft', 'mode-wordwolf', 'mode-demacia', 'mode-void');
+      btn.classList.remove('active');
     }
   });
   
-  // モード選択画面
-  document.getElementById('select-wordwolf-mode-btn').addEventListener('click', () => selectGameMode('wordwolf'));
-  document.getElementById('select-demacia-mode-btn').addEventListener('click', () => selectGameMode('demacia'));
-  document.getElementById('select-void-mode-btn').addEventListener('click', () => selectGameMode('void'));
-  document.getElementById('select-mood-quiz-btn').addEventListener('click', () => {
-    selectedGameMode = 'mood-quiz';
-    showScreen('mood-quiz-home-screen');
-    console.log('🎭 気分診断モードを選択しました');
-  });
-  
-  // ゲームタイプ選択画面
-  document.getElementById('select-lol-btn').addEventListener('click', () => selectGame('lol'));
-  document.getElementById('select-valorant-btn').addEventListener('click', () => selectGame('valorant'));
-  document.getElementById('select-tft-btn').addEventListener('click', () => selectGame('tft'));
-  document.getElementById('back-to-mode-select-btn').addEventListener('click', () => {
-    selectedGameType = null;
-    selectedGameMode = null;
-    document.body.classList.remove('game-lol', 'game-valorant', 'game-tft', 'mode-wordwolf', 'mode-demacia', 'mode-void');
-    showScreen('mode-select-screen');
-  });
-  
-  // ホーム画面 - ゲームタイプ選択に戻る
-  document.getElementById('back-to-game-type-btn').addEventListener('click', () => {
-    selectedGameType = null;
-    document.body.classList.remove('game-lol', 'game-valorant', 'game-tft');
-    // 現在のモードに応じてゲーム選択画面を表示
-    if (selectedGameMode === 'void') {
-      showScreen('game-select-screen');
-      const tftBtn = document.getElementById('select-tft-btn');
-      if (tftBtn) tftBtn.style.display = 'none';
-    } else if (selectedGameMode === 'demacia') {
-      selectGameMode('demacia'); // デマーシアのゲーム選択画面
-    } else {
-      selectGameMode('wordwolf'); // ワードウルフのゲーム選択画面
+  // 気分診断の質問画面が表示されている場合、質問と選択肢を再表示
+  const questionScreen = document.getElementById('mood-quiz-question-screen');
+  if (questionScreen && questionScreen.classList.contains('active')) {
+    if (typeof displayQuestion === 'function') {
+      displayQuestion();
+      console.log('🔄 気分診断の質問を再表示しました (言語切替)');
     }
-  });
-  
-  // ソロプレイボタン（デマーシア専用）
-  document.getElementById('solo-play-btn')?.addEventListener('click', () => {
-    console.log('🎭 ソロプレイモード開始');
-    startDemaciaSoloPlay();
-  });
-  
-  // デマーシア：次のラウンドボタン
-  document.getElementById('demacia-next-round-btn')?.addEventListener('click', async () => {
-    console.log('🎭 次のラウンドボタンがクリックされました');
-    if (currentDemaciaGame) {
-      const roomData = currentDemaciaGame.roomData;
-      if (roomData && roomData.host === currentPlayer) {
-        await currentDemaciaGame.nextRound();
-        console.log('✅ 次のラウンドに進みました');
-      } else {
-        alert('ホストのみが次のラウンドに進めます');
-      }
-    }
-  });
-  
-  // ホーム画面
-  document.getElementById('create-room-btn').addEventListener('click', () => showScreen('create-screen'));
-  document.getElementById('join-room-btn').addEventListener('click', () => {
-    updateJoinScreenInfo();
-    showScreen('join-screen');
-  });
-  document.getElementById('rules-btn').addEventListener('click', showRules);
-  
-  // ルーム作成
-  document.getElementById('start-create-btn').addEventListener('click', createRoom);
-  document.getElementById('back-from-create-btn').addEventListener('click', () => showScreen('home-screen'));
-  
-  // ルーム参加
-  document.getElementById('start-join-btn').addEventListener('click', joinRoom);
-  document.getElementById('back-from-join-btn').addEventListener('click', () => showScreen('home-screen'));
-  
-  // 待機室
-  document.getElementById('start-game-btn').addEventListener('click', startGame);
-  document.getElementById('leave-room-btn').addEventListener('click', leaveRoom);
-  document.getElementById('copy-room-url-btn').addEventListener('click', copyRoomUrl);
-  
-  // ゲーム画面
-  document.getElementById('end-discussion-btn').addEventListener('click', moveToVoting);
-  document.getElementById('send-message-btn').addEventListener('click', sendMessage);
-  document.getElementById('chat-input').addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') sendMessage();
-  });
-  
-  // 投票画面
-  document.getElementById('confirm-vote-btn').addEventListener('click', confirmVote);
-  
-  // 結果画面
-  document.getElementById('play-again-btn').addEventListener('click', resetGame);
-  document.getElementById('back-to-home-btn').addEventListener('click', backToHome);
-  
-  // デマーシアゲーム - 演技者選択
-  document.getElementById('random-performer-btn').addEventListener('click', selectRandomPerformer);
-  
-  // デマーシアゲーム - 演技・投票
-  document.getElementById('demacia-start-voting-btn')?.addEventListener('click', startDemaciaVoting);
-  document.getElementById('demacia-submit-vote-btn')?.addEventListener('click', confirmDemaciaVote);
-  document.getElementById('demacia-next-round-btn')?.addEventListener('click', startNextDemaciaRound);
-  document.getElementById('demacia-show-results-btn')?.addEventListener('click', showDemaciaFinalResults);
-  document.getElementById('demacia-play-again-btn')?.addEventListener('click', resetGame);
-  document.getElementById('demacia-back-to-home-btn')?.addEventListener('click', backToHome);
-  
-  // デマーシアゲーム - ソロプレイモード
-  document.getElementById('demacia-solo-show-situation-btn')?.addEventListener('click', showDemaciaSoloSituation);
-  document.getElementById('demacia-solo-start-perform-btn')?.addEventListener('click', startDemaciaSoloPerform);
-  document.getElementById('demacia-solo-end-perform-btn')?.addEventListener('click', endDemaciaSoloPerform);
-  document.getElementById('demacia-solo-reveal-answer-btn')?.addEventListener('click', revealDemaciaSoloAnswer);
-  document.getElementById('demacia-solo-next-btn')?.addEventListener('click', startDemaciaSoloNext);
-  document.getElementById('demacia-solo-home-btn')?.addEventListener('click', backToHome);
-}
-
-// ルーム参加画面の情報を更新
-function updateJoinScreenInfo() {
-  const joinGameInfo = document.getElementById('join-game-info');
-  if (!joinGameInfo) return;
-  
-  let gameText = '';
-  let modeText = '';
-  
-  // ゲームタイプ
-  if (selectedGameType === 'lol') {
-    gameText = 'League of Legends';
-  } else if (selectedGameType === 'valorant') {
-    gameText = 'VALORANT';
-  } else if (selectedGameType === 'tft') {
-    gameText = 'Teamfight Tactics';
-  } else {
-    gameText = '未選択';
   }
   
-  // ゲームモード
-  if (selectedGameMode === 'wordwolf') {
-    modeText = 'ワードウルフ';
-  } else if (selectedGameMode === 'demacia') {
-    modeText = 'デマーシアに心を込めて';
-  } else {
-    modeText = '未選択';
-  }
-  
-  joinGameInfo.innerHTML = `
-    <div style="font-size: 1.3rem; margin-bottom: 0.3rem;">🎮 ${gameText}</div>
-    <div style="font-size: 1rem; opacity: 0.8;">🎭 ${modeText}</div>
-  `;
-}
-
-// 画面切り替え
-function showScreen(screenId) {
-  console.log('🔄 showScreen called with:', screenId);
-  const allScreens = document.querySelectorAll('.screen');
-  console.log('📺 Total screens found:', allScreens.length);
-  
-  document.querySelectorAll('.screen').forEach(screen => {
-    screen.classList.remove('active');
-  });
-  
-  const targetScreen = document.getElementById(screenId);
-  if (targetScreen) {
-    targetScreen.classList.add('active');
-    console.log('✅ Screen activated:', screenId);
-  } else {
-    console.error('❌ Screen not found:', screenId);
-  }
-  
-  // 画面を一番上にスクロール
-  window.scrollTo({
-    top: 0,
-    behavior: 'smooth'
-  });
-  
-  // スタート画面に戻るボタンの表示制御
-  updateHomeButton(screenId);
-  
-  // サイト説明セクションの表示制御（モード選択画面のみ表示）
-  const siteDescription = document.getElementById('site-description');
-  if (siteDescription) {
-    if (screenId === 'mode-select-screen') {
-      siteDescription.style.display = 'block';
-      console.log('📝 サイト説明セクションを表示');
-    } else {
-      siteDescription.style.display = 'none';
-      console.log('🔒 サイト説明セクションを非表示');
+  // 気分診断の結果画面が表示されている場合も再表示
+  const resultScreen = document.getElementById('mood-quiz-result-screen');
+  if (resultScreen && resultScreen.classList.contains('active')) {
+    if (typeof displayResult === 'function' && typeof getMoodTypeFromScores === 'function') {
+      const moodType = getMoodTypeFromScores();
+      displayResult(moodType);
+      console.log('🔄 気分診断の結果を再表示しました (言語切替)');
     }
   }
 }
 
-// スタート画面に戻るボタンの表示制御
-function updateHomeButton(screenId) {
-  const homeButton = document.getElementById('btn-home-fixed');
-  if (!homeButton) {
-    console.warn('⚠️ btn-home-fixed が見つかりません');
-    return;
-  }
-  
-  // スタート画面（モード選択画面）では非表示
-  if (screenId === 'mode-select-screen') {
-    homeButton.style.display = 'none';
-    console.log('🔒 スタートボタンを非表示にしました（モード選択画面）');
-  } else {
-    homeButton.style.display = 'block';
-    console.log(`👁️ スタートボタンを表示しました（画面: ${screenId}）`);
-  }
-}
-
-// スタート画面に戻る
-function goToStart() {
-  console.log('🔄 goToStart 関数が呼び出されました');
-  const confirmMsg = 'スタート画面に戻りますか？\n進行中のゲームがある場合は退出されます。';
-  if (!confirm(confirmMsg)) {
-    console.log('❌ ユーザーがキャンセルしました');
-    return;
-  }
-  
-  console.log('✅ ユーザーが確認しました。処理を続行します。');
-  
-  // 現在のゲームから退出
-  if (currentGame && currentPlayer && currentRoomId) {
-    try {
-      currentGame.stopWatching();
-      currentGame = null;
-    } catch (error) {
-      console.error('ゲーム退出エラー:', error);
-    }
-  }
-  
-  if (currentDemaciaGame && currentPlayer && currentRoomId) {
-    try {
-      currentDemaciaGame.stopWatching();
-      currentDemaciaGame = null;
-    } catch (error) {
-      console.error('デマーシアゲーム退出エラー:', error);
-    }
-  }
-  
-  if (currentVoidGame && currentVoidPlayer && currentVoidRoomId) {
-    try {
-      currentVoidGame.stopWatching();
-      currentVoidGame = null;
-    } catch (error) {
-      console.error('ヴォイドゲーム退出エラー:', error);
-    }
-  }
-  
-  // 変数をリセット
-  selectedGameType = null;
-  selectedGameMode = 'wordwolf';
-  currentPlayer = null;
-  currentRoomId = null;
-  currentVoidPlayer = null;
-  currentVoidRoomId = null;
-  
-  // タイマーをクリア
-  if (gameTimer) {
-    clearInterval(gameTimer);
-    gameTimer = null;
-  }
-  
-  // body classをリセット
-  document.body.className = '';
-  
-  // モード選択画面に戻る
-  showScreen('mode-select-screen');
-  
-  console.log('🏠 スタート画面に戻りました');
-}
-
-// ルーム作成
-async function createRoom() {
-  // レート制限チェック（5秒に1回まで）
-  if (!rateLimiter.check('createRoom', 5000, 3, 60000)) {
-    alert(t('alert.tooManyRequests') || 'ルーム作成が早すぎます。5秒後にもう一度お試しください。');
-    return;
-  }
-  
-  const playerNameInputEl = document.getElementById('create-player-name');
-  
-  // input要素が存在しない場合のエラー処理
-  if (!playerNameInputEl) {
-    console.error('❌ プレイヤー名入力要素が見つかりません');
-    alert('エラー: 入力フォームが見つかりません。ページをリロードしてください。');
-    return;
-  }
-  
-  const playerNameInput = (playerNameInputEl.value || '').trim();
-  
-  console.log('🔍 プレイヤー名入力値:', {
-    raw: playerNameInputEl.value,
-    trimmed: playerNameInput
-  });
-  
-  // 入力検証
-  if (!playerNameInput) {
-    alert(t('alert.enterPlayerName') || 'プレイヤー名を入力してください');
-    return;
-  }
-  
-  // プレイヤー名のサニタイズと検証
-  const playerName = sanitizeInput(playerNameInput, 20);
-  if (!validatePlayerName(playerName)) {
-    alert(t('alert.invalidPlayerName') || 'プレイヤー名は1〜20文字で入力してください');
-    return;
-  }
-  
-  if (!selectedGameType) {
-    alert(t('alert.selectGame'));
-    return;
-  }
-  
-  // ワードウルフの場合のみカテゴリーとプレイ人数を取得
-  let playerCount = 10; // デマーシアのデフォルト
-  let timer = 5;
-  const categories = [];
-  
-  if (selectedGameMode === 'wordwolf') {
-    playerCount = parseInt(document.getElementById('player-count').value);
-    timer = parseInt(document.getElementById('timer').value);
-    
-    document.querySelectorAll('input[name="category"]:checked').forEach(checkbox => {
-      categories.push(checkbox.value);
-    });
-    
-    if (categories.length === 0) {
-      alert(t('alert.selectCategory'));
-      return;
-    }
-  }
-  
-  // ルームID生成（重複チェック付き）
-  console.log('🔑 ユニークなルームIDを生成中...');
-  currentRoomId = await generateRoomId();
-  currentPlayer = playerName;
-  console.log('✅ ルームID生成完了:', currentRoomId);
-  
-  // ゲームモードに応じたゲーム作成
-  if (selectedGameMode === 'demacia') {
-    console.log('🎭 デマーシアゲーム作成開始');
-    console.log('- ルームID:', currentRoomId);
-    console.log('- プレイヤー名:', playerName);
-    console.log('- ゲームタイプ:', selectedGameType);
-    
-    console.log('- DemaciaGameクラス:', typeof DemaciaGame);
-    console.log('- window.DemaciaGame:', typeof window.DemaciaGame);
-    
-    // DemaciaGameクラスが存在しない場合のエラーチェック
-    if (typeof DemaciaGame === 'undefined') {
-      console.error('❌ DemaciaGameクラスが未定義です！');
-      alert('エラー: デマーシアゲームのスクリプトが読み込まれていません');
-      return;
-    }
-    
-    // デマーシアゲーム作成
-    try {
-      currentDemaciaGame = new DemaciaGame(currentRoomId, selectedGameType);
-      console.log('✅ DemaciaGameインスタンス作成成功');
-    } catch (error) {
-      console.error('❌ DemaciaGameインスタンス作成エラー:', error);
-      alert('エラー: ' + error.message);
-      return;
-    }
-    
-    const success = await currentDemaciaGame.createRoom(playerName, {
-      playerCount: 10,
-      roundCount: 5,
-      gameType: selectedGameType
-    });
-    
-    console.log('デマーシアゲーム作成結果:', success);
-    console.log('📊 作成したルームの設定:');
-    console.log('  - gameType:', selectedGameType);
-    console.log('  - playerCount: 10');
-    console.log('  - roundCount: 5');
-    
-    if (success) {
-      console.log('🎉 ルーム作成成功！');
-      console.log('📍 ルームID:', currentRoomId);
-      console.log('📍 ルームパス: demacia_rooms/' + currentRoomId);
-      console.log('👤 ホスト:', playerName);
-      showWaitingRoom();
-      currentDemaciaGame.watch(updateWaitingRoom);
-      setupFirebaseDisconnect();  // 自動退出設定
-    } else {
-      alert(t('alert.createFailed'));
-    }
-  } else {
-    // ワードウルフゲーム作成
-    currentGame = new GameState(currentRoomId);
-    const success = await currentGame.createRoom(playerName, {
-      playerCount,
-      timer,
-      categories,
-      gameType: selectedGameType
-    });
-    
-    if (success) {
-      console.log('🎉 ルーム作成成功！');
-      console.log('📍 ルームID:', currentRoomId);
-      console.log('📍 ルームパス: rooms/' + currentRoomId);
-      console.log('👤 ホスト:', playerName);
-      showWaitingRoom();
-      currentGame.watch(updateWaitingRoom);
-      setupFirebaseDisconnect();  // 自動退出設定
-    } else {
-      alert(t('alert.createFailed'));
-    }
-  }
-}
-
-// ルーム参加
-async function joinRoom() {
-  // レート制限チェック（3秒に1回まで）
-  if (!rateLimiter.check('joinRoom', 3000, 5, 60000)) {
-    alert(t('alert.tooManyRequests') || 'ルーム参加の試行が早すぎます。3秒後にもう一度お試しください。');
-    return;
-  }
-  
-  const roomIdInput = document.getElementById('join-room-id');
-  const playerNameInput = document.getElementById('join-player-name');
-  
-  // input要素が存在しない場合のエラー処理
-  if (!roomIdInput || !playerNameInput) {
-    console.error('❌ 入力要素が見つかりません');
-    alert('エラー: 入力フォームが見つかりません。ページをリロードしてください。');
-    return;
-  }
-  
-  const roomIdValue = (roomIdInput.value || '').trim();
-  const playerNameValue = (playerNameInput.value || '').trim();
-  
-  console.log('🔍 入力値チェック:', {
-    roomIdRaw: roomIdInput.value,
-    roomIdTrimmed: roomIdValue,
-    playerNameRaw: playerNameInput.value,
-    playerNameTrimmed: playerNameValue
-  });
-  
-  if (!roomIdValue || !playerNameValue) {
-    alert(t('alert.enterRoomIdAndName') || 'ルームIDと名前を入力してください');
-    return;
-  }
-  
-  // ルームIDの検証
-  const roomId = sanitizeInput(roomIdValue, 6);
-  if (!validateRoomId(roomId)) {
-    alert(t('alert.invalidRoomId') || 'ルームIDは6桁の数字で入力してください');
-    return;
-  }
-  
-  // プレイヤー名のサニタイズと検証
-  const playerName = sanitizeInput(playerNameValue, 20);
-  if (!validatePlayerName(playerName)) {
-    alert(t('alert.invalidPlayerName') || 'プレイヤー名は1〜20文字で入力してください');
-    return;
-  }
-  
-  console.log('🔍 ルーム参加試行:', roomId, 'プレイヤー:', playerName);
-  console.log('🎮 選択中のゲームタイプ:', selectedGameType);
-  console.log('🎭 選択中のゲームモード:', selectedGameMode);
-  
-  // ゲームモードが正しく選択されているか厳密にチェック
-  if (!selectedGameMode || (selectedGameMode !== 'wordwolf' && selectedGameMode !== 'demacia')) {
-    alert('エラー: ゲームモードが正しく選択されていません。\n最初からやり直してください。');
-    console.error('❌ 不正なゲームモード:', selectedGameMode);
-    backToHome();
-    return;
-  }
-  
-  currentRoomId = roomId;
-  currentPlayer = playerName;
-  
-  // まず、どちらのゲームタイプのルームか確認
-  try {
-    console.log('🔍 Firebase接続状態を確認中...');
-    
-    // Firebase接続を確認
-    const connectedRef = firebase.database().ref('.info/connected');
-    const connectedSnap = await connectedRef.once('value');
-    console.log('Firebase接続:', connectedSnap.val() ? '✅ 接続済み' : '❌ 切断');
-    
-    if (!connectedSnap.val()) {
-      throw new Error('Firebaseに接続できません。インターネット接続を確認してください。');
-    }
-    
-    // ワードウルフルームを確認
-    console.log('🔍 ワードウルフルームを確認:', `rooms/${roomId}`);
-    const wordwolfRef = firebase.database().ref(`rooms/${roomId}`);
-    const wordwolfSnapshot = await wordwolfRef.once('value');
-    const wordwolfData = wordwolfSnapshot.val();
-    
-    // デマーシアルームを確認
-    console.log('🔍 デマーシアルームを確認:', `demacia_rooms/${roomId}`);
-    const demaciaRef = firebase.database().ref(`demacia_rooms/${roomId}`);
-    const demaciaSnapshot = await demaciaRef.once('value');
-    const demaciaData = demaciaSnapshot.val();
-    
-    console.log('📊 ワードウルフルーム:');
-    console.log('  - 存在:', wordwolfSnapshot.exists());
-    console.log('  - データ:', wordwolfData);
-    if (wordwolfData?.settings) {
-      console.log('  - ゲームタイプ:', wordwolfData.settings.gameType);
-    }
-    
-    console.log('📊 デマーシアルーム:');
-    console.log('  - 存在:', demaciaSnapshot.exists());
-    console.log('  - データ:', demaciaData);
-    if (demaciaData?.settings) {
-      console.log('  - ゲームタイプ:', demaciaData.settings.gameType);
-    }
-    
-    // ゲームモードが選択されていない場合はエラー
-    if (!selectedGameMode) {
-      throw new Error('先にゲームモード（ワードウルフ/デマーシア）を選択してください。');
-    }
-    
-    // ゲームタイプが選択されていない場合はエラー
-    if (!selectedGameType) {
-      throw new Error('先にゲームタイプ（LOL/VALORANT/TFT）を選択してください。');
-    }
-    
-    // 選択中のゲームモードに応じて適切なルームをチェック
-    if (selectedGameMode === 'wordwolf') {
-      // ワードウルフモード選択中
-      if (!wordwolfSnapshot.exists()) {
-        // デマーシアルームしか存在しない
-        if (demaciaSnapshot.exists()) {
-          throw new Error(
-            'このルームは「デマーシアに心を込めて」用です。\n' +
-            '現在「ワードウルフ」モードを選択しています。\n' +
-            'モード選択画面に戻ってデマーシアモードを選択してください。'
-          );
-        } else {
-          throw new Error('ルームが存在しません。ルームIDを確認してください。');
-        }
-      }
-      
-      // ワードウルフルームに参加
-      const roomGameType = wordwolfData?.settings?.gameType;
-      console.log('🔍 ワードウルフ - ルームのゲームタイプ:', roomGameType, '(type:', typeof roomGameType, ')');
-      console.log('🔍 ワードウルフ - 選択中のゲームタイプ:', selectedGameType, '(type:', typeof selectedGameType, ')');
-      console.log('🔍 ワードウルフ - 完全なルームデータ:', wordwolfData);
-      console.log('🔍 ワードウルフ - 比較結果:', roomGameType === selectedGameType);
-      
-      // ゲームタイプが一致するかチェック
-      if (roomGameType && roomGameType !== selectedGameType) {
-        const errorMsg =
-          `このルームは ${roomGameType.toUpperCase()} 用です。\n` +
-          `現在 ${selectedGameType.toUpperCase()} を選択しています。\n` +
-          `ゲーム選択画面に戻ってゲームタイプを変更してください。`;
-        console.error('❌ ゲームタイプ不一致エラー:', errorMsg);
-        console.error('  - roomGameType:', roomGameType, '(length:', roomGameType.length, ')');
-        console.error('  - selectedGameType:', selectedGameType, '(length:', selectedGameType.length, ')');
-        throw new Error(errorMsg);
-      }
-      
-      console.log('✅ ワードウルフルームに参加');
-      currentGame = new GameState(roomId);
-      await currentGame.joinRoom(playerName);
-      showWaitingRoom();
-      currentGame.watch(updateWaitingRoom);
-      setupFirebaseDisconnect();  // 自動退出設定
-      
-    } else if (selectedGameMode === 'demacia') {
-      // デマーシアモード選択中
-      console.log('🎭 デマーシアモード: demacia_rooms/' + roomId + ' をチェック');
-      
-      if (!demaciaSnapshot.exists()) {
-        // デマーシアルームが存在しない
-        console.log('❌ デマーシアルームが存在しません');
-        
-        // ワードウルフルームしか存在しない
-        if (wordwolfSnapshot.exists()) {
-          console.log('⚠️ ワードウルフルームが存在します（モード不一致）');
-          throw new Error(
-            'このルームは「ワードウルフ」用です。\n' +
-            '現在「デマーシアに心を込めて」モードを選択しています。\n' +
-            'モード選択画面に戻ってワードウルフモードを選択してください。'
-          );
-        } else {
-          console.log('❌ どちらのルームも存在しません');
-          throw new Error('ルームが存在しません。ルームIDを確認してください。');
-        }
-      }
-      
-      console.log('✅ デマーシアルームが存在します');
-      
-      // デマーシアルームに参加
-      const roomGameType = demaciaData?.settings?.gameType;
-      console.log('🔍 デマーシア - ルームのゲームタイプ:', roomGameType, '(type:', typeof roomGameType, ')');
-      console.log('🔍 デマーシア - 選択中のゲームタイプ:', selectedGameType, '(type:', typeof selectedGameType, ')');
-      console.log('🔍 デマーシア - 完全なルームデータ:', demaciaData);
-      console.log('🔍 デマーシア - 比較結果:', roomGameType === selectedGameType);
-      
-      // ゲームタイプが一致するかチェック
-      if (roomGameType && roomGameType !== selectedGameType) {
-        const errorMsg = 
-          `このルームは ${roomGameType.toUpperCase()} 用です。\n` +
-          `現在 ${selectedGameType.toUpperCase()} を選択しています。\n` +
-          `ゲーム選択画面に戻ってゲームタイプを変更してください。`;
-        console.error('❌ ゲームタイプ不一致エラー:', errorMsg);
-        console.error('  - roomGameType:', roomGameType, '(length:', roomGameType.length, ')');
-        console.error('  - selectedGameType:', selectedGameType, '(length:', selectedGameType.length, ')');
-        throw new Error(errorMsg);
-      }
-      
-      console.log('✅ デマーシアルームに参加処理を開始');
-      currentDemaciaGame = new DemaciaGame(roomId, selectedGameType);
-      const success = await currentDemaciaGame.joinRoom(playerName);
-      if (success) {
-        console.log('✅ デマーシアルーム参加成功');
-        showWaitingRoom();
-        currentDemaciaGame.watch(updateWaitingRoom);
-        setupFirebaseDisconnect();  // 自動退出設定
-      } else {
-        throw new Error('ルームへの参加に失敗しました');
-      }
-    } else {
-      // 選択されたモードが不明
-      throw new Error('ゲームモードが正しく選択されていません。最初からやり直してください。');
-    }
-  } catch (error) {
-    console.error('❌ ルーム参加エラー:', error);
-    alert(error.message);
-  }
-}
-
-// 待機室表示
-function showWaitingRoom() {
-  document.getElementById('room-id-display').textContent = currentRoomId;
-  document.getElementById('room-url-display').textContent = 
-    `${window.location.origin}${window.location.pathname}?room=${currentRoomId}`;
-  
-  // ゲーム情報を表示
-  updateWaitingGameInfo();
-  
-  showScreen('waiting-screen');
-}
-
-// 待機室のゲーム情報を更新
-function updateWaitingGameInfo() {
-  const waitingGameInfo = document.getElementById('waiting-game-info');
-  if (!waitingGameInfo) return;
-  
-  let gameText = '';
-  let modeText = '';
-  let modeIcon = '';
-  
-  // ゲームタイプ
-  if (selectedGameType === 'lol') {
-    gameText = 'League of Legends';
-  } else if (selectedGameType === 'valorant') {
-    gameText = 'VALORANT';
-  } else if (selectedGameType === 'tft') {
-    gameText = 'Teamfight Tactics';
-  } else {
-    gameText = '不明';
-  }
-  
-  // ゲームモード
-  if (selectedGameMode === 'wordwolf') {
-    modeText = 'ワードウルフ';
-    modeIcon = '🐺';
-  } else if (selectedGameMode === 'demacia') {
-    modeText = 'デマーシアに心を込めて';
-    modeIcon = '💖';
-  } else {
-    modeText = '不明';
-    modeIcon = '❓';
-  }
-  
-  waitingGameInfo.innerHTML = `
-    <div style="display: flex; flex-direction: column; gap: 0.3rem;">
-      <div style="font-size: 1.3rem;">${modeIcon} ${modeText}</div>
-      <div style="font-size: 1rem; opacity: 0.8;">🎮 ${gameText}</div>
-    </div>
-  `;
-}
-
-// 待機室更新
-function updateWaitingRoom(roomData) {
-  if (!roomData) return;
-  
-  const playersList = document.getElementById('players-list');
-  playersList.innerHTML = '';
-  
-  const players = Object.values(roomData.players || {});
-  players.forEach(player => {
-    const playerDiv = document.createElement('div');
-    playerDiv.className = 'player-item';
-    playerDiv.innerHTML = `
-      <span>${player.name}</span>
-      ${player.name === roomData.host ? `<span class="host-badge">${t('waiting.host')}</span>` : ''}
-    `;
-    playersList.appendChild(playerDiv);
-  });
-  
-  // 人数表示を更新
-  const currentCount = players.length;
-  const maxCount = roomData.settings?.playerCount || 5;
-  
-  // ゲームモードを判定
-  const isDemaciaMode = (currentDemaciaGame !== null) || 
-                        roomData.gameMode === 'demacia' || 
-                        roomData.gameState === 'performer_selection' || 
-                        roomData.gameState === 'performing' || 
-                        roomData.gameState === 'round_result';
-  
-  // デマーシアモードの場合は人数表示を非表示にする
-  const playerCountDisplay = document.getElementById('waiting-player-count-display');
-  if (playerCountDisplay) {
-    playerCountDisplay.style.display = isDemaciaMode ? 'none' : 'block';
-  }
-  
-  // ワードウルフモードのみ人数表示を更新
-  if (!isDemaciaMode) {
-    document.getElementById('current-player-count').textContent = currentCount;
-    document.getElementById('max-player-count').textContent = maxCount;
-  }
-  
-  // ホストのみゲーム開始ボタンを表示
-  const isHost = currentPlayer === roomData.host;
-  document.getElementById('start-game-btn').style.display = isHost ? 'block' : 'none';
-  
-  // ゲーム状態による画面遷移
-  if (isDemaciaMode) {
-    // デマーシアモードの画面遷移
-    if (roomData.gameState === 'waiting') {
-      showScreen('waiting-screen');
-    } else if (roomData.gameState === 'performer_selection') {
-      showDemaciaPerformerSelection();
-    } else if (roomData.gameState === 'performing') {
-      showDemaciaPerformScreen();
-    } else if (roomData.gameState === 'voting') {
-      showDemaciaVotingScreen();
-      // デマーシア投票完了チェック
-      checkDemaciaVotingComplete();
-    } else if (roomData.gameState === 'round_result') {
-      showDemaciaRoundResult();
-    } else if (roomData.gameState === 'finished') {
-      showDemaciaFinalResults();
-    }
-  } else {
-    // ワードウルフモードの画面遷移
-    if (roomData.gameState === 'waiting') {
-      showScreen('waiting-screen');
-    } else if (roomData.gameState === 'playing') {
-      showGameScreen(roomData);
-    } else if (roomData.gameState === 'voting') {
-      showVotingScreen(roomData);
-      // 投票完了チェック
-      checkWordWolfVotingComplete(roomData);
-    } else if (roomData.gameState === 'finished') {
-      showResultScreen(roomData);
-    }
-  }
-}
-
-// ゲーム開始
-async function startGame() {
-  // デマーシアゲームの場合
-  if (selectedGameMode === 'demacia') {
-    const success = await currentDemaciaGame.startGame();
-    if (success) {
-      // 演技者選択画面に遷移
-      showDemaciaPerformerSelection();
-    } else {
-      alert(t('alert.createFailed'));
-    }
-  } else {
-    // ワードウルフゲームの場合
-    const success = await currentGame.startGame();
-    if (!success) {
-      alert(t('alert.createFailed'));
-    }
-  }
-}
-
-// ゲーム画面表示
-function showGameScreen(roomData) {
-  const player = roomData.players[currentPlayer];
-  
-  // お題表示
-  document.getElementById('your-topic').textContent = player.topic;
-  
-  // お題画像表示
-  const topicImage = document.getElementById('topic-image');
-  if (player.topicImage) {
-    topicImage.src = player.topicImage;
-    topicImage.alt = player.topic;
-    topicImage.style.display = 'block';
-  } else {
-    topicImage.style.display = 'none';
-  }
-  
-  // チャット更新（リアルタイム）
-  updateChat(roomData.chat || {});
-  
-  // タイマー開始（初回のみ）
-  if (!gameTimer && roomData.timerDuration) {
-    gameTimer = new GameTimer(roomData.timerDuration, (status, remaining) => {
-      if (status === 'tick') {
-        const timer = new GameTimer(remaining, () => {});
-        document.getElementById('timer-display').textContent = timer.getFormattedTime();
-      } else if (status === 'finished') {
-        document.getElementById('timer-display').textContent = '00:00';
-        alert(t('alert.discussionEnd'));
-      }
-    });
-    gameTimer.start();
-  }
-  
-  showScreen('game-screen');
-}
-
-// チャット更新
-function updateChat(messages) {
-  const chatMessages = document.getElementById('chat-messages');
-  chatMessages.innerHTML = '';
-  
-  // messagesがオブジェクトの場合は配列に変換
-  const messageArray = messages ? Object.values(messages) : [];
-  
-  messageArray.forEach(msg => {
-    const messageDiv = document.createElement('div');
-    messageDiv.className = 'chat-message';
-    messageDiv.innerHTML = `
-      <span class="chat-player">${msg.player}:</span>
-      <span class="chat-text">${msg.message}</span>
-    `;
-    chatMessages.appendChild(messageDiv);
-  });
-  
-  // 最新メッセージにスクロール
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-}
-
-// メッセージ送信
-async function sendMessage() {
-  // レート制限チェック（1秒に1回まで、連続5回で60秒ブロック）
-  if (!rateLimiter.check('sendMessage', 1000, 5, 60000)) {
-    // 無言で無視（スパム防止）
-    return;
-  }
-  
-  const input = document.getElementById('chat-input');
-  const messageInput = input.value.trim();
-  
-  // メッセージの検証
-  if (!messageInput) {
-    return;
-  }
-  
-  // メッセージのサニタイズと検証
-  const message = sanitizeInput(messageInput, 500);
-  if (!validateChatMessage(message)) {
-    alert(t('alert.invalidMessage') || 'メッセージは1〜500文字で入力してください');
-    return;
-  }
-  
-  await currentGame.sendMessage(currentPlayer, message);
-  input.value = '';
-}
-
-// 投票フェーズへ移行
-async function moveToVoting() {
-  await currentGame.roomRef.update({
-    gameState: 'voting'
-  });
-}
-
-// 投票画面表示
-function showVotingScreen(roomData) {
-  const voteOptions = document.getElementById('vote-options');
-  voteOptions.innerHTML = '';
-  
-  // 投票状況を更新
-  const players = Object.values(roomData.players || {});
-  const totalPlayers = players.length;
-  const votedPlayers = players.filter(p => p.vote !== null && p.vote !== undefined).length;
-  
-  document.getElementById('wordwolf-vote-count').textContent = votedPlayers;
-  document.getElementById('wordwolf-total-players').textContent = totalPlayers;
-  
-  // 自分が既に投票済みの場合、ボタンを無効化
-  const currentPlayerData = players.find(p => p.name === currentPlayer);
-  const hasVoted = currentPlayerData && currentPlayerData.vote !== null && currentPlayerData.vote !== undefined;
-  
-  const voteBtn = document.getElementById('confirm-vote-btn');
-  if (voteBtn) {
-    if (hasVoted) {
-      voteBtn.disabled = true;
-      voteBtn.textContent = '投票完了';
-    } else {
-      voteBtn.disabled = false;
-      voteBtn.textContent = '投票確定';
-    }
-  }
-  
-  Object.values(roomData.players).forEach(player => {
-    if (player.name !== currentPlayer) {
-      const optionDiv = document.createElement('div');
-      optionDiv.className = 'vote-option';
-      optionDiv.innerHTML = `
-        <input type="radio" name="vote" value="${player.name}" id="vote-${player.name}" ${hasVoted ? 'disabled' : ''}>
-        <label for="vote-${player.name}">${player.name}</label>
-      `;
-      voteOptions.appendChild(optionDiv);
-    }
-  });
-  
-  showScreen('voting-screen');
-}
-
-// 投票確定
-async function confirmVote() {
-  // レート制限チェック（2秒に1回まで）
-  if (!rateLimiter.check('confirmVote', 2000)) {
-    alert(t('alert.votingTooFast') || '投票が早すぎます。2秒後にもう一度お試しください。');
-    return;
-  }
-  
-  const selectedVote = document.querySelector('input[name="vote"]:checked');
-  
-  if (!selectedVote) {
-    alert(t('alert.selectVote'));
-    return;
-  }
-  
-  const voteBtn = document.getElementById('confirm-vote-btn');
-  if (voteBtn) {
-    voteBtn.disabled = true;
-    voteBtn.textContent = '投票完了';
-  }
-  
-  console.log(`📤 投票送信中: ${currentPlayer} → ${selectedVote.value}`);
-  
-  // Firebaseに投票を送信
-  await currentGame.vote(currentPlayer, selectedVote.value);
-  
-  console.log(`✅ 投票完了: ${currentPlayer}`);
-  
-  // 投票完了メッセージを表示
-  alert('投票が完了しました。他のプレイヤーの投票を待っています...');
-  
-  // 全員の投票完了チェックはwatcherで自動的に行われる
-}
-
-// ワードウルフの投票完了チェック
-async function checkWordWolfVotingComplete(roomData) {
-  if (!roomData || !roomData.players) return;
-  
-  const players = Object.values(roomData.players);
-  const totalPlayers = players.length;
-  const votedPlayers = players.filter(p => p.vote !== null && p.vote !== undefined).length;
-  
-  console.log(`🗳️ 投票状況: ${votedPlayers}/${totalPlayers}`);
-  
-  // 全員が投票完了したら結果集計
-  if (votedPlayers === totalPlayers && totalPlayers > 0) {
-    console.log('🎉 全員の投票が完了！結果を集計します');
-    await currentGame.endVoting();
-  }
-}
-
-// 結果画面表示
-function showResultScreen(roomData) {
-  const result = roomData.result;
-  
-  document.getElementById('result-title').textContent = 
-    result.citizensWin ? t('result.citizensWin') : t('result.wolfWin');
-  document.getElementById('result-title').className = 
-    result.citizensWin ? 'result-citizens-win' : 'result-wolf-win';
-  
-  document.getElementById('wolf-reveal').textContent = 
-    t('result.wolfWas', { wolf: result.wolf });
-  
-  document.getElementById('voted-out').textContent = 
-    t('result.votedOut', { player: result.votedOut });
-  
-  // お題表示
-  document.getElementById('wolf-topic').textContent = 
-    `${t('result.wolfWord')}: ${result.wolfTopic || '-'}`;
-  document.getElementById('citizen-topic').textContent = 
-    `${t('result.citizenWord')}: ${result.citizenTopic || '-'}`;
-  
-  // 投票結果
-  const voteResults = document.getElementById('vote-results');
-  voteResults.innerHTML = '';
-  
-  // 各プレイヤーの投票先を表示
-  const players = Object.values(roomData.players || {});
-  const voteDetailsDiv = document.createElement('div');
-  voteDetailsDiv.style.marginBottom = '1rem';
-  voteDetailsDiv.style.padding = '0.5rem';
-  voteDetailsDiv.style.background = 'rgba(255,255,255,0.05)';
-  voteDetailsDiv.style.borderRadius = '8px';
-  
-  players.forEach(player => {
-    const voteDetail = document.createElement('div');
-    voteDetail.style.padding = '0.3rem 0';
-    voteDetail.style.color = player.name === result.wolf ? 'var(--wolf-color)' : 'var(--citizen-color)';
-    voteDetail.textContent = `${player.name} → ${player.vote || '投票なし'}`;
-    voteDetailsDiv.appendChild(voteDetail);
-  });
-  voteResults.appendChild(voteDetailsDiv);
-  
-  // 投票数の集計結果を表示
-  const voteSummaryDiv = document.createElement('div');
-  voteSummaryDiv.innerHTML = '<strong>投票数:</strong>';
-  voteSummaryDiv.style.marginTop = '1rem';
-  
-  Object.entries(result.voteCount).forEach(([name, count]) => {
-    const resultDiv = document.createElement('div');
-    resultDiv.style.padding = '0.3rem 0';
-    resultDiv.textContent = `${name}: ${count} ${t('result.votes')}`;
-    voteSummaryDiv.appendChild(resultDiv);
-  });
-  voteResults.appendChild(voteSummaryDiv);
-  
-  // タイマー停止
-  if (gameTimer) {
-    gameTimer.stop();
-    gameTimer = null;
-  }
-  
-  showScreen('result-screen');
-}
-
-// もう一度プレイ
-async function resetGame() {
-  // ワードウルフゲームの場合
-  if (currentGame) {
-    try {
-      await currentGame.resetRoom();
-      showWaitingRoom();
-    } catch (error) {
-      console.error('❌ ワードウルフゲームリセットエラー:', error);
-      alert('ゲームのリセットに失敗しました: ' + error.message);
-    }
-  }
-  
-  // デマーシアゲームの場合
-  if (currentDemaciaGame) {
-    try {
-      await currentDemaciaGame.resetRoom();
-      showWaitingRoom();
-    } catch (error) {
-      console.error('❌ デマーシアゲームリセットエラー:', error);
-      alert('ゲームのリセットに失敗しました: ' + error.message);
-    }
-  }
-}
-
-// ホームに戻る
-async function backToHome() {
-  // ワードウルフゲームの終了処理
-  if (currentGame) {
-    await currentGame.leaveRoom(currentPlayer);
-    currentGame.unwatch();
-  }
-  
-  // デマーシアゲームの終了処理
-  if (currentDemaciaGame) {
-    await currentDemaciaGame.leaveRoom(currentPlayer);
-    currentDemaciaGame.unwatch();
-  }
-  
-  currentGame = null;
-  currentDemaciaGame = null;
-  currentPlayer = null;
-  currentRoomId = null;
-  selectedGameType = null;
-  selectedGameMode = null;
-  
-  if (gameTimer) {
-    gameTimer.stop();
-    gameTimer = null;
-  }
-  
-  // モード選択画面に戻る
-  document.body.classList.remove('game-lol', 'game-valorant', 'game-tft');
-  showScreen('mode-select-screen');
-  
-  // URLパラメータをクリア
-  window.history.replaceState({}, document.title, window.location.pathname);
-}
-
-// ルーム退出
-async function leaveRoom() {
-  if (confirm(t('alert.confirmLeave'))) {
-    await backToHome();
-  }
-}
-
-// ルームURL コピー
-function copyRoomUrl() {
-  const url = document.getElementById('room-url-display').textContent;
-  navigator.clipboard.writeText(url).then(() => {
-    alert(t('alert.urlCopied'));
-  }).catch(() => {
-    alert(t('alert.urlCopyFailed'));
-  });
-}
-
-// ルール表示
-function showRules() {
-  const mode = selectedGameMode || 'wordwolf';
-  const gameType = selectedGameType || 'lol';
-  
-  let rules = '';
-  
-  if (mode === 'demacia') {
-    // デマーシアのルール
-    const gameName = gameType === 'lol' ? 'League of Legends' : 'VALORANT';
-    const examples = gameType === 'lol' 
-      ? '「デマーシアァァァァ！」「僕が悪いんだ」「ハサキ！」など'
-      : '「Sage、復活！」「オーディン買え！」「タップ撃ちだ！」など';
-    
-    rules = `【デマーシアに心を込めて - ルール】
-
-1. 有名なセリフが1つ選ばれます
-   例：${examples}
-
-2. ランダムで1人が「演技者」になります
-
-3. 演技者だけに「シチュエーション」が示されます
-   例：ペンタキルを決めた時、味方が全滅した時など
-
-4. 演技者がそのシチュエーションで演技します
-
-5. 他のプレイヤーは6つの選択肢から、どのシチュエーションだったか投票します
-
-6. 正解者が多いほど良い演技です！
-
-【ポイント】
-- 難易度: Easy / Medium / Hard
-- 3〜10人でプレイ可能
-- 演技力と推理力が試されます
-- ${gameName}の知識があるとより楽しめます！`;
-  } else {
-    // ワードウルフのルール
-    const gameName = gameType === 'lol' ? 'League of Legends' : 
-                     gameType === 'valorant' ? 'VALORANT' : 'Teamfight Tactics';
-    
-    let categoryList = '';
-    if (gameType === 'tft') {
-      categoryList = `- ユニット（チャンピオン）
-- 特性（トレイト）
-- アイテム
-- ゲーム用語
-- 戦略・構成`;
-    } else if (gameType === 'valorant') {
-      categoryList = `- エージェント
-- 武器
-- アビリティ
-- マップ
-- 用語`;
-    } else {
-      categoryList = `- チャンピオン
-- アイテム
-- スキル
-- マップ・レーン
-- スペル`;
-    }
-    
-    rules = `【ワードウルフのルール】
-
-1. プレイヤーは「市民」と「ウルフ」に分かれます
-2. 市民には多数派のお題が、ウルフには少数派のお題が与えられます
-3. 全員でお題について話し合います（ただし具体的な単語は言わない）
-4. 検討時間終了後、誰がウルフか投票します
-5. ウルフを当てられれば市民の勝ち、外れればウルフの勝ちです
-
-【${gameName}テーマ】
-このゲームは${gameName}をテーマにしたお題が登場します！
-${categoryList}
-
-${gameName}の知識を活かして楽しんでください！`;
-  }
-  
-  // モーダルで表示（スマホ対応）
-  showRulesModal(mode === 'demacia' ? 'デマーシアに心を込めて - ルール' : 'ワードウルフのルール', rules);
-}
-
-// ルール説明用モーダル表示
-function showRulesModal(title, content) {
-  // 既存のモーダルがあれば削除
-  const existingModal = document.getElementById('rules-modal');
-  if (existingModal) {
-    existingModal.remove();
-  }
-  
-  // モーダル作成
-  const modal = document.createElement('div');
-  modal.id = 'rules-modal';
-  modal.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    z-index: 10000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-    overflow-y: auto;
-  `;
-  
-  const modalContent = document.createElement('div');
-  modalContent.style.cssText = `
-    background: var(--card-bg);
-    border-radius: 12px;
-    max-width: 600px;
-    width: 100%;
-    max-height: 80vh;
-    overflow-y: auto;
-    padding: 2rem;
-    position: relative;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-    margin: auto;
-  `;
-  
-  modalContent.innerHTML = `
-    <h2 style="color: var(--primary-color); margin-bottom: 1.5rem; font-size: 1.5rem;">${title}</h2>
-    <div style="color: var(--text-color); line-height: 1.8; white-space: pre-wrap; font-size: 0.95rem;">
-      ${content}
-    </div>
-    <button id="close-rules-btn" class="btn-primary" style="width: 100%; margin-top: 1.5rem; padding: 0.75rem;">
-      閉じる
-    </button>
-  `;
-  
-  modal.appendChild(modalContent);
-  document.body.appendChild(modal);
-  
-  // 閉じるボタン
-  document.getElementById('close-rules-btn').addEventListener('click', () => {
-    modal.remove();
-  });
-  
-  // 背景クリックで閉じる
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) {
-      modal.remove();
-    }
-  });
-}
-
-// 接続状態更新
-function updateConnectionStatus() {
-  const connectedRef = database.ref('.info/connected');
-  connectedRef.on('value', (snap) => {
-    const statusEl = document.getElementById('connection-status');
-    if (snap.val() === true) {
-      statusEl.textContent = '✅ ' + t('header.connection.connected');
-      statusEl.className = 'status-connected';
-    } else {
-      statusEl.textContent = '❌ ' + t('header.connection.disconnected');
-      statusEl.className = 'status-disconnected';
-    }
-  });
-}
-
-// ========================================
-// デマーシアゲーム関連UI制御
-// ========================================
-
-// 演技者選択画面表示
-function showDemaciaPerformerSelection() {
-  const roomData = currentDemaciaGame.roomData;
-  
-  // セリフ表示
-  document.getElementById('demacia-phrase-preview').textContent = roomData.currentPhrase.text;
-  document.getElementById('demacia-character-preview').textContent = roomData.currentPhrase.character;
-  
-  // プレイヤーリスト作成
-  const listContainer = document.getElementById('manual-performer-list');
-  listContainer.innerHTML = '';
-  
-  Object.keys(roomData.players).forEach(playerName => {
-    const btn = document.createElement('button');
-    btn.className = 'performer-select-btn';
-    btn.textContent = playerName;
-    btn.onclick = () => selectManualPerformer(playerName);
-    listContainer.appendChild(btn);
-  });
-  
-  showScreen('demacia-performer-selection-screen');
-}
-
-// ランダムに演技者を選択
-async function selectRandomPerformer() {
-  const roomData = currentDemaciaGame.roomData;
-  const playerNames = Object.keys(roomData.players);
-  const randomPlayer = playerNames[Math.floor(Math.random() * playerNames.length)];
-  
-  await currentDemaciaGame.selectPerformer(randomPlayer);
-  showDemaciaPerformScreen();
-}
-
-// 手動で演技者を選択
-async function selectManualPerformer(playerName) {
-  await currentDemaciaGame.selectPerformer(playerName);
-  showDemaciaPerformScreen();
-}
-
-// 演技画面表示
-function showDemaciaPerformScreen() {
-  const roomData = currentDemaciaGame.roomData;
-  const isPerformer = roomData.currentPerformer === currentPlayer;
-  
-  console.log('🎭 演技画面表示:', {
-    isPerformer,
-    currentPlayer,
-    performer: roomData.currentPerformer,
-    correctSituation: roomData.correctSituation,
-    performerSituation: roomData.performerSituation,
-    phraseText: roomData.currentPhrase?.text,
-    situationsCount: roomData.currentPhrase?.situations?.length
-  });
-  
-  // 共通のセリフ・キャラ表示
-  document.getElementById('demacia-phrase').textContent = roomData.currentPhrase.text;
-  document.getElementById('demacia-character').textContent = roomData.currentPhrase.character;
-  
-  if (isPerformer) {
-    // 演技者側の表示
-    let performerSituation;
-    
-    // correctSituation インデックスから取得
-    if (typeof roomData.correctSituation === 'number') {
-      performerSituation = roomData.currentPhrase.situations[roomData.correctSituation];
-    }
-    // フォールバック: performerSituation オブジェクトから取得
-    else if (roomData.performerSituation) {
-      performerSituation = roomData.performerSituation;
-    }
-    // エラーハンドリング
-    else {
-      console.error('❌ シチュエーション情報が見つかりません', roomData);
-      performerSituation = { text: 'エラー: シチュエーション情報なし', difficulty: 'unknown' };
-    }
-    
-    console.log('🔍 デバッグ - performerSituation:', performerSituation);
-    console.log('🔍 デバッグ - typeof performerSituation:', typeof performerSituation);
-    
-    // performerSituationからテキストと難易度を確実に取得
-    let situationText, situationDifficulty;
-    if (typeof performerSituation === 'string') {
-      situationText = performerSituation;
-      situationDifficulty = 'unknown';
-    } else if (performerSituation && typeof performerSituation === 'object') {
-      situationText = performerSituation.text || JSON.stringify(performerSituation);
-      situationDifficulty = performerSituation.difficulty || 'unknown';
-    } else {
-      situationText = 'エラー: シチュエーションが見つかりません';
-      situationDifficulty = 'unknown';
-    }
-    
-    document.getElementById('demacia-situation').textContent = situationText;
-    document.getElementById('demacia-difficulty').textContent = 
-      `難易度: ${situationDifficulty}`;
-    
-    // 演技者情報を表示
-    document.getElementById('current-performer-name').textContent = currentPlayer;
-    document.querySelector('.situation-display').style.display = 'block';
-    
-    console.log('🎭 演技者表示:', {
-      performer: currentPlayer,
-      situation: situationText,
-      difficulty: situationDifficulty
-    });
-  } else {
-    // 投票者側は正解シチュエーションを隠す
-    document.querySelector('.situation-display').style.display = 'none';
-    document.getElementById('current-performer-name').textContent = roomData.currentPerformer;
-  }
-  
-  showScreen('demacia-perform-screen');
-  
-  // 演技時間タイマー（90秒）
-  startPerformTimer(90);
-}
-
-// 演技タイマー開始
-function startPerformTimer(seconds) {
-  let remaining = seconds;
-  const timerEl = document.getElementById('demacia-timer');
-  
-  const interval = setInterval(() => {
-    const minutes = Math.floor(remaining / 60);
-    const secs = remaining % 60;
-    timerEl.textContent = `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    
-    remaining--;
-    
-    if (remaining < 0) {
-      clearInterval(interval);
-      // 自動的に投票画面へ
-      showDemaciaVotingScreen();
-    }
-  }, 1000);
-}
-
-// 投票フェーズ開始（演技終了ボタン押下時）
-async function startDemaciaVoting() {
-  console.log('🗳️ 投票フェーズを開始します');
-  
-  const isPerformer = currentDemaciaGame.roomData.currentPerformer === currentPlayer;
-  
-  if (!isPerformer) {
-    alert('演技者のみが投票を開始できます');
-    return;
-  }
-  
-  // Firebaseに投票状態を保存
-  await currentDemaciaGame.startVoting();
-  
-  // 投票画面に遷移（watcherが自動で反映）
-  console.log('✅ 投票フェーズ開始完了');
-}
-
-// 投票画面表示
-function showDemaciaVotingScreen() {
-  console.log('🎭 デマーシア投票画面を表示します');
-  
-  const roomData = currentDemaciaGame.roomData;
-  const isPerformer = roomData.currentPerformer === currentPlayer;
-  
-  console.log('🎭 演技者判定:', {
-    currentPerformer: roomData.currentPerformer,
-    currentPlayer: currentPlayer,
-    isPerformer: isPerformer
-  });
-  
-  // 投票状況を更新
-  const players = Object.values(roomData.players || {});
-  const totalPlayers = players.length;
-  const performerCount = 1; // 演技者は投票しない
-  const expectedVoters = totalPlayers - performerCount;
-  const voteCount = Object.keys(roomData.currentVotes || {}).length;
-  
-  const voteCountEl = document.getElementById('demacia-vote-count');
-  const totalVotersEl = document.getElementById('demacia-total-voters');
-  
-  if (voteCountEl) voteCountEl.textContent = voteCount;
-  if (totalVotersEl) totalVotersEl.textContent = expectedVoters;
-  
-  // 投票ボタンをリセット
-  const voteBtn = document.getElementById('demacia-submit-vote-btn');
-  
-  // 自分が既に投票済みか確認
-  const hasVoted = roomData.currentVotes && roomData.currentVotes[currentPlayer];
-  
-  if (voteBtn) {
-    if (hasVoted) {
-      voteBtn.disabled = true;
-      voteBtn.textContent = '投票完了';
-    } else if (isPerformer) {
-      voteBtn.disabled = true;
-      voteBtn.style.display = 'none';
-    } else {
-      voteBtn.disabled = false;
-      voteBtn.textContent = '投票する';
-      voteBtn.style.display = 'block';
-    }
-  }
-  
-  if (isPerformer) {
-    console.log('🎭 演技者用の画面を表示します（選択肢表示、投票権なし）');
-    // 演技者は投票しない（ただし選択肢は見える）
-    // セリフを表示
-    document.getElementById('demacia-voting-phrase').textContent = roomData.currentPhrase.text;
-    
-    const optionsContainer = document.getElementById('demacia-situation-options');
-    if (optionsContainer) {
-      optionsContainer.innerHTML = '';
-      
-      // 演技者にも選択肢を表示（但し選択不可）
-      roomData.currentPhrase.situations.forEach((situation, index) => {
-        const btn = document.createElement('button');
-        btn.className = 'situation-option-btn';
-        
-        // situationからテキストを確実に取得
-        let situationText;
-        if (typeof situation === 'string') {
-          situationText = situation;
-        } else if (situation && typeof situation === 'object') {
-          situationText = situation.text || JSON.stringify(situation);
-        } else {
-          situationText = 'シチュエーション情報なし';
-        }
-        
-        btn.textContent = `${index + 1}. ${situationText}`;
-        btn.disabled = true; // 演技者は選択できない
-        btn.style.opacity = '0.6';
-        btn.style.cursor = 'not-allowed';
-        
-        // 正解のシチュエーションをハイライト
-        if (index === roomData.correctSituation) {
-          btn.style.border = '3px solid #c89b3c';
-          btn.style.background = 'rgba(200, 155, 60, 0.2)';
-          btn.innerHTML = `${index + 1}. ${situationText}<br><small style="color: #c89b3c; font-weight: bold;">（あなたの演技）</small>`;
-        }
-        
-        optionsContainer.appendChild(btn);
-      });
-      
-      // 説明メッセージを追加
-      const messageDiv = document.createElement('div');
-      messageDiv.style.cssText = 'text-align: center; padding: 1.5rem 1rem; margin-top: 1.5rem; background: linear-gradient(135deg, rgba(200,155,60,0.1) 0%, rgba(200,155,60,0.05) 100%); border-radius: 12px;';
-      messageDiv.innerHTML = `
-        <div style="font-size: 2rem; margin-bottom: 0.5rem;">👀</div>
-        <p style="color: rgba(255,255,255,0.9); line-height: 1.6; margin-bottom: 0.5rem;">
-          <strong style="color: #c89b3c;">あなたは演技者です</strong>
-        </p>
-        <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem;">
-          他のプレイヤーが投票を完了するまでお待ちください。
-        </p>
-        <div style="margin-top: 1rem; font-size: 0.95rem; color: #c89b3c;">
-          投票状況: <span id="performer-vote-count">${voteCount}</span> / <span id="performer-total-voters">${expectedVoters}</span> 人が投票完了
-        </div>
-      `;
-      optionsContainer.appendChild(messageDiv);
-    }
-  } else {
-    console.log('🗳️ 投票者用の画面を表示します');
-    // 投票者の表示
-    document.getElementById('demacia-voting-phrase').textContent = roomData.currentPhrase.text;
-    
-    const optionsContainer = document.getElementById('demacia-situation-options');
-    
-    if (hasVoted) {
-      // 既に投票済みの場合
-      optionsContainer.innerHTML = '<p style="text-align: center; padding: 2rem; color: #c89b3c;">✅ 投票完了！<br>他のプレイヤーの投票を待っています...</p>';
-    } else {
-      // まだ投票していない場合
-      optionsContainer.innerHTML = '';
-      
-      roomData.currentPhrase.situations.forEach((situation, index) => {
-        const btn = document.createElement('button');
-        btn.className = 'situation-option-btn';
-        
-        // situationからテキストを確実に取得
-        let situationText;
-        if (typeof situation === 'string') {
-          situationText = situation;
-        } else if (situation && typeof situation === 'object') {
-          situationText = situation.text || JSON.stringify(situation);
-        } else {
-          situationText = 'シチュエーション情報なし';
-        }
-        
-        btn.textContent = `${index + 1}. ${situationText}`;
-        btn.onclick = () => {
-          document.querySelectorAll('.situation-option-btn').forEach(b => b.classList.remove('selected'));
-          btn.classList.add('selected');
-          selectedVoteSituation = index;
-        };
-        optionsContainer.appendChild(btn);
-      });
-    }
-    
-    document.getElementById('demacia-situation-options').style.display = 'block';
-  }
-  
-  showScreen('demacia-voting-screen');
-}
-
-// デマーシア投票確定
-async function confirmDemaciaVote() {
-  // レート制限チェック（2秒に1回まで）
-  if (!rateLimiter.check('confirmDemaciaVote', 2000)) {
-    alert(t('alert.votingTooFast') || '投票が早すぎます。2秒後にもう一度お試しください。');
-    return;
-  }
-  
-  if (selectedVoteSituation === null || selectedVoteSituation === undefined) {
-    alert('シチュエーションを選択してください');
-    return;
-  }
-  
-  console.log('📤 投票送信中:', currentPlayer, '→', selectedVoteSituation);
-  
-  // 投票ボタンを無効化
-  const voteBtn = document.getElementById('demacia-vote-btn');
-  if (voteBtn) {
-    voteBtn.disabled = true;
-    voteBtn.textContent = '投票済み...';
-  }
-  
-  try {
-    await currentDemaciaGame.submitVote(currentPlayer, selectedVoteSituation);
-    console.log('✅ 投票送信完了');
-    
-    // 投票後の表示
-    const optionsContainer = document.getElementById('demacia-situation-options');
-    if (optionsContainer) {
-      optionsContainer.innerHTML = '<p style="text-align: center; padding: 2rem; color: #c89b3c;">✅ 投票完了！<br>他のプレイヤーの投票を待っています...</p>';
-    }
-    
-    selectedVoteSituation = null;
-  } catch (error) {
-    console.error('❌ 投票エラー:', error);
-    alert('投票に失敗しました');
-    
-    // エラー時はボタンを再有効化
-    if (voteBtn) {
-      voteBtn.disabled = false;
-      voteBtn.textContent = '投票';
-    }
-  }
-}
-
-// デマーシア投票完了チェック
-async function checkDemaciaVotingComplete() {
-  if (!currentDemaciaGame || !currentDemaciaGame.roomData) {
-    return;
-  }
-  
-  const roomData = currentDemaciaGame.roomData;
-  const playerCount = Object.keys(roomData.players || {}).length;
-  const voteCount = Object.keys(roomData.currentVotes || {}).length;
-  const expectedVotes = playerCount - 1; // 演技者を除く
-  
-  console.log(`🗳️ デマーシア投票状況: ${voteCount}/${expectedVotes}`);
-  
-  // 全員が投票完了したら結果画面へ遷移
-  if (voteCount >= expectedVotes && expectedVotes > 0) {
-    console.log('🎉 デマーシア全員の投票が完了！');
-    // calculateResults は demacia-game.js 内で自動実行される
-  }
-}
-
-// ラウンド結果表示
-function showDemaciaRoundResult() {
-  const roomData = currentDemaciaGame.roomData;
-  const roundResults = roomData.roundResults;
-  
-  if (!roundResults) {
-    console.error('❌ roundResults が存在しません');
-    return;
-  }
-  
-  console.log('📊 結果表示:', roundResults);
-  
-  // セリフと正解シチュエーション
-  document.getElementById('demacia-round-result-phrase').textContent = roomData.currentPhrase.text;
-  const correctSituation = roomData.currentPhrase.situations[roundResults.correctSituationIndex];
-  document.getElementById('demacia-correct-situation').textContent = 
-    `正解: ${correctSituation.text} (難易度: ${roundResults.difficulty})`;
-  
-  // 正解者数
-  document.getElementById('demacia-correct-count').textContent = 
-    `✅ 正解者: ${roundResults.correctVotes} / ${roundResults.totalVoters}人`;
-  
-  // 投票者の結果を表示
-  const voterResultsContainer = document.getElementById('demacia-voter-results');
-  if (voterResultsContainer && roundResults.voterResults) {
-    voterResultsContainer.innerHTML = '<h3 style="margin: 1rem 0;">🗳️ 投票結果</h3>';
-    
-    roundResults.voterResults.forEach(voter => {
-      const resultDiv = document.createElement('div');
-      resultDiv.className = 'voter-result-item';
-      resultDiv.style.cssText = `
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.75rem 1rem;
-        margin: 0.5rem 0;
-        background: ${voter.isCorrect ? 'rgba(76, 175, 80, 0.2)' : 'rgba(244, 67, 54, 0.2)'};
-        border-left: 4px solid ${voter.isCorrect ? '#4caf50' : '#f44336'};
-        border-radius: 4px;
-      `;
-      
-      const nameSpan = document.createElement('span');
-      nameSpan.style.fontWeight = '600';
-      nameSpan.textContent = voter.name;
-      
-      const choiceSpan = document.createElement('span');
-      choiceSpan.style.cssText = 'font-size: 0.9rem; color: rgba(255,255,255,0.8);';
-      choiceSpan.textContent = `${voter.guessedText}`;
-      
-      const statusSpan = document.createElement('span');
-      statusSpan.style.cssText = `
-        font-weight: 600;
-        color: ${voter.isCorrect ? '#4caf50' : '#f44336'};
-      `;
-      statusSpan.textContent = voter.isCorrect ? '✅ 正解' : '❌ 不正解';
-      
-      resultDiv.appendChild(nameSpan);
-      resultDiv.appendChild(choiceSpan);
-      resultDiv.appendChild(statusSpan);
-      
-      voterResultsContainer.appendChild(resultDiv);
-    });
-  }
-  
-  // 次のラウンドまたは最終結果ボタン
-  if (roomData.currentRound < (roomData.settings?.roundCount || 5)) {
-    document.getElementById('demacia-next-round-btn').style.display = 'block';
-    document.getElementById('demacia-show-results-btn').style.display = 'none';
-  } else {
-    document.getElementById('demacia-next-round-btn').style.display = 'none';
-    document.getElementById('demacia-show-results-btn').style.display = 'block';
-  }
-  
-  showScreen('demacia-round-result-screen');
-}
-
-// 次のラウンド開始
-async function startNextDemaciaRound() {
-  await currentDemaciaGame.nextRound();
-  showDemaciaPerformerSelection();
-}
-
-// 最終結果表示
-function showDemaciaFinalResults() {
-  const roomData = currentDemaciaGame.roomData;
-  const rankings = currentDemaciaGame.calculateFinalRankings();
-  
-  const rankingsContainer = document.getElementById('demacia-final-rankings');
-  rankingsContainer.innerHTML = '';
-  
-  rankings.forEach((player, index) => {
-    const div = document.createElement('div');
-    div.className = 'ranking-item';
-    div.innerHTML = `
-      <span class="rank">${index + 1}位</span>
-      <span class="player-name">${player.name}</span>
-      <span class="score">${player.score}点</span>
-    `;
-    rankingsContainer.appendChild(div);
-  });
-  
-  showScreen('demacia-final-result-screen');
-}
-
-// ========================================
-// ブラウザ/タブを閉じる時の自動退出
-// ========================================
-function setupAutoLeaveOnClose() {
-  // beforeunload イベント（ブラウザ/タブを閉じる直前）
-  window.addEventListener('beforeunload', async (event) => {
-    // ワードウルフゲームから退出
-    if (currentGame && currentPlayer && currentRoomId) {
-      try {
-        await currentGame.leaveRoom(currentPlayer);
-        console.log('✅ ワードウルフルーム自動退出');
-      } catch (error) {
-        console.error('❌ 自動退出エラー:', error);
-      }
-    }
-    
-    // デマーシアゲームから退出
-    if (currentDemaciaGame && currentPlayer && currentRoomId) {
-      try {
-        await currentDemaciaGame.leaveRoom(currentPlayer);
-        console.log('✅ デマーシアルーム自動退出');
-      } catch (error) {
-        console.error('❌ 自動退出エラー:', error);
-      }
-    }
-  });
-  
-  // Firebase の onDisconnect を設定（ネットワーク切断時の自動削除）
-  setupFirebaseDisconnect();
-}
-
-// Firebase onDisconnect 設定
-function setupFirebaseDisconnect() {
-  // 接続状態を監視
-  const connectedRef = firebase.database().ref('.info/connected');
-  
-  connectedRef.on('value', (snapshot) => {
-    if (snapshot.val() === true) {
-      console.log('🔗 Firebase接続確立');
-      
-      // ワードウルフルームの onDisconnect 設定
-      if (currentGame && currentPlayer && currentRoomId) {
-        const playerRef = firebase.database().ref(`rooms/${currentRoomId}/players/${currentPlayer}`);
-        const playerOrderRef = firebase.database().ref(`rooms/${currentRoomId}/playerOrder`);
-        
-        // 切断時にプレイヤーを削除
-        playerRef.onDisconnect().remove().then(() => {
-          console.log('🔒 ワードウルフ onDisconnect 設定完了');
-        });
-        
-        // playerOrder からも削除
-        playerOrderRef.once('value').then((orderSnapshot) => {
-          const playerOrder = orderSnapshot.val() || [];
-          const newOrder = playerOrder.filter(name => name !== currentPlayer);
-          playerOrderRef.onDisconnect().set(newOrder);
-        });
-      }
-      
-      // デマーシアルームの onDisconnect 設定
-      if (currentDemaciaGame && currentPlayer && currentRoomId) {
-        const playerRef = firebase.database().ref(`demacia_rooms/${currentRoomId}/players/${currentPlayer}`);
-        
-        // 切断時にプレイヤーを削除
-        playerRef.onDisconnect().remove().then(() => {
-          console.log('🔒 デマーシア onDisconnect 設定完了');
-        });
-      }
-    }
-  });
+// ページ読み込み時に言語を初期化
+function initLanguage() {
+  currentLanguage = loadLanguage();
+  updatePageLanguage();
 }

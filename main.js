@@ -1,46 +1,155 @@
 // ========================================
-// Firebase 設定ファイル
+// LOL お題データ
 // ========================================
-// このファイルはFirebase Realtime Databaseに接続するための設定です
+// ワードウルフで使用するLOL関連のお題ペアデータ
 
-const firebaseConfig = {
-  // 🔑 APIキー
-  apiKey: "AIzaSyCICMaHGGxE4KLZLldB7DbatX5eS-jbt3Q",
+const wordData = {
+  // チャンピオン（20ペア）
+  champions: [
+    { majority: 'ヤスオ', minority: 'ヨネ' },
+    { majority: 'ジンクス', minority: 'ケイトリン' },
+    { majority: 'リー・シン', minority: 'ブラインドモンク' },
+    { majority: 'ルックス', minority: 'モルガナ' },
+    { majority: 'ゼド', minority: 'シェン' },
+    { majority: 'アッシュ', minority: 'セジュアニ' },
+    { majority: 'ダリウス', minority: 'ドレイヴン' },
+    { majority: 'ガレン', minority: 'ルクス' },
+    { majority: 'カタリナ', minority: 'タロン' },
+    { majority: 'アーリ', minority: 'イブリン' },
+    { majority: 'エズリアル', minority: 'ルシアン' },
+    { majority: 'ヴェイン', minority: 'カイサ' },
+    { majority: 'ティーモ', minority: 'トリスターナ' },
+    { majority: 'マスター・イー', minority: 'ワーウィック' },
+    { majority: 'ブリッツクランク', minority: 'スレッシュ' },
+    { majority: 'リヴェン', minority: 'イレリア' },
+    { majority: 'ジャックス', minority: 'フィオラ' },
+    { majority: 'マルファイト', minority: 'ガリオ' },
+    { majority: 'アニー', minority: 'ブランド' },
+    { majority: 'ソラカ', minority: 'ナミ' }
+  ],
   
-  // 🌐 認証ドメイン
-  authDomain: "lol-word-wolf.firebaseapp.com",
+  // アイテム（15ペア）
+  items: [
+    { majority: 'インフィニティエッジ', minority: 'ストームレイザー' },
+    { majority: 'トリニティフォース', minority: 'ディヴァインサンダラー' },
+    { majority: 'ブラッククリーバー', minority: 'ステラックの篭手' },
+    { majority: 'ガーディアンエンジェル', minority: 'ジョニャの砂時計' },
+    { majority: 'ルーデンテンペスト', minority: 'リアンドリーの苦悶' },
+    { majority: 'ラバドンデスキャップ', minority: 'ヴォイドスタッフ' },
+    { majority: 'ブラッドサースター', minority: 'シールドボウ' },
+    { majority: 'ガントレット', minority: 'サンファイアイージス' },
+    { majority: 'ソーンメイル', minority: 'フローズンハート' },
+    { majority: 'デッドマンプレート', minority: 'ランデュイン' },
+    { majority: 'ウィッツエンド', minority: 'ブレードオブザルーインドキング' },
+    { majority: 'ムーンストーンリニューアー', minority: 'シュレリアレクイエム' },
+    { majority: 'ゴアドリンカー', minority: 'ストライドブレイカー' },
+    { majority: 'クラーケンスレイヤー', minority: 'ゲイルフォース' },
+    { majority: 'サポートアイテム', minority: 'ワードストーン' }
+  ],
   
-  // 📊 データベースURL（重要！）
-  databaseURL: "https://lol-word-wolf-default-rtdb.asia-southeast1.firebasedatabase.app",
+  // スキル・能力（15ペア）
+  skills: [
+    { majority: 'ブリンク', minority: 'ダッシュ' },
+    { majority: 'スタン', minority: 'ルート' },
+    { majority: 'ノックアップ', minority: 'ノックバック' },
+    { majority: 'スロウ', minority: 'グラウンド' },
+    { majority: 'サイレンス', minority: 'ディスアーム' },
+    { majority: 'シールド', minority: 'バリア' },
+    { majority: 'ライフスティール', minority: 'オムニヴァンプ' },
+    { majority: 'クリティカル', minority: 'レーシング' },
+    { majority: '物理防御', minority: '魔法防御' },
+    { majority: '攻撃速度', minority: '移動速度' },
+    { majority: 'マナ', minority: 'エナジー' },
+    { majority: 'パッシブ', minority: 'アクティブ' },
+    { majority: 'スキルショット', minority: 'ターゲット' },
+    { majority: 'エリア攻撃', minority: '単体攻撃' },
+    { majority: 'バフ', minority: 'デバフ' }
+  ],
   
-  // 🆔 プロジェクトID
-  projectId: "lol-word-wolf",
+  // マップ・レーン（15ペア）
+  map: [
+    { majority: 'トップレーン', minority: 'ミッドレーン' },
+    { majority: 'ボットレーン', minority: 'サポート' },
+    { majority: 'ジャングル', minority: 'ロースター' },
+    { majority: 'レッドバフ', minority: 'ブルーバフ' },
+    { majority: 'ドラゴン', minority: 'バロン' },
+    { majority: 'リフトヘラルド', minority: 'ボイド' },
+    { majority: 'タワー', minority: 'インヒビター' },
+    { majority: 'ネクサス', minority: 'クリスタル' },
+    { majority: 'リバー', minority: 'ジャングル' },
+    { majority: 'トライブッシュ', minority: 'ピクセルブッシュ' },
+    { majority: 'ベースキャンプ', minority: 'ファウンテン' },
+    { majority: 'マウンテンドラゴン', minority: 'クラウドドラゴン' },
+    { majority: 'オーシャンドラゴン', minority: 'インファーナルドラゴン' },
+    { majority: 'スカトル', minority: 'グロンプ' },
+    { majority: 'ラプター', minority: 'ウルフ' }
+  ],
   
-  // 💾 ストレージバケット
-  storageBucket: "lol-word-wolf.firebasestorage.app",
-  
-  // 📧 メッセージ送信ID
-  messagingSenderId: "535370778213",
-  
-  // 📱 アプリID
-  appId: "1:535370778213:web:440df2e808fda1eea7288c",
-  
-  // 📈 測定ID
-  measurementId: "G-KKNBV5DYM0"
+  // スペル（8ペア）
+  spells: [
+    { majority: 'フラッシュ', minority: 'ゴースト' },
+    { majority: 'イグナイト', minority: 'テレポート' },
+    { majority: 'ヒール', minority: 'バリア' },
+    { majority: 'クレンズ', minority: 'エグゾースト' },
+    { majority: 'スマイト', minority: 'チャレンジャー' },
+    { majority: 'クラリティ', minority: 'マーク' },
+    { majority: '疾駆', minority: '俊敏' },
+    { majority: 'バースト', minority: 'プロテクト' }
+  ]
 };
 
-// Firebase初期化
-firebase.initializeApp(firebaseConfig);
+// カテゴリー名の定義
+const categoryNames = {
+  champions: 'チャンピオン',
+  items: 'アイテム',
+  skills: 'スキル・能力',
+  map: 'マップ・レーン',
+  spells: 'スペル'
+};
 
-// Realtime Database参照
-const database = firebase.database();
-
-// 接続状態の監視
-const connectedRef = database.ref('.info/connected');
-connectedRef.on('value', (snap) => {
-  if (snap.val() === true) {
-    console.log('✅ Firebase接続成功');
-  } else {
-    console.log('❌ Firebase接続失敗');
+// お題をランダムに選択する関数
+function getRandomTopic(categories, gameType = 'lol', language = 'ja') {
+  // 選択されたカテゴリーからお題を集める
+  let allTopics = [];
+  
+  // 多言語対応データがある場合はそれを使用
+  if (typeof wordDataI18n !== 'undefined') {
+    // カテゴリー名をi18n形式に変換
+    const i18nCategories = categories.map(cat => `${gameType}_${cat}`);
+    
+    i18nCategories.forEach(category => {
+      if (wordDataI18n[category]) {
+        allTopics = allTopics.concat(wordDataI18n[category]);
+      }
+    });
+    
+    // データが見つかった場合は多言語データを返す
+    if (allTopics.length > 0) {
+      const randomIndex = Math.floor(Math.random() * allTopics.length);
+      const topicData = allTopics[randomIndex];
+      // 言語に応じたデータを返す
+      return topicData[language] || topicData['ja'];
+    }
   }
-});
+  
+  // フォールバック：従来のデータを使用
+  const dataSource = gameType === 'tft' ? tftData : (gameType === 'valorant' ? valorantData : wordData);
+  
+  if (categories.length === 0 || categories.includes('all')) {
+    // すべてのカテゴリーから選択
+    Object.values(dataSource).forEach(categoryData => {
+      allTopics = allTopics.concat(categoryData);
+    });
+  } else {
+    // 選択されたカテゴリーのみ
+    categories.forEach(category => {
+      if (dataSource[category]) {
+        allTopics = allTopics.concat(dataSource[category]);
+      }
+    });
+  }
+  
+  // ランダムに1つ選択
+  const randomIndex = Math.floor(Math.random() * allTopics.length);
+  return allTopics[randomIndex];
+}
