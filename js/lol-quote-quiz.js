@@ -1831,7 +1831,7 @@ let quizQuestions = [
             zh: "Charmed, I'm sure."
         },
         choices: {
-            ja: ["アーリ", "イブリン", "シンドラ", "レブランク"],
+            ja: ["アーリ", "イブリン", "シンドラ", "ルブラン"],
             en: ["Ahri", "Evelynn", "Syndra", "LeBlanc"],
             ko: ["아리", "이블린", "신드라", "르블랑"],
             zh: ["阿狸", "伊芙琳", "辛德拉", "乐芙兰"]
@@ -2583,7 +2583,7 @@ let quizQuestions = [
             zh: "Deceive. Destroy. Dominate."
         },
         choices: {
-            ja: ["レブランク", "シンドラ", "カシオペア", "エリス"],
+            ja: ["ルブラン", "シンドラ", "カシオペア", "エリス"],
             en: ["LeBlanc", "Syndra", "Cassiopeia", "Elise"],
             ko: ["르블랑", "신드라", "카시오페아", "엘리스"],
             zh: ["乐芙兰", "辛德拉", "卡西奥佩娅", "伊莉丝"]
@@ -2839,7 +2839,7 @@ let quizQuestions = [
             zh: "I am not naive!"
         },
         choices: {
-            ja: ["シンドラ", "レブランク", "リサンドラ", "アニビア"],
+            ja: ["シンドラ", "ルブラン", "リサンドラ", "アニビア"],
             en: ["Syndra", "LeBlanc", "Lissandra", "Anivia"],
             ko: ["신드라", "르블랑", "리산드라", "애니비아"],
             zh: ["辛德拉", "乐芙兰", "丽桑卓", "艾尼维亚"]
@@ -4807,7 +4807,7 @@ let quizQuestions = [
             zh: "They will know pain!"
         },
         choices: {
-            ja: ["モルガナ", "ケイル", "レブランク", "シンドラ"],
+            ja: ["モルガナ", "ケイル", "ルブラン", "シンドラ"],
             en: ["Morgana", "Kayle", "LeBlanc", "Syndra"],
             ko: ["모르가나", "케일", "르블랑", "신드라"],
             zh: ["莫甘娜", "凯尔", "乐芙兰", "辛德拉"]
@@ -4823,7 +4823,7 @@ let quizQuestions = [
             zh: "My destiny is my own!"
         },
         choices: {
-            ja: ["シンドラ", "レブランク", "モルガナ", "カシオペア"],
+            ja: ["シンドラ", "ルブラン", "モルガナ", "カシオペア"],
             en: ["Syndra", "LeBlanc", "Morgana", "Cassiopeia"],
             ko: ["신드라", "르블랑", "모르가나", "카시오페아"],
             zh: ["辛德拉", "乐芙兰", "莫甘娜", "卡西奥佩娅"]

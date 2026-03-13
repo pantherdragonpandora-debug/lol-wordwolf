@@ -6,10 +6,10 @@ const quizBatch111_160 = [
     {
         id: 111,
         quotes: {
-            ja: "正義はすでに出た",
+            ja: "Justice is already out",
             en: "Justice is already out",
-            ko: "정의는 이미 나왔다",
-            zh: "正义已经降临"
+            ko: "Justice is already out",
+            zh: "Justice is already out"
         },
         choices: {
             ja: ["ガレン", "ダリウス", "ジャーヴァンⅣ", "ガリオ"],
@@ -22,10 +22,10 @@ const quizBatch111_160 = [
     {
         id: 112,
         quotes: {
-            ja: "時間が最高の教師だ。残念ながら、すべての生徒を殺してしまうが",
+            ja: "Time is the greatest teacher, though it kills all its students",
             en: "Time is the greatest teacher, though it kills all its students",
-            ko: "시간은 최고의 스승이지만, 모든 학생을 죽인다",
-            zh: "时间是最伟大的老师，但它杀死了所有学生"
+            ko: "Time is the greatest teacher, though it kills all its students",
+            zh: "Time is the greatest teacher, though it kills all its students"
         },
         choices: {
             ja: ["ジリアン", "エコー", "バード", "ライズ"],
@@ -38,10 +38,10 @@ const quizBatch111_160 = [
     {
         id: 113,
         quotes: {
-            ja: "私の右腕は左腕よりもはるかに強い",
+            ja: "My right arm is a lot stronger than my left arm",
             en: "My right arm is a lot stronger than my left arm",
-            ko: "내 오른팔은 왼팔보다 훨씬 강하다",
-            zh: "我的右臂比左臂强壮得多"
+            ko: "My right arm is a lot stronger than my left arm",
+            zh: "My right arm is a lot stronger than my left arm"
         },
         choices: {
             ja: ["トリンダメア", "ヤスオ", "ガレン", "ダリウス"],
@@ -60,7 +60,7 @@ const quizBatch111_160 = [
             zh: "我不是恶魔，我比恶魔更可怕"
         },
         choices: {
-            ja: ["アートロックス", "スウェイン", "モルデカイザー", "ベイガー"],
+            ja: ["エイトロックス", "スウェイン", "モルデカイザー", "ベイガー"],
             en: ["Aatrox", "Swain", "Mordekaiser", "Veigar"],
             ko: ["아트록스", "스웨인", "모데카이저", "베이가"],
             zh: ["亚托克斯", "斯维因", "莫德凯撒", "维迦"]
@@ -124,7 +124,7 @@ const quizBatch111_160 = [
             zh: "只有影子理解我"
         },
         choices: {
-            ja: ["ゼド", "ノクターン", "カイン", "シャコ"],
+            ja: ["ゼド", "ノクターン", "ケイン", "シャコ"],
             en: ["Zed", "Nocturne", "Kayn", "Shaco"],
             ko: ["제드", "녹턴", "케인", "샤코"],
             zh: ["劫", "魔腾", "凯隐", "萨科"]
@@ -412,7 +412,7 @@ const quizBatch111_160 = [
             zh: "我是金属与血肉的融合"
         },
         choices: {
-            ja: ["ブリッツクランク", "ヴィクター", "ウーコン", "ジェイス"],
+            ja: ["ブリッツクランク", "ビクター", "ウーコン", "ジェイス"],
             en: ["Blitzcrank", "Viktor", "Urgot", "Jayce"],
             ko: ["블리츠크랭크", "빅토르", "우르곳", "제이스"],
             zh: ["布里茨", "维克托", "厄加特", "杰斯"]
@@ -524,7 +524,7 @@ const quizBatch111_160 = [
             zh: "我是复仇的化身"
         },
         choices: {
-            ja: ["カリスタ", "ヘカリム", "アートロックス", "モルデカイザー"],
+            ja: ["カリスタ", "ヘカリム", "エイトロックス", "モルデカイザー"],
             en: ["Kalista", "Hecarim", "Aatrox", "Mordekaiser"],
             ko: ["칼리스타", "헤카림", "아트록스", "모데카이저"],
             zh: ["卡莉丝塔", "赫卡里姆", "亚托克斯", "莫德凯撒"]
@@ -604,7 +604,7 @@ const quizBatch111_160 = [
             zh: "我的心脏是机械的"
         },
         choices: {
-            ja: ["ブリッツクランク", "ヴィクター", "オリアナ", "ジンクス"],
+            ja: ["ブリッツクランク", "ビクター", "オリアナ", "ジンクス"],
             en: ["Blitzcrank", "Viktor", "Orianna", "Jinx"],
             ko: ["블리츠크랭크", "빅토르", "오리아나", "징크스"],
             zh: ["布里茨", "维克托", "奥莉安娜", "金克丝"]
@@ -716,7 +716,7 @@ const quizBatch111_160 = [
             zh: "我的知识无限"
         },
         choices: {
-            ja: ["ライズ", "ベイガー", "ゼラス", "ヴィクター"],
+            ja: ["ライズ", "ベイガー", "ゼラス", "ビクター"],
             en: ["Ryze", "Veigar", "Xerath", "Viktor"],
             ko: ["라이즈", "베이가", "제라스", "빅토르"],
             zh: ["瑞兹", "维迦", "泽拉斯", "维克托"]

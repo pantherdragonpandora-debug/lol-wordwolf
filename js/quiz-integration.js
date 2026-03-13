@@ -26,5 +26,17 @@
     // Sort by ID to ensure correct order
     quizQuestions.sort((a, b) => a.id - b.id);
     
+    // 🌍 Convert all quotes to English for language learning
+    // All languages will display the English quote
+    quizQuestions.forEach(question => {
+        if (question.quotes && question.quotes.en) {
+            const englishQuote = question.quotes.en;
+            question.quotes.ja = englishQuote;
+            question.quotes.ko = englishQuote;
+            question.quotes.zh = englishQuote;
+        }
+    });
+    
     console.log(`📊 Total quiz questions: ${quizQuestions.length}`);
+    console.log('🌍 All quotes converted to English for language learning');
 })();
