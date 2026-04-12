@@ -95,6 +95,65 @@ const wordData = {
     { majority: 'クラリティ', minority: 'マーク' },
     { majority: '疾駆', minority: '俊敏' },
     { majority: 'バースト', minority: 'プロテクト' }
+  ],
+  
+  // シチュエーション（40ペア）
+  situations: [
+    // 追いかけられている時
+    { majority: 'ガレンに追いかけられている時', minority: 'ヤスオに追いかけられている時' },
+    { majority: 'ダリウスに追いかけられている時', minority: 'ドレイヴンに追いかけられている時' },
+    { majority: 'ゼドに追いかけられている時', minority: 'タロンに追いかけられている時' },
+    { majority: 'ジンクスに追いかけられている時', minority: 'ケイトリンに追いかけられている時' },
+    { majority: 'ティーモに追いかけられている時', minority: 'トゥイッチに追いかけられている時' },
+    
+    // ウルトを使った時
+    { majority: 'ビクターのウルトを打った時', minority: 'オレリオンソルのウルトを打った時' },
+    { majority: 'ジンのウルトを打った時', minority: 'ゼラスのウルトを打った時' },
+    { majority: 'ルクスのウルトを打った時', minority: 'エズリアルのウルトを打った時' },
+    { majority: 'アッシュのウルトを打った時', minority: 'ジンクスのウルトを打った時' },
+    { majority: 'マルファイトのウルトを打った時', minority: 'ガリオのウルトを打った時' },
+    { majority: 'カタリナのウルトを打った時', minority: 'サミーラのウルトを打った時' },
+    { majority: 'ヤスオのウルトを打った時', minority: 'ヨネのウルトを打った時' },
+    
+    // 考えること
+    { majority: 'リコール中に考えること', minority: 'スタート時に考えること' },
+    { majority: 'デス後に考えること', minority: 'キル後に考えること' },
+    { majority: 'タワー下で考えること', minority: 'プッシュ中に考えること' },
+    { majority: 'ドラゴン前に考えること', minority: 'バロン前に考えること' },
+    { majority: '集団戦前に考えること', minority: 'レーン戦中に考えること' },
+    { majority: 'ジャングルに入る時に考えること', minority: 'ガンクされる時に考えること' },
+    
+    // やってしまったこと
+    { majority: 'タワーダイブして失敗した時', minority: 'フラッシュ先に壁があった時' },
+    { majority: 'スマイトミスった時', minority: 'イグナイトミスった時' },
+    { majority: 'ウルト空振りした時', minority: 'Qを空振りした時' },
+    { majority: 'タワーに突っ込んでしまった時', minority: 'ファウンテンに突っ込んでしまった時' },
+    { majority: 'ワードを置き忘れた時', minority: 'TPを使い忘れた時' },
+    
+    // ゲーム状況
+    { majority: '1キル5デスの時の言い訳', minority: '0キル10デスの時の言い訳' },
+    { majority: 'ソロキルされた時の言い訳', minority: 'ガンクされた時の言い訳' },
+    { majority: 'トップがフィードしてる時', minority: 'ボットがフィードしてる時' },
+    { majority: 'ジャングルが来ない時', minority: 'サポートがローミングしてる時' },
+    { majority: '20分で10キル差ついた時', minority: '10分で5タワー差ついた時' },
+    
+    // チャンピオン特有のシチュエーション
+    { majority: 'ヤスオで0/10/0の時', minority: 'ティーモで10/0/0の時' },
+    { majority: 'ブリッツのフックが当たった時', minority: 'スレッシュのフックが当たった時' },
+    { majority: 'アニーのスタンを食らった時', minority: 'ヴェイガーの檻に入った時' },
+    { majority: 'ノクターンにウルトされた時', minority: 'レンガーに飛ばれた時' },
+    { majority: 'シンジドに追いかけられてる時', minority: 'ティーモのキノコを踏んだ時' },
+    
+    // 装備・ビルド
+    { majority: '靴を買う順番', minority: 'ピンクワードを買う順番' },
+    { majority: 'ADアイテムを積む順番', minority: 'APアイテムを積む順番' },
+    { majority: 'アーマーを積むタイミング', minority: 'MRを積むタイミング' },
+    { majority: 'ライフスティールを積む時', minority: 'シールドを積む時' },
+    
+    // コミュニケーション
+    { majority: 'ピン連打された時', minority: 'クエスチョンマークつけられた時' },
+    { majority: 'ナイスって言われた時', minority: 'GGって言われた時' },
+    { majority: 'FFしたい時', minority: 'FFしたくない時' }
   ]
 };
 

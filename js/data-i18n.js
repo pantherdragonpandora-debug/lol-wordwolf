@@ -304,6 +304,205 @@ const wordDataI18n = {
     }
   ],
 
+  // LOL - シチュエーション（30ペア）
+  lol_situations: [
+    // 追いかけられている時
+    { 
+      ja: { majority: 'ガレンに追いかけられている時', minority: 'ヤスオに追いかけられている時' },
+      en: { majority: 'Being chased by Garen', minority: 'Being chased by Yasuo' },
+      ko: { majority: '가렌에게 쫓기고 있을 때', minority: '야스오에게 쫓기고 있을 때' },
+      zh: { majority: '被盖伦追赶时', minority: '被亚索追赶时' }
+    },
+    { 
+      ja: { majority: 'ダリウスに追いかけられている時', minority: 'ドレイヴンに追いかけられている時' },
+      en: { majority: 'Being chased by Darius', minority: 'Being chased by Draven' },
+      ko: { majority: '다리우스에게 쫓기고 있을 때', minority: '드레이븐에게 쫓기고 있을 때' },
+      zh: { majority: '被德莱厄斯追赶时', minority: '被德莱文追赶时' }
+    },
+    { 
+      ja: { majority: 'ゼドに追いかけられている時', minority: 'タロンに追いかけられている時' },
+      en: { majority: 'Being chased by Zed', minority: 'Being chased by Talon' },
+      ko: { majority: '제드에게 쫓기고 있을 때', minority: '탈론에게 쫓기고 있을 때' },
+      zh: { majority: '被劫追赶时', minority: '被泰隆追赶时' }
+    },
+    
+    // ウルトを打った時
+    { 
+      ja: { majority: 'ビクターのウルトを打った時', minority: 'オレリオンソルのウルトを打った時' },
+      en: { majority: 'Using Viktor ult', minority: 'Using Aurelion Sol ult' },
+      ko: { majority: '빅토르 궁을 사용했을 때', minority: '아우렐리온 솔 궁을 사용했을 때' },
+      zh: { majority: '使用维克托大招时', minority: '使用奥瑞利安索尔大招时' }
+    },
+    { 
+      ja: { majority: 'ジンのウルトを打った時', minority: 'ゼラスのウルトを打った時' },
+      en: { majority: 'Using Jhin ult', minority: 'Using Xerath ult' },
+      ko: { majority: '진 궁을 사용했을 때', minority: '제라스 궁을 사용했을 때' },
+      zh: { majority: '使用烬大招时', minority: '使用泽拉斯大招时' }
+    },
+    { 
+      ja: { majority: 'ルクスのウルトを打った時', minority: 'エズリアルのウルトを打った時' },
+      en: { majority: 'Using Lux ult', minority: 'Using Ezreal ult' },
+      ko: { majority: '럭스 궁을 사용했을 때', minority: '이즈리얼 궁을 사용했을 때' },
+      zh: { majority: '使用拉克丝大招时', minority: '使用伊泽瑞尔大招时' }
+    },
+    { 
+      ja: { majority: 'マルファイトのウルトを打った時', minority: 'ガリオのウルトを打った時' },
+      en: { majority: 'Using Malphite ult', minority: 'Using Galio ult' },
+      ko: { majority: '말파이트 궁을 사용했을 때', minority: '갈리오 궁을 사용했을 때' },
+      zh: { majority: '使用墨菲特大招时', minority: '使用加里奥大招时' }
+    },
+    { 
+      ja: { majority: 'ヤスオのウルトを打った時', minority: 'ヨネのウルトを打った時' },
+      en: { majority: 'Using Yasuo ult', minority: 'Using Yone ult' },
+      ko: { majority: '야스오 궁을 사용했을 때', minority: '요네 궁을 사용했을 때' },
+      zh: { majority: '使用亚索大招时', minority: '使用永恩大招时' }
+    },
+    
+    // 考えること
+    { 
+      ja: { majority: 'リコール中に考えること', minority: 'スタート時に考えること' },
+      en: { majority: 'What to think during recall', minority: 'What to think at game start' },
+      ko: { majority: '귀환 중 생각할 것', minority: '게임 시작 시 생각할 것' },
+      zh: { majority: '回城时思考的事', minority: '游戏开始时思考的事' }
+    },
+    { 
+      ja: { majority: 'デス後に考えること', minority: 'キル後に考えること' },
+      en: { majority: 'What to think after dying', minority: 'What to think after a kill' },
+      ko: { majority: '죽은 후 생각할 것', minority: '킬 후 생각할 것' },
+      zh: { majority: '阵亡后思考的事', minority: '击杀后思考的事' }
+    },
+    { 
+      ja: { majority: 'ドラゴン前に考えること', minority: 'バロン前に考えること' },
+      en: { majority: 'What to think before dragon', minority: 'What to think before baron' },
+      ko: { majority: '드래곤 전 생각할 것', minority: '바론 전 생각할 것' },
+      zh: { majority: '打龙前思考的事', minority: '打大龙前思考的事' }
+    },
+    { 
+      ja: { majority: '集団戦前に考えること', minority: 'レーン戦中に考えること' },
+      en: { majority: 'What to think before teamfight', minority: 'What to think during laning' },
+      ko: { majority: '한타 전 생각할 것', minority: '라인전 중 생각할 것' },
+      zh: { majority: '团战前思考的事', minority: '对线时思考的事' }
+    },
+    
+    // やってしまったこと
+    { 
+      ja: { majority: 'タワーダイブして失敗した時', minority: 'フラッシュ先に壁があった時' },
+      en: { majority: 'Failed tower dive', minority: 'Flashed into a wall' },
+      ko: { majority: '타워 다이브 실패했을 때', minority: '점멸로 벽에 부딪혔을 때' },
+      zh: { majority: '越塔失败时', minority: '闪现撞墙时' }
+    },
+    { 
+      ja: { majority: 'スマイトミスった時', minority: 'イグナイトミスった時' },
+      en: { majority: 'Missed smite', minority: 'Wasted ignite' },
+      ko: { majority: '강타 놓쳤을 때', minority: '점화 헛쳤을 때' },
+      zh: { majority: '惩戒失误时', minority: '引燃失误时' }
+    },
+    { 
+      ja: { majority: 'ウルト空振りした時', minority: 'Qを空振りした時' },
+      en: { majority: 'Missed ultimate', minority: 'Missed Q ability' },
+      ko: { majority: '궁극기를 빗나갔을 때', minority: 'Q스킬을 빗나갔을 때' },
+      zh: { majority: '大招放空时', minority: 'Q技能放空时' }
+    },
+    { 
+      ja: { majority: 'タワーに突っ込んでしまった時', minority: 'ファウンテンに突っ込んでしまった時' },
+      en: { majority: 'Accidentally ran into tower', minority: 'Accidentally ran into fountain' },
+      ko: { majority: '포탑에 돌진했을 때', minority: '분수대에 돌진했을 때' },
+      zh: { majority: '冲进防御塔时', minority: '冲进泉水时' }
+    },
+    
+    // ゲーム状況
+    { 
+      ja: { majority: '1キル5デスの時の言い訳', minority: '0キル10デスの時の言い訳' },
+      en: { majority: 'Excuse for 1/5/0', minority: 'Excuse for 0/10/0' },
+      ko: { majority: '1킬 5데스일 때의 변명', minority: '0킬 10데스일 때의 변명' },
+      zh: { majority: '1杀5死时的借口', minority: '0杀10死时的借口' }
+    },
+    { 
+      ja: { majority: 'ソロキルされた時の言い訳', minority: 'ガンクされた時の言い訳' },
+      en: { majority: 'Excuse for being solo killed', minority: 'Excuse for being ganked' },
+      ko: { majority: '솔로킬 당했을 때의 변명', minority: '갱킹 당했을 때의 변명' },
+      zh: { majority: '被单杀时的借口', minority: '被抓时的借口' }
+    },
+    { 
+      ja: { majority: 'トップがフィードしてる時', minority: 'ボットがフィードしてる時' },
+      en: { majority: 'When top is feeding', minority: 'When bot is feeding' },
+      ko: { majority: '탑이 망하고 있을 때', minority: '봇이 망하고 있을 때' },
+      zh: { majority: '上路在送时', minority: '下路在送时' }
+    },
+    { 
+      ja: { majority: 'ジャングルが来ない時', minority: 'サポートがローミングしてる時' },
+      en: { majority: 'When jungler never ganks', minority: 'When support keeps roaming' },
+      ko: { majority: '정글러가 안 올 때', minority: '서포터가 로밍할 때' },
+      zh: { majority: '打野不来时', minority: '辅助游走时' }
+    },
+    
+    // チャンピオン特有のシチュエーション
+    { 
+      ja: { majority: 'ヤスオで0/10/0の時', minority: 'ティーモで10/0/0の時' },
+      en: { majority: 'Being 0/10/0 on Yasuo', minority: 'Being 10/0/0 on Teemo' },
+      ko: { majority: '야스오로 0/10/0일 때', minority: '티모로 10/0/0일 때' },
+      zh: { majority: '亚索0/10/0时', minority: '提莫10/0/0时' }
+    },
+    { 
+      ja: { majority: 'ブリッツのフックが当たった時', minority: 'スレッシュのフックが当たった時' },
+      en: { majority: 'Hit by Blitz hook', minority: 'Hit by Thresh hook' },
+      ko: { majority: '블리츠 갈고리에 걸렸을 때', minority: '쓰레쉬 갈고리에 걸렸을 때' },
+      zh: { majority: '被布里茨钩中时', minority: '被锤石钩中时' }
+    },
+    { 
+      ja: { majority: 'ノクターンにウルトされた時', minority: 'レンガーに飛ばれた時' },
+      en: { majority: 'Hit by Nocturne ult', minority: 'Jumped by Rengar' },
+      ko: { majority: '녹턴 궁에 당했을 때', minority: '렝가에게 점프 당했을 때' },
+      zh: { majority: '被梦魇大招时', minority: '被雷恩加尔跳时' }
+    },
+    { 
+      ja: { majority: 'シンジドに追いかけられてる時', minority: 'ティーモのキノコを踏んだ時' },
+      en: { majority: 'Being chased by Singed', minority: 'Stepped on Teemo shroom' },
+      ko: { majority: '신지드에게 쫓기고 있을 때', minority: '티모 버섯을 밟았을 때' },
+      zh: { majority: '被炼金术士追赶时', minority: '踩到提莫蘑菇时' }
+    },
+    
+    // 装備・ビルド
+    { 
+      ja: { majority: '靴を買う順番', minority: 'ピンクワードを買う順番' },
+      en: { majority: 'When to buy boots', minority: 'When to buy control ward' },
+      ko: { majority: '신발 사는 순서', minority: '제어 와드 사는 순서' },
+      zh: { majority: '买鞋的顺序', minority: '买真眼的顺序' }
+    },
+    { 
+      ja: { majority: 'ADアイテムを積む順番', minority: 'APアイテムを積む順番' },
+      en: { majority: 'AD item build order', minority: 'AP item build order' },
+      ko: { majority: 'AD 아이템 순서', minority: 'AP 아이템 순서' },
+      zh: { majority: 'AD装备顺序', minority: 'AP装备顺序' }
+    },
+    { 
+      ja: { majority: 'アーマーを積むタイミング', minority: 'MRを積むタイミング' },
+      en: { majority: 'When to build armor', minority: 'When to build MR' },
+      ko: { majority: '방어력을 올릴 타이밍', minority: '마법 저항력을 올릴 타이밍' },
+      zh: { majority: '出护甲的时机', minority: '出魔抗的时机' }
+    },
+    
+    // コミュニケーション
+    { 
+      ja: { majority: 'ピン連打された時', minority: 'クエスチョンマークつけられた時' },
+      en: { majority: 'When pinged repeatedly', minority: 'When question-marked' },
+      ko: { majority: '핑이 난사됐을 때', minority: '물음표 찍혔을 때' },
+      zh: { majority: '被狂标记时', minority: '被打问号时' }
+    },
+    { 
+      ja: { majority: 'ナイスって言われた時', minority: 'GGって言われた時' },
+      en: { majority: 'When someone says "nice"', minority: 'When someone says "GG"' },
+      ko: { majority: '"나이스"라고 들었을 때', minority: '"GG"라고 들었을 때' },
+      zh: { majority: '别人说"漂亮"时', minority: '别人说"GG"时' }
+    },
+    { 
+      ja: { majority: 'FFしたい時', minority: 'FFしたくない時' },
+      en: { majority: 'When you want to surrender', minority: 'When you don\'t want to surrender' },
+      ko: { majority: '항복하고 싶을 때', minority: '항복하고 싶지 않을 때' },
+      zh: { majority: '想投降时', minority: '不想投降时' }
+    }
+  ],
+
   // VALORANT - エージェント（主要な10ペア）
   valorant_agents: [
     { 

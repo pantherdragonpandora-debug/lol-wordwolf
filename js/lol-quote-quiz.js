@@ -4937,13 +4937,28 @@ function startQuiz() {
     const originalChoices = currentQuestion.choices[currentLanguage];
     const originalAnswer = currentQuestion.answer;
     
+    console.log('🔍 元の選択肢:', originalChoices);
+    console.log('🔍 元の正解インデックス:', originalAnswer);
+    
     // 選択肢をシャッフル（正解のインデックスも追跡）
     const shuffledData = shuffleChoices(originalChoices, originalAnswer);
     const shuffledChoices = shuffledData.choices;
     const newAnswerIndex = shuffledData.answerIndex;
     
+    console.log('🎲 シャッフル後の選択肢:', shuffledChoices);
+    console.log('🎲 シャッフル後の正解インデックス:', newAnswerIndex);
+    console.log('✅ 正解:', shuffledChoices[newAnswerIndex]);
+    
     // シャッフル後の正解インデックスを保存
     currentQuestion.shuffledAnswer = newAnswerIndex;
+    
+    // デバッグ情報を表示（開発用）
+    const debugInfo = document.getElementById('debug-info');
+    const debugAnswer = document.getElementById('debug-answer');
+    if (debugInfo && debugAnswer) {
+        debugInfo.style.display = 'block';
+        debugAnswer.textContent = `${newAnswerIndex + 1}番目 (${shuffledChoices[newAnswerIndex]})`;
+    }
     
     // 選択肢を表示
     const choicesContainer = document.getElementById('choices-container');
@@ -4952,7 +4967,7 @@ function startQuiz() {
     shuffledChoices.forEach((choice, index) => {
         const button = document.createElement('button');
         button.className = 'choice-btn';
-        button.textContent = choice;
+        button.textContent = `${index + 1}. ${choice}`;
         button.onclick = () => selectAnswer(index);
         choicesContainer.appendChild(button);
     });
@@ -4966,6 +4981,9 @@ function startQuiz() {
 
 // 選択肢をシャッフルする関数（Fisher-Yates）
 function shuffleChoices(choices, answerIndex) {
+    // デバッグ用
+    console.log('shuffleChoices呼び出し - 入力:', { choices, answerIndex });
+    
     // 配列のコピーを作成
     const shuffled = [...choices];
     const indices = choices.map((_, i) => i);
@@ -4980,6 +4998,12 @@ function shuffleChoices(choices, answerIndex) {
     // 新しい正解のインデックスを見つける
     const newAnswerIndex = indices.indexOf(answerIndex);
     
+    console.log('shuffleChoices呼び出し - 出力:', { 
+        shuffled, 
+        newAnswerIndex,
+        correctAnswer: shuffled[newAnswerIndex]
+    });
+    
     return {
         choices: shuffled,
         answerIndex: newAnswerIndex
@@ -4989,6 +5013,15 @@ function shuffleChoices(choices, answerIndex) {
 function selectAnswer(selectedIndex) {
     const buttons = document.querySelectorAll('.choice-btn');
     const isCorrect = selectedIndex === currentQuestion.shuffledAnswer;
+    
+    // デバッグ情報
+    console.log('🎯 回答選択:', {
+        selectedIndex,
+        shuffledAnswer: currentQuestion.shuffledAnswer,
+        isCorrect,
+        selectedText: buttons[selectedIndex].textContent,
+        correctText: buttons[currentQuestion.shuffledAnswer].textContent
+    });
     
     // すべてのボタンを無効化
     buttons.forEach((button, index) => {
