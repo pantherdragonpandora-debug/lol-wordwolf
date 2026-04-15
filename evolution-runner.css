@@ -1,0 +1,373 @@
+/* ========================================
+   スクリーンショット用スタイリング
+   プロモーション・SNS投稿用の見栄え向上
+   ======================================== */
+
+/* スクリーンショットモード用のクラス */
+.screenshot-mode {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  border: 3px solid var(--primary-color);
+  border-radius: 16px;
+  padding: 2rem;
+}
+
+/* プレイヤーカードの視覚効果強化 */
+.player-item {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.player-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.player-item:hover::before {
+  left: 100%;
+}
+
+/* ゲーム画面の見栄え向上 */
+#game-screen .card,
+#demacia-performing-screen .card,
+#void-play-screen .card {
+  background: linear-gradient(
+    135deg,
+    var(--bg-dark-secondary),
+    rgba(0, 0, 0, 0.3)
+  );
+  backdrop-filter: blur(10px);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 1px rgba(255, 255, 255, 0.1);
+}
+
+/* トピック表示の強調 */
+.topic-display {
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--primary-dark)
+  );
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.3),
+    inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  margin: 1.5rem 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.topic-display::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%) translateY(-100%) rotate(45deg);
+  }
+  100% {
+    transform: translateX(100%) translateY(100%) rotate(45deg);
+  }
+}
+
+/* ヴォイドモードのテーマ表示強化 */
+.void-theme-display {
+  background: linear-gradient(
+    135deg,
+    var(--void-purple),
+    var(--void-blue)
+  );
+  padding: 3rem 2rem;
+  border-radius: 16px;
+  box-shadow: 
+    0 8px 32px rgba(139, 92, 246, 0.3),
+    inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  text-align: center;
+  margin: 2rem 0;
+  position: relative;
+}
+
+.void-theme-display h2 {
+  font-size: 2.5rem;
+  color: #ffffff;
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
+  margin-bottom: 1rem;
+}
+
+/* ボタンのホバーエフェクト強化 */
+.btn-primary,
+.btn-secondary,
+.void-btn-primary {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.btn-primary::before,
+.void-btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.btn-primary:hover::before,
+.void-btn-primary:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* 結果画面の視覚効果 */
+#result-screen .card,
+#demacia-final-result-screen .card,
+#void-result-screen .card {
+  animation: resultFadeIn 0.5s ease-out;
+}
+
+@keyframes resultFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* スコア表示の強調 */
+.score-item,
+.demacia-score-item {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05),
+    rgba(255, 255, 255, 0.1)
+  );
+  border-left: 4px solid var(--primary-color);
+  padding: 1rem;
+  margin: 0.5rem 0;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.score-item:hover,
+.demacia-score-item:hover {
+  transform: translateX(8px);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* ========================================
+   SNSシェアボタン用スタイル
+   ======================================== */
+
+.share-buttons-container {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  align-items: center;
+  margin: 2rem 0;
+  flex-wrap: wrap;
+}
+
+.share-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: #ffffff;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.share-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.share-button:active {
+  transform: translateY(0);
+}
+
+/* X (Twitter) ボタン */
+.share-button.twitter {
+  background: linear-gradient(135deg, #1da1f2, #0d8bd9);
+}
+
+.share-button.twitter:hover {
+  background: linear-gradient(135deg, #0d8bd9, #0a6fb8);
+}
+
+/* Discord ボタン */
+.share-button.discord {
+  background: linear-gradient(135deg, #5865f2, #4752c4);
+}
+
+.share-button.discord:hover {
+  background: linear-gradient(135deg, #4752c4, #3c45a5);
+}
+
+/* LINE ボタン */
+.share-button.line {
+  background: linear-gradient(135deg, #00b900, #009900);
+}
+
+.share-button.line:hover {
+  background: linear-gradient(135deg, #009900, #007700);
+}
+
+/* クリップボードコピーボタン */
+.share-button.copy {
+  background: linear-gradient(135deg, #6c757d, #545b62);
+}
+
+.share-button.copy:hover {
+  background: linear-gradient(135deg, #545b62, #3d4349);
+}
+
+.share-button.copy.copied {
+  background: linear-gradient(135deg, #28a745, #218838);
+}
+
+/* アイコン用のスタイル */
+.share-button svg,
+.share-button i {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .share-buttons-container {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .share-button {
+    width: 100%;
+    max-width: 300px;
+  }
+}
+
+/* シェアセクションのタイトル */
+.share-section-title {
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--text-color);
+  margin: 2rem 0 1rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+/* シェアセクション全体 */
+.share-section {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: 2rem 0;
+}
+
+/* スクリーンショット撮影ヒント */
+.screenshot-hint {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-color);
+  opacity: 0.7;
+  margin-top: 1rem;
+  font-style: italic;
+}
+
+/* パーティクルエフェクト（オプション） */
+.particle-effect {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: var(--primary-color);
+  border-radius: 50%;
+  opacity: 0.5;
+  animation: float 6s infinite ease-in-out;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) translateX(0);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(-100vh) translateX(20px);
+    opacity: 0;
+  }
+}
+
+/* 勝利エフェクト */
+.victory-glow {
+  animation: victoryPulse 2s infinite;
+}
+
+@keyframes victoryPulse {
+  0%, 100% {
+    box-shadow: 0 0 20px var(--primary-color);
+  }
+  50% {
+    box-shadow: 0 0 40px var(--primary-color), 0 0 60px var(--primary-color);
+  }
+}

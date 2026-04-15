@@ -1,358 +1,360 @@
 // ========================================
-// Firebase連携モジュール（LoLクイズ用）
+// ヴォイドに届くは光か闇か - ゲームクラス
 // ========================================
 
-// Firebase設定（実際の値は環境変数またはFirebaseコンソールから取得）
-// ⚠️ 注意: この設定はダミーです。実際に使用する場合は、Firebaseプロジェクトを作成してください。
-const firebaseConfig = {
-    apiKey: "YOUR_API_KEY_HERE", // ← Firebaseコンソールから取得
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
-};
+console.log('🔥🔥🔥 void-game.js 読み込み開始 v32 🔥🔥🔥');
 
-// Firebase設定が有効かチェック
-function isFirebaseConfigured() {
-    return firebaseConfig.apiKey !== "YOUR_API_KEY_HERE" && 
-           firebaseConfig.projectId !== "YOUR_PROJECT_ID";
-}
+class VoidGame {
+  constructor(roomId, gameType) {
+    this.roomId = roomId;
+    this.gameType = gameType;
+    this.roomRef = firebase.database().ref(`void_rooms/${roomId}`);
+    this.roomData = null;
+    this.watchers = [];
+  }
 
-// Firebase初期化状態
-let firebaseInitialized = false;
-let currentUser = null;
+  async createRoom(hostName, maxPlayers, theme = null) {
+    const selectedTheme = theme || getRandomVoidTheme(this.gameType);
+    
+    const roomData = {
+      roomId: this.roomId,
+      gameType: this.gameType,
+      hostName: hostName,
+      maxPlayers: maxPlayers,
+      theme: {
+        id: selectedTheme.id,
+        name: selectedTheme.name,
+        category: selectedTheme.category
+      },
+      gameState: 'waiting',
+      currentTurn: 0,
+      players: {},
+      playerOrder: [],
+      playOrder: [],
+      orderSelections: {},
+      turns: {},
+      finalAnswer: null,
+      isCorrect: null,
+      createdAt: Date.now()
+    };
 
-// ========================================
-// Firebase初期化
-// ========================================
+    roomData.players[hostName] = {
+      joinOrder: 0,
+      ready: true,
+      isHost: true,
+      hasSubmitted: false
+    };
+    
+    roomData.playerOrder = [hostName];
 
-function initializeFirebase() {
-    try {
-        // Firebase設定が有効かチェック
-        if (!isFirebaseConfigured()) {
-            console.warn('⚠️ Firebase設定が未完了です。ローカルストレージのみで動作します。');
-            console.warn('💡 設定方法: README.mdの「Firebase設定手順」を参照してください。');
-            updateAuthUI(false);
-            hideAuthButtons(); // ログインボタンを非表示
-            return false;
-        }
+    await this.roomRef.set(roomData);
+    return true;
+  }
 
-        // Firebase SDKがロードされているか確認
-        if (typeof firebase === 'undefined') {
-            console.warn('⚠️ Firebase SDKが読み込まれていません。ローカルストレージのみで動作します。');
-            hideAuthButtons();
-            return false;
-        }
-
-        // Firebaseアプリの初期化（既に初期化されている場合はスキップ）
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-            console.log('✅ Firebase初期化完了');
-        }
-
-        firebaseInitialized = true;
-
-        // 認証状態の監視
-        firebase.auth().onAuthStateChanged((user) => {
-            currentUser = user;
-            if (user) {
-                console.log(`✅ ユーザーログイン: ${user.displayName || user.email}`);
-                updateAuthUI(true);
-                // Firestoreからデータを同期
-                syncFromFirestore();
-            } else {
-                console.log('ℹ️ ゲストモードで動作中（ローカルストレージのみ）');
-                updateAuthUI(false);
-            }
-        });
-
-        return true;
-    } catch (error) {
-        console.error('❌ Firebase初期化エラー:', error);
-        console.warn('💡 Firebase設定を確認してください。ローカルストレージのみで動作します。');
-        hideAuthButtons();
-        return false;
-    }
-}
-
-// ========================================
-// Google認証
-// ========================================
-
-async function signInWithGoogle() {
-    if (!firebaseInitialized || !isFirebaseConfigured()) {
-        alert('Firebase設定が未完了です。\n\nログイン機能を使用するには、README.mdの「Firebase設定手順」を参照して、Firebaseプロジェクトを作成してください。\n\n設定なしでもゲームは遊べます（ローカルストレージで保存）。');
-        return;
+  async joinRoom(playerName) {
+    const snapshot = await this.roomRef.once('value');
+    const roomData = snapshot.val();
+    
+    if (!roomData) {
+      throw new Error('ルームが見つかりません');
     }
 
-    try {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        const result = await firebase.auth().signInWithPopup(provider);
-        const user = result.user;
-        console.log(`✅ Googleログイン成功: ${user.displayName}`);
-        
-        // ローカルデータをFirestoreに同期
-        await syncToFirestore();
-        
-        return user;
-    } catch (error) {
-        console.error('❌ Googleログインエラー:', error);
-        if (error.code === 'auth/popup-closed-by-user') {
-            // ユーザーがポップアップを閉じた場合はアラートを表示しない
-            console.log('ℹ️ ログインがキャンセルされました');
-        } else {
-            alert(`ログインに失敗しました: ${error.message}`);
-        }
-        return null;
-    }
-}
-
-async function signOut() {
-    if (!firebaseInitialized) {
-        return;
+    if (roomData.gameType !== this.gameType) {
+      throw new Error(`このルームは ${roomData.gameType} 用です。現在 ${this.gameType} を選択しています。`);
     }
 
-    try {
-        await firebase.auth().signOut();
-        console.log('✅ ログアウト完了');
-    } catch (error) {
-        console.error('❌ ログアウトエラー:', error);
-    }
-}
-
-// ========================================
-// Firestore同期
-// ========================================
-
-/**
- * ローカルデータをFirestoreに保存
- */
-async function syncToFirestore() {
-    if (!firebaseInitialized || !currentUser) {
-        console.log('ℹ️ ログインしていないため、Firestoreへの同期をスキップします');
-        return;
+    const playerOrder = roomData.playerOrder || [];
+    
+    if (playerOrder.length >= roomData.maxPlayers) {
+      throw new Error('ルームが満員です');
     }
 
-    try {
-        const db = firebase.firestore();
-        const userDocRef = db.collection('users').doc(currentUser.uid);
-
-        // ローカルストレージからデータを取得
-        const localData = {
-            gameData: JSON.parse(localStorage.getItem('lolQuizGameData') || '{}'),
-            lastSyncedAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
-
-        // Firestoreに保存
-        await userDocRef.set(localData, { merge: true });
-        console.log('✅ Firestoreへの同期完了');
-
-        // UI更新
-        showSyncStatus('同期済み', 'success');
-    } catch (error) {
-        console.error('❌ Firestoreへの同期エラー:', error);
-        showSyncStatus('同期エラー', 'error');
-    }
-}
-
-/**
- * FirestoreからローカルにデータをDL
- */
-async function syncFromFirestore() {
-    if (!firebaseInitialized || !currentUser) {
-        console.log('ℹ️ ログインしていないため、Firestoreからの同期をスキップします');
-        return;
+    if (playerOrder.includes(playerName)) {
+      throw new Error('この名前は既に使用されています');
     }
 
-    try {
-        const db = firebase.firestore();
-        const userDocRef = db.collection('users').doc(currentUser.uid);
-        const docSnap = await userDocRef.get();
+    const updates = {};
+    updates[`players/${playerName}`] = {
+      joinOrder: playerOrder.length,
+      ready: true,
+      isHost: false,
+      hasSubmitted: false
+    };
+    updates['playerOrder'] = [...playerOrder, playerName];
 
-        if (docSnap.exists) {
-            const cloudData = docSnap.data();
-            const localData = JSON.parse(localStorage.getItem('lolQuizGameData') || '{}');
+    await this.roomRef.update(updates);
+    return true;
+  }
 
-            // ローカルとクラウドのデータをマージ（クラウドを優先）
-            const mergedData = mergeGameData(localData, cloudData.gameData || {});
+  async startGame() {
+    await this.roomRef.update({
+      gameState: 'selecting_order',
+      orderSelections: {}
+    });
+  }
 
-            // ローカルストレージに保存
-            localStorage.setItem('lolQuizGameData', JSON.stringify(mergedData));
-            console.log('✅ Firestoreからの同期完了');
+  watchRoom(callback) {
+    const watcher = this.roomRef.on('value', (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        this.roomData = data;
+        callback(data);
+      }
+    });
+    this.watchers.push({ ref: this.roomRef, event: 'value', callback: watcher });
+  }
 
-            // UI更新
-            showSyncStatus('同期済み', 'success');
+  unwatchRoom() {
+    this.watchers.forEach(({ ref, event, callback }) => {
+      ref.off(event, callback);
+    });
+    this.watchers = [];
+  }
 
-            // ページをリロードしてUIを更新
-            if (typeof updateUI === 'function') {
-                updateUI();
-            }
-        } else {
-            console.log('ℹ️ Firestoreにデータが存在しないため、ローカルデータを使用します');
-            // 初回ログイン時：ローカルデータをクラウドに保存
-            await syncToFirestore();
-        }
-    } catch (error) {
-        console.error('❌ Firestoreからの同期エラー:', error);
-        showSyncStatus('同期エラー', 'error');
+  async leaveRoom(playerName) {
+    console.log('🚪 leaveRoom呼び出し:', playerName);
+    
+    // 現在のルームデータを取得
+    const snapshot = await this.roomRef.once('value');
+    const roomData = snapshot.val();
+    
+    if (!roomData) {
+      console.log('⚠️ ルームが存在しません');
+      return true;
     }
-}
-
-/**
- * ローカルとクラウドのデータをマージ
- */
-function mergeGameData(localData, cloudData) {
-    // より多くのポイント・コレクションを持つ方を優先
-    const localPoints = localData.totalCorrectPoints || 0;
-    const cloudPoints = cloudData.totalCorrectPoints || 0;
-
-    const localCharacters = (localData.unlockedCharacters || []).length;
-    const cloudCharacters = (cloudData.unlockedCharacters || []).length;
-
-    // クラウドのポイントが多い、またはキャラクター数が多い場合はクラウドを優先
-    if (cloudPoints > localPoints || cloudCharacters > localCharacters) {
-        return cloudData;
-    } else {
-        return localData;
+    
+    console.log('現在のplayerOrder:', roomData.playerOrder);
+    console.log('現在のplayers:', Object.keys(roomData.players || {}));
+    
+    // playerOrderから削除
+    const newPlayerOrder = (roomData.playerOrder || []).filter(name => name !== playerName);
+    console.log('新しいplayerOrder:', newPlayerOrder);
+    
+    // 退出するプレイヤーがホストかどうか確認
+    const isHost = roomData.players[playerName]?.isHost === true;
+    console.log('退出プレイヤーはホスト:', isHost);
+    
+    const updates = {};
+    
+    // プレイヤーを削除
+    updates[`players/${playerName}`] = null;
+    
+    // playerOrderを更新
+    updates['playerOrder'] = newPlayerOrder;
+    
+    // 全員が退出した場合はルームを削除
+    if (newPlayerOrder.length === 0) {
+      console.log('✅ 全員退出 - ルームを削除');
+      await this.roomRef.remove();
+      return true;
     }
-}
+    
+    // ホストが退出した場合、次のプレイヤーにホスト権を移譲
+    if (isHost && newPlayerOrder.length > 0) {
+      const newHost = newPlayerOrder[0];
+      console.log('🔄 ホスト移譲:', playerName, '→', newHost);
+      updates[`players/${newHost}/isHost`] = true;
+      updates['hostName'] = newHost;
+    }
+    
+    // 更新を適用
+    console.log('📤 Firebase更新を送信:', updates);
+    await this.roomRef.update(updates);
+    console.log('✅ ルーム退出処理完了');
+    
+    // 更新後のデータを確認
+    const afterSnapshot = await this.roomRef.once('value');
+    const afterData = afterSnapshot.val();
+    if (afterData) {
+      console.log('✅ 更新後のplayerOrder:', afterData.playerOrder);
+      console.log('✅ 更新後のplayers:', Object.keys(afterData.players || {}));
+    }
+    
+    return true;
+  }
 
-// ========================================
-// UI更新
-// ========================================
+  // 順番選択を送信
+  async submitOrder(playerName, order) {
+    const updates = {};
+    updates[`orderSelections/${playerName}`] = order;
+    await this.roomRef.update(updates);
+  }
 
-function updateAuthUI(isLoggedIn) {
-    const loginBtn = document.getElementById('google-login-btn');
-    const logoutBtn = document.getElementById('google-logout-btn');
-    const syncBtn = document.getElementById('manual-sync-btn');
-    const userInfo = document.getElementById('user-info');
+  // 順番を確定してゲーム開始
+  async confirmOrder(playOrder) {
+    const updates = {
+      playOrder: playOrder,
+      gameState: 'playing',
+      currentTurn: 0
+    };
+    await this.roomRef.update(updates);
+  }
 
-    if (!loginBtn || !logoutBtn || !userInfo) {
-        // UI要素が存在しない場合はスキップ
-        return;
+  // 最初のプレイヤーが3つのワードを送信
+  async submitFirstWords(playerName, words) {
+    console.log('📝 submitFirstWords呼び出し:', playerName, words);
+    
+    if (!words || words.length !== 3) {
+      throw new Error('3つの言葉を入力してください');
     }
 
-    if (isLoggedIn && currentUser) {
-        loginBtn.style.display = 'none';
-        logoutBtn.style.display = 'inline-block';
-        if (syncBtn) syncBtn.style.display = 'inline-block';
-        userInfo.textContent = `ログイン中: ${currentUser.displayName || currentUser.email}`;
-        userInfo.style.display = 'block';
-    } else {
-        loginBtn.style.display = 'inline-block';
-        logoutBtn.style.display = 'none';
-        if (syncBtn) syncBtn.style.display = 'none';
-        userInfo.textContent = '';
-        userInfo.style.display = 'none';
-    }
-}
-
-// Firebase未設定時にログインボタンを非表示にする
-function hideAuthButtons() {
-    const authCard = document.querySelector('.auth-card');
-    if (authCard) {
-        authCard.style.display = 'none';
-    }
-}
-
-function showSyncStatus(message, type = 'info') {
-    const statusElement = document.getElementById('sync-status');
-    if (!statusElement) {
-        return;
+    const snapshot = await this.roomRef.once('value');
+    const roomData = snapshot.val();
+    
+    if (!roomData) {
+      throw new Error('ルームが見つかりません');
     }
 
-    statusElement.textContent = message;
-    statusElement.className = `sync-status ${type}`;
-    statusElement.style.display = 'block';
+    console.log('🔍 現在のルームデータ:', roomData);
+    console.log('🔍 playOrder:', roomData.playOrder);
+    console.log('🔍 現在のターン:', roomData.currentTurn);
 
-    // 3秒後に非表示
-    setTimeout(() => {
-        statusElement.style.display = 'none';
-    }, 3000);
-}
+    const playOrder = roomData.playOrder || [];
+    const currentTurn = roomData.currentTurn || 0;
 
-// ========================================
-// 自動同期
-// ========================================
+    if (playOrder[currentTurn] !== playerName) {
+      throw new Error('あなたの順番ではありません');
+    }
 
-/**
- * ゲームデータ変更時に自動でFirestoreに同期
- */
-function enableAutoSync() {
-    // localStorageの変更を監視（別のタブで変更された場合も検知）
-    window.addEventListener('storage', (e) => {
-        if (e.key === 'lolQuizGameData' && currentUser) {
-            console.log('ℹ️ ローカルデータが変更されました。Firestoreに同期します...');
-            syncToFirestore();
-        }
+    const updates = {};
+    updates[`turns/${currentTurn}`] = {
+      playerName: playerName,
+      words: words,
+      modified: [false, false, false],
+      submittedAt: Date.now()
+    };
+    updates[`players/${playerName}/hasSubmitted`] = true;
+    updates['currentTurn'] = currentTurn + 1;
+
+    console.log('📤 Firebase更新を送信:', updates);
+    await this.roomRef.update(updates);
+    console.log('✅ ワード送信完了');
+  }
+
+  // 中間プレイヤーが修正したワードを送信
+  async submitMiddleWords(playerName, words, modified) {
+    console.log('📝 submitMiddleWords呼び出し:', playerName, words, modified);
+    
+    if (!words || words.length !== 3) {
+      throw new Error('3つの言葉を入力してください');
+    }
+
+    const snapshot = await this.roomRef.once('value');
+    const roomData = snapshot.val();
+    
+    if (!roomData) {
+      throw new Error('ルームが見つかりません');
+    }
+
+    const playOrder = roomData.playOrder || [];
+    const currentTurn = roomData.currentTurn || 0;
+
+    if (playOrder[currentTurn] !== playerName) {
+      throw new Error('あなたの順番ではありません');
+    }
+
+    const updates = {};
+    updates[`turns/${currentTurn}`] = {
+      playerName: playerName,
+      words: words,
+      modified: modified || [false, false, false],
+      submittedAt: Date.now()
+    };
+    updates[`players/${playerName}/hasSubmitted`] = true;
+    updates['currentTurn'] = currentTurn + 1;
+
+    console.log('📤 Firebase更新を送信:', updates);
+    await this.roomRef.update(updates);
+    console.log('✅ ワード送信完了');
+  }
+
+  // 最後のプレイヤーが答えを送信
+  async submitFinalAnswer(playerName, answer) {
+    console.log('📝 submitFinalAnswer呼び出し:', playerName, answer);
+    
+    if (!answer || answer.trim().length === 0) {
+      throw new Error('回答を入力してください');
+    }
+
+    const snapshot = await this.roomRef.once('value');
+    const roomData = snapshot.val();
+    
+    if (!roomData) {
+      throw new Error('ルームが見つかりません');
+    }
+
+    const playOrder = roomData.playOrder || [];
+    const currentTurn = roomData.currentTurn || 0;
+
+    if (playOrder[currentTurn] !== playerName) {
+      throw new Error('あなたの順番ではありません');
+    }
+
+    // 正解判定
+    const themeName = roomData.theme?.name || '';
+    const isCorrect = answer.trim() === themeName.trim();
+
+    const updates = {};
+    updates[`turns/${currentTurn}`] = {
+      playerName: playerName,
+      answer: answer,
+      submittedAt: Date.now()
+    };
+    updates[`players/${playerName}/hasSubmitted`] = true;
+    updates['finalAnswer'] = answer;
+    updates['isCorrect'] = isCorrect;
+    updates['gameState'] = 'result';
+
+    console.log('📤 Firebase更新を送信:', updates);
+    await this.roomRef.update(updates);
+    console.log('✅ 最終回答送信完了');
+  }
+
+  // ゲームをリセットして再プレイ
+  async resetRoom() {
+    console.log('🔄 resetRoom呼び出し');
+    
+    const snapshot = await this.roomRef.once('value');
+    const roomData = snapshot.val();
+    
+    if (!roomData) {
+      throw new Error('ルームが見つかりません');
+    }
+
+    // 新しいテーマを選択
+    const newTheme = getRandomVoidTheme(this.gameType);
+
+    const updates = {
+      gameState: 'waiting',
+      currentTurn: 0,
+      playOrder: [],
+      orderSelections: {},
+      turns: {},
+      finalAnswer: null,
+      isCorrect: null,
+      theme: {
+        id: newTheme.id,
+        name: newTheme.name,
+        category: newTheme.category
+      }
+    };
+
+    // 各プレイヤーの状態をリセット
+    const playerOrder = roomData.playerOrder || [];
+    playerOrder.forEach(playerName => {
+      updates[`players/${playerName}/hasSubmitted`] = false;
     });
 
-    // 定期的な同期（5分ごと）
-    setInterval(() => {
-        if (currentUser) {
-            syncToFirestore();
-        }
-    }, 5 * 60 * 1000); // 5分
+    console.log('📤 Firebase更新を送信:', updates);
+    await this.roomRef.update(updates);
+    console.log('✅ ルームリセット完了');
+  }
 }
 
-// ========================================
-// 手動同期ボタン
-// ========================================
+console.log('✅ VoidGameクラス定義完了 v34');
+console.log('✅ typeof VoidGame:', typeof VoidGame);
 
-function setupSyncButton() {
-    const syncButton = document.getElementById('manual-sync-btn');
-    if (syncButton) {
-        syncButton.addEventListener('click', async () => {
-            if (!currentUser) {
-                alert('同期するにはログインしてください。');
-                return;
-            }
-
-            syncButton.disabled = true;
-            syncButton.textContent = '同期中...';
-
-            await syncToFirestore();
-
-            syncButton.disabled = false;
-            syncButton.textContent = '手動同期';
-        });
-    }
-}
-
-// ========================================
-// グローバル関数（HTML内のonclickから呼び出し可能）
-// ========================================
-
-window.handleGoogleLogin = async () => {
-    await signInWithGoogle();
-};
-
-window.handleLogout = async () => {
-    await signOut();
-};
-
-window.handleManualSync = async () => {
-    if (!currentUser) {
-        alert('同期するにはログインしてください。');
-        return;
-    }
-    await syncToFirestore();
-};
-
-// ========================================
-// 初期化（DOMContentLoaded時に実行）
-// ========================================
-
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        initializeFirebase();
-        enableAutoSync();
-        setupSyncButton();
-    });
-} else {
-    // DOMがすでに読み込まれている場合
-    initializeFirebase();
-    enableAutoSync();
-    setupSyncButton();
-}
+// グローバルエクスポート
+window.VoidGame = VoidGame;
+console.log('✅ window.VoidGame エクスポート完了 v34');
+console.log('✅ typeof window.VoidGame:', typeof window.VoidGame);

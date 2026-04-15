@@ -1,77 +1,522 @@
 // ========================================
-// ページビューカウンター
+// デマーシアに心を込めて - ゲームロジック（修正版）
 // ========================================
-// Firebase Realtime Databaseを使用して訪問者数をカウント
 
-(function() {
-  'use strict';
-  
-  const PAGEVIEW_REF = 'site_stats/pageviews';
-  
-  /**
-   * ページビューをカウント
-   */
-  async function countPageView() {
+class DemaciaGame {
+  constructor(roomId, gameType = 'lol') {
+    this.roomRef = firebase.database().ref(`demacia_rooms/${roomId}`);
+    this.roomId = roomId;
+    this.gameType = gameType;
+    this.roomData = null; // ルームデータを保持
+    console.log('🎭 DemaciaGame constructor:', { roomId, gameType });
+  }
+
+  // ルーム作成
+  async createRoom(hostName, settings) {
     try {
-      const db = firebase.database();
-      const pageviewRef = db.ref(PAGEVIEW_REF);
+      console.log('🔧 createRoom開始');
+      console.log('- hostName:', hostName);
+      console.log('- settings:', settings);
+      console.log('- roomRef:', this.roomRef);
+      console.log('- firebase:', typeof firebase);
+      console.log('- firebase.database:', typeof firebase.database);
       
-      // トランザクションで安全にカウントアップ
-      await pageviewRef.transaction((currentValue) => {
-        return (currentValue || 0) + 1;
-      });
+      const roomData = {
+        host: hostName,
+        gameMode: 'demacia', // ゲームモードを明示的に保存
+        settings: {
+          playerCount: settings.playerCount || 10,
+          roundCount: settings.roundCount || 5,
+          performerSelection: settings.performerSelection || 'random',
+          gameType: settings.gameType || 'lol'
+        },
+        players: {
+          [hostName]: {
+            name: hostName,
+            score: 0,
+            isHost: true,
+            joinedAt: Date.now()
+          }
+        },
+        gameState: 'waiting',
+        currentRound: 0,
+        createdAt: Date.now()
+      };
+
+      console.log('📝 作成するルームデータ:', roomData);
       
-      console.log('✅ ページビューをカウントしました');
+      await this.roomRef.set(roomData);
+      
+      console.log('✅ デマーシアルーム作成成功:', this.roomId);
+      
+      // 作成直後に確認
+      const verifySnapshot = await this.roomRef.once('value');
+      const verifyData = verifySnapshot.val();
+      console.log('🔍 作成確認:', verifyData ? '成功' : '失敗');
+      console.log('🔍 確認データ:', verifyData);
+      
+      if (!verifyData) {
+        console.error('⚠️ ルームが作成されていません！Firebaseルールを確認してください');
+        const errorMsg = 'ルーム作成の確認に失敗しました。\n\n接続に問題がある場合は、画面下部の「🔍 接続診断」をクリックして診断ツールをお試しください。';
+        throw new Error(errorMsg);
+      }
+      
+      return true;
     } catch (error) {
-      console.error('❌ ページビューカウントエラー:', error);
+      console.error('❌ ルーム作成エラー:', error);
+      console.error('エラー詳細:', error.message);
+      console.error('エラースタック:', error.stack);
+      return false;
     }
   }
-  
-  /**
-   * ページビュー数を取得して表示
-   */
-  function displayPageViews() {
+
+  // ルーム参加
+  async joinRoom(playerName) {
     try {
-      const db = firebase.database();
-      const pageviewRef = db.ref(PAGEVIEW_REF);
+      const snapshot = await this.roomRef.once('value');
+      const room = snapshot.val();
+
+      if (!room) {
+        const errorMsg = 'ルームが存在しません。\n\nルームIDが正しいか確認してください。\n接続に問題がある場合は、画面下部の「🔍 接続診断」をクリックして診断ツールをお試しください。';
+        alert(errorMsg);
+        return false;
+      }
+
+      // ゲームタイプが一致するかチェック
+      const roomGameType = room.settings?.gameType;
+      if (roomGameType && roomGameType !== this.gameType) {
+        const roomGameTypeName = roomGameType === 'lol' ? 'League of Legends' : 'VALORANT';
+        const currentGameTypeName = this.gameType === 'lol' ? 'League of Legends' : 'VALORANT';
+        alert(
+          `このルームは ${roomGameTypeName} 用です。\n` +
+          `現在 ${currentGameTypeName} を選択しています。\n` +
+          `ゲーム選択画面に戻って正しいゲームタイプを選択してください。`
+        );
+        return false;
+      }
+
+      const playerCount = Object.keys(room.players || {}).length;
+      const maxPlayers = room.settings.playerCount || 10;
+
+      if (playerCount >= maxPlayers) {
+        alert('ルームが満員です');
+        return false;
+      }
+
+      if (room.gameState !== 'waiting') {
+        alert('ゲームが既に開始されています');
+        return false;
+      }
+
+      await this.roomRef.child(`players/${playerName}`).set({
+        name: playerName,
+        score: 0,
+        isHost: false,
+        joinedAt: Date.now()
+      });
+
+      console.log('✅ ルーム参加:', playerName);
+      return true;
+    } catch (error) {
+      console.error('❌ ルーム参加エラー:', error);
+      return false;
+    }
+  }
+
+  // ゲーム開始（演技者選択フェーズへ）
+  async startGame() {
+    try {
+      const snapshot = await this.roomRef.once('value');
+      const room = snapshot.val();
+      const playerCount = Object.keys(room.players || {}).length;
+
+      if (playerCount < 3) {
+        alert('最低3人必要です');
+        return false;
+      }
+
+      // ゲームタイプに応じてランダムにお題を選択
+      const gameType = room.settings.gameType || 'lol';
+      console.log('🎮 ゲームタイプ:', gameType);
+      console.log('🔍 getRandomDemaciaPhrase関数:', typeof getRandomDemaciaPhrase);
       
-      pageviewRef.on('value', (snapshot) => {
-        const count = snapshot.val() || 0;
-        const element = document.getElementById('pageview-count');
-        
-        if (element) {
-          // 3桁カンマ区切りでフォーマット
-          element.textContent = count.toLocaleString();
+      const phrase = getRandomDemaciaPhrase(gameType);
+      
+      console.log('📝 選択されたセリフ:', phrase);
+      console.log('📝 セリフテキスト:', phrase?.text);
+      console.log('📝 シチュエーション数:', phrase?.situations?.length);
+      
+      if (!phrase || !phrase.situations || phrase.situations.length === 0) {
+        console.error('❌ セリフまたはシチュエーションが見つかりません');
+        alert('セリフの取得に失敗しました');
+        return false;
+      }
+      
+      await this.roomRef.update({
+        gameState: 'performer_selection',
+        currentRound: 1,
+        currentPhrase: phrase,
+        correctSituation: Math.floor(Math.random() * phrase.situations.length),
+        startedAt: Date.now()
+      });
+
+      console.log('✅ ゲーム開始 - 演技者選択フェーズ');
+      return true;
+    } catch (error) {
+      console.error('❌ ゲーム開始エラー:', error);
+      return false;
+    }
+  }
+
+  // 演技者を選択（ランダムまたは手動）
+  async selectPerformer(performerName = null) {
+    try {
+      const snapshot = await this.roomRef.once('value');
+      const room = snapshot.val();
+      const playerNames = Object.keys(room.players);
+
+      // ランダム選択の場合
+      if (!performerName) {
+        const randomIndex = Math.floor(Math.random() * playerNames.length);
+        performerName = playerNames[randomIndex];
+      }
+
+      // ランダムにシチュエーションを1つ選択（演技者用）
+      const situations = room.currentPhrase.situations;
+      console.log('🎭 シチュエーション一覧:', situations);
+      console.log('🎭 シチュエーション数:', situations?.length);
+      
+      if (!situations || situations.length === 0) {
+        console.error('❌ シチュエーションが存在しません');
+        alert('シチュエーションの取得に失敗しました');
+        return false;
+      }
+      
+      const randomSituationIndex = Math.floor(Math.random() * situations.length);
+      const performerSituation = situations[randomSituationIndex];
+      
+      console.log('🎯 選択されたシチュエーション:', performerSituation);
+      console.log('🎯 シチュエーションインデックス:', randomSituationIndex);
+
+      await this.roomRef.update({
+        gameState: 'performing',
+        currentPerformer: performerName,
+        correctSituation: randomSituationIndex,  // 正解のインデックスを保存
+        performerSituation: {
+          id: performerSituation.id,
+          text: performerSituation.text,
+          difficulty: performerSituation.difficulty
         }
       });
+
+      console.log('✅ 演技者選択:', performerName);
+      return true;
     } catch (error) {
-      console.error('❌ ページビュー表示エラー:', error);
+      console.error('❌ 演技者選択エラー:', error);
+      return false;
+    }
+  }
+
+  // 投票フェーズへ
+  async startVoting() {
+    try {
+      await this.roomRef.update({
+        gameState: 'voting',
+        votes: {}
+      });
+
+      console.log('✅ 投票フェーズ開始');
+      return true;
+    } catch (error) {
+      console.error('❌ 投票フェーズエラー:', error);
+      return false;
+    }
+  }
+
+  // 投票（投票者が演技者のシチュエーションを推測）
+  async submitVote(voterName, guessedSituationIndex) {
+    try {
+      const snapshot = await this.roomRef.once('value');
+      const room = snapshot.val();
+      
+      // 選択されたシチュエーション情報を取得
+      const selectedSituation = room.currentPhrase.situations[guessedSituationIndex];
+      console.log('🔍 デバッグ - selectedSituation:', selectedSituation);
+      console.log('🔍 デバッグ - selectedSituation.text:', selectedSituation?.text);
+      console.log('🔍 デバッグ - typeof selectedSituation:', typeof selectedSituation);
+      
+      const correctSituationIndex = room.correctSituation;
+      const isCorrect = (guessedSituationIndex === correctSituationIndex);
+      
+      // シチュエーションテキストを確実に取得
+      let situationText;
+      if (typeof selectedSituation === 'string') {
+        situationText = selectedSituation;
+      } else if (selectedSituation && typeof selectedSituation === 'object') {
+        situationText = selectedSituation.text || JSON.stringify(selectedSituation);
+      } else {
+        situationText = 'エラー: シチュエーションが見つかりません';
+      }
+      
+      await this.roomRef.child(`currentVotes/${voterName}`).set({
+        guessedSituationIndex: guessedSituationIndex,
+        guessedSituationText: situationText,
+        isCorrect: isCorrect,
+        timestamp: Date.now()
+      });
+
+      console.log(`✅ 投票完了: ${voterName} → ${situationText} (${isCorrect ? '正解' : '不正解'})`);
+      
+      // 全員の投票が完了したかチェック
+      await this.checkVotingComplete();
+      
+      return true;
+    } catch (error) {
+      console.error('❌ 投票エラー:', error);
+      return false;
     }
   }
   
-  /**
-   * 初期化
-   */
-  function init() {
-    // Firebaseが初期化されるまで待つ
-    if (typeof firebase === 'undefined' || !firebase.database) {
-      console.warn('⚠️ Firebaseが初期化されていません。1秒後に再試行...');
-      setTimeout(init, 1000);
-      return;
+  // 投票完了チェック
+  async checkVotingComplete() {
+    try {
+      const snapshot = await this.roomRef.once('value');
+      const room = snapshot.val();
+      
+      const playerCount = Object.keys(room.players || {}).length;
+      const voteCount = Object.keys(room.currentVotes || {}).length;
+      const performerName = room.currentPerformer;
+      
+      // 演技者を除いた全員が投票したか（演技者は投票しない）
+      const expectedVotes = playerCount - 1;
+      
+      console.log(`📊 投票状況: ${voteCount}/${expectedVotes}`);
+      
+      if (voteCount >= expectedVotes) {
+        console.log('🎉 全員の投票が完了！結果を集計します');
+        await this.calculateResults();
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('❌ 投票完了チェックエラー:', error);
+      return false;
     }
-    
-    // ページビューをカウント
-    countPageView();
-    
-    // ページビュー数を表示
-    displayPageViews();
   }
-  
-  // DOMの読み込み完了後に初期化
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
+
+  // 投票結果の集計
+  async calculateResults() {
+    try {
+      const snapshot = await this.roomRef.once('value');
+      const room = snapshot.val();
+      const votes = room.currentVotes || {};
+      const correctSituationIndex = room.correctSituation;
+      const correctSituation = room.currentPhrase.situations[correctSituationIndex];
+      const performerName = room.currentPerformer;
+      
+      // 正解した投票者の数をカウント
+      let correctVotes = 0;
+      const voterResults = [];
+
+      Object.entries(votes).forEach(([voterName, vote]) => {
+        const isCorrect = vote.isCorrect;
+        voterResults.push({
+          name: voterName,
+          guessedIndex: vote.guessedSituationIndex,
+          guessedText: vote.guessedSituationText,
+          isCorrect: isCorrect
+        });
+        if (isCorrect) {
+          correctVotes++;
+        }
+      });
+
+      // 演技者にポイント付与（正解者数 × 難易度ポイント）
+      const difficulty = correctSituation.difficulty;
+      const difficultyPoints = { easy: 1, medium: 2, hard: 3 };
+      const performerPoints = correctVotes * (difficultyPoints[difficulty] || 1);
+      const currentPerformerScore = room.players[performerName]?.score || 0;
+
+      const updates = {};
+      updates[`players/${performerName}/score`] = currentPerformerScore + performerPoints;
+      updates['gameState'] = 'round_result';
+      updates['roundResults'] = {
+        performer: performerName,
+        correctSituationIndex: correctSituationIndex,
+        correctSituationText: correctSituation.text,
+        correctVotes: correctVotes,
+        totalVoters: Object.keys(votes).length,
+        pointsEarned: performerPoints,
+        difficulty: difficulty,
+        voterResults: voterResults
+      };
+
+      await this.roomRef.update(updates);
+      
+      console.log('✅ 結果集計完了');
+      console.log('📊 正解者:', correctVotes, '/', Object.keys(votes).length);
+      console.log('🎁 演技者獲得ポイント:', performerPoints);
+      
+      return true;
+    } catch (error) {
+      console.error('❌ 結果集計エラー:', error);
+      return false;
+    }
   }
-  
-})();
+
+  // 次のラウンドへ
+  async nextRound() {
+    try {
+      const snapshot = await this.roomRef.once('value');
+      const room = snapshot.val();
+      const maxRounds = room.settings.roundCount || 5;
+
+      if (room.currentRound >= maxRounds) {
+        // ゲーム終了
+        await this.roomRef.update({
+          gameState: 'finished'
+        });
+        console.log('✅ ゲーム終了');
+        return true;
+      }
+
+      // 新しいラウンドを開始
+      const phrase = getRandomDemaciaPhrase();
+
+      await this.roomRef.update({
+        gameState: 'performer_selection',
+        currentRound: room.currentRound + 1,
+        currentPhrase: {
+          id: phrase.id,
+          text: phrase.text,
+          character: phrase.character,
+          situations: phrase.situations
+        },
+        currentPerformer: null,
+        performerSituation: null,
+        votes: null,
+        roundResults: null
+      });
+
+      console.log('✅ 次のラウンドへ');
+      return true;
+    } catch (error) {
+      console.error('❌ 次ラウンドエラー:', error);
+      return false;
+    }
+  }
+
+  // リアルタイム監視
+  watch(callback) {
+    this.roomRef.on('value', (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        this.roomData = data; // ルームデータを保存
+        callback(data);
+      }
+    });
+  }
+
+  // 監視解除
+  unwatch() {
+    this.roomRef.off();
+  }
+
+  // ルーム退出
+  async leaveRoom(playerName) {
+    try {
+      const snapshot = await this.roomRef.once('value');
+      const roomData = snapshot.val();
+      
+      if (!roomData) {
+        console.log('ルームが存在しません');
+        return true;
+      }
+      
+      const isHost = roomData.host === playerName;
+      
+      // プレイヤーを削除
+      await this.roomRef.child(`players/${playerName}`).remove();
+      
+      // 残りのプレイヤーを確認
+      const playersSnapshot = await this.roomRef.child('players').once('value');
+      const remainingPlayers = playersSnapshot.val();
+      
+      if (!remainingPlayers || Object.keys(remainingPlayers).length === 0) {
+        // 全員退出したらルーム削除
+        await this.roomRef.remove();
+        console.log('✅ デマーシアルーム削除（全員退出）');
+        return true;
+      }
+      
+      // ホストが退出した場合、次の人をホストに昇格
+      if (isHost) {
+        const newHostName = Object.keys(remainingPlayers)[0];
+        await this.roomRef.update({
+          host: newHostName
+        });
+        // 新しいホストのisHostフラグを更新
+        await this.roomRef.child(`players/${newHostName}/isHost`).set(true);
+        console.log(`✅ デマーシアホスト移譲: ${playerName} → ${newHostName}`);
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('❌ 退出エラー:', error);
+      return false;
+    }
+  }
+
+  // ゲームリセット（もう一度遊ぶ）
+  async resetRoom() {
+    try {
+      const snapshot = await this.roomRef.once('value');
+      const room = snapshot.val();
+
+      if (!room) {
+        throw new Error('ルームが存在しません');
+      }
+
+      // 新しいセリフを選択
+      const phrases = this.gameType === 'lol' 
+        ? window.demaciaPhrases 
+        : window.demaciaPhrasesValorant;
+      const phrase = phrases[Math.floor(Math.random() * phrases.length)];
+
+      const updates = {};
+      
+      // ゲーム状態をリセット
+      updates['gameState'] = 'waiting';
+      updates['currentRound'] = 0;
+      updates['currentPhrase'] = {
+        id: phrase.id,
+        text: phrase.text,
+        character: phrase.character,
+        situations: phrase.situations
+      };
+      updates['currentPerformer'] = null;
+      updates['performerSituation'] = null;
+      updates['votes'] = null;
+      updates['roundResults'] = null;
+
+      // 各プレイヤーのスコアと投票をリセット
+      const players = room.players || {};
+      Object.keys(players).forEach(playerName => {
+        updates[`players/${playerName}/score`] = 0;
+        updates[`players/${playerName}/vote`] = null;
+      });
+
+      await this.roomRef.update(updates);
+      console.log('✅ デマーシアゲームリセット完了');
+      return true;
+    } catch (error) {
+      console.error('❌ ゲームリセットエラー:', error);
+      throw error;
+    }
+  }
+}
+
+// グローバルにエクスポート
+if (typeof window !== 'undefined') {
+  window.DemaciaGame = DemaciaGame;
+}

@@ -1,806 +1,778 @@
-// League of Legends Quote Quiz - Questions 211-260
-// Generated from voice_lines.csv data
-// 特徴的なセリフを厳選（汎用的なセリフは除外）
+// ========================================
+// 気分診断チャンピオン選択ロジック（v9 - 全172体対応版）
+// ========================================
 
-const quizBatch211_260 = [
-    {
-        id: 211,
-        quotes: {
-            ja: "私の魔法は進化する",
-            en: "My magic evolves",
-            ko: "내 마법은 진화한다",
-            zh: "我的魔法在进化"
-        },
-        choices: {
-            ja: ["カ=ジックス", "ビクター", "ハイマーディンガー", "ジグス"],
-            en: ["Kha'Zix", "Viktor", "Heimerdinger", "Ziggs"],
-            ko: ["카직스", "빅토르", "하이머딩거", "직스"],
-            zh: ["卡兹克", "维克托", "黑默丁格", "吉格斯"]
-        },
-        answer: 0
-    },
-    {
-        id: 212,
-        quotes: {
-            ja: "私の飢えは満たされない",
-            en: "My hunger is never satisfied",
-            ko: "내 배고픔은 채워지지 않는다",
-            zh: "我的饥饿永不满足"
-        },
-        choices: {
-            ja: ["チョ=ガス", "レネクトン", "ウォーウィック", "タム・ケンチ"],
-            en: ["Cho'Gath", "Renekton", "Warwick", "Tahm Kench"],
-            ko: ["초가스", "레넥톤", "워윅", "탐 켄치"],
-            zh: ["科加斯", "雷克顿", "沃里克", "塔姆"]
-        },
-        answer: 0
-    },
-    {
-        id: 213,
-        quotes: {
-            ja: "私の川は流れる",
-            en: "My river flows",
-            ko: "내 강은 흐른다",
-            zh: "我的河流流淌"
-        },
-        choices: {
-            ja: ["タム・ケンチ", "ナミ", "パイク", "フィズ"],
-            en: ["Tahm Kench", "Nami", "Pyke", "Fizz"],
-            ko: ["탐 켄치", "나미", "파이크", "피즈"],
-            zh: ["塔姆", "娜美", "派克", "菲兹"]
-        },
-        answer: 0
-    },
-    {
-        id: 214,
-        quotes: {
-            ja: "私の牙は飢えている",
-            en: "My fangs hunger",
-            ko: "내 송곳니는 굶주려 있다",
-            zh: "我的尖牙饥渴"
-        },
-        choices: {
-            ja: ["ウォーウィック", "レネクトン", "レンガー", "ウーコン"],
-            en: ["Warwick", "Renekton", "Rengar", "Wukong"],
-            ko: ["워윅", "레넥톤", "렝가", "오공"],
-            zh: ["沃里克", "雷克顿", "雷恩加尔", "悟空"]
-        },
-        answer: 0
-    },
-    {
-        id: 215,
-        quotes: {
-            ja: "私の書物は秘密だ",
-            en: "My tome holds secrets",
-            ko: "내 서적은 비밀을 품고 있다",
-            zh: "我的典籍藏着秘密"
-        },
-        choices: {
-            ja: ["ライズ", "ユーミ", "ベイガー", "ジリアン"],
-            en: ["Ryze", "Yuumi", "Veigar", "Zilean"],
-            ko: ["라이즈", "유미", "베이가", "질리언"],
-            zh: ["瑞兹", "悠米", "维迦", "基兰"]
-        },
-        answer: 0
-    },
-    {
-        id: 216,
-        quotes: {
-            ja: "私の砂漠は広大だ",
-            en: "My desert is vast",
-            ko: "내 사막은 광대하다",
-            zh: "我的沙漠广阔无垠"
-        },
-        choices: {
-            ja: ["アジール", "ナサス", "レネクトン", "タリヤ"],
-            en: ["Azir", "Nasus", "Renekton", "Taliyah"],
-            ko: ["아지르", "나서스", "레넥톤", "탈리야"],
-            zh: ["阿兹尔", "内瑟斯", "雷克顿", "塔莉垭"]
-        },
-        answer: 0
-    },
-    {
-        id: 217,
-        quotes: {
-            ja: "私の知恵は時を超える",
-            en: "My wisdom transcends time",
-            ko: "내 지혜는 시간을 초월한다",
-            zh: "我的智慧超越时间"
-        },
-        choices: {
-            ja: ["ナサス", "ジリアン", "ライズ", "アジール"],
-            en: ["Nasus", "Zilean", "Ryze", "Azir"],
-            ko: ["나서스", "질리언", "라이즈", "아지르"],
-            zh: ["内瑟斯", "基兰", "瑞兹", "阿兹尔"]
-        },
-        answer: 0
-    },
-    {
-        id: 218,
-        quotes: {
-            ja: "私の怒りは止まらない",
-            en: "My rage is unstoppable",
-            ko: "내 분노는 멈출 수 없다",
-            zh: "我的愤怒无法阻挡"
-        },
-        choices: {
-            ja: ["レネクトン", "トリンダメア", "オラフ", "ダリウス"],
-            en: ["Renekton", "Tryndamere", "Olaf", "Darius"],
-            ko: ["레넥톤", "트린다미어", "올라프", "다리우스"],
-            zh: ["雷克顿", "泰达米尔", "奥拉夫", "德莱厄斯"]
-        },
-        answer: 0
-    },
-    {
-        id: 219,
-        quotes: {
-            ja: "私の壁は岩だ",
-            en: "My wall is stone",
-            ko: "내 벽은 돌이다",
-            zh: "我的墙是岩石"
-        },
-        choices: {
-            ja: ["タリヤ", "マルファイト", "ガリオ", "オーン"],
-            en: ["Taliyah", "Malphite", "Galio", "Ornn"],
-            ko: ["탈리야", "말파이트", "갈리오", "오른"],
-            zh: ["塔莉垭", "墨菲特", "加里奥", "奥恩"]
-        },
-        answer: 0
-    },
-    {
-        id: 220,
-        quotes: {
-            ja: "私の鍛冶は神だ",
-            en: "My forge is divine",
-            ko: "내 대장간은 신성하다",
-            zh: "我的熔炉是神圣的"
-        },
-        choices: {
-            ja: ["オーン", "ガリオ", "ポッピー", "マルファイト"],
-            en: ["Ornn", "Galio", "Poppy", "Malphite"],
-            ko: ["오른", "갈리오", "뽀삐", "말파이트"],
-            zh: ["奥恩", "加里奥", "波比", "墨菲特"]
-        },
-        answer: 0
-    },
-    {
-        id: 221,
-        quotes: {
-            ja: "私の魂は盗む",
-            en: "I steal souls",
-            ko: "나는 영혼을 훔친다",
-            zh: "我窃取灵魂"
-        },
-        choices: {
-            ja: ["スレッシュ", "モルデカイザー", "カーサス", "ヨリック"],
-            en: ["Thresh", "Mordekaiser", "Karthus", "Yorick"],
-            ko: ["쓰레쉬", "모데카이저", "카서스", "요릭"],
-            zh: ["锤石", "莫德凯撒", "卡尔萨斯", "约里克"]
-        },
-        answer: 0
-    },
-    {
-        id: 222,
-        quotes: {
-            ja: "私の死者は仕える",
-            en: "My dead serve me",
-            ko: "내 죽은 자들이 나를 섬긴다",
-            zh: "我的亡者侍奉我"
-        },
-        choices: {
-            ja: ["ヨリック", "カーサス", "モルデカイザー", "ヴァイエゴ"],
-            en: ["Yorick", "Karthus", "Mordekaiser", "Viego"],
-            ko: ["요릭", "카서스", "모데카이저", "비에고"],
-            zh: ["约里克", "卡尔萨斯", "莫德凯撒", "佛耶戈"]
-        },
-        answer: 0
-    },
-    {
-        id: 223,
-        quotes: {
-            ja: "私の叫びは死だ",
-            en: "My scream is death",
-            ko: "내 비명은 죽음이다",
-            zh: "我的尖叫就是死亡"
-        },
-        choices: {
-            ja: ["カーサス", "ノクターン", "フィドルスティックス", "チョ=ガス"],
-            en: ["Karthus", "Nocturne", "Fiddlesticks", "Cho'Gath"],
-            ko: ["카서스", "녹턴", "피들스틱", "초가스"],
-            zh: ["卡尔萨斯", "魔腾", "费德提克", "科加斯"]
-        },
-        answer: 0
-    },
-    {
-        id: 224,
-        quotes: {
-            ja: "私の領域は死だ",
-            en: "My realm is death",
-            ko: "내 영역은 죽음이다",
-            zh: "我的领域是死亡"
-        },
-        choices: {
-            ja: ["モルデカイザー", "カーサス", "スレッシュ", "ヨリック"],
-            en: ["Mordekaiser", "Karthus", "Thresh", "Yorick"],
-            ko: ["모데카이저", "카서스", "쓰레쉬", "요릭"],
-            zh: ["莫德凯撒", "卡尔萨斯", "锤石", "约里克"]
-        },
-        answer: 0
-    },
-    {
-        id: 225,
-        quotes: {
-            ja: "私の遺産は帝国だ",
-            en: "My legacy is an empire",
-            ko: "내 유산은 제국이다",
-            zh: "我的遗产是帝国"
-        },
-        choices: {
-            ja: ["アジール", "スウェイン", "ジャーヴァンⅣ", "ダリウス"],
-            en: ["Azir", "Swain", "Jarvan IV", "Darius"],
-            ko: ["아지르", "스웨인", "자르반 4세", "다리우스"],
-            zh: ["阿兹尔", "斯维因", "嘉文四世", "德莱厄斯"]
-        },
-        answer: 0
-    },
-    {
-        id: 226,
-        quotes: {
-            ja: "私の目は未来を見る",
-            en: "My eyes see the future",
-            ko: "내 눈은 미래를 본다",
-            zh: "我的眼睛看见未来"
-        },
-        choices: {
-            ja: ["スウェイン", "ジリアン", "ツイステッド・フェイト", "ゼラス"],
-            en: ["Swain", "Zilean", "Twisted Fate", "Xerath"],
-            ko: ["스웨인", "질리언", "트위스티드 페이트", "제라스"],
-            zh: ["斯维因", "基兰", "崔斯特", "泽拉斯"]
-        },
-        answer: 0
-    },
-    {
-        id: 227,
-        quotes: {
-            ja: "私のカードは運命だ",
-            en: "My cards are fate",
-            ko: "내 카드는 운명이다",
-            zh: "我的卡牌是命运"
-        },
-        choices: {
-            ja: ["ツイステッド・フェイト", "シャコ", "ベイガー", "ジリアン"],
-            en: ["Twisted Fate", "Shaco", "Veigar", "Zilean"],
-            ko: ["트위스티드 페이트", "샤코", "베이가", "질리언"],
-            zh: ["崔斯特", "萨科", "维迦", "基兰"]
-        },
-        answer: 0
-    },
-    {
-        id: 228,
-        quotes: {
-            ja: "私のトリックは致命的だ",
-            en: "My tricks are deadly",
-            ko: "내 속임수는 치명적이다",
-            zh: "我的把戏是致命的"
-        },
-        choices: {
-            ja: ["シャコ", "ルブラン", "イブリン", "ニーコ"],
-            en: ["Shaco", "LeBlanc", "Evelynn", "Neeko"],
-            ko: ["샤코", "르블랑", "이블린", "니코"],
-            zh: ["萨科", "乐芙兰", "伊芙琳", "妮蔻"]
-        },
-        answer: 0
-    },
-    {
-        id: 229,
-        quotes: {
-            ja: "私の幻影は真実だ",
-            en: "My illusions are truth",
-            ko: "내 환영은 진실이다",
-            zh: "我的幻象是真实的"
-        },
-        choices: {
-            ja: ["ルブラン", "ニーコ", "シャコ", "ゾーイ"],
-            en: ["LeBlanc", "Neeko", "Shaco", "Zoe"],
-            ko: ["르블랑", "니코", "샤코", "조이"],
-            zh: ["乐芙兰", "妮蔻", "萨科", "佐伊"]
-        },
-        answer: 0
-    },
-    {
-        id: 230,
-        quotes: {
-            ja: "私の計画は完璧だ",
-            en: "My plan is perfect",
-            ko: "내 계획은 완벽하다",
-            zh: "我的计划是完美的"
-        },
-        choices: {
-            ja: ["スウェイン", "ルブラン", "シンドラ", "アジール"],
-            en: ["Swain", "LeBlanc", "Syndra", "Azir"],
-            ko: ["스웨인", "르블랑", "신드라", "아지르"],
-            zh: ["斯维因", "乐芙兰", "辛德拉", "阿兹尔"]
-        },
-        answer: 1
-    },
-    {
-        id: 231,
-        quotes: {
-            ja: "私の魅力は致命的だ",
-            en: "My charm is deadly",
-            ko: "내 매력은 치명적이다",
-            zh: "我的魅力是致命的"
-        },
-        choices: {
-            ja: ["アーリ", "イブリン", "ラックス", "セラフィーン"],
-            en: ["Ahri", "Evelynn", "Lux", "Seraphine"],
-            ko: ["아리", "이블린", "럭스", "세라핀"],
-            zh: ["阿狸", "伊芙琳", "拉克丝", "萨勒芬妮"]
-        },
-        answer: 0
-    },
-    {
-        id: 232,
-        quotes: {
-            ja: "私の苦痛は快楽だ",
-            en: "My pain is pleasure",
-            ko: "내 고통은 쾌락이다",
-            zh: "我的痛苦是快乐"
-        },
-        choices: {
-            ja: ["イブリン", "エイトロックス", "モルデカイザー", "ヴラディミール"],
-            en: ["Evelynn", "Aatrox", "Mordekaiser", "Vladimir"],
-            ko: ["이블린", "아트록스", "모데카이저", "블라디미르"],
-            zh: ["伊芙琳", "亚托克斯", "莫德凯撒", "弗拉基米尔"]
-        },
-        answer: 0
-    },
-    {
-        id: 233,
-        quotes: {
-            ja: "私の美は永遠だ",
-            en: "My beauty is eternal",
-            ko: "내 아름다움은 영원하다",
-            zh: "我的美丽是永恒的"
-        },
-        choices: {
-            ja: ["ヴラディミール", "イブリン", "カミール", "モルガナ"],
-            en: ["Vladimir", "Evelynn", "Camille", "Morgana"],
-            ko: ["블라디미르", "이블린", "카밀", "모르가나"],
-            zh: ["弗拉基米尔", "伊芙琳", "卡蜜尔", "莫甘娜"]
-        },
-        answer: 0
-    },
-    {
-        id: 234,
-        quotes: {
-            ja: "私の精密さは完璧だ",
-            en: "My precision is perfection",
-            ko: "내 정밀함은 완벽하다",
-            zh: "我的精准是完美"
-        },
-        choices: {
-            ja: ["カミール", "ケイトリン", "ジン", "フィオラ"],
-            en: ["Camille", "Caitlyn", "Jhin", "Fiora"],
-            ko: ["카밀", "케이틀린", "진", "피오라"],
-            zh: ["卡蜜尔", "凯特琳", "烬", "菲奥娜"]
-        },
-        answer: 0
-    },
-    {
-        id: 235,
-        quotes: {
-            ja: "私の射撃は正確だ",
-            en: "My shots are accurate",
-            ko: "내 사격은 정확하다",
-            zh: "我的射击很精准"
-        },
-        choices: {
-            ja: ["ケイトリン", "ジン", "ルシアン", "ミス・フォーチュン"],
-            en: ["Caitlyn", "Jhin", "Lucian", "Miss Fortune"],
-            ko: ["케이틀린", "진", "루시안", "미스 포츈"],
-            zh: ["凯特琳", "烬", "卢锡安", "厄运小姐"]
-        },
-        answer: 0
-    },
-    {
-        id: 236,
-        quotes: {
-            ja: "私の銃は二丁だ",
-            en: "I wield two guns",
-            ko: "나는 두 정의 총을 휘두른다",
-            zh: "我挥舞双枪"
-        },
-        choices: {
-            ja: ["ルシアン", "グレイブス", "ジンクス", "ケイトリン"],
-            en: ["Lucian", "Graves", "Jinx", "Caitlyn"],
-            ko: ["루시안", "그레이브즈", "징크스", "케이틀린"],
-            zh: ["卢锡安", "格雷福斯", "金克丝", "凯特琳"]
-        },
-        answer: 0
-    },
-    {
-        id: 237,
-        quotes: {
-            ja: "私の妻を返せ",
-            en: "Give me back my wife",
-            ko: "내 아내를 돌려줘",
-            zh: "把我的妻子还给我"
-        },
-        choices: {
-            ja: ["ルシアン", "ヴァイエゴ", "ヨリック", "パンテオン"],
-            en: ["Lucian", "Viego", "Yorick", "Pantheon"],
-            ko: ["루시안", "비에고", "요릭", "판테온"],
-            zh: ["卢锡安", "佛耶戈", "约里克", "潘森"]
-        },
-        answer: 0
-    },
-    {
-        id: 238,
-        quotes: {
-            ja: "私の愛は破滅だ",
-            en: "My love is ruin",
-            ko: "내 사랑은 파멸이다",
-            zh: "我的爱是毁灭"
-        },
-        choices: {
-            ja: ["ヴァイエゴ", "ルシアン", "カリスタ", "モルデカイザー"],
-            en: ["Viego", "Lucian", "Kalista", "Mordekaiser"],
-            ko: ["비에고", "루시안", "칼리스타", "모데카이저"],
-            zh: ["佛耶戈", "卢锡安", "卡莉丝塔", "莫德凯撒"]
-        },
-        answer: 0
-    },
-    {
-        id: 239,
-        quotes: {
-            ja: "私の憎しみは純粋だ",
-            en: "My hatred is pure",
-            ko: "내 증오는 순수하다",
-            zh: "我的仇恨是纯粹的"
-        },
-        choices: {
-            ja: ["ヴァイエゴ", "エイトロックス", "レネクトン", "ブランド"],
-            en: ["Viego", "Aatrox", "Renekton", "Brand"],
-            ko: ["비에고", "아트록스", "레넥톤", "브랜드"],
-            zh: ["佛耶戈", "亚托克斯", "雷克顿", "布兰德"]
-        },
-        answer: 1
-    },
-    {
-        id: 240,
-        quotes: {
-            ja: "私の魂は自由を求める",
-            en: "My soul craves freedom",
-            ko: "내 영혼은 자유를 갈망한다",
-            zh: "我的灵魂渴望自由"
-        },
-        choices: {
-            ja: ["サイラス", "ゼド", "タロン", "ケイン"],
-            en: ["Sylas", "Zed", "Talon", "Kayn"],
-            ko: ["사일러스", "제드", "탈론", "케인"],
-            zh: ["塞拉斯", "劫", "塔隆", "凯隐"]
-        },
-        answer: 0
-    },
-    {
-        id: 241,
-        quotes: {
-            ja: "私の革命は始まる",
-            en: "My revolution begins",
-            ko: "내 혁명이 시작된다",
-            zh: "我的革命开始了"
-        },
-        choices: {
-            ja: ["サイラス", "スウェイン", "ジャーヴァンⅣ", "ダリウス"],
-            en: ["Sylas", "Swain", "Jarvan IV", "Darius"],
-            ko: ["사일러스", "스웨인", "자르반 4세", "다리우스"],
-            zh: ["塞拉斯", "斯维因", "嘉文四世", "德莱厄斯"]
-        },
-        answer: 0
-    },
-    {
-        id: 242,
-        quotes: {
-            ja: "私の剣は盗んだものだ",
-            en: "My blade is stolen",
-            ko: "내 검은 훔친 것이다",
-            zh: "我的剑是偷来的"
-        },
-        choices: {
-            ja: ["サイラス", "タロン", "カタリナ", "ゼド"],
-            en: ["Sylas", "Talon", "Katarina", "Zed"],
-            ko: ["사일러스", "탈론", "카타리나", "제드"],
-            zh: ["塞拉斯", "塔隆", "卡特琳娜", "劫"]
-        },
-        answer: 0
-    },
-    {
-        id: 243,
-        quotes: {
-            ja: "私の短剣は致命的だ",
-            en: "My dagger is lethal",
-            ko: "내 단검은 치명적이다",
-            zh: "我的匕首是致命的"
-        },
-        choices: {
-            ja: ["タロン", "カタリナ", "アカリ", "ゼド"],
-            en: ["Talon", "Katarina", "Akali", "Zed"],
-            ko: ["탈론", "카타리나", "아칼리", "제드"],
-            zh: ["塔隆", "卡特琳娜", "阿卡丽", "劫"]
-        },
-        answer: 0
-    },
-    {
-        id: 244,
-        quotes: {
-            ja: "私の忠誠は揺るがない",
-            en: "My loyalty is unwavering",
-            ko: "내 충성은 흔들리지 않는다",
-            zh: "我的忠诚坚定不移"
-        },
-        choices: {
-            ja: ["タロン", "シェン", "ガレン", "ダリウス"],
-            en: ["Talon", "Shen", "Garen", "Darius"],
-            ko: ["탈론", "쉔", "가렌", "다리우스"],
-            zh: ["塔隆", "慎", "盖伦", "德莱厄斯"]
-        },
-        answer: 0
-    },
-    {
-        id: 245,
-        quotes: {
-            ja: "私の変容は完全だ",
-            en: "My transformation is complete",
-            ko: "내 변신은 완전하다",
-            zh: "我的转变已完成"
-        },
-        choices: {
-            ja: ["ケイン", "カ=ジックス", "シヴァーナ", "ナー"],
-            en: ["Kayn", "Kha'Zix", "Shyvana", "Gnar"],
-            ko: ["케인", "카직스", "쉬바나", "나르"],
-            zh: ["凯隐", "卡兹克", "希瓦娜", "纳尔"]
-        },
-        answer: 0
-    },
-    {
-        id: 246,
-        quotes: {
-            ja: "私の鎌は魂を刈る",
-            en: "My scythe harvests souls",
-            ko: "내 낫은 영혼을 거둔다",
-            zh: "我的镰刀收割灵魂"
-        },
-        choices: {
-            ja: ["ケイン", "スレッシュ", "カーサス", "キンドレッド"],
-            en: ["Kayn", "Thresh", "Karthus", "Kindred"],
-            ko: ["케인", "쓰레쉬", "카서스", "킨드레드"],
-            zh: ["凯隐", "锤石", "卡尔萨斯", "千珏"]
-        },
-        answer: 0
-    },
-    {
-        id: 247,
-        quotes: {
-            ja: "私の武器は生きている",
-            en: "My weapon is alive",
-            ko: "내 무기는 살아있다",
-            zh: "我的武器是活的"
-        },
-        choices: {
-            ja: ["ケイン", "エイトロックス", "カ=ジックス", "シヴァーナ"],
-            en: ["Kayn", "Aatrox", "Kha'Zix", "Shyvana"],
-            ko: ["케인", "아트록스", "카직스", "쉬바나"],
-            zh: ["凯隐", "亚托克斯", "卡兹克", "希瓦娜"]
-        },
-        answer: 0
-    },
-    {
-        id: 248,
-        quotes: {
-            ja: "私の孤独は友だ",
-            en: "My solitude is my friend",
-            ko: "내 고독은 내 친구다",
-            zh: "我的孤独是我的朋友"
-        },
-        choices: {
-            ja: ["アムム", "ヴェックス", "ヨリック", "カーサス"],
-            en: ["Amumu", "Vex", "Yorick", "Karthus"],
-            ko: ["아무무", "벡스", "요릭", "카서스"],
-            zh: ["阿木木", "薇古丝", "约里克", "卡尔萨斯"]
-        },
-        answer: 0
-    },
-    {
-        id: 249,
-        quotes: {
-            ja: "私の悲しみは深い",
-            en: "My sadness is deep",
-            ko: "내 슬픔은 깊다",
-            zh: "我的悲伤很深"
-        },
-        choices: {
-            ja: ["アムム", "ヴェックス", "リリア", "セナ"],
-            en: ["Amumu", "Vex", "Lillia", "Senna"],
-            ko: ["아무무", "벡스", "릴리아", "세나"],
-            zh: ["阿木木", "薇古丝", "莉莉娅", "赛娜"]
-        },
-        answer: 0
-    },
-    {
-        id: 250,
-        quotes: {
-            ja: "私の憂鬱は永遠だ",
-            en: "My melancholy is eternal",
-            ko: "내 우울은 영원하다",
-            zh: "我的忧郁是永恒的"
-        },
-        choices: {
-            ja: ["ヴェックス", "アムム", "モルデカイザー", "ヨリック"],
-            en: ["Vex", "Amumu", "Mordekaiser", "Yorick"],
-            ko: ["벡스", "아무무", "모데카이저", "요릭"],
-            zh: ["薇古丝", "阿木木", "莫德凯撒", "约里克"]
-        },
-        answer: 0
-    },
-    {
-        id: 251,
-        quotes: {
-            ja: "私の影は生きている",
-            en: "My shadow lives",
-            ko: "내 그림자는 살아있다",
-            zh: "我的影子是活的"
-        },
-        choices: {
-            ja: ["ヴェックス", "ゼド", "ノクターン", "シャコ"],
-            en: ["Vex", "Zed", "Nocturne", "Shaco"],
-            ko: ["벡스", "제드", "녹턴", "샤코"],
-            zh: ["薇古丝", "劫", "魔腾", "萨科"]
-        },
-        answer: 0
-    },
-    {
-        id: 252,
-        quotes: {
-            ja: "私の剣は月光だ",
-            en: "My blade is moonlight",
-            ko: "내 검은 달빛이다",
-            zh: "我的剑刃是月光"
-        },
-        choices: {
-            ja: ["ダイアナ", "アフェリオス", "レオナ", "タリック"],
-            en: ["Diana", "Aphelios", "Leona", "Taric"],
-            ko: ["다이애나", "아펠리오스", "레오나", "타릭"],
-            zh: ["黛安娜", "厄斐琉斯", "蕾欧娜", "塔里克"]
-        },
-        answer: 0
-    },
-    {
-        id: 253,
-        quotes: {
-            ja: "私は沈黙だ",
-            en: "I am silence",
-            ko: "나는 침묵이다",
-            zh: "我是沉默"
-        },
-        choices: {
-            ja: ["アフェリオス", "シェン", "ソナ", "マルファイト"],
-            en: ["Aphelios", "Shen", "Sona", "Malphite"],
-            ko: ["아펠리오스", "쉔", "소나", "말파이트"],
-            zh: ["厄斐琉斯", "慎", "娑娜", "墨菲特"]
-        },
-        answer: 0
-    },
-    {
-        id: 254,
-        quotes: {
-            ja: "私の姉は月だ",
-            en: "My sister is the moon",
-            ko: "내 자매는 달이다",
-            zh: "我的姐妹是月亮"
-        },
-        choices: {
-            ja: ["アフェリオス", "ダイアナ", "レオナ", "ソラカ"],
-            en: ["Aphelios", "Diana", "Leona", "Soraka"],
-            ko: ["아펠리오스", "다이애나", "레오나", "소라카"],
-            zh: ["厄斐琉斯", "黛安娜", "蕾欧娜", "索拉卡"]
-        },
-        answer: 0
-    },
-    {
-        id: 255,
-        quotes: {
-            ja: "私のランタンは光だ",
-            en: "My lantern is light",
-            ko: "내 등불은 빛이다",
-            zh: "我的灯笼是光明"
-        },
-        choices: {
-            ja: ["スレッシュ", "ラックス", "レオナ", "ジャンナ"],
-            en: ["Thresh", "Lux", "Leona", "Janna"],
-            ko: ["쓰레쉬", "럭스", "레오나", "잔나"],
-            zh: ["锤石", "拉克丝", "蕾欧娜", "迦娜"]
-        },
-        answer: 0
-    },
-    {
-        id: 256,
-        quotes: {
-            ja: "私の魂は捕らえられている",
-            en: "My soul is trapped",
-            ko: "내 영혼은 갇혀있다",
-            zh: "我的灵魂被困住了"
-        },
-        choices: {
-            ja: ["スレッシュ", "セナ", "ヨリック", "ヴァイエゴ"],
-            en: ["Thresh", "Senna", "Yorick", "Viego"],
-            ko: ["쓰레쉬", "세나", "요릭", "비에고"],
-            zh: ["锤石", "赛娜", "约里克", "佛耶戈"]
-        },
-        answer: 1
-    },
-    {
-        id: 257,
-        quotes: {
-            ja: "私の光は救済だ",
-            en: "My light is redemption",
-            ko: "내 빛은 구원이다",
-            zh: "我的光明是救赎"
-        },
-        choices: {
-            ja: ["セナ", "ラックス", "レオナ", "カイル"],
-            en: ["Senna", "Lux", "Leona", "Kayle"],
-            ko: ["세나", "럭스", "레오나", "케일"],
-            zh: ["赛娜", "拉克丝", "蕾欧娜", "凯尔"]
-        },
-        answer: 0
-    },
-    {
-        id: 258,
-        quotes: {
-            ja: "私の正義は絶対だ",
-            en: "My justice is absolute",
-            ko: "내 정의는 절대적이다",
-            zh: "我的正义是绝对的"
-        },
-        choices: {
-            ja: ["カイル", "ガレン", "レオナ", "ダリウス"],
-            en: ["Kayle", "Garen", "Leona", "Darius"],
-            ko: ["케일", "가렌", "레오나", "다리우스"],
-            zh: ["凯尔", "盖伦", "蕾欧娜", "德莱厄斯"]
-        },
-        answer: 0
-    },
-    {
-        id: 259,
-        quotes: {
-            ja: "私の慈悲は弱さではない",
-            en: "My mercy is not weakness",
-            ko: "내 자비는 약함이 아니다",
-            zh: "我的仁慈不是软弱"
-        },
-        choices: {
-            ja: ["モルガナ", "カイル", "ソラカ", "カルマ"],
-            en: ["Morgana", "Kayle", "Soraka", "Karma"],
-            ko: ["모르가나", "케일", "소라카", "카르마"],
-            zh: ["莫甘娜", "凯尔", "索拉卡", "卡尔玛"]
-        },
-        answer: 0
-    },
-    {
-        id: 260,
-        quotes: {
-            ja: "私の絆は苦痛だ",
-            en: "My bonds are torment",
-            ko: "내 속박은 고통이다",
-            zh: "我的枷锁是痛苦"
-        },
-        choices: {
-            ja: ["モルガナ", "サイラス", "スレッシュ", "ノーチラス"],
-            en: ["Morgana", "Sylas", "Thresh", "Nautilus"],
-            ko: ["모르가나", "사일러스", "쓰레쉬", "노틸러스"],
-            zh: ["莫甘娜", "塞拉斯", "锤石", "诺提勒斯"]
-        },
-        answer: 0
+console.log('🎭 mood-quiz.js ロード開始 (v9 - 全172体対応)...');
+
+// データファイルが正しくロードされているか確認
+if (typeof moodQuizQuestions === 'undefined') {
+  console.error('❌ moodQuizQuestions が定義されていません！mood-quiz-data.js が先にロードされていることを確認してください。');
+}
+if (typeof championsByMood === 'undefined') {
+  console.error('❌ championsByMood が定義されていません！');
+}
+if (typeof laneBonusPoints === 'undefined') {
+  console.error('❌ laneBonusPoints が定義されていません！');
+}
+
+console.log('📋 データチェック完了:', {
+  moodQuizQuestions: typeof moodQuizQuestions,
+  championsByMood: typeof championsByMood,
+  laneBonusPoints: typeof laneBonusPoints
+});
+
+let currentQuestionIndex = 0;
+let moodScores = {
+  aggressive: 0,
+  supportive: 0,
+  tactical: 0
+};
+let answerHistory = []; // 回答履歴を保存
+let selectedLane = null; // 選択されたレーンを保存
+let answerKeywords = []; // 回答キーワードを保存
+let currentMoodType = null; // 現在の診断結果タイプを保存（言語切替用）
+
+// 現在のスコアから気分タイプを取得
+function getMoodTypeFromScores() {
+  if (currentMoodType) {
+    return currentMoodType;
+  }
+  
+  // スコアから判定
+  let moodType = 'balanced';
+  let maxScore = 0;
+  
+  Object.keys(moodScores).forEach(type => {
+    if (moodScores[type] > maxScore) {
+      maxScore = moodScores[type];
+      moodType = type;
     }
-];
+  });
+  
+  const scores = Object.values(moodScores);
+  const allSame = scores.every(score => score === scores[0]);
+  if (allSame) {
+    moodType = 'balanced';
+  }
+  
+  return moodType;
+}
+
+// グローバルスコープに露出
+window.getMoodTypeFromScores = getMoodTypeFromScores;
+
+// 診断を開始
+function startMoodQuiz() {
+  console.log('🎯 startMoodQuiz() が呼ばれました');
+  currentQuestionIndex = 0;
+  moodScores = {
+    aggressive: 0,
+    supportive: 0,
+    tactical: 0
+  };
+  answerHistory = [];
+  selectedLane = null;
+  answerKeywords = [];
+  currentMoodType = null; // 診断結果タイプをリセット
+  
+  showScreen('mood-quiz-question-screen');
+  displayQuestion();
+  updateProgressBar();
+  updateBackButton();
+  
+  console.log('🎭 気分診断を開始しました（12問 - マルチレーン対応）');
+}
+
+// グローバルスコープに明示的に露出
+window.startMoodQuiz = startMoodQuiz;
+console.log('✅ startMoodQuiz 関数をグローバルスコープに登録しました');
+
+// 質問を表示
+function displayQuestion() {
+  try {
+    const question = moodQuizQuestions[currentQuestionIndex];
+    
+    console.log(`🔍 displayQuestion: questionIndex=${currentQuestionIndex}, question:`, question);
+    
+    // 現在の言語を取得
+    const lang = currentLanguage || 'ja';
+    const i18nData = moodQuizQuestionsI18n[lang] || moodQuizQuestionsI18n['ja'];
+    
+    console.log(`🔍 使用言語: ${lang}, i18nData存在: ${!!i18nData}`);
+    
+    // 質問テキスト（多言語対応）
+    const questionText = i18nData.questions[question.questionKey];
+    console.log(`🔍 質問テキスト: ${questionText}`);
+    
+    document.getElementById('mood-question-text').textContent = questionText;
+    
+    // 質問番号（多言語対応）
+    const questionNumberText = t('moodQuiz.questionNumber', {
+      current: currentQuestionIndex + 1,
+      total: moodQuizQuestions.length
+    });
+    document.getElementById('mood-question-number').textContent = questionNumberText;
+    
+    // 選択肢を生成（多言語対応）
+    const optionsContainer = document.getElementById('mood-question-options');
+    optionsContainer.innerHTML = '';
+    
+    console.log(`🔍 選択肢数: ${question.options.length}`);
+    
+    question.options.forEach((option, index) => {
+      try {
+        const button = document.createElement('button');
+        button.className = 'mood-option-btn';
+        // 多言語対応：翻訳データから選択肢テキストを取得
+        const optionText = i18nData.options[question.questionKey][option.textKey];
+        console.log(`🔍 選択肢${index}: textKey=${option.textKey}, text=${optionText}`);
+        
+        if (!optionText) {
+          console.error(`❌ 選択肢テキストが見つかりません: questionKey=${question.questionKey}, textKey=${option.textKey}`);
+          button.textContent = `[エラー: 選択肢${index}]`;
+        } else {
+          button.textContent = optionText;
+        }
+        
+        button.onclick = () => selectAnswer(index);
+        optionsContainer.appendChild(button);
+      } catch (error) {
+        console.error(`❌ 選択肢${index}の生成エラー:`, error);
+      }
+    });
+    
+    // 「前の質問に戻る」ボタンの表示/非表示
+    updateBackButton();
+    
+    console.log(`✅ 質問 ${currentQuestionIndex + 1} を表示しました (言語: ${lang})`);
+  } catch (error) {
+    console.error('❌ displayQuestion エラー:', error);
+    console.error('スタックトレース:', error.stack);
+  }
+}
+
+// 回答を選択
+function selectAnswer(optionIndex) {
+  const question = moodQuizQuestions[currentQuestionIndex];
+  const selectedOption = question.options[optionIndex];
+  
+  console.log(`🔍 selectAnswer called: questionIndex=${currentQuestionIndex}, optionIndex=${optionIndex}`);
+  console.log('🔍 selectedOption:', selectedOption);
+  
+  // 回答を履歴に保存
+  answerHistory.push({
+    questionIndex: currentQuestionIndex,
+    optionIndex: optionIndex,
+    scores: { ...moodScores },
+    keywords: [...answerKeywords]
+  });
+  
+  // レーン情報を保存（最初の質問）
+  if (question.type === 'lane' && selectedOption.lane) {
+    selectedLane = selectedOption.lane;
+    console.log(`🎯 選択されたレーン: ${selectedLane}`);
+  }
+  
+  // キーワードを保存（回答内容から特性を抽出）
+  try {
+    extractKeywords(question, selectedOption);
+  } catch (error) {
+    console.error('⚠️ extractKeywords エラー:', error);
+  }
+  
+  // スコアを加算
+  moodScores.aggressive += selectedOption.points.aggressive;
+  moodScores.supportive += selectedOption.points.supportive;
+  moodScores.tactical += selectedOption.points.tactical;
+  
+  // 多言語対応：選択肢テキストを取得
+  const lang = currentLanguage || 'ja';
+  const i18nData = moodQuizQuestionsI18n[lang] || moodQuizQuestionsI18n['ja'];
+  const optionText = i18nData.options[question.questionKey][selectedOption.textKey];
+  
+  console.log(`✅ 回答: ${optionText}`);
+  console.log('現在のスコア:', moodScores);
+  
+  // 次の質問へ
+  currentQuestionIndex++;
+  
+  if (currentQuestionIndex < moodQuizQuestions.length) {
+    displayQuestion();
+    updateProgressBar();
+  } else {
+    // 診断完了
+    console.log('📋 回答キーワード:', answerKeywords);
+    showResult();
+  }
+}
+
+// 回答からキーワードを抽出（多言語対応版）
+function extractKeywords(question, option) {
+  const type = question.type;
+  const textKey = option.textKey;
+  
+  // 質問タイプとtextKeyの組み合わせでキーワードを判定
+  if (type === 'role') {
+    // Q2: チームファイトでの役割
+    if (textKey === 0) answerKeywords.push('damage', 'carry'); // 敵を倒しまくる
+    if (textKey === 1) answerKeywords.push('tank', 'frontline', 'protect'); // 味方を守る
+    if (textKey === 2) answerKeywords.push('control', 'cc'); // CCで敵を妨害
+    if (textKey === 3) answerKeywords.push('assassin', 'burst'); // 敵のキャリーを狙う
+    if (textKey === 4) answerKeywords.push('poke', 'strategic'); // ポークで削る
+    if (textKey === 5) answerKeywords.push('control', 'zone'); // ゾーニングで牽制
+  } else if (type === 'playstyle') {
+    // Q4: プレイスタイル
+    if (textKey === 0) answerKeywords.push('fighter', 'melee', 'aggressive'); // 前に出て戦う
+    if (textKey === 1) answerKeywords.push('support', 'utility'); // 味方をサポート
+    if (textKey === 2) answerKeywords.push('strategic', 'tactical'); // 計算して立ち回る
+    if (textKey === 3) answerKeywords.push('assassin', 'oneshot', 'burst'); // ワンショットキル
+    if (textKey === 4) answerKeywords.push('poke', 'chip'); // じわじわ削る
+    if (textKey === 5) answerKeywords.push('mobile', 'skirmish'); // 機動力で翻弄
+  } else if (type === 'range') {
+    // Q9: 戦闘距離
+    if (textKey === 0) answerKeywords.push('melee', 'close'); // 接近戦
+    if (textKey === 1) answerKeywords.push('bruiser', 'melee'); // 近～中距離
+    if (textKey === 2) answerKeywords.push('medium', 'skirmish'); // 中距離
+    if (textKey === 3) answerKeywords.push('poke', 'long'); // 中～遠距離
+    if (textKey === 4) answerKeywords.push('ranged', 'long'); // 遠距離
+    if (textKey === 5) answerKeywords.push('versatile'); // 状況に応じて
+  } else if (type === 'early') {
+    // Q10: ゲーム序盤
+    if (textKey === 0) answerKeywords.push('early', 'aggressive'); // 序盤から有利
+    if (textKey === 1) answerKeywords.push('scaling', 'late', 'safe'); // 安全に成長
+    if (textKey === 2) answerKeywords.push('gank', 'teamplay'); // 味方のガンクを待つ
+    if (textKey === 3) answerKeywords.push('strategic', 'safe'); // 敵の動きを見る
+  } else if (type === 'late') {
+    // Q11: ゲーム終盤
+    if (textKey === 0) answerKeywords.push('pick', 'assassin'); // ピックで試合を決める
+    if (textKey === 1) answerKeywords.push('teamfight', 'aoe'); // 集団戦で勝つ
+    if (textKey === 2) answerKeywords.push('peel', 'protect'); // 味方を守り切る
+    if (textKey === 3) answerKeywords.push('split', 'duelist'); // スプリットで圧力
+    if (textKey === 4) answerKeywords.push('objective', 'strategic'); // バロン/ドラゴン
+  } else if (type === 'laning') {
+    // Q6: レーニング
+    if (textKey === 0) answerKeywords.push('aggressive', 'trade'); // 積極的に交易
+    if (textKey === 1) answerKeywords.push('safe', 'farm'); // 安全にファーム
+    if (textKey === 2) answerKeywords.push('roam', 'mobile', 'support'); // ロームで味方を助ける
+    if (textKey === 3) answerKeywords.push('push', 'waveclear'); // プッシュで圧力
+    if (textKey === 4) answerKeywords.push('strategic', 'freeze'); // フリーズで有利
+    if (textKey === 5) answerKeywords.push('aggressive', 'allin'); // オールイン狙う
+  }
+  
+  console.log(`🔑 抽出されたキーワード (type: ${type}, textKey: ${textKey}):`, answerKeywords);
+}
+
+// 「前の質問に戻る」ボタンの表示/非表示
+function updateBackButton() {
+  const backButton = document.getElementById('mood-back-question-btn');
+  if (backButton) {
+    if (currentQuestionIndex === 0) {
+      backButton.style.display = 'none';
+    } else {
+      backButton.style.display = 'inline-block';
+    }
+  }
+}
+
+// 前の質問に戻る
+function goBackQuestion() {
+  if (currentQuestionIndex === 0 || answerHistory.length === 0) {
+    console.log('⚠️ 最初の質問なので戻れません');
+    return;
+  }
+  
+  // 最後の回答を取り消す
+  const lastAnswer = answerHistory.pop();
+  
+  // スコアを復元
+  moodScores = { ...lastAnswer.scores };
+  answerKeywords = [...lastAnswer.keywords];
+  
+  // 質問インデックスを戻す
+  currentQuestionIndex--;
+  
+  // レーン選択をリセット（最初の質問に戻った場合）
+  if (currentQuestionIndex === 0) {
+    selectedLane = null;
+  }
+  
+  console.log(`⏪ 質問 ${currentQuestionIndex + 1} に戻りました`);
+  console.log('復元されたスコア:', moodScores);
+  
+  // 質問を再表示
+  displayQuestion();
+  updateProgressBar();
+}
+
+// プログレスバーを更新
+function updateProgressBar() {
+  const progress = ((currentQuestionIndex + 1) / moodQuizQuestions.length) * 100;
+  const progressBar = document.getElementById('mood-progress-bar');
+  
+  if (progressBar) {
+    progressBar.style.width = `${progress}%`;
+  }
+}
+
+// 診断結果を表示
+function showResult() {
+  console.log('🎉 診断完了！最終スコア:', moodScores);
+  console.log('🎯 選択されたレーン:', selectedLane);
+  
+  // 最も高いスコアのタイプを判定
+  let moodType = 'balanced';
+  let maxScore = 0;
+  
+  Object.keys(moodScores).forEach(type => {
+    if (moodScores[type] > maxScore) {
+      maxScore = moodScores[type];
+      moodType = type;
+    }
+  });
+  
+  // スコアが均等な場合はバランス型
+  const scores = Object.values(moodScores);
+  const allSame = scores.every(score => score === scores[0]);
+  if (allSame) {
+    moodType = 'balanced';
+  }
+  
+  // 診断結果タイプを保存（言語切替用）
+  currentMoodType = moodType;
+  
+  console.log(`🎭 診断結果: ${moodType}`);
+  
+  // 結果を表示
+  displayResult(moodType);
+  showScreen('mood-quiz-result-screen');
+}
+
+// チャンピオンの適合度スコアを計算（v5 - レーン適性ボーナス対応）
+function calculateChampionScore(champion, moodType) {
+  // 基本スコア: タイプマッチで100点
+  let score = 100;
+  
+  // スコア比率に応じて加点（最大+30点）
+  const totalScore = moodScores.aggressive + moodScores.supportive + moodScores.tactical;
+  if (totalScore > 0) {
+    if (moodType === 'aggressive') {
+      score += (moodScores.aggressive / totalScore) * 30;
+    } else if (moodType === 'supportive') {
+      score += (moodScores.supportive / totalScore) * 30;
+    } else if (moodType === 'tactical') {
+      score += (moodScores.tactical / totalScore) * 30;
+    } else if (moodType === 'balanced') {
+      const variance = Math.abs(moodScores.aggressive - moodScores.supportive) +
+                       Math.abs(moodScores.supportive - moodScores.tactical) +
+                       Math.abs(moodScores.tactical - moodScores.aggressive);
+      score += Math.max(0, 30 - variance);
+    }
+  }
+  
+  // レーン適性ボーナス（最大+30点）- NEW!
+  if (selectedLane && champion.lanes) {
+    const laneMatch = champion.lanes.find(l => l.lane === selectedLane);
+    if (laneMatch && laneBonusPoints) {
+      const bonus = laneBonusPoints[laneMatch.priority];
+      score += bonus;
+      console.log(`  ${champion.nameJa}: レーンボーナス +${bonus}点 (${laneMatch.priority})`);
+    }
+  }
+  
+  // チャンピオンの特性マッチング（最大+50点）
+  let matchScore = 0;
+  
+  // チャンピオン名と説明文からキーワードマッチング
+  const championText = `${champion.name} ${champion.nameJa} ${champion.description}`.toLowerCase();
+  
+  answerKeywords.forEach(keyword => {
+    if (championText.includes(keyword.toLowerCase())) {
+      matchScore += 5; // 1キーワードマッチで+5点
+    }
+  });
+  
+  // チャンピオンごとの個別調整（名前ベース）
+  matchScore += getChampionBonusScore(champion, answerKeywords);
+  
+  // マッチスコアは最大50点
+  matchScore = Math.min(matchScore, 50);
+  
+  score += matchScore;
+  
+  // ランダム要素（同点の場合の順位変動、最大+5点に縮小）
+  score += Math.random() * 5;
+  
+  return score;
+}
+
+// チャンピオンごとのボーナススコア
+function getChampionBonusScore(champion, keywords) {
+  let bonus = 0;
+  const name = champion.name.toLowerCase();
+  
+  // アサシン系チャンピオン
+  const assassins = ['zed', 'talon', 'akali', 'katarina', 'khazix', 'rengar', 'qiyana', 'leblanc'];
+  if (assassins.includes(name) && (keywords.includes('assassin') || keywords.includes('burst') || keywords.includes('oneshot'))) {
+    bonus += 15;
+  }
+  
+  // タンク系チャンピオン
+  const tanks = ['malphite', 'ornn', 'maokai', 'shen', 'braum', 'alistar', 'leona', 'nautilus'];
+  if (tanks.includes(name) && (keywords.includes('tank') || keywords.includes('frontline') || keywords.includes('protect'))) {
+    bonus += 15;
+  }
+  
+  // サポート系チャンピオン
+  const supports = ['soraka', 'lulu', 'janna', 'nami', 'sona', 'yuumi'];
+  if (supports.includes(name) && (keywords.includes('support') || keywords.includes('utility') || keywords.includes('peel'))) {
+    bonus += 15;
+  }
+  
+  // メイジ系チャンピオン
+  const mages = ['syndra', 'orianna', 'azir', 'viktor', 'xerath', 'velkoz', 'ziggs'];
+  if (mages.includes(name) && (keywords.includes('poke') || keywords.includes('strategic') || keywords.includes('long'))) {
+    bonus += 15;
+  }
+  
+  // ファイター系チャンピオン
+  const fighters = ['darius', 'garen', 'jax', 'irelia', 'riven', 'fiora', 'camille'];
+  if (fighters.includes(name) && (keywords.includes('fighter') || keywords.includes('melee') || keywords.includes('duelist'))) {
+    bonus += 15;
+  }
+  
+  // ADC系チャンピオン
+  const adcs = ['jinx', 'caitlyn', 'ashe', 'vayne', 'kaisa', 'ezreal', 'lucian'];
+  if (adcs.includes(name) && (keywords.includes('ranged') || keywords.includes('damage') || keywords.includes('carry'))) {
+    bonus += 15;
+  }
+  
+  // 序盤強い系
+  const earlyGame = ['pantheon', 'renekton', 'draven', 'leblanc', 'elise'];
+  if (earlyGame.includes(name) && (keywords.includes('early') || keywords.includes('aggressive'))) {
+    bonus += 10;
+  }
+  
+  // 後半強い系
+  const lateGame = ['kayle', 'nasus', 'veigar', 'kassadin', 'vayne'];
+  if (lateGame.includes(name) && (keywords.includes('late') || keywords.includes('scaling'))) {
+    bonus += 10;
+  }
+  
+  return bonus;
+}
+
+// 結果画面を表示（v9 - 全172体対応）
+function displayResult(moodType) {
+  const resultMessage = moodResultMessages[moodType];
+  
+  // 全172体のチャンピオンを候補にする
+  let allChampions = [
+    ...championsByMood.aggressive,
+    ...championsByMood.supportive,
+    ...championsByMood.tactical,
+    ...championsByMood.balanced
+  ];
+  
+  console.log(`🎯 全${allChampions.length}体のチャンピオンから選択します`);
+  
+  // レーンで絞り込み（オプション）
+  if (selectedLane) {
+    allChampions = filterChampionsByLane(allChampions, selectedLane);
+    console.log(`🎯 ${selectedLane}レーンで絞り込み: ${allChampions.length}体`);
+  }
+  
+  // 各チャンピオンのタイプを取得してスコアを計算
+  const championScores = allChampions.map(champion => {
+    // チャンピオンがどのタイプに属しているか判定
+    const championType = getChampionType(champion);
+    
+    // タイプ一致ボーナス（診断結果と同じタイプなら +50点）
+    const typeMatchBonus = (championType === moodType) ? 50 : 0;
+    
+    return {
+      ...champion,
+      championType: championType,  // デバッグ用
+      score: calculateChampionScore(champion, moodType) + typeMatchBonus
+    };
+  });
+  
+  // スコアでソート（降順）
+  championScores.sort((a, b) => b.score - a.score);
+  
+  // トップ3を取得
+  const top3Champions = championScores.slice(0, 3);
+  
+  console.log('🏆 トップ3チャンピオン:', top3Champions.map((c, i) => `${i+1}位: ${c.nameJa} (${c.score.toFixed(1)}点)`));
+  
+  // タイトルと説明
+  document.getElementById('mood-result-title').innerHTML = `${resultMessage.emoji} ${resultMessage.title}`;
+  
+  let description = resultMessage.description;
+  description += `<br><span style="color: #888; font-size: 0.9em;">✨ 全172体のチャンピオンから選出</span>`;
+  
+  if (selectedLane) {
+    const laneKey = `moodQuiz.${selectedLane}`;
+    const laneName = t(laneKey) || selectedLane;
+    description += `<br><span style="color: var(--primary-color);">🎯 ${laneName}${t('moodQuiz.fromLane') || 'のチャンピオンから選びました'}</span>`;
+  }
+  document.getElementById('mood-result-description').innerHTML = description;
+  
+  // スコアグラフを表示
+  displayScoreChart();
+  
+  // おすすめチャンピオンを順位付きで表示
+  const championList = document.getElementById('mood-champion-list');
+  championList.innerHTML = '';
+  
+  // トップ3を順位付きで表示
+  top3Champions.forEach((champion, index) => {
+    const rank = index + 1;
+    const championCard = createRankedChampionCard(champion, rank);
+    championList.appendChild(championCard);
+  });
+  
+  // 「すべて見る」ボタンを追加
+  const showAllButton = document.createElement('button');
+  showAllButton.className = 'mood-show-all-btn';
+  const showAllText = t('moodQuiz.showAll') || 'すべて見る';
+  showAllButton.innerHTML = `📋 ${showAllText}（${t('moodQuiz.total') || '全'}${allChampions.length}${t('moodQuiz.champions') || '体'}）`;
+  showAllButton.onclick = () => showAllChampions(moodType, championScores);
+  championList.appendChild(showAllButton);
+  
+  console.log('✅ 結果画面を表示しました');
+}
+
+// チャンピオンのタイプを取得（v9 - 全172体対応）
+function getChampionType(champion) {
+  // 各タイプのリストをチェックして、チャンピオンがどのタイプに属しているか判定
+  if (championsByMood.aggressive.some(c => c.name === champion.name)) {
+    return 'aggressive';
+  }
+  if (championsByMood.supportive.some(c => c.name === champion.name)) {
+    return 'supportive';
+  }
+  if (championsByMood.tactical.some(c => c.name === champion.name)) {
+    return 'tactical';
+  }
+  if (championsByMood.balanced.some(c => c.name === champion.name)) {
+    return 'balanced';
+  }
+  return 'balanced'; // デフォルト
+}
+
+// レーンでチャンピオンを絞り込む（v5 - lanes配列対応）
+function filterChampionsByLane(champions, lane) {
+  // lanes配列を持つチャンピオンをフィルタリング
+  const filtered = champions.filter(champion => {
+    if (!champion.lanes || !Array.isArray(champion.lanes)) {
+      return false;
+    }
+    // 選択されたレーンがlanes配列に含まれているかチェック
+    return champion.lanes.some(l => l.lane === lane);
+  });
+  
+  console.log(`  絞り込み結果: ${filtered.length}体 (元: ${champions.length}体)`);
+  
+  // 絞り込み結果が少なすぎる場合は全体を返す（最低3体確保）
+  return filtered.length >= 3 ? filtered : champions;
+}
+
+// 順位付きチャンピオンカードを作成（v5 - レーン情報表示対応）
+function createRankedChampionCard(champion, rank) {
+  const card = document.createElement('div');
+  card.className = `mood-champion-card mood-rank-${rank}`;
+  
+  const imageUrl = `https://ddragon.leagueoflegends.com/cdn/13.24.1/img/champion/${champion.image}.png`;
+  
+  const medals = { 1: '🥇', 2: '🥈', 3: '🥉' };
+  const rankText = {
+    1: t('moodQuiz.rank1') || '1位',
+    2: t('moodQuiz.rank2') || '2位',
+    3: t('moodQuiz.rank3') || '3位'
+  };
+  
+  // レーン情報を生成
+  const roleText = getLaneDisplayText(champion, selectedLane);
+  
+  card.innerHTML = `
+    <div class="mood-rank-badge">${medals[rank]} ${rankText[rank]}</div>
+    <div class="mood-champion-image">
+      <img src="${imageUrl}" alt="${champion.nameJa}" onerror="this.src='https://via.placeholder.com/120x120?text=${champion.name}'">
+    </div>
+    <div class="mood-champion-info">
+      <h3 class="mood-champion-name">${champion.nameJa}</h3>
+      <p class="mood-champion-name-en">${champion.name}</p>
+      <p class="mood-champion-role">${roleText}</p>
+      <p class="mood-champion-description">${champion.description}</p>
+      <p class="mood-champion-score">${t('moodQuiz.compatibility') || '適合度'}: ${champion.score.toFixed(1)}${t('moodQuiz.points') || '点'}</p>
+    </div>
+  `;
+  
+  return card;
+}
+
+// 通常のチャンピオンカードを作成（v5 - レーン情報表示対応）
+function createChampionCard(champion) {
+  const card = document.createElement('div');
+  card.className = 'mood-champion-card';
+  
+  const imageUrl = `https://ddragon.leagueoflegends.com/cdn/13.24.1/img/champion/${champion.image}.png`;
+  
+  // レーン情報を生成
+  const roleText = getLaneDisplayText(champion, selectedLane);
+  
+  card.innerHTML = `
+    <div class="mood-champion-image">
+      <img src="${imageUrl}" alt="${champion.nameJa}" onerror="this.src='https://via.placeholder.com/120x120?text=${champion.name}'">
+    </div>
+    <div class="mood-champion-info">
+      <h3 class="mood-champion-name">${champion.nameJa}</h3>
+      <p class="mood-champion-name-en">${champion.name}</p>
+      <p class="mood-champion-role">${roleText}</p>
+      <p class="mood-champion-description">${champion.description}</p>
+      <p class="mood-champion-score">${t('moodQuiz.compatibility') || '適合度'}: ${champion.score.toFixed(1)}${t('moodQuiz.points') || '点'}</p>
+    </div>
+  `;
+  
+  return card;
+}
+
+// レーン情報の表示テキストを生成
+function getLaneDisplayText(champion, selectedLane) {
+  if (!champion.lanes || !Array.isArray(champion.lanes)) {
+    return champion.role || '—';
+  }
+  
+  const laneNames = {
+    'top': 'トップ',
+    'jungle': 'ジャングル',
+    'mid': 'ミッド',
+    'adc': 'ADC',
+    'support': 'サポート'
+  };
+  
+  const priorityLabels = {
+    'main': '',
+    'viable': ' (サブ)',
+    'niche': ' (ニッチ)',
+    'off-meta': ' (オフメタ)'
+  };
+  
+  // 選択されたレーンがある場合、そのレーンを強調表示
+  if (selectedLane) {
+    const matchedLane = champion.lanes.find(l => l.lane === selectedLane);
+    if (matchedLane) {
+      const laneName = laneNames[matchedLane.lane];
+      const label = priorityLabels[matchedLane.priority];
+      return `${laneName}${label}`;
+    }
+  }
+  
+  // メインレーンのみ表示
+  const mainLanes = champion.lanes
+    .filter(l => l.priority === 'main')
+    .map(l => laneNames[l.lane])
+    .join('/');
+  
+  return mainLanes || '—';
+}
+
+// スコアチャートを表示
+function displayScoreChart() {
+  const chartContainer = document.getElementById('mood-score-chart');
+  chartContainer.innerHTML = '';
+  
+  const maxScore = Math.max(...Object.values(moodScores));
+  
+  const scoreLabels = {
+    aggressive: '⚔️ アグレッシブ',
+    supportive: '💖 サポーティブ',
+    tactical: '🧠 タクティカル'
+  };
+  
+  Object.keys(moodScores).forEach(type => {
+    const score = moodScores[type];
+    const percentage = maxScore > 0 ? (score / maxScore) * 100 : 0;
+    
+    const barContainer = document.createElement('div');
+    barContainer.className = 'mood-score-bar-container';
+    
+    barContainer.innerHTML = `
+      <div class="mood-score-label">${scoreLabels[type]}</div>
+      <div class="mood-score-bar-wrapper">
+        <div class="mood-score-bar mood-score-${type}" style="width: ${percentage}%"></div>
+      </div>
+      <div class="mood-score-value">${score}</div>
+    `;
+    
+    chartContainer.appendChild(barContainer);
+  });
+}
+
+// すべてのチャンピオンを表示
+function showAllChampions(moodType, championScores) {
+  const championList = document.getElementById('mood-champion-list');
+  championList.innerHTML = '';
+  
+  // ヘッダーを追加
+  const header = document.createElement('div');
+  header.className = 'mood-all-champions-header';
+  header.innerHTML = `
+    <h3>📋 ${moodResultMessages[moodType].emoji} ${moodResultMessages[moodType].title} - 全${championScores.length}体</h3>
+    <p>あなたにおすすめのチャンピオン一覧です（適合度順）</p>
+  `;
+  championList.appendChild(header);
+  
+  // すべてのチャンピオンを表示
+  championScores.forEach(champion => {
+    const championCard = createChampionCard(champion);
+    championList.appendChild(championCard);
+  });
+  
+  // 「戻る」ボタンを追加
+  const backButton = document.createElement('button');
+  backButton.className = 'mood-back-btn';
+  backButton.textContent = '🔙 最初の表示に戻る';
+  backButton.onclick = () => displayResult(moodType);
+  championList.appendChild(backButton);
+  
+  // 一番上にスクロール
+  championList.scrollTop = 0;
+  
+  console.log(`✅ 全${championScores.length}体のチャンピオンを表示しました`);
+}
+
+// もう一度診断
+function retryMoodQuiz() {
+  startMoodQuiz();
+}
+
+// ホームに戻る
+function backToMoodQuizHome() {
+  showScreen('mood-quiz-home-screen');
+}
+
+// 診断を終了してモード選択へ
+function exitMoodQuiz() {
+  if (confirm('気分診断を終了しますか？')) {
+    showScreen('mode-select-screen');
+  }
+}
+
+// グローバルスコープに主要関数を露出
+window.retryMoodQuiz = retryMoodQuiz;
+window.backToMoodQuizHome = backToMoodQuizHome;
+window.exitMoodQuiz = exitMoodQuiz;
+window.goBackQuestion = goBackQuestion;
+
+console.log('✅ 気分診断ロジックを読み込みました（v9 - 全172体対応版 - マルチレーン対応 & 順位表示）');
+console.log('✅ startMoodQuiz 関数が定義されました:', typeof startMoodQuiz);
+console.log('✅ グローバルスコープに登録されました:', typeof window.startMoodQuiz);
+console.log('📦 登録された関数:', {
+  startMoodQuiz: typeof window.startMoodQuiz,
+  retryMoodQuiz: typeof window.retryMoodQuiz,
+  backToMoodQuizHome: typeof window.backToMoodQuizHome,
+  exitMoodQuiz: typeof window.exitMoodQuiz,
+  goBackQuestion: typeof window.goBackQuestion
+});
+console.log('🌟 新機能: 全172体のチャンピオンから最適なマッチを選択します！');
