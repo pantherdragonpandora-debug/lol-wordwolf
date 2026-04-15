@@ -12,6 +12,8 @@
     max-width: 1200px;
     margin: 0 auto;
     padding: 2rem 1rem;
+    min-height: calc(100vh - 200px); /* 画面の高さ分のエリアを確保 */
+    touch-action: manipulation; /* タッチ操作を最適化 */
 }
 
 /* スタート画面オーバーレイ（全画面・スクロール可能） */
@@ -567,20 +569,22 @@
 
 /* スタートに戻るボタン */
 .back-to-start-button {
-    position: absolute;
-    top: 1rem;
+    position: fixed;
+    top: auto;
+    bottom: 1rem;
     right: 1rem;
-    background: rgba(231, 76, 60, 0.8);
+    background: rgba(231, 76, 60, 0.9);
     color: #fff;
     border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    font-size: 0.9rem;
+    padding: 0.6rem 1.2rem;
+    border-radius: 10px;
+    font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    z-index: 7;
+    z-index: 1000;
     pointer-events: auto;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .back-to-start-button:hover {
@@ -680,6 +684,7 @@
 @media (max-width: 768px) {
     .evolution-main {
         padding: 1rem 0.5rem;
+        min-height: calc(100vh - 150px); /* モバイルでも十分な高さを確保 */
     }
     
     .screen-overlay {
@@ -753,6 +758,14 @@
     
     .stages-list {
         grid-template-columns: 1fr;
+    }
+    
+    /* スタートに戻るボタンのモバイル調整 */
+    .back-to-start-button {
+        bottom: 0.5rem;
+        right: 0.5rem;
+        font-size: 0.75rem;
+        padding: 0.5rem 1rem;
     }
 }
 
