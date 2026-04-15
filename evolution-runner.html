@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="生命の進化を体験する横スクロールランナーゲーム - 宇宙から地球へ、そして再び宇宙へ">
+    <title>Evolution Runner - 生命進化ランナー | Esports ワードウルフ</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/evolution-runner.css">
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header>
+        <div class="header-content">
+            <h1 id="site-title" style="cursor: pointer;" onclick="window.location.href='index.html'">🌍 Evolution Runner</h1>
+            <nav class="header-nav">
+                <a href="index.html" class="nav-link">🏠 ホーム</a>
+                <a href="games.html" class="nav-link">📖 ゲーム紹介</a>
+                <a href="how-to-play.html" class="nav-link">❓ 遊び方</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- メインコンテンツ -->
+    <main class="evolution-main">
+        
+        <!-- スタート画面（独立表示） -->
+        <div id="start-screen-overlay" class="screen-overlay">
+            <div class="screen-overlay-content">
+                <div class="screen-content">
+                    <h1 class="game-title">🌌 Evolution Runner</h1>
+                    <h2 class="game-subtitle">生命進化ランナー</h2>
+                    
+                    <div class="story-intro">
+                        <p class="story-text">138億年前、ビッグバンから全てが始まった...</p>
+                        <p class="story-text">46億年前、太陽系が形成され、地球が誕生した</p>
+                        <p class="story-text">そして今、宇宙からの訪問者が地球に降り立とうとしている</p>
+                        <p class="story-text">あなたは、地球の歴史を駆け抜ける旅に出る...</p>
+                    </div>
+                    
+                    <div class="controls-info">
+                        <h3>🎮 操作方法</h3>
+                        <div class="control-item">
+                            <span class="key">スペース</span>
+                            <span class="action">ジャンプ / 二段ジャンプ</span>
+                        </div>
+                        <div class="control-item">
+                            <span class="key">タップ/クリック</span>
+                            <span class="action">ジャンプ（モバイル）</span>
+                        </div>
+                    </div>
+                    
+                    <button id="start-button" class="game-button start-button">
+                        🚀 冒険を始める
+                    </button>
+                    
+                    <button id="view-ranking-button" class="game-button ranking-button">
+                        🏆 ランキングを見る
+                    </button>
+                    
+                    <div class="game-info">
+                        <p>スコアを稼いで世界を進化させよう</p>
+                        <p>どこまで到達できるか挑戦してみよう！</p>
+                    </div>
+                </div>
+                
+                <!-- ゲーム説明（スタート画面内） -->
+                <div class="game-description-inline">
+                    <h2>🌍 ゲームについて</h2>
+                    <p>
+                        宇宙から地球に降り立った生命体となり、地球の46億年の歴史を駆け抜けるランナーゲーム。
+                    </p>
+                    <p>
+                        スコアを稼ぐことで時代が進化し、背景や世界の様子が変化していきます。
+                    </p>
+                    <p>
+                        一体どんな世界が待っているのか？最後まで到達して、その目で確かめてみてください！
+                    </p>
+                    
+                    <h3>💡 ヒント</h3>
+                    <ul>
+                        <li>スペースキーを押すとジャンプ、空中でもう一度押すと二段ジャンプ！</li>
+                        <li>低い障害物は通常ジャンプ、高い障害物は二段ジャンプで避けましょう</li>
+                        <li>時代が進むほど難易度が上がります</li>
+                        <li>障害物の形や背景が変化していきます</li>
+                        <li>記録に挑戦！最高スコアを目指そう</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ゲームキャンバス -->
+        <div class="game-container">
+            <canvas id="gameCanvas" width="800" height="400"></canvas>
+            
+            <!-- ゲームオーバー画面 -->
+            <div id="gameover-screen" class="screen" style="display: none;">
+                <div class="screen-content">
+                    <h1 class="gameover-title">💀 Game Over</h1>
+                    <h2 id="gameover-stage" class="gameover-stage"></h2>
+                    
+                    <div class="score-display">
+                        <p class="score-label">最終スコア</p>
+                        <p id="final-score" class="final-score">0</p>
+                    </div>
+                    
+                    <div class="high-score-display">
+                        <p class="high-score-label">🏆 最高記録</p>
+                        <p id="high-score" class="high-score">0</p>
+                    </div>
+                    
+                    <p id="gameover-message" class="gameover-message"></p>
+                    
+                    <!-- ランキング登録フォーム -->
+                    <div id="ranking-form" class="ranking-form" style="display: none;">
+                        <h3 class="ranking-form-title">🏆 ランキングに登録</h3>
+                        <input 
+                            type="text" 
+                            id="player-name-input" 
+                            class="player-name-input" 
+                            placeholder="名前を入力（10文字まで）" 
+                            maxlength="10"
+                        />
+                        <button id="submit-ranking-button" class="game-button submit-button">
+                            📝 登録する
+                        </button>
+                    </div>
+                    
+                    <!-- ランキング表示 -->
+                    <div id="ranking-display" class="ranking-display" style="display: none;">
+                        <h3 class="ranking-title">🏆 ハイスコアランキング TOP10</h3>
+                        <div id="ranking-list" class="ranking-list"></div>
+                    </div>
+                    
+                    <button id="restart-button" class="game-button restart-button">
+                        🔄 もう一度挑戦
+                    </button>
+                    
+                    <button onclick="window.location.href='index.html'" class="game-button home-button">
+                        🏠 ホームに戻る
+                    </button>
+                </div>
+            </div>
+            
+            <!-- HUD（ヘッドアップディスプレイ） -->
+            <div id="game-hud" style="display: none;">
+                <div class="hud-top">
+                    <div class="hud-score">
+                        <span class="hud-label">スコア</span>
+                        <span id="hud-score-value" class="hud-value">0</span>
+                    </div>
+                    <div class="hud-stage">
+                        <span id="hud-stage-name" class="hud-stage-name">生命誕生</span>
+                    </div>
+                    <div class="hud-high-score">
+                        <span class="hud-label">最高</span>
+                        <span id="hud-high-score-value" class="hud-value">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ランキングモーダル -->
+        <div id="ranking-modal" class="ranking-modal" style="display: none;">
+            <div class="ranking-modal-content">
+                <div class="ranking-modal-header">
+                    <h2 class="ranking-modal-title">🏆 ハイスコアランキング TOP10</h2>
+                    <button id="close-ranking-button" class="close-ranking-button">✕</button>
+                </div>
+                <div id="ranking-modal-list" class="ranking-modal-list">
+                    <!-- ランキングがここに表示される -->
+                </div>
+            </div>
+        </div>
+        
+    </main>
+
+    <!-- フッター -->
+    <footer style="text-align: center; padding: 2rem; color: var(--text-light); font-size: 0.9rem;">
+        <p>&copy; 2024 Esports ワードウルフ | Evolution Runner</p>
+        <p style="margin-top: 0.5rem;">
+            <a href="index.html" style="color: var(--primary-color); margin: 0 1rem;">ホーム</a>
+            <a href="games.html" style="color: var(--primary-color); margin: 0 1rem;">ゲーム一覧</a>
+        </p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="js/evolution-runner.js"></script>
+</body>
+</html>
