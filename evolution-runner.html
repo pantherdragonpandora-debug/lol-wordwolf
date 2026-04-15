@@ -7,8 +7,8 @@
     <title>Evolution Runner - 生命進化ランナー | Esports ワードウルフ</title>
     
     <!-- CSS -->
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/evolution-runner.css">
+    <link rel="stylesheet" href="css/style.css?v=20260415-2">
+    <link rel="stylesheet" href="css/evolution-runner.css?v=20260415-2">
 </head>
 <body>
     <!-- ヘッダー -->
@@ -99,6 +99,9 @@
         <div class="game-container">
             <canvas id="gameCanvas" width="800" height="400"></canvas>
             
+            <!-- タップエリア拡張用の透明オーバーレイ -->
+            <div id="tap-area-overlay" class="tap-area-overlay"></div>
+            
             <!-- ゲームオーバー画面 -->
             <div id="gameover-screen" class="screen" style="display: none;">
                 <div class="screen-content">
@@ -163,10 +166,6 @@
                         <span id="hud-high-score-value" class="hud-value">0</span>
                     </div>
                 </div>
-                <!-- スタートに戻るボタン -->
-                <button id="back-to-start-button" class="back-to-start-button">
-                    🏠 スタートに戻る
-                </button>
             </div>
             
             <!-- モバイル用タップヒント -->
@@ -174,6 +173,11 @@
                 📱 画面をタップでジャンプ
             </div>
         </div>
+        
+        <!-- スタートに戻るボタン（ゲームコンテナ外・固定位置） -->
+        <button id="back-to-start-button" class="back-to-start-button" style="display: none;">
+            🏠
+        </button>
         
         <!-- ランキングモーダル -->
         <div id="ranking-modal" class="ranking-modal" style="display: none;">
@@ -200,6 +204,6 @@
     </footer>
 
     <!-- JavaScript -->
-    <script src="js/evolution-runner.js"></script>
+    <script src="js/evolution-runner.js?v=20260415-2"></script>
 </body>
 </html>
