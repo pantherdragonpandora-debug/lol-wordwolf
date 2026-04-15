@@ -1,274 +1,258 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Esports ワードウルフの運営者情報、サイトの目的、運営方針、広告ポリシー、お問い合わせ先をご紹介します。">
-    <meta name="keywords" content="運営者情報, About, サイト運営, 広告ポリシー, お問い合わせ">
-    <title>運営者情報・About - Esports ワードウルフ</title>
-    <link rel="stylesheet" href="css/style.css">
-    <style>
-        .about-container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: var(--spacing-lg);
-        }
-        .about-section {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: var(--spacing-xl);
-            margin-bottom: var(--spacing-lg);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        }
-        .about-section h1 {
-            color: var(--primary-color);
-            font-size: 2.5rem;
-            margin-bottom: var(--spacing-md);
-            text-align: center;
-        }
-        .about-section h2 {
-            color: var(--primary-color);
-            font-size: 1.8rem;
-            margin-top: var(--spacing-lg);
-            margin-bottom: var(--spacing-md);
-            border-bottom: 2px solid var(--primary-color);
-            padding-bottom: var(--spacing-sm);
-        }
-        .about-section h3 {
-            color: var(--accent-color);
-            font-size: 1.4rem;
-            margin-top: var(--spacing-md);
-            margin-bottom: var(--spacing-sm);
-        }
-        .about-section p {
-            line-height: 1.8;
-            color: var(--text-light);
-            margin-bottom: var(--spacing-md);
-        }
-        .about-section ul {
-            padding-left: 30px;
-            line-height: 1.8;
-            color: var(--text-light);
-        }
-        .about-section ul li {
-            margin-bottom: var(--spacing-sm);
-        }
-        .highlight-box {
-            background: rgba(200, 155, 60, 0.1);
-            border-left: 4px solid var(--primary-color);
-            padding: var(--spacing-md);
-            margin: var(--spacing-md) 0;
-            border-radius: 8px;
-        }
-        .contact-box {
-            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-            padding: var(--spacing-xl);
-            border-radius: 12px;
-            text-align: center;
-            color: white;
-        }
-        .contact-box h2 {
-            color: white;
-            border-bottom: none;
-            margin-top: 0;
-        }
-        .contact-box a {
-            color: white;
-            text-decoration: underline;
-            font-weight: bold;
-        }
-        .back-link {
-            display: inline-block;
-            margin-top: var(--spacing-lg);
-            padding: var(--spacing-sm) var(--spacing-md);
-            background: var(--primary-color);
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            transition: transform 0.3s;
-        }
-        .back-link:hover {
-            transform: translateY(-2px);
-        }
-    </style>
-</head>
-<body>
-    <!-- ナビゲーションメニュー -->
-    <nav class="main-nav" style="margin-bottom: var(--spacing-lg);">
-        <div class="nav-content">
-            <a href="index.html" class="nav-link">🎮 ゲーム</a>
-            <a href="games.html" class="nav-link">📖 ゲーム紹介</a>
-            <a href="how-to-play.html" class="nav-link">❓ 遊び方</a>
-            <a href="blog.html" class="nav-link">✍️ ブログ</a>
-            <a href="faq.html" class="nav-link">💬 FAQ</a>
-            <a href="contact.html" class="nav-link">📧 お問い合わせ</a>
-            <a href="about.html" class="nav-link">👤 About</a>
-        </div>
-    </nav>
+// ========================================
+// SNSシェア機能
+// ========================================
 
-    <div class="about-container">
-        <div class="about-section">
-            <h1>🎮 運営者情報・About</h1>
-            
-            <h2>📖 サイトについて</h2>
-            <p>
-                <strong>「Esports ワードウルフ」</strong>は、League of LegendsとVALORANTをテーマにした、オンライン対戦型パーティーゲーム集です。
-                友達や家族と気軽に楽しめる、無料のブラウザゲームを提供しています。
-            </p>
-            <p>
-                本サイトは、eスポーツとパーティーゲームを愛するファンによって2024年に開設されました。
-                「ゲームを通じてコミュニケーションを楽しむ」をコンセプトに、アカウント登録不要で誰でも手軽に遊べるゲームを目指しています。
-            </p>
+/**
+ * シェア用テキストを生成
+ * @param {string} type - シェアタイプ（'result', 'character', 'collection'）
+ * @param {object} data - シェアするデータ
+ * @returns {object} { text: string, url: string }
+ */
+function generateShareText(type, data = {}) {
+    const baseUrl = window.location.origin + window.location.pathname;
+    let text = '';
+    
+    const translations = {
+        ja: {
+            result: `LoLセリフ当てクイズで${data.score}問正解！🎮\n現在のポイント: ${data.totalPoints}pt\n獲得チケット: ${data.tickets}枚 🎫`,
+            character: `★${data.rarity} ${data.rarityName}のキャラクターをゲット！✨\nID: ${data.characterId}\nコレクション: ${data.collectionCount}/${data.totalPossible}`,
+            collection: `LoLクイズキャラクターコレクション 📊\n所持数: ${data.collectionCount}/${data.totalPossible} (${data.percentage}%)\n★5: ${data.rarity5} | ★4: ${data.rarity4} | ★3: ${data.rarity3}`,
+            hashtag: '\n#LoLクイズ #LeagueOfLegends #LoL'
+        },
+        en: {
+            result: `I scored ${data.score} in LoL Quote Quiz! 🎮\nCurrent Points: ${data.totalPoints}pt\nTickets: ${data.tickets} 🎫`,
+            character: `Got a ★${data.rarity} ${data.rarityName} character! ✨\nID: ${data.characterId}\nCollection: ${data.collectionCount}/${data.totalPossible}`,
+            collection: `LoL Quiz Character Collection 📊\nTotal: ${data.collectionCount}/${data.totalPossible} (${data.percentage}%)\n★5: ${data.rarity5} | ★4: ${data.rarity4} | ★3: ${data.rarity3}`,
+            hashtag: '\n#LoLQuiz #LeagueOfLegends #LoL'
+        },
+        ko: {
+            result: `LoL 대사 퀴즈에서 ${data.score}문제 정답! 🎮\n현재 포인트: ${data.totalPoints}pt\n티켓: ${data.tickets}장 🎫`,
+            character: `★${data.rarity} ${data.rarityName} 캐릭터 획득! ✨\nID: ${data.characterId}\n컬렉션: ${data.collectionCount}/${data.totalPossible}`,
+            collection: `LoL 퀴즈 캐릭터 컬렉션 📊\n보유: ${data.collectionCount}/${data.totalPossible} (${data.percentage}%)\n★5: ${data.rarity5} | ★4: ${data.rarity4} | ★3: ${data.rarity3}`,
+            hashtag: '\n#LoL퀴즈 #리그오브레전드 #LoL'
+        },
+        zh: {
+            result: `LoL台词测验答对${data.score}题！🎮\n当前积分：${data.totalPoints}pt\n券：${data.tickets}张 🎫`,
+            character: `获得★${data.rarity} ${data.rarityName}角色！✨\nID: ${data.characterId}\n收藏：${data.collectionCount}/${data.totalPossible}`,
+            collection: `LoL测验角色收藏 📊\n拥有：${data.collectionCount}/${data.totalPossible} (${data.percentage}%)\n★5: ${data.rarity5} | ★4: ${data.rarity4} | ★3: ${data.rarity3}`,
+            hashtag: '\n#LoL测验 #英雄联盟 #LoL'
+        }
+    };
+    
+    const lang = getCurrentLanguage();
+    const t = translations[lang] || translations.ja;
+    
+    text = t[type] + t.hashtag;
+    
+    return {
+        text: text,
+        url: baseUrl
+    };
+}
 
-            <div class="highlight-box">
-                <strong>⚠️ 重要: 非公式ファンサイトです</strong><br>
-                本サイトは、Riot Games, Inc.が開発・運営する「League of Legends」「VALORANT」「Teamfight Tactics (TFT)」の非公式ファンサイトです。
-                Riot Games およびこれらのゲームタイトルとは一切関係ありません。
-                本サイトは Riot Games の "<a href="https://www.riotgames.com/en/legal" target="_blank" rel="noopener" style="color: var(--primary-color);">Legal Jibber Jabber</a>" ポリシーに準拠しています。
+/**
+ * Twitterでシェア
+ */
+function shareOnTwitter(type, data) {
+    const { text, url } = generateShareText(type, data);
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+    window.open(twitterUrl, '_blank', 'width=550,height=420');
+}
+
+/**
+ * LINEでシェア
+ */
+function shareOnLine(type, data) {
+    const { text, url } = generateShareText(type, data);
+    const lineUrl = `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
+    window.open(lineUrl, '_blank', 'width=550,height=420');
+}
+
+/**
+ * Facebookでシェア
+ */
+function shareOnFacebook(type, data) {
+    const { url } = generateShareText(type, data);
+    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+    window.open(facebookUrl, '_blank', 'width=550,height=420');
+}
+
+/**
+ * クリップボードにコピー
+ */
+async function copyToClipboard(type, data) {
+    const { text, url } = generateShareText(type, data);
+    const fullText = `${text}\n${url}`;
+    
+    try {
+        await navigator.clipboard.writeText(fullText);
+        showCopySuccess();
+        return true;
+    } catch (err) {
+        console.error('❌ クリップボードへのコピーに失敗:', err);
+        // フォールバック: テキストエリアを使用
+        const textArea = document.createElement('textarea');
+        textArea.value = fullText;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            showCopySuccess();
+            return true;
+        } catch (err2) {
+            document.body.removeChild(textArea);
+            alert('コピーに失敗しました。');
+            return false;
+        }
+    }
+}
+
+/**
+ * コピー成功時のフィードバック
+ */
+function showCopySuccess() {
+    const copyBtn = document.querySelector('.share-btn-copy');
+    if (copyBtn) {
+        const originalText = copyBtn.innerHTML;
+        copyBtn.classList.add('copied', 'success');
+        copyBtn.innerHTML = '<span class="share-icon">✓</span><span>コピー完了！</span>';
+        
+        setTimeout(() => {
+            copyBtn.classList.remove('copied', 'success');
+            copyBtn.innerHTML = originalText;
+        }, 2000);
+    }
+}
+
+/**
+ * シェアコンテナを生成
+ * @param {string} containerId - シェアボタンを配置するコンテナのID
+ * @param {string} type - シェアタイプ
+ * @param {object} data - シェアするデータ
+ */
+function createShareButtons(containerId, type, data) {
+    const container = document.getElementById(containerId);
+    if (!container) {
+        console.warn(`⚠️ シェアコンテナが見つかりません: ${containerId}`);
+        return;
+    }
+    
+    const lang = getCurrentLanguage();
+    const titles = {
+        ja: '結果をシェア',
+        en: 'Share Result',
+        ko: '결과 공유',
+        zh: '分享结果'
+    };
+    
+    const buttonLabels = {
+        ja: { twitter: 'X (Twitter)', line: 'LINE', facebook: 'Facebook', copy: 'コピー' },
+        en: { twitter: 'X (Twitter)', line: 'LINE', facebook: 'Facebook', copy: 'Copy' },
+        ko: { twitter: 'X (Twitter)', line: 'LINE', facebook: 'Facebook', copy: '복사' },
+        zh: { twitter: 'X (Twitter)', line: 'LINE', facebook: 'Facebook', copy: '复制' }
+    };
+    
+    const title = titles[lang] || titles.ja;
+    const labels = buttonLabels[lang] || buttonLabels.ja;
+    
+    container.innerHTML = `
+        <div class="share-container">
+            <div class="share-title">${title}</div>
+            <div class="share-buttons">
+                <button class="share-btn share-btn-twitter" onclick="shareOnTwitter('${type}', ${JSON.stringify(data).replace(/"/g, '&quot;')})">
+                    <span class="share-icon">🐦</span>
+                    <span>${labels.twitter}</span>
+                </button>
+                <button class="share-btn share-btn-line" onclick="shareOnLine('${type}', ${JSON.stringify(data).replace(/"/g, '&quot;')})">
+                    <span class="share-icon">💬</span>
+                    <span>${labels.line}</span>
+                </button>
+                <button class="share-btn share-btn-facebook" onclick="shareOnFacebook('${type}', ${JSON.stringify(data).replace(/"/g, '&quot;')})">
+                    <span class="share-icon">📘</span>
+                    <span>${labels.facebook}</span>
+                </button>
+                <button class="share-btn share-btn-copy" onclick="copyToClipboard('${type}', ${JSON.stringify(data).replace(/"/g, '&quot;')})">
+                    <span class="share-icon">📋</span>
+                    <span>${labels.copy}</span>
+                </button>
             </div>
-
-            <h2>🎯 サイトの目的</h2>
-            <ul>
-                <li><strong>コミュニケーションの促進:</strong> オンラインでも友達や家族と楽しくコミュニケーションできる場を提供します。</li>
-                <li><strong>eスポーツ文化の普及:</strong> League of LegendsやVALORANTをテーマにしたゲームを通じて、eスポーツの楽しさを広めます。</li>
-                <li><strong>無料・手軽に遊べる:</strong> アカウント登録不要、ブラウザだけで今すぐ始められます。</li>
-                <li><strong>多言語対応:</strong> 日本語、英語、韓国語、中国語に対応し、世界中のプレイヤーが楽しめます。</li>
-                <li><strong>教育的価値:</strong> 推理力、コミュニケーション能力、演技力、語彙力を育むゲーム設計。</li>
-            </ul>
-
-            <h2>🎮 提供するゲーム</h2>
-            <h3>1. ワードウルフ 🐺</h3>
-            <p>
-                隠れたウルフ（少数派）を見つけ出す推理ゲーム。LOL、VALORANT、TFTの3タイプ、合計225ペアのお題を収録。
-                心理戦とゲーム知識を駆使して勝利を目指します。
-            </p>
-
-            <h3>2. デマーシアに心を込めて 💖</h3>
-            <p>
-                有名なセリフを指定されたシチュエーションで演じるゲーム。LOLとVALORANTそれぞれ60種類のセリフ × 6シチュエーション = 360パターン。
-                演技力と推理力が試される笑いありのパーティーゲームです。
-            </p>
-
-            <h3>3. ヴォイドに届くは光か闇か 🌌</h3>
-            <p>
-                連想ワードを伝えてテーマを当てる伝言ゲーム。LOL 25テーマ、VALORANT 15テーマを収録。
-                言葉がどう変化していくかが見どころです。
-            </p>
-
-            <h3>4. 気分診断チャンピオン選択 🎭</h3>
-            <p>
-                今の気分やプレイスタイルから、最適なLeague of Legendsチャンピオンを診断するツール。
-                全172体のチャンピオンがスコアリング対象で、あなたにピッタリのチャンピオンを提案します。
-            </p>
-
-            <h2>📊 運営方針</h2>
-            <h3>完全無料</h3>
-            <p>
-                すべてのゲームが完全無料で遊び放題です。有料課金やアカウント登録は一切必要ありません。
-            </p>
-
-            <h3>広告について</h3>
-            <p>
-                サイトの運営費（サーバー費用、ドメイン費用、開発費用など）をカバーするため、Google AdSenseによる広告を掲載しています。
-                広告は控えめに配置し、ゲームプレイの邪魔にならないよう配慮しています。
-            </p>
-
-            <h3>プライバシーとデータ保護</h3>
-            <p>
-                本サイトは、ユーザーのプライバシーを尊重します。収集する情報は以下の通りです：
-            </p>
-            <ul>
-                <li><strong>ゲームプレイデータ:</strong> ルーム作成・参加時の一時的なプレイヤー名とルームID（Firebase Realtime Database に保存、ゲーム終了後に削除）。</li>
-                <li><strong>言語設定:</strong> 選択した言語をブラウザのローカルストレージに保存（端末内のみ、サーバーには送信されません）。</li>
-                <li><strong>アクセス解析:</strong> Google Analyticsを使用して、訪問者数やページビューを匿名で集計しています。</li>
-                <li><strong>広告関連:</strong> Google AdSenseが広告配信のためにCookieを使用する場合があります。</li>
-            </ul>
-            <p>
-                詳細は<a href="privacy.html" style="color: var(--primary-color);">プライバシーポリシー</a>をご確認ください。
-            </p>
-
-            <h3>安全で健全なコンテンツ</h3>
-            <p>
-                本サイトは、すべての年齢層が安心して楽しめる健全なコンテンツを提供します。
-                暴力的、性的、差別的なコンテンツは一切含まれていません。
-            </p>
-
-            <h2>👨‍💻 運営者について</h2>
-            <p>
-                本サイトは、eスポーツとオンラインゲームを愛する個人開発者によって運営されています。
-                League of LegendsとVALORANTのファンコミュニティを盛り上げるため、日々サイトの改善と新機能の追加に取り組んでいます。
-            </p>
-
-            <h3>開発・運営体制</h3>
-            <ul>
-                <li><strong>開発:</strong> HTML5, CSS3, JavaScript (Vanilla JS)</li>
-                <li><strong>バックエンド:</strong> Firebase Realtime Database</li>
-                <li><strong>ホスティング:</strong> 高速で安定したWebホスティングサービスを使用</li>
-                <li><strong>更新頻度:</strong> 定期的にバグ修正、新機能追加、コンテンツ拡充を実施</li>
-            </ul>
-
-            <h2>📜 法的情報</h2>
-            <ul>
-                <li><a href="privacy.html" style="color: var(--primary-color);">プライバシーポリシー</a></li>
-                <li><a href="terms.html" style="color: var(--primary-color);">利用規約</a></li>
-                <li><a href="faq.html" style="color: var(--primary-color);">よくある質問（FAQ）</a></li>
-                <li><a href="contact.html" style="color: var(--primary-color);">お問い合わせ</a></li>
-            </ul>
-
-            <h2>🌍 多言語対応</h2>
-            <p>
-                本サイトは、以下の言語に対応しています：
-            </p>
-            <ul>
-                <li>🇯🇵 日本語 (Japanese)</li>
-                <li>🇺🇸 英語 (English)</li>
-                <li>🇰🇷 韓国語 (한국어)</li>
-                <li>🇨🇳 中国語簡体字 (中文簡体)</li>
-            </ul>
-            <p>
-                ヘッダーの言語切り替えボタンで、いつでも言語を変更できます。
-            </p>
-
-            <h2>🔄 更新履歴</h2>
-            <ul>
-                <li><strong>2026年2月:</strong> 気分診断チャンピオン選択 v9 リリース（全172体対応）</li>
-                <li><strong>2026年2月:</strong> スマホでのボタン操作不具合を修正</li>
-                <li><strong>2026年2月:</strong> 全ページ多言語対応完了（日英韓中）</li>
-                <li><strong>2024年:</strong> サイトオープン、ワードウルフ・デマーシア・ヴォイド・気分診断の4モード公開</li>
-            </ul>
-
-            <h2>🙏 謝辞</h2>
-            <p>
-                本サイトは、League of LegendsとVALORANTの素晴らしいゲーム体験と、Riot Gamesのファンコミュニティへの寛容な姿勢に感謝しています。
-                また、サイトを訪れて遊んでくださるすべてのプレイヤーの皆様に心から感謝いたします。
-            </p>
-            <p>
-                今後もより楽しいゲーム体験を提供できるよう、開発と改善を続けていきます。
-                ご意見・ご要望がございましたら、お気軽に<a href="contact.html" style="color: var(--primary-color);">お問い合わせ</a>ください。
-            </p>
         </div>
+    `;
+}
 
-        <div class="contact-box">
-            <h2>📧 お問い合わせ</h2>
-            <p style="color: white; margin-bottom: var(--spacing-md);">
-                バグ報告、機能リクエスト、ご質問など、お気軽にお問い合わせください。
-            </p>
-            <a href="contact.html" style="display: inline-block; padding: var(--spacing-md) var(--spacing-xl); background: white; color: var(--primary-color); text-decoration: none; border-radius: 8px; font-weight: bold; margin-top: var(--spacing-sm);">
-                📧 お問い合わせフォームへ
-            </a>
-        </div>
+/**
+ * 現在の言語を取得
+ */
+function getCurrentLanguage() {
+    return window.currentLanguage || 'ja';
+}
 
-        <a href="index.html" class="back-link">← トップページに戻る</a>
-    </div>
+// ========================================
+// 自動シェアボタン生成
+// ========================================
 
-    <!-- 多言語対応スクリプト -->
-    <script src="js/i18n.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            if (typeof initLanguage === 'function') {
-                initLanguage();
-            }
-        });
-    </script>
-</body>
-</html>
+/**
+ * クイズ結果画面にシェアボタンを追加
+ */
+function addShareButtonsToResult() {
+    const resultScreen = document.getElementById('result-screen');
+    if (!resultScreen) return;
+    
+    // シェアコンテナがない場合は作成
+    let shareContainer = document.getElementById('result-share-container');
+    if (!shareContainer) {
+        shareContainer = document.createElement('div');
+        shareContainer.id = 'result-share-container';
+        
+        const container = resultScreen.querySelector('.container');
+        const nextButton = resultScreen.querySelector('.btn-primary');
+        if (container && nextButton) {
+            container.insertBefore(shareContainer, nextButton);
+        }
+    }
+}
+
+/**
+ * キャラクター生成画面にシェアボタンを追加
+ */
+function addShareButtonsToGeneration() {
+    const generationScreen = document.getElementById('generation-screen');
+    if (!generationScreen) return;
+    
+    let shareContainer = document.getElementById('generation-share-container');
+    if (!shareContainer) {
+        shareContainer = document.createElement('div');
+        shareContainer.id = 'generation-share-container';
+        
+        const container = generationScreen.querySelector('.container');
+        const downloadBtn = generationScreen.querySelector('.btn-primary');
+        if (container && downloadBtn) {
+            container.insertBefore(shareContainer, downloadBtn.parentElement);
+        }
+    }
+}
+
+/**
+ * コレクション画面にシェアボタンを追加
+ */
+function addShareButtonsToCollection() {
+    const collectionScreen = document.getElementById('collection-screen');
+    if (!collectionScreen) return;
+    
+    let shareContainer = document.getElementById('collection-share-container');
+    if (!shareContainer) {
+        shareContainer = document.createElement('div');
+        shareContainer.id = 'collection-share-container';
+        
+        const container = collectionScreen.querySelector('.container');
+        const statsContainer = document.getElementById('rarity-stats-container');
+        if (container && statsContainer) {
+            container.insertBefore(shareContainer, statsContainer.nextSibling);
+        }
+    }
+}
+
+console.log('✅ SNSシェア機能が読み込まれました');

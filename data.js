@@ -565,6 +565,29 @@
     text-shadow: 0 0 10px rgba(74, 144, 226, 0.5);
 }
 
+/* スタートに戻るボタン */
+.back-to-start-button {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(231, 76, 60, 0.8);
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 7;
+    pointer-events: auto;
+}
+
+.back-to-start-button:hover {
+    background: rgba(231, 76, 60, 1);
+    transform: scale(1.05);
+}
+
 /* モバイル用タップヒント */
 .mobile-tap-hint {
     position: absolute;
