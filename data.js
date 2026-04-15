@@ -104,6 +104,22 @@
     image-rendering: crisp-edges;
 }
 
+/* タップエリア拡張用オーバーレイ */
+.tap-area-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100px; /* padding-bottomと同じ高さ */
+    background: transparent;
+    /* デバッグ用: background: rgba(0, 255, 0, 0.2); */
+    cursor: pointer;
+    z-index: 8; /* HUDより上に変更 */
+    pointer-events: auto;
+    display: none; /* 初期状態は非表示 */
+    touch-action: manipulation; /* タッチ操作を最適化 */
+}
+
 /* ゲームオーバー画面（ゲームコンテナ内・スクロール可能） */
 .screen {
     position: absolute;
@@ -567,29 +583,34 @@
     text-shadow: 0 0 10px rgba(74, 144, 226, 0.5);
 }
 
-/* スタートに戻るボタン */
+/* スタートに戻るボタン（画面右下固定・コンパクト） */
 .back-to-start-button {
     position: fixed;
-    top: auto;
-    bottom: 1rem;
-    right: 1rem;
-    background: rgba(231, 76, 60, 0.9);
+    bottom: 1.5rem;
+    right: 1.5rem;
+    background: rgba(231, 76, 60, 0.95);
     color: #fff;
-    border: none;
-    padding: 0.6rem 1.2rem;
-    border-radius: 10px;
-    font-size: 0.85rem;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    padding: 0.8rem;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    z-index: 1000;
+    z-index: 9998; /* スタート画面より下、他の要素より上 */
     pointer-events: auto;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .back-to-start-button:hover {
-    background: rgba(231, 76, 60, 1);
-    transform: scale(1.05);
+    background: rgba(192, 57, 43, 1);
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(231, 76, 60, 0.6);
 }
 
 /* モバイル用タップヒント */
@@ -762,10 +783,12 @@
     
     /* スタートに戻るボタンのモバイル調整 */
     .back-to-start-button {
-        bottom: 0.5rem;
-        right: 0.5rem;
-        font-size: 0.75rem;
-        padding: 0.5rem 1rem;
+        bottom: 1rem;
+        right: 1rem;
+        width: 45px;
+        height: 45px;
+        font-size: 1.3rem;
+        padding: 0.6rem;
     }
 }
 
