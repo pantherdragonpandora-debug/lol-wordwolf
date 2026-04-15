@@ -120,6 +120,64 @@
     touch-action: manipulation; /* タッチ操作を最適化 */
 }
 
+/* スマホ専用ジャンプボタン */
+.mobile-jump-button {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 300px;
+    height: 80px;
+    background: linear-gradient(135deg, #50E3C2 0%, #4A90E2 100%);
+    border: 3px solid rgba(255, 255, 255, 0.5);
+    border-radius: 15px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), inset 0 2px 10px rgba(255, 255, 255, 0.3);
+    cursor: pointer;
+    z-index: 9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-jump-button:active {
+    transform: translateX(-50%) scale(0.95);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3), inset 0 2px 10px rgba(255, 255, 255, 0.3);
+}
+
+.jump-button-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.jump-icon {
+    font-size: 2rem;
+    line-height: 1;
+    animation: bounce 1s infinite;
+}
+
+.jump-text {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
 /* ゲームオーバー画面（ゲームコンテナ内・スクロール可能） */
 .screen {
     position: absolute;
